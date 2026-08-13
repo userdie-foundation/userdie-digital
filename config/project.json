@@ -1,0 +1,11 @@
+{
+  "project": "USERDIE Digital",
+  "organization": "Благотворительный фонд «УСЕРДИЕ»",
+  "version": "0.2.0",
+  "release": "Foundation Core",
+  "status": "development",
+  "architecture": "modular",
+  "documentation": true,
+  "security_first": true,
+  "repository": "userdie-foundation/userdie-digital"
+}
