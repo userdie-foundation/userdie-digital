@@ -14,9 +14,9 @@ export type UpdateProgramInput = {
   endDate?: string;
 };
 
-export type ProgramRepository = {
+eexport type ProgramRepository = {
   create(
-    input: CreateProgramInput,
+    program: Program,
   ): Promise<Program>;
 
   findById(
