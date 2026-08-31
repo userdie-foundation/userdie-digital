@@ -26,5 +26,5 @@ export type ProgramRepository = {
   update(
     id: ID,
     input: UpdateProgramInput,
-  ): Promise<Program>;
+  ): Promise<Program | null>;
 };
