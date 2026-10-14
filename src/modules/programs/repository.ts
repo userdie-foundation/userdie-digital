@@ -10,12 +10,14 @@ export class InMemoryProgramRepository
   private readonly programs = new Map<string, Program>();
 
   async create(program: Program): Promise<Program> {
-    this.programs.set(program.id, program);
-    return program;
+    const stored = { ...program };
+    this.programs.set(stored.id, stored);
+    return { ...stored };
   }
 
   async findById(id: string): Promise<Program | null> {
-    return this.programs.get(id) ?? null;
+    const program = this.programs.get(id);
+    return program ? { ...program } : null;
   }
 
   async update(
@@ -36,6 +38,6 @@ export class InMemoryProgramRepository
 
     this.programs.set(id, updated);
 
-    return updated;
+    return { ...updated };
   }
 }
