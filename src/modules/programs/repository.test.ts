@@ -23,6 +23,25 @@ describe("InMemoryProgramRepository", () => {
     expect(result).toEqual(program);
   });
 
+  it("does not expose stored state through create or find results", async () => {
+    const repository = new InMemoryProgramRepository();
+    const program = createProgram();
+
+    const created = await repository.create(program);
+    created.name = "Changed outside repository";
+    program.description = "Changed input object";
+
+    const found = await repository.findById(program.id);
+
+    expect(found?.name).toBe("Test Program");
+    expect(found?.description).toBe("Test description");
+
+    found!.name = "Changed fetched object";
+
+    const fetchedAgain = await repository.findById(program.id);
+    expect(fetchedAgain?.name).toBe("Test Program");
+  });
+
   it("updates an existing program and refreshes updatedAt", async () => {
     const repository = new InMemoryProgramRepository();
     const program = createProgram();
