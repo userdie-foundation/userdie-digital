@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173d32">
+  <meta name="description" content="USERDIE DIGITAL — цифровая платформа благотворительного фонда «УСЕРДИЕ». Социальные программы, гуманитарные инициативы и прозрачное взаимодействие.">
+  <title>УСЕРДИЕ — USERDIE DIGITAL</title>
+  <style>
+    :root{color-scheme:light;--green:#173d32;--green2:#245747;--mint:#dcebe2;--cream:#f7f6f0;--ink:#17251f;--muted:#65736b;--line:#dce3dc;--white:#fff}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
+    a{color:inherit} .wrap{width:min(1120px,calc(100% - 40px));margin:auto}
+    header{background:var(--cream);border-bottom:1px solid var(--line)}.nav{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:800;letter-spacing:.04em}.mark{width:42px;height:42px;border-radius:14px;background:var(--green);color:white;display:grid;place-items:center;font-size:21px}
+    .navlinks{display:flex;gap:26px;align-items:center}.navlinks a{text-decoration:none;font-size:14px;color:var(--muted)}.navlinks a:hover{color:var(--green)}
+    .pill{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--green);color:white;text-decoration:none;padding:12px 20px;font-weight:650;font-size:14px}.pill:hover{background:var(--green2)}
+    .hero{padding:78px 0 64px;overflow:hidden}.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+    .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.16em;font-weight:800;color:var(--green2)}h1{font-size:clamp(42px,6vw,72px);line-height:1.03;letter-spacing:-.055em;margin:18px 0 24px;max-width:720px}h1 span{color:var(--green2)}.lead{font-size:18px;color:var(--muted);max-width:600px;margin:0 0 30px}.actions{display:flex;gap:12px;flex-wrap:wrap}.secondary{display:inline-flex;align-items:center;justify-content:center;border:1px solid #cbd6cd;border-radius:999px;padding:11px 19px;text-decoration:none;font-weight:650;font-size:14px}
+    .visual{min-height:370px;border-radius:32px;background:var(--mint);padding:28px;position:relative;display:flex;align-items:flex-end;overflow:hidden}.visual:before{content:"";position:absolute;width:290px;height:290px;border-radius:50%;background:#b9d4c2;right:-40px;top:-55px}.visual:after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;border:1px solid #7fa891;right:24px;top:22px}.visual-card{z-index:1;background:rgba(255,255,255,.88);backdrop-filter:blur(8px);padding:24px;border-radius:22px;width:100%;box-shadow:0 12px 35px #173d3210}.visual-card strong{display:block;font-size:24px;line-height:1.25;margin:8px 0}.visual-card p{margin:0;color:var(--muted);font-size:14px}.small-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--green2)}
+    .trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff;padding:22px 0}.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.trust-item{display:flex;gap:12px;align-items:center;color:var(--muted);font-size:13px}.trust-item b{display:block;color:var(--ink);font-size:14px}.icon{width:38px;height:38px;flex:none;border-radius:12px;background:var(--mint);display:grid;place-items:center;color:var(--green);font-size:18px}
+    section{padding:76px 0}.section-head{max-width:650px;margin-bottom:32px}.section-head h2{font-size:clamp(30px,4vw,44px);line-height:1.12;letter-spacing:-.035em;margin:10px 0 14px}.section-head p{color:var(--muted);margin:0}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:25px;min-height:215px}.card .icon{margin-bottom:28px}.card h3{font-size:19px;margin:0 0 8px}.card p{color:var(--muted);font-size:14px;margin:0}
+    .process{background:var(--green);color:#fff}.process .eyebrow{color:#b9d8c5}.process .section-head p{color:#d2dfd7}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.step{border-top:1px solid #ffffff45;padding-top:18px}.step-no{font-size:12px;letter-spacing:.12em;color:#b9d8c5;font-weight:800}.step h3{margin:12px 0 8px;font-size:19px}.step p{margin:0;color:#d2dfd7;font-size:14px}
+    .notice{display:flex;gap:16px;align-items:flex-start;padding:22px;border:1px solid var(--line);border-radius:18px;background:#fff}.notice .icon{background:#f1ead6;color:#795d1e}.notice p{margin:0;color:var(--muted);font-size:14px}.notice strong{display:block;color:var(--ink);margin-bottom:4px}
+    footer{background:#102d25;color:#d2dfd7;padding:32px 0}.foot{display:flex;justify-content:space-between;gap:20px;align-items:center}.foot small{color:#a8bdb1}.foot a{color:#fff;text-decoration:none}
+    @media(max-width:760px){.nav{padding:14px 0;align-items:flex-start}.navlinks{display:none}.hero{padding:48px 0}.hero-grid{grid-template-columns:1fr;gap:30px}.visual{min-height:280px}.trust-grid,.cards,.steps{grid-template-columns:1fr}.trust-grid{gap:14px}section{padding:54px 0}.foot{align-items:flex-start;flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="#top" aria-label="УСЕРДИЕ — на главную"><span class="mark" aria-hidden="true">У</span><span>УСЕРДИЕ<small style="display:block;font-size:10px;letter-spacing:.15em;color:#65736b;font-weight:700">USERDIE DIGITAL</small></span></a>
+      <nav class="navlinks" aria-label="Основная навигация"><a href="#about">О платформе</a><a href="#programs">Направления</a><a href="#transparency">Прозрачность</a></nav>
+      <a class="pill" href="#programs">О платформе</a>
+    </div>
+  </header>
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">Цифровая инфраструктура добрых дел</div>
+          <h1>Помощь, которой можно <span>доверять.</span></h1>
+          <p class="lead">USERDIE DIGITAL — цифровая платформа благотворительного фонда «УСЕРДИЕ», создаваемая для координации социальных программ, гуманитарных инициатив и прозрачного взаимодействия.</p>
+          <div class="actions"><a class="pill" href="#about">Узнать о платформе</a><a class="secondary" href="#transparency">Принципы работы</a></div>
+        </div>
+        <div class="visual" role="img" aria-label="Иллюстрация о совместной помощи и поддержке">
+          <div class="visual-card"><div class="small-label">Наша основа</div><strong>Технологии — для людей.</strong><p>Системный подход, ответственность и уважение к каждому, кому нужна поддержка.</p></div>
+        </div>
+      </div>
+    </section>
+    <div class="trust"><div class="wrap trust-grid">
+      <div class="trust-item"><span class="icon" aria-hidden="true">◇</span><span><b>Безопасность прежде всего</b>Ответственное отношение к данным</span></div>
+      <div class="trust-item"><span class="icon" aria-hidden="true">↗</span><span><b>Понятные процессы</b>Структура и ответственность</span></div>
+      <div class="trust-item"><span class="icon" aria-hidden="true">◎</span><span><b>Прозрачное развитие</b>Изменения фиксируются</span></div>
+    </div></div>
+    <section id="about">
+      <div class="wrap">
+        <div class="section-head"><div class="eyebrow">О платформе</div><h2>Единая цифровая среда для социальных инициатив</h2><p>Платформа проектируется как набор связанных модулей, которые можно развивать постепенно — от базовой инфраструктуры до полноценных сервисов фонда.</p></div>
+        <div class="cards">
+          <article class="card"><span class="icon" aria-hidden="true">⌘</span><h3>Единая система</h3><p>Общая цифровая основа для организации процессов и развития сервисов фонда.</p></article>
+          <article class="card"><span class="icon" aria-hidden="true">♡</span><h3>Социальные инициативы</h3><p>Архитектура для будущего управления программами и гуманитарными проектами.</p></article>
+          <article class="card"><span class="icon" aria-hidden="true">▤</span><h3>Ответственное управление</h3><p>Документированные правила, роли и контролируемое развитие системы.</p></article>
+        </div>
+      </div>
+    </section>
+    <section id="programs" style="padding-top:0">
+      <div class="wrap">
+        <div class="section-head"><div class="eyebrow">Направления развития</div><h2>Платформа будет расти поэтапно</h2><p>Это базовые направления проектирования, а не заявление о том, что все сервисы уже запущены.</p></div>
+        <div class="cards">
+          <article class="card"><span class="icon" aria-hidden="true">✳</span><h3>Программы фонда</h3><p>Инструменты описания, координации и сопровождения социальных программ.</p></article>
+          <article class="card"><span class="icon" aria-hidden="true">⌂</span><h3>Участники и команды</h3><p>В перспективе — разграничение ролей и рабочие пространства для участников.</p></article>
+          <article class="card"><span class="icon" aria-hidden="true">▥</span><h3>Отчётность и аналитика</h3><p>Основа для учёта результатов и подготовки проверяемой отчётности.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="process" id="transparency">
+      <div class="wrap">
+        <div class="section-head"><div class="eyebrow">Принципы работы</div><h2>Доверие строится на проверяемых действиях</h2><p>Разработка ведётся поэтапно: с фиксацией изменений, документированием решений и вниманием к безопасности.</p></div>
+        <div class="steps">
+          <article class="step"><div class="step-no">01 / СТРУКТУРА</div><h3>Понятная архитектура</h3><p>Компоненты разделяются по назначению, чтобы платформу можно было развивать без хаотичных переделок.</p></article>
+          <article class="step"><div class="step-no">02 / КОНТРОЛЬ</div><h3>История изменений</h3><p>Исходный код и технические решения хранятся в системе контроля версий.</p></article>
+          <article class="step"><div class="step-no">03 / БЕЗОПАСНОСТЬ</div><h3>Проверка перед запуском</h3><p>Публикация рабочих сервисов требует отдельной проверки конфигурации, доступа и защиты данных.</p></article>
+        </div>
+      </div>
+    </section>
+    <section style="padding-top:0">
+      <div class="wrap"><div class="notice"><span class="icon" aria-hidden="true">!</span><p><strong>Текущий статус</strong>Это стартовая публичная страница платформы. Онлайн-платежи, личные кабинеты и приём заявок здесь не подключены. Официальные реквизиты, контакты и сведения о программах должны быть добавлены после проверки фондом.</p></div></div>
+    </section>
+  </main>
+  <footer><div class="wrap foot"><a class="brand" href="#top"><span class="mark" aria-hidden="true">У</span><span>УСЕРДИЕ<small style="display:block;font-size:10px;letter-spacing:.15em;color:#a8bdb1;font-weight:700">USERDIE DIGITAL</small></span></a><small>Цифровая платформа благотворительного фонда «УСЕРДИЕ»</small></div></footer>
+</body>
+</html>
