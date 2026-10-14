@@ -7,14 +7,31 @@ import type {
   UpdateProgramInput,
 } from "./types";
 
+function isValidDate(value: string): boolean {
+  // Date-only values must be real calendar dates; Date.parse alone accepts
+  // impossible dates such as 2026-02-30 in some JavaScript runtimes.
+  const dateOnly = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(value);
+  if (dateOnly) {
+    const year = Number(dateOnly[1]);
+    const month = Number(dateOnly[2]);
+    const day = Number(dateOnly[3]);
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+    return parsed.getUTCFullYear() === year
+      && parsed.getUTCMonth() === month - 1
+      && parsed.getUTCDate() === day;
+  }
+
+  return !Number.isNaN(Date.parse(value));
+}
+
 function validateDateRange(
   startDate?: string,
   endDate?: string,
 ): Result<true> {
-  if (startDate && Number.isNaN(Date.parse(startDate))) {
+  if (startDate && !isValidDate(startDate)) {
     return fail("PROGRAM_START_DATE_INVALID", "Дата начала программы указана некорректно.");
   }
-  if (endDate && Number.isNaN(Date.parse(endDate))) {
+  if (endDate && !isValidDate(endDate)) {
     return fail("PROGRAM_END_DATE_INVALID", "Дата окончания программы указана некорректно.");
   }
   if (startDate && endDate && Date.parse(endDate) < Date.parse(startDate)) {
