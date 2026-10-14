@@ -60,6 +60,18 @@ describe("ProgramService", () => {
     expect(repository.create).not.toHaveBeenCalled();
   });
 
+  it("rejects an impossible calendar date", async () => {
+    const repository = makeRepository();
+    const result = await new ProgramService(repository).createProgram({
+      name: "Программа", startDate: "2026-02-30",
+    });
+    expect(result).toMatchObject({
+      success: false,
+      error: { code: "PROGRAM_START_DATE_INVALID" },
+    });
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
   it("rejects an end date earlier than the start date", async () => {
     const repository = makeRepository();
     const result = await new ProgramService(repository).createProgram({
