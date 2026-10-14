@@ -6,8 +6,8 @@ import type { ProgramRepository } from "./types";
 function makeRepository(): ProgramRepository {
   return {
     create: vi.fn(async (program) => program),
-    findById: async () => null,
-    update: async () => null,
+    findById: vi.fn(async () => null),
+    update: vi.fn(async () => null),
   };
 }
 
@@ -28,14 +28,12 @@ describe("ProgramService", () => {
   it("creates a program and normalizes user input", async () => {
     const repository = makeRepository();
     const service = new ProgramService(repository);
-
     const result = await service.createProgram({
       name: "  Открытый мир  ",
       description: "  Социальная программа фонда  ",
       startDate: "2026-10-01",
       endDate: "2026-12-31",
     });
-
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.name).toBe("Открытый мир");
@@ -48,47 +46,26 @@ describe("ProgramService", () => {
 
   it("rejects an empty program name without saving", async () => {
     const repository = makeRepository();
-    const service = new ProgramService(repository);
-
-    const result = await service.createProgram({ name: "   " });
-
-    expect(result).toMatchObject({
-      success: false,
-      error: { code: "PROGRAM_NAME_REQUIRED" },
-    });
+    const result = await new ProgramService(repository).createProgram({ name: "   " });
+    expect(result).toMatchObject({ success: false, error: { code: "PROGRAM_NAME_REQUIRED" } });
     expect(repository.create).not.toHaveBeenCalled();
   });
 
   it("rejects invalid dates", async () => {
     const repository = makeRepository();
-    const service = new ProgramService(repository);
-
-    const result = await service.createProgram({
-      name: "Программа",
-      startDate: "не дата",
+    const result = await new ProgramService(repository).createProgram({
+      name: "Программа", startDate: "не дата",
     });
-
-    expect(result).toMatchObject({
-      success: false,
-      error: { code: "PROGRAM_START_DATE_INVALID" },
-    });
+    expect(result).toMatchObject({ success: false, error: { code: "PROGRAM_START_DATE_INVALID" } });
     expect(repository.create).not.toHaveBeenCalled();
   });
 
   it("rejects an end date earlier than the start date", async () => {
     const repository = makeRepository();
-    const service = new ProgramService(repository);
-
-    const result = await service.createProgram({
-      name: "Программа",
-      startDate: "2026-12-31",
-      endDate: "2026-10-01",
+    const result = await new ProgramService(repository).createProgram({
+      name: "Программа", startDate: "2026-12-31", endDate: "2026-10-01",
     });
-
-    expect(result).toMatchObject({
-      success: false,
-      error: { code: "PROGRAM_DATE_RANGE_INVALID" },
-    });
+    expect(result).toMatchObject({ success: false, error: { code: "PROGRAM_DATE_RANGE_INVALID" } });
     expect(repository.create).not.toHaveBeenCalled();
   });
 
@@ -97,23 +74,13 @@ describe("ProgramService", () => {
     const repository: ProgramRepository = {
       create: vi.fn(async (program) => program),
       findById: vi.fn(async (id) => id === existing.id ? existing : null),
-      update: vi.fn(async (id, input) =>
-        id === existing.id ? { ...existing, ...input } : null,
-      ),
+      update: vi.fn(async (id, input) => id === existing.id ? { ...existing, ...input } : null),
     };
-    const service = new ProgramService(repository);
-
-    const result = await service.updateProgram(existing.id, {
-      name: "  Новое название  ",
-      description: "  Новое описание  ",
+    const result = await new ProgramService(repository).updateProgram(existing.id, {
+      name: "  Новое название  ", description: "  Новое описание  ",
     });
-
     expect(result).toMatchObject({
-      success: true,
-      data: {
-        name: "Новое название",
-        description: "Новое описание",
-      },
+      success: true, data: { name: "Новое название", description: "Новое описание" },
     });
     expect(repository.update).toHaveBeenCalledTimes(1);
   });
@@ -125,29 +92,19 @@ describe("ProgramService", () => {
       findById: vi.fn(async (id) => id === existing.id ? existing : null),
       update: vi.fn(async () => null),
     };
-    const service = new ProgramService(repository);
-
-    const result = await service.updateProgram(existing.id, {
+    const result = await new ProgramService(repository).updateProgram(existing.id, {
       endDate: "2026-09-30",
     });
-
-    expect(result).toMatchObject({
-      success: false,
-      error: { code: "PROGRAM_DATE_RANGE_INVALID" },
-    });
+    expect(result).toMatchObject({ success: false, error: { code: "PROGRAM_DATE_RANGE_INVALID" } });
     expect(repository.update).not.toHaveBeenCalled();
   });
 
   it("returns a not-found result when updating a missing program", async () => {
     const repository = makeRepository();
-    const service = new ProgramService(repository);
-
-    const result = await service.updateProgram("missing", { name: "Новое название" });
-
-    expect(result).toMatchObject({
-      success: false,
-      error: { code: "PROGRAM_NOT_FOUND" },
+    const result = await new ProgramService(repository).updateProgram("missing", {
+      name: "Новое название",
     });
+    expect(result).toMatchObject({ success: false, error: { code: "PROGRAM_NOT_FOUND" } });
     expect(repository.update).not.toHaveBeenCalled();
   });
 });
