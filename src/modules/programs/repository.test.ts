@@ -8,6 +8,8 @@ describe("InMemoryProgramRepository", () => {
     name: "Test Program",
     description: "Test description",
     status: "active",
+    createdAt: "2026-10-14T00:00:00.000Z",
+    updatedAt: "2026-10-14T00:00:00.000Z",
   });
 
   it("creates and finds a program", async () => {
@@ -21,7 +23,7 @@ describe("InMemoryProgramRepository", () => {
     expect(result).toEqual(program);
   });
 
-  it("updates an existing program", async () => {
+  it("updates an existing program and refreshes updatedAt", async () => {
     const repository = new InMemoryProgramRepository();
     const program = createProgram();
 
@@ -31,10 +33,13 @@ describe("InMemoryProgramRepository", () => {
       name: "Updated Program",
     });
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       ...program,
       name: "Updated Program",
     });
+    expect(result?.updatedAt).not.toBe(program.updatedAt);
+    expect(result?.updatedAt).toEqual(expect.any(String));
+    expect(Number.isNaN(Date.parse(result!.updatedAt))).toBe(false);
   });
 
   it("returns null when updating a non-existent program", async () => {
