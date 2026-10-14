@@ -34,8 +34,11 @@ describe("InMemoryProgramRepository", () => {
     });
 
     expect(result).toMatchObject({
-      ...program,
+      id: program.id,
       name: "Updated Program",
+      description: program.description,
+      status: program.status,
+      createdAt: program.createdAt,
     });
     expect(result?.updatedAt).not.toBe(program.updatedAt);
     expect(result?.updatedAt).toEqual(expect.any(String));
