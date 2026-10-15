@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f4ee">
+  <meta name="description" content="Демонстрационный макет кабинета заявителя USERDIE DIGITAL. Вымышленные данные, без входа и отправки сведений.">
+  <title>USERDIE DIGITAL — кабинет заявителя · макет</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="applicant-page">
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Усердие — на главную">
+        <span class="brand-symbol" aria-hidden="true">у.</span>
+        <span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span>
+      </a>
+      <nav aria-label="Главная навигация">
+        <a href="index.html">Главная</a>
+        <a href="platform.html">Карта платформы</a>
+      </nav>
+      <span class="prototype-pill">ДЕМО-МАКЕТ</span>
+    </div>
+  </header>
+  <main id="main">
+    <section class="applicant-hero">
+      <div class="container">
+        <p class="eyebrow"><span></span> БУДУЩИЙ ЛИЧНЫЙ КАБИНЕТ · КОНЦЕПЦИЯ</p>
+        <div class="applicant-title-row">
+          <div>
+            <h1>Ваше обращение.<br><em>Понятный статус.</em></h1>
+            <p class="lead">Предполагаемый экран для безопасного отслеживания обращения в фонд.</p>
+          </div>
+          <div class="demo-warning"><strong>Только демонстрация</strong><span>Вход не подключён. Данные вымышлены. Формы и загрузка документов отключены.</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="applicant-workspace">
+      <div class="container">
+        <div class="workspace-topline"><span>ПРИМЕР ЛИЧНОГО ПРОСТРАНСТВА</span><span class="sample-tag">СИНТЕТИЧЕСКИЕ ДАННЫЕ</span></div>
+        <div class="workspace-grid">
+          <aside class="workspace-sidebar" aria-label="Разделы кабинета">
+            <div class="sample-user"><span class="sample-avatar" aria-hidden="true">Д</span><span><strong>Демо-пользователь</strong><small>Учебный профиль</small></span></div>
+            <a class="workspace-nav active" href="#overview" aria-current="page"><span aria-hidden="true">▦</span> Обзор обращения</a>
+            <a class="workspace-nav" href="#timeline"><span aria-hidden="true">◷</span> История статусов</a>
+            <a class="workspace-nav" href="#documents"><span aria-hidden="true">▤</span> Документы</a>
+            <div class="sidebar-note"><span aria-hidden="true">ⓘ</span><p>В реальной версии здесь будут только те разделы, к которым у пользователя есть разрешённый доступ.</p></div>
+          </aside>
+          <div class="workspace-main">
+            <section class="application-card" id="overview" aria-labelledby="application-title">
+              <div class="application-card-head"><div><p class="eyebrow">ОБРАЩЕНИЕ · ПРИМЕР</p><h2 id="application-title">Обращение № DEMO-001</h2></div><span class="application-status"><i></i> На первичном рассмотрении</span></div>
+              <p class="application-description">Демонстрационный пример: обращение принято в систему и ожидает проверки уполномоченным сотрудником. Это не реальное дело фонда.</p>
+              <div class="progress-steps" aria-label="Этапы обработки демонстрационного обращения">
+                <div class="progress-step done"><span>✓</span><small>Создано</small></div><div class="progress-connector done"></div>
+                <div class="progress-step current"><span>2</span><small>Проверка</small></div><div class="progress-connector"></div>
+                <div class="progress-step"><span>3</span><small>Решение</small></div><div class="progress-connector"></div>
+                <div class="progress-step"><span>4</span><small>Завершено</small></div>
+              </div>
+              <div class="application-facts"><div><span>Дата в примере</span><strong>14 октября 2026</strong></div><div><span>Ответственный</span><strong>Будет назначен</strong></div><div><span>Следующий шаг</span><strong>Проверка комплектности</strong></div></div>
+            </section>
+            <div class="workspace-lower">
+              <section class="workspace-panel" id="timeline" aria-labelledby="timeline-title">
+                <div class="panel-heading"><div><p class="eyebrow">ХРОНОЛОГИЯ</p><h2 id="timeline-title">История статусов</h2></div><span class="panel-icon" aria-hidden="true">◷</span></div>
+                <ol class="status-timeline">
+                  <li class="timeline-done"><span class="timeline-marker"></span><div><strong>Обращение зарегистрировано</strong><p>Система присвоила демонстрационный номер.</p><small>14 октября 2026 · пример</small></div></li>
+                  <li class="timeline-current"><span class="timeline-marker"></span><div><strong>Первичная проверка</strong><p>Уполномоченный сотрудник проверяет комплектность сведений.</p><small>Текущий условный этап</small></div></li>
+                  <li><span class="timeline-marker"></span><div><strong>Решение по обращению</strong><p>Этап будет доступен после завершения проверки.</p><small>Ещё не начат</small></div></li>
+                </ol>
+              </section>
+              <section class="workspace-panel" id="documents" aria-labelledby="documents-title">
+                <div class="panel-heading"><div><p class="eyebrow">ЧЕК-ЛИСТ</p><h2 id="documents-title">Документы</h2></div><span class="panel-icon" aria-hidden="true">▤</span></div>
+                <div class="document-placeholder"><span aria-hidden="true">＋</span><div><strong>Загрузка отключена</strong><p>В этом макете нельзя прикреплять файлы или передавать личные сведения.</p></div></div>
+                <div class="document-rule"><span aria-hidden="true">✓</span><p>В рабочей версии перечень документов должен быть утверждён фондом и зависеть от типа обращения.</p></div>
+                <a class="text-link" href="platform.html">Посмотреть принципы платформы <span aria-hidden="true">→</span></a>
+              </section>
+            </div>
+            <div class="privacy-banner"><span aria-hidden="true">◎</span><p><strong>Приватность — обязательное условие.</strong> Настоящий кабинет потребует авторизации, разграничения доступа, защищённого хранения и утверждённых правил обработки данных. Ничего из этого макет не имитирует как готовую функцию.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="applicant-bottom"><div class="container applicant-bottom-inner"><div><p class="eyebrow">СЛЕДУЮЩИЙ ЭТАП</p><h2>Сначала правила и безопасность.<br><em>Потом реальные обращения.</em></h2></div><a class="button button-dark" href="platform.html">Вернуться к карте платформы <span aria-hidden="true">→</span></a></div></section>
+  </main>
+  <footer class="footer"><div class="container footer-inner"><a class="brand" href="index.html"><span class="brand-symbol" aria-hidden="true">у.</span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a><p>Концептуальный интерфейс. Не предназначен для подачи реальных обращений.</p><a href="platform.html">Карта платформы ↑</a></div></footer>
+</body>
+</html>

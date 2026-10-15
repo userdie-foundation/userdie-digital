@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f4ee">
+  <meta name="description" content="Демонстрационный макет кабинета заявителя фонда «Усердие». Данные вымышлены, формы и обращения не работают.">
+  <title>USERDIE DIGITAL — кабинет заявителя · концепция</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="applicant-page">
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Усердие — на главную">
+        <span class="brand-symbol" aria-hidden="true">у.</span>
+        <span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span>
+      </a>
+      <nav aria-label="Главная навигация">
+        <a href="index.html">Главная</a>
+        <a href="platform.html">Карта платформы</a>
+        <a href="#steps">Как это должно работать</a>
+      </nav>
+      <span class="prototype-pill">ДЕМО-МАКЕТ</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="cabinet-hero">
+      <div class="container">
+        <p class="eyebrow"><span></span> USERDIE DIGITAL · КАБИНЕТ ЗАЯВИТЕЛЯ</p>
+        <h1>Помощь должна быть <em>понятной.</em></h1>
+        <p class="lead">Концепция личного пространства для общения с фондом: ясные этапы, аккуратные уведомления и объяснение дальнейших действий.</p>
+        <div class="demo-warning" role="note"><strong>Демонстрационный экран.</strong> Это не личный кабинет: вход, отправка обращений и уведомления не работают. Все примеры ниже условные, реальные данные не используются.</div>
+      </div>
+    </section>
+
+    <section class="cabinet-workspace">
+      <div class="container cabinet-layout">
+        <aside class="cabinet-sidebar" aria-label="Разделы кабинета">
+          <div class="demo-profile"><span class="demo-avatar" aria-hidden="true">П</span><div><strong>Пример профиля</strong><small>Демонстрационный режим</small></div></div>
+          <a class="sidebar-active" href="#overview" aria-current="page">Обзор <span>↗</span></a>
+          <a href="#steps">Этапы рассмотрения</a>
+          <a href="#documents">Документы</a>
+          <div class="sidebar-note"><span aria-hidden="true">ⓘ</span><p>В реальной версии доступ к обращениям будет защищён авторизацией и проверкой прав.</p></div>
+        </aside>
+
+        <div class="cabinet-main" id="overview">
+          <div class="cabinet-heading"><div><p class="eyebrow">ЛИЧНОЕ ПРОСТРАНСТВО</p><h2>Здравствуйте!</h2><p>Здесь будут отображаться статусы обращений и следующие шаги.</p></div><span class="demo-tag">ПРИМЕР ИНТЕРФЕЙСА</span></div>
+          <div class="cabinet-empty">
+            <div class="empty-icon" aria-hidden="true">◇</div>
+            <p class="empty-kicker">ОБРАЩЕНИЯ</p>
+            <h3>Пока нечего отслеживать</h3>
+            <p>В рабочей версии здесь появится список обращений и их актуальные статусы. Сейчас отправка обращений отключена.</p>
+            <span class="disabled-action" aria-disabled="true">Создание обращения недоступно в демо</span>
+          </div>
+
+          <section class="cabinet-section" id="steps">
+            <div class="section-heading"><div><p class="eyebrow">ПУТЬ ОБРАЩЕНИЯ</p><h2>Каждый этап <em>объяснён.</em></h2></div><p>Пример возможного процесса. Реальный порядок фонд должен утвердить до запуска.</p></div>
+            <ol class="journey-list">
+              <li><span class="journey-number">01</span><div><strong>Обращение получено</strong><p>Человек получает подтверждение и номер обращения.</p></div><span class="journey-state">Пример этапа</span></li>
+              <li><span class="journey-number">02</span><div><strong>Проверка информации</strong><p>Ответственный проверяет полноту данных и при необходимости запрашивает уточнения безопасным способом.</p></div><span class="journey-state">Пример этапа</span></li>
+              <li><span class="journey-number">03</span><div><strong>Рассмотрение фондом</strong><p>Обращение направляется по утверждённому процессу; доступ ограничен уполномоченными сотрудниками.</p></div><span class="journey-state">Пример этапа</span></li>
+              <li><span class="journey-number">04</span><div><strong>Ответ и дальнейшие шаги</strong><p>Заявитель получает понятное решение или информацию о том, что делать дальше.</p></div><span class="journey-state">Пример этапа</span></li>
+            </ol>
+          </section>
+
+          <section class="cabinet-section documents-panel" id="documents">
+            <div><p class="eyebrow">ДОКУМЕНТЫ И БЕЗОПАСНОСТЬ</p><h2>Только необходимое.</h2><p>Перечень документов, правовое основание обработки и сроки хранения должны быть утверждены фондом до включения реального сбора данных.</p></div>
+            <div class="security-points"><p><span>✓</span> Минимизация собираемых данных</p><p><span>✓</span> Ограничение доступа по ролям</p><p><span>✓</span> Понятные правила хранения и удаления</p></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="platform-next"><div class="container platform-next-inner"><div><p class="eyebrow">СЛЕДУЮЩИЙ ЭТАП</p><h2>Согласовать процесс до <em>разработки.</em></h2><p>Для запуска понадобятся утверждённые правила рассмотрения обращений, политика обработки данных, модель ролей и защищённая серверная часть.</p></div><a class="button button-light" href="platform.html">К карте платформы <span aria-hidden="true">↗</span></a></div></section>
+  </main>
+  <footer class="footer"><div class="container footer-inner"><a class="brand brand-footer" href="index.html"><span class="brand-symbol">у.</span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a><p>Демонстрационный макет · Реальные данные не собираются</p><a href="README.md">О прототипе ↗</a></div></footer>
+</body>
+</html>
