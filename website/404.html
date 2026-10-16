@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f4ee">
+  <meta name="robots" content="noindex">
+  <title>Страница не найдена — Усердие</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .error-page{min-height:100vh;display:flex;flex-direction:column}
+    .error-main{flex:1;display:grid;place-items:center;padding:64px 0}
+    .error-card{width:min(760px,100%);padding:clamp(28px,6vw,64px);background:#eeeee5;border:1px solid rgba(30,48,40,.12)}
+    .error-code{margin:0 0 12px;color:#78915d;font:800 clamp(64px,13vw,112px)/1 Manrope,sans-serif;letter-spacing:-5px}
+    .error-card h1{margin-bottom:18px;font-size:clamp(32px,5vw,48px)}
+    .error-card p:not(.eyebrow){max-width:520px;color:#647168;line-height:1.8}
+    .error-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+    .error-secondary{display:inline-flex;align-items:center;min-height:52px;padding:0 18px;border:1px solid rgba(30,48,40,.25);font-size:13px;font-weight:700}
+  </style>
+</head>
+<body class="error-page">
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Усердие — на главную">
+        <span class="brand-symbol" aria-hidden="true">у.</span>
+        <span><strong>УСЕРДИЕ</strong><small>Благотворительный фонд</small></span>
+      </a>
+      <a class="button button-dark header-cta" href="index.html">На главную <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  <main class="error-main" id="main">
+    <div class="container">
+      <section class="error-card" aria-labelledby="error-title">
+        <p class="eyebrow"><span></span> НЕ УДАЛОСЬ НАЙТИ СТРАНИЦУ</p>
+        <p class="error-code" aria-hidden="true">404</p>
+        <h1 id="error-title">Кажется, мы свернули не туда.</h1>
+        <p>Такой страницы нет или её адрес изменился. Можно вернуться на главную или посмотреть демонстрационные материалы проекта.</p>
+        <div class="error-actions">
+          <a class="button button-dark" href="index.html">Вернуться на главную <span aria-hidden="true">↗</span></a>
+          <a class="error-secondary" href="prototype/platform.html">Карта платформы</a>
+          <a class="error-secondary" href="prototype/applicant-cabinet.html">Кабинет заявителя · демо</a>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer class="footer"><div class="container footer-inner"><a class="brand brand-footer" href="index.html"><span class="brand-symbol">у.</span><span><strong>УСЕРДИЕ</strong><small>Благотворительный фонд</small></span></a><p>Демонстрационный сайт фонда «Усердие»</p><a href="index.html">На главную ↗</a></div></footer>
+</body>
+</html>
