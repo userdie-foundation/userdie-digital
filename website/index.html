@@ -3,79 +3,89 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#173f35">\n  <meta name="description" content="USERDIE DIGITAL — цифровая платформа благотворительного фонда «УСЕРДИЕ». Социальные программы, ответственность и прозрачность.">
-  <meta name="description" content="УСЕРДИЕ — благотворительная инициатива о помощи людям, прозрачности и ответственном участии.">
-  <title>УСЕРДИЕ — USERDIE DIGITAL | помощь, которой можно доверять</title>
-  <link rel="stylesheet" href="./styles.css">
+  <meta name="theme-color" content="#f6f4ee">
+  <meta name="description" content="Экспериментальный макет цифровой платформы благотворительного фонда «Усердие».">
+  <title>УСЕРДИЕ — благотворительный фонд</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержанию</a>
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="УСЕРДИЕ — на главную">
-      <span class="brand-mark" aria-hidden="true">У</span>
-      <span><strong>УСЕРДИЕ</strong><small>Благотворительная платформа</small></span>
-    </a>
-    <nav aria-label="Основная навигация">
-      <a href="#about">О фонде</a>
-      <a href="#programs">Направления</a>
-      <a href="#transparency">Прозрачность</a>
-      <a class="nav-cta" href="#help">Как помочь</a>
-    </nav>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="Усердие — на главную">
+        <span class="brand-symbol" aria-hidden="true">у.</span>
+        <span><strong>УСЕРДИЕ</strong><small>Благотворительный фонд</small></span>
+      </a>
+      <nav aria-label="Главная навигация">
+        <a href="#about">О фонде</a>
+        <a href="#directions">Направления</a>
+        <a href="#transparency">Прозрачность</a>
+        <a href="prototype/platform.html">Карта платформы</a>
+      </nav>
+      <a class="button button-dark header-cta" href="platform.html">Карта платформы <span aria-hidden="true">↗</span></a>
+    </div>
   </header>
+
   <main id="main">
     <section class="hero" id="top">
-      <div class="hero-copy">
-        <p class="eyebrow">USERDIE DIGITAL · ЦИФРОВАЯ ПЛАТФОРМА</p>
-        <h1>Доброта становится делом, когда мы действуем вместе.</h1>
-        <p class="hero-lead">«УСЕРДИЕ» создаёт понятную и ответственную систему помощи: от обращения человека до отчёта о проделанной работе.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#programs">Наши направления <span aria-hidden="true">↘</span></a>
-          <a class="button button-secondary" href="#transparency">Принципы прозрачности</a>
+      <div class="container hero-layout">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> Вместе превращаем участие в помощь</p>
+          <h1>Добро становится сильнее, <em>когда мы рядом.</em></h1>
+          <p class="lead">«Усердие» объединяет людей, партнёров и инициативы, чтобы поддержка доходила до тех, кому она нужна.</p>
+          <div class="actions">
+            <a class="button button-dark" href="#help">Узнать, как помочь <span aria-hidden="true">↗</span></a>
+            <a class="quiet-link" href="#about">Познакомиться с фондом <span aria-hidden="true">↓</span></a>
+          </div>
+          <p class="notice"><span aria-hidden="true">✳</span> Ответственная помощь начинается с доверия и проверенной информации.</p>
         </div>
-        <p class="note">Сайт находится в разработке. Проверенные сведения, документы и способы пожертвования будут опубликованы после подтверждения.</p>
+        <div class="hero-visual" aria-label="Декоративная композиция: символ поддержки и взаимопомощи" role="img">
+          <div class="sun"></div>
+          <div class="ring ring-one"></div><div class="ring ring-two"></div>
+          <div class="heart">♥</div>
+          <div class="visual-label label-top">ЗАБОТА</div>
+          <div class="visual-label label-bottom">ДЕЙСТВИЕ · ДОВЕРИЕ</div>
+          <div class="leaf leaf-one"></div><div class="leaf leaf-two"></div>
+        </div>
       </div>
-      <div class="hero-art" aria-label="Иллюстрация взаимной поддержки" role="img">
-        <div class="sun"></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-        <div class="hands">✳</div>
-        <div class="art-caption"><span class="art-dot"></span><span>Забота · Доверие · Действие</span></div>
-      </div>
-    </section>
-    <section class="values" aria-label="Наши принципы">
-      <article><span class="value-number">01</span><h2>Человек в центре</h2><p>Уважение к достоинству, потребностям и обстоятельствам каждого.</p></article>
-      <article><span class="value-number">02</span><h2>Открытость</h2><p>Понятные правила, проверяемые документы и регулярная отчётность.</p></article>
-      <article><span class="value-number">03</span><h2>Ответственность</h2><p>Помощь по ясным критериям и бережное отношение к данным людей.</p></article>
-    </section>
-    <section class="section section-about" id="about">
-      <div class="section-label">01 / О платформе</div>
-      <div class="section-content">
-        <h2>Помощь должна быть не только доброй, но и понятной.</h2>
-        <p>USERDIE DIGITAL — цифровая основа благотворительной работы фонда «УСЕРДИЕ». Платформа будет объединять информацию о программах, обращения за помощью, участие партнёров и публикацию отчётности.</p>
-        <p>Мы не публикуем неподтверждённые сведения и не предлагаем переводить деньги на непроверенные реквизиты.</p>
+      <div class="container hero-footer">
+        <span>Человечность — в действии</span><span class="footer-line"></span><span>Каждый вклад имеет значение</span>
       </div>
     </section>
-    <section class="section section-programs" id="programs">
-      <div class="section-label">02 / Направления</div>
-      <div class="program-heading"><h2>Участие начинается с понимания потребности.</h2><p>Направления и условия программ будут уточнены и опубликованы после утверждения фондом.</p></div>
-      <div class="program-grid">
-        <article class="program-card"><span class="program-icon">♡</span><h3>Адресная помощь</h3><p>Работа с обращениями людей и семей, нуждающихся в поддержке.</p><span class="status">Описание программы готовится</span></article>
-        <article class="program-card"><span class="program-icon">✳</span><h3>Социальные инициативы</h3><p>Проекты, направленные на улучшение качества жизни и поддержку сообщества.</p><span class="status">Описание программы готовится</span></article>
-        <article class="program-card"><span class="program-icon">↗</span><h3>Партнёрство и волонтёрство</h3><p>Возможности помогать временем, компетенциями и ответственным сотрудничеством.</p><span class="status">Условия участия готовятся</span></article>
+
+    <section class="intro section" id="about">
+      <div class="container intro-grid">
+        <p class="eyebrow">01 / О ФОНДЕ</p>
+        <div><h2>Помощь — это не только доброе намерение. Это <em>системная работа.</em></h2>
+          <p class="body-copy">Мы развиваем понятную и ответственную среду благотворительности: с ясными направлениями работы, бережным отношением к людям и открытой информацией о деятельности фонда.</p>
+          <a class="text-link" href="#transparency">Как устроена прозрачность фонда <span aria-hidden="true">↗</span></a>
+        </div>
       </div>
     </section>
-    <section class="transparency" id="transparency">
-      <div class="section-label">03 / Прозрачность</div>
-      <div class="transparency-copy"><p class="eyebrow">ДОВЕРИЕ ПОДТВЕРЖДАЕТСЯ ФАКТАМИ</p><h2>Открытость — обязательство, а не обещание.</h2><p>Перед запуском пожертвований на сайте должны быть размещены проверенные реквизиты, юридические документы, правила обработки персональных данных и порядок публикации финансовых отчётов.</p></div>
-      <ul class="check-list"><li>Юридические сведения и документы</li><li>Проверенные реквизиты для пожертвований</li><li>Правила обработки обращений и данных</li><li>Отчёты о поступлениях и использовании средств</li></ul>
+
+    <section class="directions section" id="directions">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">02 / НАПРАВЛЕНИЯ</p><h2>Поддержка начинается <em>с внимания.</em></h2></div><p>Информация о программах публикуется после подтверждения фондом.</p></div>
+        <div class="direction-grid">
+          <article class="direction-card"><span class="card-number">01</span><span class="card-icon" aria-hidden="true">✳</span><h3>Помощь людям</h3><p>Развитие понятного пути обращения за поддержкой и бережного взаимодействия.</p><span class="card-status">Состав программ уточняется</span></article>
+          <article class="direction-card card-featured"><span class="card-number">02</span><span class="card-icon" aria-hidden="true">⌁</span><h3>Добрые инициативы</h3><p>Объединение неравнодушных людей и партнёров вокруг полезных дел.</p><span class="card-status">Состав программ уточняется</span></article>
+          <article class="direction-card"><span class="card-number">03</span><span class="card-icon" aria-hidden="true">◌</span><h3>Открытость и доверие</h3><p>Публикация подтверждённых документов, отчётности и сведений о работе фонда.</p><span class="card-status">Данные публикуются по мере проверки</span></article>
+        </div>
+      </div>
     </section>
-    <section class="help-section" id="help">
-      <div><p class="eyebrow">04 / Как помочь</p><h2>Есть желание участвовать?</h2><p>Следите за обновлениями платформы. Контактные данные и безопасные способы участия появятся после проверки официальной информации фонда.</p></div>
-      <div class="help-panel"><span class="help-symbol">＋</span><strong>Ответственный запуск — наш приоритет.</strong><p>Форма обращений и приём пожертвований пока не подключены.</p></div>
+
+    <section class="help-section section" id="help">
+      <div class="container help-panel">
+        <div><p class="eyebrow">03 / КАК ПОМОЧЬ</p><h2>У каждого доброго дела есть <em>первый шаг.</em></h2><p>Узнайте о доступных способах участия или свяжитесь с фондом через официальные каналы, когда они будут подтверждены и опубликованы.</p></div>
+        <div class="help-actions"><a class="button button-light" href="#help">Стать партнёром <span aria-hidden="true">↗</span></a><a class="light-link" href="#help">Информация о получении помощи <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+
+    <section class="transparency section" id="transparency">
+      <div class="container transparency-grid"><p class="eyebrow">04 / ПРОЗРАЧНОСТЬ</p><div><h2>Доверие строится на <em>фактах.</em></h2><p class="body-copy">Мы не публикуем неподтверждённые реквизиты, суммы сборов, результаты программ или отчёты. Проверенная информация должна быть доступна и понятна.</p><a class="text-link" href="../transparency.html">Открыть раздел прозрачности <span aria-hidden="true">↗</span></a></div><div class="stamp" aria-hidden="true"><span>ОТКРЫТОСТЬ</span><strong>У</strong><span>ОТВЕТСТВЕННОСТЬ</span></div></div>
     </section>
   </main>
-  <footer class="site-footer">
-    <a class="brand brand-footer" href="#top"><span class="brand-mark" aria-hidden="true">У</span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
-    <p>Помощь с уважением. Работа с ответственностью.</p>
-    <small>© <span id="year">2026</span> УСЕРДИЕ. Информация на сайте обновляется по мере проверки документов.</small>
-  </footer>
+
+  <footer class="footer"><div class="container footer-inner"><a class="brand brand-footer" href="#top"><span class="brand-symbol">у.</span><span><strong>УСЕРДИЕ</strong><small>Благотворительный фонд</small></span></a><p>Информация о программах и сборах публикуется после подтверждения фондом</p><a href="platform.html">Карта платформы ↗</a><a href="../index.html">Текущая версия сайта ↗</a></div></footer>
 </body>
 </html>
