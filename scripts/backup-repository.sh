@@ -12,29 +12,36 @@ if [[ -z "$DESTINATION" ]]; then
   exit 2
 fi
 
-case "$DESTINATION" in
-  */.git|*/.git/*)
-    echo "Refusing a destination inside a .git directory." >&2
-    exit 2
-    ;;
-esac
-
-if [[ -e "$DESTINATION" ]]; then
-  if [[ ! -d "$DESTINATION" ]] || ! git -C "$DESTINATION" rev-parse --is-bare-repository >/dev/null 2>&1; then
-    echo "Destination exists but is not a bare Git repository: $DESTINATION" >&2
-    exit 2
-  fi
-  git -C "$DESTINATION" remote set-url origin "$REPOSITORY_URL"
-  git -C "$DESTINATION" fetch --prune origin '+refs/*:refs/*'
-else
-  mkdir -p "$(dirname "$DESTINATION")"
-  git clone --mirror "$REPOSITORY_URL" "$DESTINATION"
+# Resolve the destination parent and refuse a backup inside this working tree.
+mkdir -p "$(dirname "$DESTINATION")"
+DEST_PARENT="$(cd "$(dirname "$DESTINATION")" && pwd -P)"
+DEST_ABSOLUTE="$DEST_PARENT/$(basename "$DESTINATION")"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -n "$REPO_ROOT" ]]; then
+  REPO_ROOT="$(cd "$REPO_ROOT" && pwd -P)"
+  case "$DEST_ABSOLUTE/" in
+    "$REPO_ROOT/"*)
+      echo "Refusing a backup destination inside the working repository. Use separate storage." >&2
+      exit 2
+      ;;
+  esac
 fi
 
-git -C "$DESTINATION" fsck --full
+if [[ -e "$DEST_ABSOLUTE" ]]; then
+  if [[ ! -d "$DEST_ABSOLUTE" ]] || [[ "$(git -C "$DEST_ABSOLUTE" rev-parse --is-bare-repository 2>/dev/null || true)" != "true" ]]; then
+    echo "Destination exists but is not a bare Git repository: $DEST_ABSOLUTE" >&2
+    exit 2
+  fi
+  git -C "$DEST_ABSOLUTE" remote set-url origin "$REPOSITORY_URL"
+  git -C "$DEST_ABSOLUTE" fetch --prune origin '+refs/*:refs/*'
+else
+  git clone --mirror "$REPOSITORY_URL" "$DEST_ABSOLUTE"
+fi
+
+git -C "$DEST_ABSOLUTE" fsck --full
 echo
-echo "Backup mirror verified: $DESTINATION"
+echo "Backup mirror verified: $DEST_ABSOLUTE"
 echo "Repository refs:"
-git -C "$DESTINATION" show-ref
+git -C "$DEST_ABSOLUTE" show-ref
 echo
-echo "IMPORTANT: this is independent only if the destination is stored outside the primary GitHub account and is available separately."
+echo "IMPORTANT: this is independent only if stored outside the primary GitHub account and available separately."
