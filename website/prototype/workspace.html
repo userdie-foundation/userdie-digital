@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f4ee">
+<meta name="description" content="Интерактивный демонстрационный интерфейс USERDIE DIGITAL — рабочее пространство фонда «Усердие».">
+<title>USERDIE DIGITAL — рабочее пространство</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+:root{--app-bg:#eef0e8;--app-panel:#fbfaf6;--app-line:#dce1d6;--app-text:#20372b;--app-muted:#6d796e;--app-green:#2c553e;--app-lime:#dfe9c9}
+body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
+.app-shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:calc(100vh - 82px)}
+.app-sidebar{position:sticky;top:82px;align-self:start;height:calc(100vh - 82px);overflow:auto;padding:25px 16px;background:#f8f7f1;border-right:1px solid var(--app-line)}
+.sidebar-caption{margin:4px 12px 10px;color:#879187;font-size:9px;font-weight:800;letter-spacing:1.5px}
+.app-nav{display:grid;gap:4px;margin-bottom:28px}
+.app-nav button{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:0;border-radius:5px;background:transparent;color:#5e6e61;text-align:left;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
+.app-nav button:hover{background:#eef0e8}
+.app-nav button[aria-current=page]{background:#dfe9c9;color:#264d38}
+.nav-ico{display:grid;place-items:center;width:24px;height:24px;border:1px solid #d6dfcc;border-radius:5px;font-size:14px}
+.sidebar-status{margin-top:35px;padding:14px;background:#eef0e8;border:1px solid var(--app-line);border-radius:5px}
+.sidebar-status strong{display:block;margin-bottom:5px;font:700 11px Manrope,sans-serif}
+.sidebar-status p{margin:0;color:var(--app-muted);font-size:10px;line-height:1.7}
+.status-line{display:flex;align-items:center;gap:7px;margin-bottom:8px;color:#5d7850;font-size:9px;font-weight:800;letter-spacing:.8px}
+.status-line span{width:7px;height:7px;border-radius:50%;background:#91ad6f}
+.app-main{min-width:0;padding:32px clamp(18px,4vw,52px) 60px}
+.app-topline{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:30px}
+.breadcrumb{color:var(--app-muted);font-size:11px}.breadcrumb strong{color:var(--app-text)}
+.demo-label{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid #c7d4bb;border-radius:4px;background:#f8faf2;color:#637c54;font-size:9px;font-weight:800;letter-spacing:1px}
+.demo-label:before{content:"";width:6px;height:6px;border-radius:50%;background:#a0b77d}
+.welcome-row{display:flex;align-items:end;justify-content:space-between;gap:25px;margin-bottom:27px}
+.welcome-row .eyebrow{margin-bottom:10px}.welcome-row h1{margin:0;font-size:clamp(32px,4vw,48px);letter-spacing:-1.8px}.welcome-row h1 em{font-family:Georgia,serif;color:#56775c;font-weight:400}.welcome-row p:not(.eyebrow){margin:12px 0 0;color:var(--app-muted);font-size:12px}
+.app-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:0 15px;border:1px solid var(--app-green);border-radius:4px;background:var(--app-green);color:#fff;font:700 11px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
+.app-button:hover{background:#193c2a}.app-button.secondary{background:transparent;color:var(--app-green)}.app-button.secondary:hover{background:#e6eadf}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.metric-card{padding:19px;background:var(--app-panel);border:1px solid var(--app-line);border-radius:5px}
+.metric-top{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--app-muted);font-size:10px}
+.metric-icon{display:grid;place-items:center;width:29px;height:29px;border-radius:5px;background:#edf1e5;color:#54724d;font-size:15px}
+.metric-value{display:block;margin:17px 0 5px;font:700 31px/1 Manrope,sans-serif;letter-spacing:-1px;color:var(--app-text)}
+.metric-foot{color:#859085;font-size:9px;line-height:1.6}
+.content-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.85fr);gap:17px;align-items:start}
+.panel{min-width:0;margin-bottom:17px;padding:22px;background:var(--app-panel);border:1px solid var(--app-line);border-radius:5px}
+.panel-head{display:flex;align-items:start;justify-content:space-between;gap:15px;margin-bottom:18px}
+.panel-head h2{margin:0;font:700 16px Manrope,sans-serif;letter-spacing:-.4px}
+.panel-head p{margin:5px 0 0;color:var(--app-muted);font-size:10px;line-height:1.6}
+.panel-link{border:0;background:transparent;color:#55764f;font:700 10px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
+.task-list{display:grid}
+.task-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:start;gap:12px;padding:15px 0;border-top:1px solid #e7e9e1}
+.task-check{display:grid;place-items:center;width:22px;height:22px;border:1px solid #cbd5c2;border-radius:4px;background:transparent;color:#4d7147;cursor:pointer}
+.task-check[aria-pressed=true]{background:#dfe9c9}
+.task-title{margin:1px 0 5px;font-size:11px;font-weight:700;color:var(--app-text)}
+.task-meta{margin:0;color:var(--app-muted);font-size:9px;line-height:1.6}
+.task-state{display:inline-block;padding:5px 7px;border-radius:3px;background:#f0eadb;color:#8a7042;font-size:8px;font-weight:800;white-space:nowrap}
+.task-state.done{background:#e5eddb;color:#5d794d}
+.activity-list{display:grid;gap:17px}
+.activity-item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:11px}
+.activity-mark{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#edf1e5;color:#55764f;font-size:12px}
+.activity-item strong{display:block;margin:2px 0 4px;font-size:10px}
+.activity-item p{margin:0;color:var(--app-muted);font-size:9px;line-height:1.7}
+.activity-item time{display:block;margin-top:5px;color:#929b90;font-size:8px}
+.module-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.module-tile{display:flex;flex-direction:column;min-height:165px;padding:17px;border:1px solid var(--app-line);border-radius:5px;background:var(--app-panel);text-align:left;cursor:pointer}
+.module-tile:hover{border-color:#a7b99a;transform:translateY(-1px)}
+.module-tile .tile-ico{display:grid;place-items:center;width:33px;height:33px;margin-bottom:17px;border-radius:5px;background:#edf1e5;color:#54724d;font-size:17px}
+.module-tile strong{margin-bottom:7px;font:700 12px Manrope,sans-serif}
+.module-tile small{color:var(--app-muted);font-size:9px;line-height:1.6}
+.module-tile .tile-state{margin-top:auto;padding-top:13px;color:#8a795b;font-size:8px;font-weight:800}
+.module-tile .tile-state:before{content:"";display:inline-block;width:5px;height:5px;margin-right:6px;border-radius:50%;background:#c9a86d}
+.module-tile .tile-state.ready:before{background:#9bb77c}
+.page-view{display:none}.page-view.active{display:block}
+.view-intro{margin-bottom:23px;padding:23px;background:#e1e9d1;border:1px solid #d3ddc5;border-radius:5px}
+.view-intro .eyebrow{margin-bottom:10px}.view-intro h2{margin:0 0 9px;font:700 22px Manrope,sans-serif;letter-spacing:-.7px}.view-intro p:last-child{max-width:720px;margin:0;color:#5e6e61;font-size:11px;line-height:1.8}
+.filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.search-box{flex:1;min-width:170px;min-height:40px;padding:0 12px;border:1px solid #dce1d6;border-radius:4px;background:#fff;font:11px 'DM Sans',sans-serif;color:var(--app-text)}
+.filter-select{min-height:40px;padding:0 10px;border:1px solid #dce1d6;border-radius:4px;background:#fff;font:11px 'DM Sans',sans-serif;color:var(--app-text)}
+.empty-state{padding:34px 20px;text-align:center;color:var(--app-muted);font-size:11px}
+.notice-box{margin-top:18px;padding:13px 15px;border-left:3px solid #c4a16f;background:#f3efe5;color:#74664f;font-size:10px;line-height:1.8}
+.toast{position:fixed;right:22px;bottom:22px;z-index:20;max-width:min(380px,calc(100vw - 36px));padding:14px 17px;border:1px solid #cbd8be;border-radius:5px;background:#f9fbf5;color:#294833;box-shadow:0 12px 35px #20372b1c;font-size:11px;line-height:1.6;display:none}
+.toast.visible{display:block}
+@media(max-width:1080px){.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.content-grid{grid-template-columns:1fr}.module-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.app-shell{grid-template-columns:1fr}.app-sidebar{position:relative;top:auto;height:auto;padding:10px 14px;border-right:0;border-bottom:1px solid var(--app-line)}.sidebar-caption,.sidebar-status{display:none}.app-nav{display:flex;gap:5px;overflow-x:auto;margin:0}.app-nav button{width:auto;flex:0 0 auto;padding:9px;font-size:10px}.nav-ico{width:21px;height:21px}.app-main{padding:22px 15px 40px}.welcome-row{align-items:flex-start;flex-direction:column}.app-topline{margin-bottom:22px}.metrics-grid{gap:8px}.metric-card{padding:14px}.metric-value{font-size:27px}.module-list{grid-template-columns:1fr 1fr}.module-tile{min-height:155px;padding:13px}.panel{padding:16px}.task-row{grid-template-columns:25px minmax(0,1fr)}.task-state{grid-column:2;justify-self:start}.demo-label{font-size:8px}}
+@media(max-width:390px){.module-list{grid-template-columns:1fr}.metrics-grid{grid-template-columns:1fr 1fr}.metric-top{font-size:9px}}
+</style>
+</head>
+<body class="workspace">
+<a class="skip-link" href="#app-content">Перейти к содержанию</a>
+<header class="header"><div class="container header-inner">
+<a class="brand" href="../index.html" aria-label="Усердие — на главную"><span class="brand-symbol" aria-hidden="true">у.</span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<nav aria-label="Внешняя навигация"><a href="../index.html">Главная</a><a href="platform.html">Архитектура</a><a href="implementation-plan.html">План реализации</a></nav>
+<span class="prototype-pill">РАБОЧИЙ МАКЕТ</span>
+</div></header>
+<div class="app-shell">
+<aside class="app-sidebar" aria-label="Навигация рабочего пространства">
+<p class="sidebar-caption">РАБОЧЕЕ ПРОСТРАНСТВО</p>
+<nav class="app-nav" aria-label="Модули платформы">
+<button type="button" data-view="overview" aria-current="page"><span class="nav-ico">⌂</span>Обзор</button>
+<button type="button" data-view="tasks"><span class="nav-ico">✓</span>Задачи</button>
+<button type="button" data-view="programs"><span class="nav-ico">◫</span>Программы</button>
+<button type="button" data-view="partners"><span class="nav-ico">⌁</span>Партнёры</button>
+<button type="button" data-view="documents"><span class="nav-ico">▤</span>Документы</button>
+<button type="button" data-view="security"><span class="nav-ico">◎</span>Доступы и безопасность</button>
+</nav>
+<div class="sidebar-status"><div class="status-line"><span></span>ДЕМО-СРЕДА</div><strong>Данные не отправляются</strong><p>Изменения в интерфейсе действуют только в открытой вкладке и не сохраняются на сервере.</p></div>
+</aside>
+<main class="app-main" id="app-content">
+<div class="app-topline"><div class="breadcrumb">USERDIE DIGITAL <span aria-hidden="true"> / </span> <strong id="crumb">Обзор</strong></div><span class="demo-label">ИНТЕРАКТИВНЫЙ ПРОТОТИП</span></div>
+<section class="page-view active" id="view-overview">
+<div class="welcome-row"><div><p class="eyebrow">ПОНЕДЕЛЬНИК · ДЕМО-ПАНЕЛЬ</p><h1>Добро пожаловать в <em>рабочее пространство.</em></h1><p>Единая точка обзора задач и модулей фонда «Усердие».</p></div><button class="app-button" id="new-task">＋ Добавить демо-задачу</button></div>
+<div class="metrics-grid">
+<article class="metric-card"><div class="metric-top">Задачи в работе <span class="metric-icon">✓</span></div><strong class="metric-value" id="metric-open">04</strong><div class="metric-foot">Условные примеры процесса</div></article>
+<article class="metric-card"><div class="metric-top">Программы <span class="metric-icon">◫</span></div><strong class="metric-value">03</strong><div class="metric-foot">Демонстрационные карточки</div></article>
+<article class="metric-card"><div class="metric-top">Партнёры <span class="metric-icon">⌁</span></div><strong class="metric-value">02</strong><div class="metric-foot">Без реальных организаций</div></article>
+<article class="metric-card"><div class="metric-top">Публикации к проверке <span class="metric-icon">▤</span></div><strong class="metric-value">02</strong><div class="metric-foot">Пример внутреннего контроля</div></article>
+</div>
+<div class="content-grid">
+<div>
+<section class="panel"><div class="panel-head"><div><h2>Задачи команды</h2><p>Демонстрационные записи — отметьте задачу выполненной.</p></div><button class="panel-link" data-go="tasks">Все задачи ↗</button></div>
+<div class="task-list" id="overview-tasks">
+<div class="task-row" data-task="1"><button class="task-check" aria-label="Отметить задачу выполненной" aria-pressed="false">✓</button><div><p class="task-title">Утвердить структуру карточки программы</p><p class="task-meta">Программы фонда · Ответственный: команда</p></div><span class="task-state">В работе</span></div>
+<div class="task-row" data-task="2"><button class="task-check" aria-label="Отметить задачу выполненной" aria-pressed="false">✓</button><div><p class="task-title">Проверить комплект публичных документов</p><p class="task-meta">Прозрачность · Ответственный: редактор</p></div><span class="task-state">На проверке</span></div>
+<div class="task-row" data-task="3"><button class="task-check" aria-label="Отметить задачу выполненной" aria-pressed="false">✓</button><div><p class="task-title">Описать роли доступа к кабинетам</p><p class="task-meta">Безопасность · Ответственный: администратор</p></div><span class="task-state">В работе</span></div>
+<div class="task-row" data-task="4"><button class="task-check" aria-label="Отметить задачу выполненной" aria-pressed="false">✓</button><div><p class="task-title">Согласовать путь партнёра</p><p class="task-meta">Партнёрское пространство · Ответственный: команда</p></div><span class="task-state">Запланировано</span></div>
+</div></section>
+<section class="panel"><div class="panel-head"><div><h2>Модули платформы</h2><p>Переходите между демонстрационными разделами.</p></div></div>
+<div class="module-list">
+<button class="module-tile" data-go="programs"><span class="tile-ico">◫</span><strong>Программы фонда</strong><small>Карточки, этапы и контроль материалов</small><span class="tile-state">Демо-данные</span></button>
+<button class="module-tile" data-go="partners"><span class="tile-ico">⌁</span><strong>Партнёры</strong><small>Сценарий взаимодействия и статусы</small><span class="tile-state">Демо-данные</span></button>
+<button class="module-tile" data-go="documents"><span class="tile-ico">▤</span><strong>Документы</strong><small>Проверка перед публикацией</small><span class="tile-state">Нужна проверка</span></button>
+</div></section>
+</div>
+<div>
+<section class="panel"><div class="panel-head"><div><h2>Журнал активности</h2><p>Пример записей для будущего журнала аудита.</p></div></div>
+<div class="activity-list">
+<div class="activity-item"><span class="activity-mark">✓</span><div><strong>Подготовлен макет рабочего пространства</strong><p>Интерфейсная структура и демонстрационные модули.</p><time>СЕЙЧАС · ПРИМЕР СОБЫТИЯ</time></div></div>
+<div class="activity-item"><span class="activity-mark">▤</span><div><strong>Документы ожидают проверки</strong><p>Публикация возможна только после подтверждения.</p><time>ДЕМО-СЦЕНАРИЙ</time></div></div>
+<div class="activity-item"><span class="activity-mark">◎</span><div><strong>Права доступа не настроены</strong><p>Перед рабочим запуском необходима серверная авторизация.</p><time>ТРЕБУЕТ РЕАЛИЗАЦИИ</time></div></div>
+</div></section>
+<div class="notice-box"><strong>Важно:</strong> цифры, задачи, события и организации на экране условные. Это не отчёт о фактической работе фонда и не подключённая система управления.</div>
+</div>
+</div>
+</section>
+<section class="page-view" id="view-tasks">
+<div class="view-intro"><p class="eyebrow">01 / УПРАВЛЕНИЕ РАБОТОЙ</p><h2>Задачи команды</h2><p>Интерактивный пример списка задач. Отметки и новые записи живут только в текущей вкладке браузера; серверного хранения и назначений исполнителям нет.</p></div>
+<div class="panel"><div class="panel-head"><div><h2>Список задач</h2><p id="task-summary">4 демонстрационные задачи</p></div><button class="app-button" id="new-task-secondary">＋ Добавить</button></div>
+<div class="filter-row"><input class="search-box" id="task-search" type="search" placeholder="Поиск по задачам…" aria-label="Поиск по задачам"><select class="filter-select" id="task-filter" aria-label="Фильтр по статусу"><option value="all">Все статусы</option><option value="open">Активные</option><option value="done">Выполненные</option></select></div>
+<div class="task-list" id="all-tasks"></div></div>
+</section>
+<section class="page-view" id="view-programs">
+<div class="view-intro"><p class="eyebrow">02 / ПРОГРАММНАЯ ДЕЯТЕЛЬНОСТЬ</p><h2>Программы фонда</h2><p>Структура будущего модуля: описание программы, ответственный, этапы, подтверждающие документы и критерии результата. Ниже — только условные карточки, не действующие программы фонда.</p></div>
+<div class="module-list">
+<article class="module-tile"><span class="tile-ico">✳</span><strong>Поддержка людей</strong><small>Концепт направления. Требует подтверждения и правил рассмотрения обращений.</small><span class="tile-state">Не опубликовано</span></article>
+<article class="module-tile"><span class="tile-ico">⌁</span><strong>Совместные инициативы</strong><small>Концепт взаимодействия с организациями и добровольцами.</small><span class="tile-state">Не опубликовано</span></article>
+<article class="module-tile"><span class="tile-ico">◌</span><strong>Открытая отчётность</strong><small>Публикация проверенных документов и результатов после утверждения.</small><span class="tile-state">Нужна проверка</span></article>
+</div><div class="notice-box">Не представлены как действующие сборы, обещания помощи или подтверждённые результаты. Публичное содержание должен утвердить фонд.</div>
+</section>
+<section class="page-view" id="view-partners">
+<div class="view-intro"><p class="eyebrow">03 / ПАРТНЁРСКАЯ СРЕДА</p><h2>Партнёры и взаимодействие</h2><p>Будущий модуль может хранить этап сотрудничества, согласованные материалы, рабочие задачи и историю решений. Реальные организации и контакты здесь не используются.</p></div>
+<div class="panel"><div class="panel-head"><div><h2>Примеры карточек взаимодействия</h2><p>Условные названия, не реальные контрагенты.</p></div></div>
+<div class="task-list">
+<div class="task-row"><span class="activity-mark">⌁</span><div><p class="task-title">Партнёрская инициатива «Север»</p><p class="task-meta">Этап: первичное согласование · Контакты отсутствуют</p></div><span class="task-state">Демо</span></div>
+<div class="task-row"><span class="activity-mark">⌁</span><div><p class="task-title">Совместный проект «Маяк»</p><p class="task-meta">Этап: описание модели сотрудничества · Контакты отсутствуют</p></div><span class="task-state">Демо</span></div>
+</div></div>
+<div class="notice-box">В рабочей версии доступ к материалам должен назначаться только проверенным представителям с ограниченными правами.</div>
+</section>
+<section class="page-view" id="view-documents">
+<div class="view-intro"><p class="eyebrow">04 / ДОКУМЕНТЫ И ПРОЗРАЧНОСТЬ</p><h2>Проверка перед публикацией</h2><p>Планируемый реестр документов с версией, ответственным, датой проверки и статусом согласования. Реальных документов или юридически значимых сведений в демонстрационном списке нет.</p></div>
+<div class="panel"><div class="panel-head"><div><h2>Контрольный список публикаций</h2><p>Пример внутреннего редакционного процесса.</p></div></div>
+<div class="task-list">
+<div class="task-row"><span class="activity-mark">▤</span><div><p class="task-title">Сведения о фонде и официальные реквизиты</p><p class="task-meta">Проверить по официальным документам до размещения.</p></div><span class="task-state">Требует проверки</span></div>
+<div class="task-row"><span class="activity-mark">▤</span><div><p class="task-title">Публичная отчётность</p><p class="task-meta">Опубликовать только подтверждённую актуальную версию.</p></div><span class="task-state">Требует проверки</span></div>
+<div class="task-row"><span class="activity-mark">▤</span><div><p class="task-title">Политика обработки данных</p><p class="task-meta">Согласовать до подключения форм и личных кабинетов.</p></div><span class="task-state">Не утверждена</span></div>
+</div></div>
+</section>
+<section class="page-view" id="view-security">
+<div class="view-intro"><p class="eyebrow">05 / ОСНОВА РАБОЧЕЙ СИСТЕМЫ</p><h2>Доступы и безопасность</h2><p>Этот экран фиксирует обязательные требования перед подключением реальных данных. Фактическая авторизация, хранение, журнал аудита и резервное копирование пока не реализованы.</p></div>
+<div class="module-list">
+<article class="module-tile"><span class="tile-ico">◎</span><strong>Авторизация</strong><small>Идентификация пользователя, восстановление доступа и защита сессии.</small><span class="tile-state">Не реализовано</span></article>
+<article class="module-tile"><span class="tile-ico">⊙</span><strong>Матрица ролей</strong><small>Минимальные права заявителя, сотрудника, редактора и администратора.</small><span class="tile-state">Требует согласования</span></article>
+<article class="module-tile"><span class="tile-ico">◈</span><strong>Журнал аудита</strong><small>Фиксация критичных действий и контроль доступа к сведениям.</small><span class="tile-state">Не реализовано</span></article>
+<article class="module-tile"><span class="tile-ico">▣</span><strong>Защита данных</strong><small>Шифрование, политика хранения, удаления и резервного копирования.</small><span class="tile-state">Требует проектирования</span></article>
+<article class="module-tile"><span class="tile-ico">⌁</span><strong>Надёжность</strong><small>Мониторинг ошибок, восстановление после сбоя и проверка зависимостей.</small><span class="tile-state">Требует реализации</span></article>
+<article class="module-tile"><span class="tile-ico">✓</span><strong>Проверки релиза</strong><small>Автоматические ссылки, проверка интерфейса и приёмочные сценарии.</small><span class="tile-state ready">Частично: проверка ссылок</span></article>
+</div>
+<div class="notice-box">Не вводите настоящие персональные данные, пароли или документы в этот прототип. В текущей версии нет защищённого серверного хранилища.</div>
+</section>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</main>
+</div>
+<script>
+(function(){
+const names={overview:"Обзор",tasks:"Задачи",programs:"Программы",partners:"Партнёры",documents:"Документы",security:"Доступы и безопасность"};
+const nav=[...document.querySelectorAll("[data-view]")],views=[...document.querySelectorAll(".page-view")],crumb=document.getElementById("crumb"),toast=document.getElementById("toast");
+function showToast(message){toast.textContent=message;toast.classList.add("visible");}
+function go(view){if(!names[view])return;views.forEach(el=>el.classList.toggle("active",el.id==="view-"+view));nav.forEach(el=>{if(el.dataset.view===view)el.setAttribute("aria-current","page");else el.removeAttribute("aria-current")});crumb.textContent=names[view];if(view==="tasks")renderTasks();window.scrollTo({top:0,behavior:"smooth"});}
+nav.forEach(el=>el.addEventListener("click",()=>go(el.dataset.view)));
+document.querySelectorAll("[data-go]").forEach(el=>el.addEventListener("click",()=>go(el.dataset.go)));
+let taskCounter=4;
+const tasks=[...document.querySelectorAll("#overview-tasks .task-row")].map((el,i)=>({id:i+1,title:el.querySelector(".task-title").textContent,meta:el.querySelector(".task-meta").textContent,status:el.querySelector(".task-state").textContent,done:false}));
+function updateMetrics(){document.getElementById("metric-open").textContent=String(tasks.filter(t=>!t.done).length).padStart(2,"0");}
+function renderTasks(){const root=document.getElementById("all-tasks"),q=(document.getElementById("task-search")?.value||"").toLowerCase(),filter=document.getElementById("task-filter")?.value||"all";const list=tasks.filter(t=>(t.title+" "+t.meta).toLowerCase().includes(q)&&(filter==="all"||(filter==="done"&&t.done)||(filter==="open"&&!t.done)));root.innerHTML="";if(!list.length){root.innerHTML='<div class="empty-state">По выбранным условиям задач нет.</div>';}list.forEach(t=>{const row=document.createElement("div");row.className="task-row";row.innerHTML='<button class="task-check" aria-label="Отметить задачу выполненной" aria-pressed="'+t.done+'">✓</button><div><p class="task-title"></p><p class="task-meta"></p></div><span class="task-state '+(t.done?"done":"")+'">'+(t.done?"Выполнено":t.status)+'</span>';row.querySelector(".task-title").textContent=t.title;row.querySelector(".task-meta").textContent=t.meta;row.querySelector("button").addEventListener("click",()=>{t.done=!t.done;renderTasks();renderOverviewTasks();updateMetrics();showToast(t.done?"Задача отмечена выполненной в демо-сессии.":"Статус задачи возвращён в демо-сессии.");});root.appendChild(row);});document.getElementById("task-summary").textContent=list.length+" из "+tasks.length+" демонстрационных задач";}
+function renderOverviewTasks(){const root=document.getElementById("overview-tasks");root.innerHTML="";tasks.slice(0,4).forEach(t=>{const row=document.createElement("div");row.className="task-row";row.innerHTML='<button class="task-check" aria-label="Отметить задачу выполненной" aria-pressed="'+t.done+'">✓</button><div><p class="task-title"></p><p class="task-meta"></p></div><span class="task-state '+(t.done?"done":"")+'">'+(t.done?"Выполнено":t.status)+'</span>';row.querySelector(".task-title").textContent=t.title;row.querySelector(".task-meta").textContent=t.meta;row.querySelector("button").addEventListener("click",()=>{t.done=!t.done;renderOverviewTasks();renderTasks();updateMetrics();showToast(t.done?"Задача отмечена выполненной в демо-сессии.":"Статус задачи возвращён в демо-сессии.");});root.appendChild(row);});}
+function addTask(){taskCounter++;const title="Новая демонстрационная задача "+(taskCounter-4);tasks.unshift({id:taskCounter,title,meta:"Создано в текущей вкладке · Не сохранено на сервере",status:"Запланировано",done:false});renderOverviewTasks();renderTasks();updateMetrics();showToast("Демо-задача добавлена в текущую вкладку. Серверного сохранения нет.");}
+document.getElementById("new-task").addEventListener("click",addTask);document.getElementById("new-task-secondary").addEventListener("click",addTask);
+document.getElementById("task-search").addEventListener("input",renderTasks);document.getElementById("task-filter").addEventListener("change",renderTasks);
+updateMetrics();renderTasks();
+})();
+</script>
+</body></html>
