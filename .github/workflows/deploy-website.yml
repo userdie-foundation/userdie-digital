@@ -5,6 +5,7 @@ on:
     paths:
       - "website/**"
       - ".github/workflows/deploy-website.yml"
+      - ".github/scripts/**"
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Check internal website links
+        run: node .github/scripts/check-site-links.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site
