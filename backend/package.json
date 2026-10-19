@@ -1,0 +1,18 @@
+{
+  "name": "userdie-digital-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend foundation for the USERDIE Digital platform",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/index.mjs",
+    "test": "node --test",
+    "check": "node --check src/index.mjs && node --check src/server.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
+  }
+}
