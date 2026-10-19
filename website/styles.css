@@ -124,3 +124,49 @@ h1,h2,h3,p{margin-top:0}h1,h2{font-family:Manrope,sans-serif;letter-spacing:-1.8
 .preview-link{display:flex;justify-content:space-between;gap:15px;margin-top:auto;padding-top:15px;border-top:1px solid var(--line);color:var(--green);font-size:11px;font-weight:800}
 .preview-disclaimer{margin:18px 0 0;color:#758274;font-size:10px;line-height:1.7}
 @media(max-width:680px){.preview-grid{grid-template-columns:1fr}.preview-card{min-height:250px}.preview-section{padding:65px 0}.preview-section .section-heading{display:block}.preview-section .section-heading>p{margin-top:14px}}
+
+
+/* USERDIE DIGITAL visual system refinement — responsive navigation, hierarchy and interaction states */
+:root{--shadow-soft:0 16px 44px rgba(30,48,40,.07);--radius-soft:8px}
+::selection{background:#dce9b7;color:#1e3028}
+img,svg,video{max-width:100%}
+button,input,select,textarea{font:inherit}
+a,button{ -webkit-tap-highlight-color:transparent}
+.button,.preview-card,.module-card,.direction-card,.module-tile{border-radius:var(--radius-soft)}
+.button{box-shadow:0 2px 0 rgba(20,40,28,.04)}
+.button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #b96b49;outline-offset:3px}
+.header{box-shadow:0 5px 24px rgba(30,48,40,.025)}
+.header-inner nav a{position:relative;padding:8px 0}
+.header-inner nav a:after{position:absolute;right:0;bottom:2px;left:0;height:2px;background:#9bad78;content:"";transform:scaleX(0);transform-origin:left;transition:transform .18s ease}
+.header-inner nav a:hover:after,.header-inner nav a:focus-visible:after{transform:scaleX(1)}
+.hero-copy .lead{font-size:clamp(16px,1.4vw,18px)}
+.hero-visual{box-shadow:var(--shadow-soft)}
+.direction-card,.preview-card,.module-card{box-shadow:0 1px 0 rgba(30,48,40,.025)}
+.direction-card:hover,.preview-card:hover,.module-card:hover{box-shadow:var(--shadow-soft)}
+.direction-card,.module-card,.preview-card{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.help-panel{border-radius:var(--radius-soft);box-shadow:var(--shadow-soft)}
+.stamp{background:rgba(223,232,201,.18)}
+.footer-inner>a:not(.brand){text-underline-offset:4px}
+.footer-inner>a:not(.brand):hover{color:#a45f42}
+.prototype-pill{white-space:nowrap}
+@media(max-width:900px){
+  .header-inner{flex-wrap:wrap;padding-block:12px}
+  .header-inner nav{flex:1;justify-content:center;flex-wrap:wrap;row-gap:4px}
+  .header-cta{white-space:nowrap}
+  .hero-layout{min-height:0;padding-bottom:10px}
+}
+@media(max-width:680px){
+  .header-inner{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px}
+  .header-inner nav{grid-column:1/-1;order:3;display:flex;justify-content:flex-start;gap:18px;overflow-x:auto;white-space:nowrap;padding:8px 1px 4px;scrollbar-width:thin}
+  .header-inner nav a{flex-shrink:0}
+  .header-cta{font-size:11px;min-height:38px;padding-inline:11px;gap:8px}
+  .brand strong{font-size:15px}
+  .hero-visual{border-radius:42% 42% 5px 5px}
+  .section-heading{gap:15px}
+  .help-panel{border-radius:var(--radius-soft)}
+  .footer-inner{gap:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  .header-inner nav a:after,.direction-card,.preview-card,.module-card,.button{transition:none}
+  .direction-card:hover,.preview-card:hover,.module-card:hover,.button:hover{transform:none}
+}
