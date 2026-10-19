@@ -15,6 +15,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 .app-nav{display:grid;gap:4px;margin-bottom:28px}
 .app-nav button{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:0;border-radius:5px;background:transparent;color:#5e6e61;text-align:left;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
 .app-nav button:hover{background:#eef0e8}
+.app-nav button:focus-visible,.app-button:focus-visible,.panel-link:focus-visible,.task-check:focus-visible,.module-tile:focus-visible,.search-box:focus-visible,.filter-select:focus-visible,.prototype-directory a:focus-visible{outline:3px solid #6b8c54;outline-offset:3px}
 .app-nav button[aria-current=page]{background:#dfe9c9;color:#264d38}
 .nav-ico{display:grid;place-items:center;width:24px;height:24px;border:1px solid #d6dfcc;border-radius:5px;font-size:14px}
 .sidebar-status{margin-top:35px;padding:14px;background:#eef0e8;border:1px solid var(--app-line);border-radius:5px}
@@ -92,17 +93,17 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 <aside class="app-sidebar" aria-label="Навигация рабочего пространства">
 <p class="sidebar-caption">РАБОЧЕЕ ПРОСТРАНСТВО</p>
 <nav class="app-nav" aria-label="Модули платформы">
-<button type="button" data-view="overview" aria-current="page"><span class="nav-ico">⌂</span>Обзор</button>
-<button type="button" data-view="tasks"><span class="nav-ico">✓</span>Задачи</button>
-<button type="button" data-view="programs"><span class="nav-ico">◫</span>Программы</button>
-<button type="button" data-view="partners"><span class="nav-ico">⌁</span>Партнёры</button>
-<button type="button" data-view="documents"><span class="nav-ico">▤</span>Документы</button>
-<button type="button" data-view="security"><span class="nav-ico">◎</span>Доступы и безопасность</button>
+<button type="button" data-view="overview" aria-controls="view-overview" aria-current="page"><span class="nav-ico">⌂</span>Обзор</button>
+<button type="button" data-view="tasks" aria-controls="view-tasks"><span class="nav-ico">✓</span>Задачи</button>
+<button type="button" data-view="programs" aria-controls="view-programs"><span class="nav-ico">◫</span>Программы</button>
+<button type="button" data-view="partners" aria-controls="view-partners"><span class="nav-ico">⌁</span>Партнёры</button>
+<button type="button" data-view="documents" aria-controls="view-documents"><span class="nav-ico">▤</span>Документы</button>
+<button type="button" data-view="security" aria-controls="view-security"><span class="nav-ico">◎</span>Доступы и безопасность</button>
 </nav>
 <div class="sidebar-status"><div class="status-line"><span></span>ДЕМО-СРЕДА</div><strong>Данные не отправляются</strong><p>Изменения в интерфейсе действуют только в открытой вкладке и не сохраняются на сервере.</p></div>
 </aside>
 <main class="app-main" id="app-content">
-<div class="app-topline"><div class="breadcrumb">USERDIE DIGITAL <span aria-hidden="true"> / </span> <strong id="crumb">Обзор</strong></div><span class="demo-label">ИНТЕРАКТИВНЫЙ ПРОТОТИП</span></div>
+<div class="app-topline"><div class="breadcrumb">USERDIE DIGITAL <span aria-hidden="true"> / </span> <strong id="crumb" aria-live="polite">Обзор</strong></div><span class="demo-label">ИНТЕРАКТИВНЫЙ ПРОТОТИП</span></div>
 <section class="page-view active" id="view-overview">
 <div class="welcome-row"><div><p class="eyebrow">КОМАНДА · ДЕМО-ПАНЕЛЬ</p><h1>Добро пожаловать в <em>рабочее пространство.</em></h1><p>Единая точка обзора задач и модулей фонда «Усердие».</p></div><button class="app-button" id="new-task">＋ Добавить демо-задачу</button></div>
 <div class="metrics-grid">
