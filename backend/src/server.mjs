@@ -6,12 +6,12 @@ const SECURITY_HEADERS = {
   "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
 };
 
-function sendJson(res, status, body) {
+function sendJson(res, status, body, method = "GET") {
   res.writeHead(status, {
     ...SECURITY_HEADERS,
     "Content-Type": "application/json; charset=utf-8",
   });
-  res.end(JSON.stringify(body));
+  res.end(method === "HEAD" ? undefined : JSON.stringify(body));
 }
 
 export function createServer({ pool, allowedOrigin } = {}) {
@@ -32,22 +32,22 @@ export function createServer({ pool, allowedOrigin } = {}) {
     const url = new URL(req.url ?? "/", "http://localhost");
 
     if (req.method !== "GET" && req.method !== "HEAD") {
-      return sendJson(res, 405, { error: "method_not_allowed" });
+      return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
     }
 
     if (url.pathname === "/api/v1/health/live") {
-      return sendJson(res, 200, { status: "ok" });
+      return sendJson(res, 200, { status: "ok" }, req.method);
     }
 
     if (url.pathname === "/api/v1/health/ready") {
       try {
         await pool.query("SELECT 1");
-        return sendJson(res, 200, { status: "ready" });
+        return sendJson(res, 200, { status: "ready" }, req.method);
       } catch {
-        return sendJson(res, 503, { status: "unavailable" });
+        return sendJson(res, 503, { status: "unavailable" }, req.method);
       }
     }
 
-    return sendJson(res, 404, { error: "not_found" });
+    return sendJson(res, 404, { error: "not_found" }, req.method);
   };
 }
