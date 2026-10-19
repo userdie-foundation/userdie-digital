@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f4ee">
+  <meta name="description" content="План реализации цифровой платформы фонда «Усердие»: этапы, критерии готовности и границы безопасного запуска.">
+  <title>USERDIE DIGITAL — план реализации</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="platform-page">
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html" aria-label="Усердие — на главную">
+        <span class="brand-symbol" aria-hidden="true">у.</span>
+        <span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span>
+      </a>
+      <nav aria-label="Главная навигация">
+        <a href="../index.html">Главная</a>
+        <a href="platform.html">Карта платформы</a>
+        <a href="#milestones">Этапы</a>
+      </nav>
+      <span class="prototype-pill">ПЛАН РАБОТ</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="platform-hero">
+      <div class="container platform-hero-inner">
+        <p class="eyebrow"><span></span> USERDIE DIGITAL · ДОРОЖНАЯ КАРТА</p>
+        <h1>От концепции<br><em>к рабочей системе.</em></h1>
+        <p class="lead">Последовательность разработки с проверяемыми результатами. Каждый этап завершается проверкой, а переход к обработке реальных обращений возможен только после отдельной подготовки безопасности и правовых оснований.</p>
+        <div class="platform-meta"><span class="status-dot"></span> План реализации <span class="meta-divider"></span> Не является подтверждением готовности backend</div>
+      </div>
+    </section>
+
+    <section class="section platform-modules" id="milestones">
+      <div class="container">
+        <div class="section-heading">
+          <div><p class="eyebrow">01 / ПОСЛЕДОВАТЕЛЬНОСТЬ</p><h2>Работа по <em>этапам.</em></h2></div>
+          <p>Приоритет — сохранить существующий GitHub-репозиторий и действующий путь публикации, не переносить весь проект на сторонний конструктор или хостинг.</p>
+        </div>
+        <div class="module-grid">
+          <article class="module-card">
+            <div class="module-top"><span class="module-icon" aria-hidden="true">✓</span><span class="module-index">01</span></div>
+            <p class="module-kicker">ТЕКУЩАЯ БАЗА</p><h3>Статический сайт и навигация</h3>
+            <p>Главная страница, карта платформы, макет кабинета заявителя, партнёрское пространство, страница 404 и автоматическая проверка внутренних ссылок.</p>
+            <div class="module-bottom"><span class="module-status status-content">Изменения в main</span><a class="text-link" href="platform.html">Карта платформы ↗</a></div>
+          </article>
+          <article class="module-card">
+            <div class="module-top"><span class="module-icon" aria-hidden="true">◎</span><span class="module-index">02</span></div>
+            <p class="module-kicker">ПЕРВЫЙ ТЕХНИЧЕСКИЙ ЭТАП</p><h3>Проверка публикации</h3>
+            <p>Подтвердить успешный запуск GitHub Actions, фактический адрес сайта, HTTPS и работу ключевых переходов после публикации.</p>
+            <div class="module-bottom"><span class="module-status status-planned">Требует подтверждения</span><a class="text-link" href="../RELEASE_CHECKLIST.md">Чек-лист ↗</a></div>
+          </article>
+          <article class="module-card">
+            <div class="module-top"><span class="module-icon" aria-hidden="true">⌘</span><span class="module-index">03</span></div>
+            <p class="module-kicker">ПРОЕКТИРОВАНИЕ</p><h3>Сценарии и роли</h3>
+            <p>Зафиксировать путь заявителя, обработку обращения сотрудником, работу партнёра, роли доступа, причины отказа и историю изменений.</p>
+            <div class="module-bottom"><span class="module-status status-planned">Следующий этап</span><span aria-hidden="true">→</span></div>
+          </article>
+          <article class="module-card">
+            <div class="module-top"><span class="module-icon" aria-hidden="true">▤</span><span class="module-index">04</span></div>
+            <p class="module-kicker">СЕРВЕРНАЯ ЧАСТЬ</p><h3>Backend и хранение</h3>
+            <p>Выбрать и документировать серверную архитектуру, базу данных, авторизацию, резервное копирование и управление секретами. Секреты не хранить в репозитории или клиентском коде.</p>
+            <div class="module-bottom"><span class="module-status status-planned">Не реализовано</span><span aria-hidden="true">→</span></div>
+          </article>
+          <article class="module-card">
+            <div class="module-top"><span class="module-icon" aria-hidden="true">✳</span><span class="module-index">05</span></div>
+            <p class="module-kicker">ЗАЩИТА И ПРОВЕРКА</p><h3>Тестирование и безопасность</h3>
+            <p>Проверить права доступа, валидацию, журналирование, восстановление после сбоя, мобильную доступность и обработку ошибок без раскрытия личных данных.</p>
+            <div class="module-bottom"><span class="module-status status-planned">До пилота</span><span aria-hidden="true">→</span></div>
+          </article>
+          <article class="module-card module-card-accent">
+            <div class="module-top"><span class="module-icon" aria-hidden="true">→</span><span class="module-index">06</span></div>
+            <p class="module-kicker">КОНТРОЛИРУЕМЫЙ ЗАПУСК</p><h3>Пилот без лишнего риска</h3>
+            <p>Запускать сначала на тестовых данных, затем — ограниченный пилот после утверждения документов фонда, ответственных лиц и правил доступа.</p>
+            <div class="module-bottom"><span class="module-status status-planned">Только после допуска</span><span aria-hidden="true">→</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section platform-principles" id="acceptance">
+      <div class="container principles-grid">
+        <div><p class="eyebrow">02 / КРИТЕРИИ ПРИЁМКИ</p><h2>Не обещания.<br><em>Проверяемые факты.</em></h2></div>
+        <div class="principles-list">
+          <div><span>01</span><p><strong>Код в основном репозитории</strong><small>Изменения фиксируются коммитами в userdie-foundation/userdie-digital; черновая копия не подменяет основной проект.</small></p></div>
+          <div><span>02</span><p><strong>Автоматические проверки проходят</strong><small>Проверка внутренних ссылок и якорей не должна находить ошибок; результат CI проверяется отдельно.</small></p></div>
+          <div><span>03</span><p><strong>Публикация подтверждена</strong><small>Нужны успешный workflow и проверка фактического публичного URL. Сам коммит не означает успешный деплой.</small></p></div>
+          <div><span>04</span><p><strong>Реальные данные защищены</strong><small>Никаких рабочих форм, загрузки документов или персональных данных до появления проверенной серверной части и утверждённых правил.</small></p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="platform-next">
+      <div class="container platform-next-inner">
+        <div><p class="eyebrow">СЛЕДУЮЩИЙ ШАГ</p><h2>Сначала подтвердить <em>публикацию.</em></h2><p>После этого можно переходить к детальной спецификации backend и реализации рабочего функционала без разрушения текущего сайта.</p></div>
+        <a class="button button-light" href="platform.html">Вернуться к карте <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="container footer-inner"><a class="brand brand-footer" href="../index.html"><span class="brand-symbol">у.</span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a><p>План реализации · Статус этапов указан явно</p><a href="platform.html">Карта платформы ↗</a></div></footer>
+</body>
+</html>
