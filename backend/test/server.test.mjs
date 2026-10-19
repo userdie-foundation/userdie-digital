@@ -24,6 +24,9 @@ test("live endpoint returns minimal health information", async () => {
     assert.deepEqual(await response.json(), { status: "ok" });
     assert.equal(response.headers.get("cache-control"), "no-store");
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+    const head = await fetch(`${base}/api/v1/health/live`, { method: "HEAD" });
+    assert.equal(head.status, 200);
+    assert.equal(await head.text(), "");
   });
 });
 
