@@ -31,6 +31,19 @@ await walk(root);
 
 for (const source of htmlFiles) {
   const markup = await readFile(source, "utf8");
+  const localIds = ids(markup);
+
+  // Catch broken accessibility relationships before the site is published.
+  for (const attribute of ["aria-controls", "aria-labelledby", "aria-describedby", "aria-errormessage"]) {
+    for (const value of attributes(markup, attribute)) {
+      for (const referencedId of value.split(/\\s+/).filter(Boolean)) {
+        if (!localIds.has(referencedId)) {
+          errors.push(`${path.relative(root, source)}: ${attribute} references missing id "${referencedId}"`);
+        }
+      }
+    }
+  }
+
   for (const raw of [...attributes(markup, "href"), ...attributes(markup, "src")]) {
     if (!raw || /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(raw)) continue;
 
