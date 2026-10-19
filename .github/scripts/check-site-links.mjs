@@ -1,6 +1,5 @@
 import { readdir, readFile, access } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 const root = path.resolve("website");
 const htmlFiles = [];
@@ -32,8 +31,6 @@ await walk(root);
 
 for (const source of htmlFiles) {
   const markup = await readFile(source, "utf8");
-  const sourceIds = ids(markup);
-
   for (const raw of [...attributes(markup, "href"), ...attributes(markup, "src")]) {
     if (!raw || /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(raw)) continue;
 
