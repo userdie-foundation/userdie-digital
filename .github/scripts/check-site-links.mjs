@@ -36,7 +36,7 @@ for (const source of htmlFiles) {
   // Catch broken accessibility relationships before the site is published.
   for (const attribute of ["aria-controls", "aria-labelledby", "aria-describedby", "aria-errormessage"]) {
     for (const value of attributes(markup, attribute)) {
-      for (const referencedId of value.split(/\\s+/).filter(Boolean)) {
+      for (const referencedId of value.split(/\s+/).filter(Boolean)) {
         if (!localIds.has(referencedId)) {
           errors.push(`${path.relative(root, source)}: ${attribute} references missing id "${referencedId}"`);
         }
