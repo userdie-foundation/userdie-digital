@@ -39,8 +39,9 @@ test("ready endpoint does not leak database errors", async () => {
   await withServer({ query: async () => { throw new Error("secret connection string"); } }, async (base) => {
     const response = await fetch(`${base}/api/v1/health/ready`);
     assert.equal(response.status, 503);
-    assert.deepEqual(await response.json(), { status: "unavailable" });
-    assert.equal((await response.text()).includes("secret"), false);
+    const body = await response.text();
+    assert.deepEqual(JSON.parse(body), { status: "unavailable" });
+    assert.equal(body.includes("secret"), false);
   });
 });
 
