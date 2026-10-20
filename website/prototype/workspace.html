@@ -32,6 +32,20 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 .welcome-row .eyebrow{margin-bottom:10px}.welcome-row h1{margin:0;font-size:clamp(32px,4vw,48px);letter-spacing:-1.8px}.welcome-row h1 em{font-family:Georgia,serif;color:#56775c;font-weight:400}.welcome-row p:not(.eyebrow){margin:12px 0 0;color:var(--app-muted);font-size:12px}
 .app-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:0 15px;border:1px solid var(--app-green);border-radius:4px;background:var(--app-green);color:#fff;font:700 11px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
 .app-button:hover{background:#193c2a}.app-button.secondary{background:transparent;color:var(--app-green)}.app-button.secondary:hover{background:#e6eadf}
+
+.contour-switcher{margin:0 0 22px;padding:19px;border:1px solid var(--app-line);border-radius:5px;background:var(--app-panel)}
+.contour-switcher-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}
+.contour-switcher-head .eyebrow{margin:0 0 5px}.contour-switcher-head h2{margin:0;font:700 16px Manrope,sans-serif}
+.contour-demo-tag{padding:6px 8px;border-radius:3px;background:#f0eadb;color:#8a7042;font-size:8px;font-weight:800;white-space:nowrap}
+.contour-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.contour-option{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:112px;padding:13px;border:1px solid var(--app-line);border-radius:4px;background:#fff;text-align:left;cursor:pointer;color:var(--app-text)}
+.contour-option>span{color:#9a8b72;font-size:9px;font-weight:800;letter-spacing:1px}
+.contour-option strong{font:700 11px Manrope,sans-serif}
+.contour-option small{color:var(--app-muted);font-size:9px;line-height:1.55}
+.contour-option.active{border-color:#55764f;background:#edf2e6;box-shadow:inset 0 0 0 1px #55764f}
+.contour-option:focus-visible{outline:3px solid #b96b49;outline-offset:3px}
+.contour-context{margin:13px 0 0;color:#45634b;font-size:10px;line-height:1.7}
+.contour-legal-note{margin:6px 0 0;color:#8a8e83;font-size:9px;line-height:1.7}
 .metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
 .metric-card{padding:19px;background:var(--app-panel);border:1px solid var(--app-line);border-radius:5px}
 .metric-top{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--app-muted);font-size:10px}
@@ -106,6 +120,17 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 <div class="app-topline"><div class="breadcrumb">USERDIE DIGITAL <span aria-hidden="true"> / </span> <strong id="crumb" aria-live="polite">Обзор</strong></div><span class="demo-label">ИНТЕРАКТИВНЫЙ ПРОТОТИП</span></div>
 <section class="page-view active" id="view-overview">
 <div class="welcome-row"><div><p class="eyebrow">КОМАНДА · ДЕМО-ПАНЕЛЬ</p><h1>Добро пожаловать в <em>рабочее пространство.</em></h1><p>Единая точка обзора задач и модулей фонда «Усердие».</p></div><button class="app-button" id="new-task">＋ Добавить демо-задачу</button></div>
+
+<div class="contour-switcher" aria-labelledby="contour-title">
+  <div class="contour-switcher-head"><div><p class="eyebrow">ОРГАНИЗАЦИОННЫЕ КОНТУРЫ</p><h2 id="contour-title">Выберите рабочий контекст</h2></div><span class="contour-demo-tag">ДЕМО · ЛОКАЛЬНО</span></div>
+  <div class="contour-options" role="group" aria-label="Выбор организационного контура">
+    <button type="button" class="contour-option active" data-contour="fund" aria-pressed="true"><span>01</span><strong>Фонд «УСЕРДИЕ»</strong><small>Программы, обращения, партнёры и отчётность</small></button>
+    <button type="button" class="contour-option" data-contour="assets" aria-pressed="false"><span>02</span><strong>Центр оценки активов</strong><small>Методики, материалы и оценочные задачи</small></button>
+    <button type="button" class="contour-option" data-contour="analytics" aria-pressed="false"><span>03</span><strong>Аналитический центр</strong><small>Исследования, знания и аналитические материалы</small></button>
+  </div>
+  <p class="contour-context" id="contour-context" aria-live="polite">Выбран контур фонда «УСЕРДИЕ». Общие демо-задачи ниже пока не распределены по контурам.</p>
+  <p class="contour-legal-note">Названия показывают целевую организационную модель и не подтверждают самостоятельный юридический статус двух центров. Выбор действует только в этой вкладке.</p>
+</div>
 <div class="metrics-grid">
 <article class="metric-card"><div class="metric-top">Незавершённые задачи <span class="metric-icon">✓</span></div><strong class="metric-value" id="metric-open">04</strong><div class="metric-foot">Все незакрытые демо-задачи</div></article>
 <article class="metric-card"><div class="metric-top">Программы <span class="metric-icon">◫</span></div><strong class="metric-value">03</strong><div class="metric-foot">Демонстрационные карточки</div></article>
@@ -218,6 +243,16 @@ function renderOverviewTasks(){const root=document.getElementById("overview-task
 function addTask(){taskCounter++;const title="Новая демонстрационная задача "+(taskCounter-4);tasks.unshift({id:taskCounter,title,meta:"Создано в текущей вкладке · Не сохранено на сервере",status:"Запланировано",done:false});renderOverviewTasks();renderTasks();updateMetrics();showToast("Демо-задача добавлена в текущую вкладку. Серверного сохранения нет.");}
 document.getElementById("new-task").addEventListener("click",addTask);document.getElementById("new-task-secondary").addEventListener("click",addTask);
 document.getElementById("task-search").addEventListener("input",renderTasks);document.getElementById("task-filter").addEventListener("change",renderTasks);
+
+const contourMessages={
+  fund:'Выбран контур фонда «УСЕРДИЕ». Общие демо-задачи ниже пока не распределены по контурам.',
+  assets:'Выбран контур Центра оценки активов. Карточки оценки и методики пока не подключены; общий список задач остаётся демонстрационным.',
+  analytics:'Выбран контур Аналитического центра. Реестр исследований и интеллектуальных ресурсов ещё не подключён; общий список задач остаётся демонстрационным.'
+};
+document.querySelectorAll('[data-contour]').forEach(button=>button.addEventListener('click',()=>{
+  document.querySelectorAll('[data-contour]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active));});
+  document.getElementById('contour-context').textContent=contourMessages[button.dataset.contour];
+}));
 updateMetrics();renderTasks();
 })();
 </script>
