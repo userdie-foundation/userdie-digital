@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f1e8">
+<meta name="description" content="Контрольный список готовности USERDIE Digital: контент, безопасность, рабочие процессы и публикация.">
+<title>Контрольный список релиза — USERDIE DIGITAL</title>
+<style>
+:root{--ink:#1f3028;--green:#294c3a;--gold:#b99a57;--paper:#f4f1e8;--card:#fffdf8;--muted:#68736b;--line:#d9ded5;--warn:#f4ead1}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:inherit}.wrap{width:min(1040px,calc(100% - 36px));margin:auto}.top{padding:22px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;align-items:center}.brand{font-weight:800;letter-spacing:.08em;text-decoration:none}.brand span{display:block;font-size:11px;font-weight:500;letter-spacing:.13em;color:var(--muted)}.back{font-size:14px;text-decoration:none;border-bottom:1px solid var(--gold)}header.hero{padding:64px 0 38px}.eyebrow{font-size:12px;letter-spacing:.15em;font-weight:750;color:var(--green)}h1{font-size:clamp(34px,6vw,64px);line-height:1.04;letter-spacing:-.045em;max-width:780px;margin:14px 0 20px}h1 em{font-family:Georgia,serif;font-weight:400;color:#8d7441}.lead{max-width:760px;color:#4d5b52;font-size:18px}.warning{margin:28px 0 0;padding:16px 18px;background:var(--warn);border-left:3px solid var(--gold);border-radius:0 10px 10px 0}.progress{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin:18px 0 28px}.track{height:8px;background:#e0e3db;border-radius:20px;overflow:hidden}.fill{height:100%;width:0;background:var(--green);transition:width .2s}.progress strong{font-variant-numeric:tabular-nums}.group{margin:28px 0}.group h2{font-size:21px;margin:0 0 12px}.items{display:grid;gap:10px}.item{display:flex;gap:14px;align-items:flex-start;padding:17px;background:var(--card);border:1px solid var(--line);border-radius:13px}.item input{margin-top:6px;width:18px;height:18px;accent-color:var(--green);flex:0 0 auto}.item strong{display:block;margin-bottom:3px}.item p{margin:0;color:var(--muted);font-size:14px}.pill{display:inline-block;margin-top:7px;font-size:10px;letter-spacing:.08em;font-weight:800;color:#765e2f}.footer{margin:34px 0 56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}.button{border:0;border-radius:999px;padding:11px 17px;background:var(--green);color:white;font:inherit;cursor:pointer}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.button.secondary{background:transparent;color:var(--green);border:1px solid var(--line)}@media(min-width:720px){.items{grid-template-columns:1fr 1fr}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><a class="brand" href="../index.html">УСЕРДИЕ<span>USERDIE DIGITAL</span></a><a class="back" href="../index.html">← На главную</a></div>
+<header class="hero">
+<p class="eyebrow">ПЛАН КОНТРОЛЯ · ВЕРСИЯ 1.0</p>
+<h1>До запуска — <em>проверить главное.</em></h1>
+<p class="lead">Единый список приёмки публичного сайта и будущей рабочей платформы. Он помогает отделить опубликованный интерфейс от функций, которые ещё предстоит реализовать и проверить.</p>
+<div class="warning"><strong>Текущий статус:</strong> это контрольный список, а не сертификат готовности. Отметки действуют только в открытой вкладке и не сохраняются на сервере. Не отмечайте пункт как выполненный без проверки и подтверждения ответственного.</div>
+<div class="progress" aria-live="polite"><div><div class="track"><div class="fill" id="progress-fill"></div></div><small id="progress-label">Выполнено 0 из 12 пунктов</small></div><strong id="progress-percent">0%</strong></div>
+<div class="actions"><button class="button" id="reset">Сбросить отметки</button><button class="button secondary" id="print">Печать / сохранить в PDF</button></div>
+</header>
+<main>
+<section class="group"><h2>01 · Организационная и содержательная проверка</h2><div class="items">
+<label class="item"><input type="checkbox"><span><strong>Подтвердить сведения о фонде</strong><p>Наименование, реквизиты, руководящие сведения и публичные контакты сверены с официальными документами.</p><span class="pill">ДОКУМЕНТАЛЬНАЯ ПРОВЕРКА</span></span></label>
+<label class="item"><input type="checkbox"><span><strong>Уточнить статус трёх контуров</strong><p>Подтвердить полномочия фонда, Центра оценки активов и Аналитического центра; не предполагать отдельную правосубъектность без документов.</p><span class="pill">НУЖНО ЮРИДИЧЕСКОЕ ПОДТВЕРЖДЕНИЕ</span></span></label>
+<label class="item"><input type="checkbox"><span><strong>Сверить программы</strong><p>Описания «Открытый мир», «Гуманитарный диалог», «Помоги сам себе» и «Дроник» подтверждены уполномоченным представителем.</p><span class="pill">СОДЕРЖАНИЕ ТРЕБУЕТ СВЕРКИ</span></span></label>
+<label class="item"><input type="checkbox"><span><strong>Проверить все ссылки и тексты</strong><p>Нет неработающих переходов, заглушек, неподтверждённых обещаний, чужих контактов или вымышленных результатов.</p><span class="pill">ПЕРЕД КАЖДЫМ РЕЛИЗОМ</span></span></label>
+</div></section>
+<section class="group"><h2>02 · Персональные данные и безопасность</h2><div class="items">
+<label class="item"><input type="checkbox"><span><strong>Утвердить политику обработки данных</strong><p>Правовые основания, цели, сроки хранения, доступ, удаление и порядок обращений согласованы до запуска реальных форм.</p><span class="pill">БЛОКИРУЕТ СБОР РЕАЛЬНЫХ ДАННЫХ</span></span></label>
+<label class="item"><input type="checkbox"><span><strong>Реализовать серверную авторизацию и роли</strong><p>Проверены права заявителя, сотрудника, редактора и администратора; запрещён доступ к чужим делам и документам.</p><span class="pill">НЕ СЧИТАТЬ ГОТОВЫМ ПО МАКЕТУ</span></span></label>
+<label class="item"><input type="checkbox"><span><strong>Настроить безопасное хранение</strong><p>Секреты не попадают в публичный репозиторий; передача и хранение защищены, доступы и журналы проверены.</p><span class="pill">ТЕХНИЧЕСКАЯ ПРИЁМКА</span></span></label>
+<label class="item"><input type="checkbox"><span><strong>Проверить резервное копирование и восстановление</strong><p>Определены ответственный, периодичность, независимая копия и успешный тест восстановления.</p><span class="pill">ТЕСТ ВОССТАНОВЛЕНИЯ ОБЯЗАТЕЛЕН</span></span></label>
+</div></section>
+<section class="group"><h2>03 · Рабочие процессы и публикация</h2><div class="items">
+<label class="item"><input type="checkbox"><span><strong>Проверить полный путь обращения</strong><p>Создание, регистрация, назначение, сроки, решение, уведомление и закрытие проверены на тестовых данных.</p><span class="pill">ПРИЁМОЧНЫЙ СЦЕНАРИЙ</span></span></label>
+<label class="item"><input type="checkbox"><span><strong>Проверить доступность интерфейса</strong><p>Мобильная версия, клавиатурная навигация, контраст, подписи элементов и сообщения об ошибках проверены.</p><span class="pill">DESKTOP + MOBILE</span></span></label>
+<label class="item"><input type="checkbox"><span><strong>Подтвердить успешную сборку и публикацию</strong><p>Последний workflow завершён со статусом success; проверена публикация именно актуального коммита.</p><span class="pill">GITHUB ACTIONS</span></span></label>
+<label class="item"><input type="checkbox"><span><strong>Проверить домен, HTTPS и страницу 404</strong><p>Основной домен и www ведут по ожидаемым правилам; сертификат действителен, неизвестный URL показывает понятную страницу.</p><span class="pill">ПРОВЕРКА В БРАУЗЕРЕ</span></span></label>
+</div></section>
+</main>
+<footer class="footer">USERDIE DIGITAL · Внутренний инструмент подготовки к релизу. Не является юридическим заключением или подтверждением фактической готовности системы. Функции, не проверенные на реальной среде, остаются незакрытыми.</footer>
+</div>
+<script>
+(()=>{const checks=[...document.querySelectorAll('input[type="checkbox"]')],fill=document.getElementById('progress-fill'),label=document.getElementById('progress-label'),percent=document.getElementById('progress-percent');function update(){const n=checks.filter(c=>c.checked).length,p=Math.round(n/checks.length*100);fill.style.width=p+'%';label.textContent='Отмечено '+n+' из '+checks.length+' пунктов';percent.textContent=p+'%'}checks.forEach(c=>c.addEventListener('change',update));document.getElementById('reset').addEventListener('click',()=>{checks.forEach(c=>c.checked=false);update()});document.getElementById('print').addEventListener('click',()=>window.print());update()})();
+</script>
+</body>
+</html>
