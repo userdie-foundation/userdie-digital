@@ -11,7 +11,7 @@
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
     a{color:inherit} .wrap{width:min(1120px,calc(100% - 40px));margin:auto}
     header{background:var(--cream);border-bottom:1px solid var(--line)}.nav{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:24px}
-    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:800;letter-spacing:.04em}.mark{width:42px;height:42px;border-radius:14px;background:var(--green);color:white;display:grid;place-items:center;font-size:21px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:800;letter-spacing:.04em}.mark{width:48px;height:48px;object-fit:contain;flex:none}.brand-name{display:block;font-size:18px;letter-spacing:.08em;color:var(--green)}.brand-name small{display:block;font-size:9px;letter-spacing:.16em;color:var(--muted);font-weight:700}.hero-emblem{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:min(68%,260px);height:auto;z-index:1;filter:drop-shadow(0 12px 16px #173d3215)}.visual-card{position:relative;z-index:2}.emblem-card{display:flex;align-items:center;gap:16px}.emblem-card img{width:76px;height:76px;object-fit:contain;flex:none}.emblem-card p{margin:0;color:var(--muted);font-size:13px}.photo-card{padding:0;overflow:hidden}.photo-top{min-height:130px;display:grid;place-items:center;background:linear-gradient(145deg,#eaf2e8,#f7f6f0);border-bottom:1px solid var(--line)}.photo-top img{width:112px;height:112px;object-fit:contain}.photo-body{padding:22px}.photo-body h3{font-size:19px;margin:0 0 8px}.photo-body p{color:var(--muted);font-size:14px;margin:0}
     .navlinks{display:flex;gap:26px;align-items:center}.navlinks a{text-decoration:none;font-size:14px;color:var(--muted)}.navlinks a:hover{color:var(--green)}
     .pill{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--green);color:white;text-decoration:none;padding:12px 20px;font-weight:650;font-size:14px}.pill:hover{background:var(--green2)}
     .hero{padding:78px 0 64px;overflow:hidden}.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
@@ -30,7 +30,7 @@
 <body>
   <header>
     <div class="wrap nav">
-      <a class="brand" href="#top" aria-label="УСЕРДИЕ — на главную"><span class="mark" aria-hidden="true">У</span><span>УСЕРДИЕ<small style="display:block;font-size:10px;letter-spacing:.15em;color:#65736b;font-weight:700">USERDIE DIGITAL</small></span></a>
+      <a class="brand" href="#top" aria-label="УСЕРДИЕ — на главную"><img class="mark" src="assets/fund-emblem.svg" alt="Эмблема фонда «УСЕРДИЕ»"><span class="brand-name">УСЕРДИЕ<small>USERDIE DIGITAL</small></span></a>
       <nav class="navlinks" aria-label="Основная навигация"><a href="#about">О платформе</a><a href="#contours">Контуры</a><a href="#programs">Направления</a><a href="#assets">Активы</a><a href="#workspace">Система</a><a href="#transparency">Прозрачность</a></nav>
       <a class="pill" href="#programs">О платформе</a>
     </div>
@@ -123,6 +123,6 @@
       <div class="wrap"><div class="notice"><span class="icon" aria-hidden="true">!</span><p><strong>Текущий статус</strong>Это стартовая публичная страница платформы. Онлайн-платежи, личные кабинеты и приём заявок здесь не подключены. Официальные реквизиты, контакты и сведения о программах должны быть добавлены после проверки фондом.</p></div></div>
     </section>
   </main>
-  <footer><div class="wrap foot"><a class="brand" href="#top"><span class="mark" aria-hidden="true">У</span><span>УСЕРДИЕ<small style="display:block;font-size:10px;letter-spacing:.15em;color:#a8bdb1;font-weight:700">USERDIE DIGITAL</small></span></a><small>Цифровая платформа благотворительного фонда «УСЕРДИЕ»</small></div></footer>
+  <footer><div class="wrap foot"><a class="brand" href="#top"><img class="mark" src="assets/fund-emblem.svg" alt="Эмблема фонда «УСЕРДИЕ»"><span class="brand-name" style="color:#fff">УСЕРДИЕ<small style="color:#a8bdb1">USERDIE DIGITAL</small></span></a><small>Цифровая платформа благотворительного фонда «УСЕРДИЕ»</small></div></footer>
 </body>
 </html>
