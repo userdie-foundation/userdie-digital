@@ -9,7 +9,7 @@ on:
       - "website/**"
       - "docs/**"
       - ".github/scripts/check-public-secrets.mjs"
-      - ".github/workflows/public-security-check.yml"
+      - ".github/workflows/**"
   pull_request:
     paths:
       - "website/**"
