@@ -26,6 +26,38 @@
 .robot-step p{margin:0;color:var(--muted);font-size:11px;line-height:1.75}
 @media(max-width:850px){.robot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.robot-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.container{width:min(100% - 32px,1160px)}.robot-grid,.robot-steps{grid-template-columns:1fr}.robots-hero{padding:45px 0 35px}.robot-card{min-height:0}}
+
+/* Улучшение карточек и доступности реестра роботов */
+.robot-card{
+  position:relative;
+  border-radius:14px;
+  box-shadow:0 8px 24px rgba(28,49,37,.035);
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.robot-card:hover{
+  transform:translateY(-3px);
+  border-color:#b8c8ae;
+  box-shadow:0 16px 34px rgba(28,49,37,.08);
+}
+.robot-card h2{line-height:1.25}
+.robot-card p{font-size:13px;line-height:1.75}
+.robot-status{border-radius:4px;line-height:1.45}
+.robot-step{border-radius:10px}
+.robot-note{border-radius:0 8px 8px 0}
+@media(max-width:680px){
+  .robots-hero h1{font-size:clamp(36px,10vw,52px);line-height:1.05;letter-spacing:-.04em}
+  .robot-note{font-size:13px}
+  .robot-card{padding:21px}
+  .robot-card p{font-size:14px}
+  .robot-footer{font-size:11px}
+  .robot-steps{gap:10px}
+  .robot-step{padding:18px}
+}
+@media(prefers-reduced-motion:reduce){
+  .robot-card{transition:none}
+  .robot-card:hover{transform:none}
+}
+
 </style>
 </head>
 <body>
