@@ -1,0 +1,31 @@
+name: Public repository security check
+on:
+  schedule:
+    - cron: "41 4 * * 1"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "docs/**"
+      - ".github/scripts/check-public-secrets.mjs"
+      - ".github/workflows/public-security-check.yml"
+  pull_request:
+    paths:
+      - "website/**"
+      - "docs/**"
+      - ".github/scripts/check-public-secrets.mjs"
+      - ".github/workflows/public-security-check.yml"
+permissions:
+  contents: read
+concurrency:
+  group: public-security-check
+  cancel-in-progress: true
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Scan public website and docs for common secret patterns
+        run: node .github/scripts/check-public-secrets.mjs
