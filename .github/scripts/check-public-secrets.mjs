@@ -10,6 +10,10 @@ const patterns = [
   ["OpenAI-style secret key", /\bsk-[A-Za-z0-9_-]{24,}\b/],
   ["Telegram bot token", /\b\d{6,}:[A-Za-z0-9_-]{30,}\b/],
   ["Google API key", /\bAIza[0-9A-Za-z_-]{30,}\b/],
+  ["workflow write-all permissions", /permissions:\s*write-all/i],
+  ["pull_request_target trigger for manual review", /\bpull_request_target\s*:/i],
+  ["JavaScript eval usage", /\beval\s*\(/],
+  ["wildcard CORS policy", /Access-Control-Allow-Origin["']?\s*[:=]\s*["']?\*/i],
 ];
 
 async function walk(dir) {
