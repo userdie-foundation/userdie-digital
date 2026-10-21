@@ -3,6 +3,12 @@ on:
   schedule:
     - cron: "17 3 * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - ".github/scripts/**"
+      - ".github/workflows/daily-platform-health.yml"
 permissions:
   contents: read
 concurrency:
@@ -14,5 +20,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Check internal website links
+      - name: Check required 404 page
+        run: test -s website/404.html
+      - name: Check internal links and anchors
         run: node .github/scripts/check-site-links.mjs
+      - name: Check published website availability
+        run: curl --fail --location --silent --show-error --max-time 25 https://xn--d1abbl2ben.online/ --output /dev/null
