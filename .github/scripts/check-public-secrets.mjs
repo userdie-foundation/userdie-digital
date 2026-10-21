@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
-const roots = ["website", "docs"];
+const roots = ["website", "docs", ".github/workflows"];
 const files = [];
 const patterns = [
   ["private key header", /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/],
