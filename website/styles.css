@@ -249,3 +249,50 @@ body{background:#f7f5ef;color:#24362e}
     transition-duration:.01ms!important;
   }
 }
+
+
+/* USERDIE DIGITAL — мобильная навигация и визуальная иерархия */
+@media(max-width:680px){
+  .header{position:sticky;top:0}
+  .header-inner{gap:8px 12px;padding-top:12px;padding-bottom:0}
+  .brand{gap:9px;min-width:0}
+  .brand strong{font-size:clamp(14px,4.2vw,17px);letter-spacing:.06em}
+  .brand small{font-size:9px;letter-spacing:.1em}
+  .header-cta{max-width:48%;min-height:42px;padding:7px 12px;border-radius:999px;font-size:10px;letter-spacing:.04em;line-height:1.25}
+  .header-inner nav{
+    margin-inline:-2px;padding:7px 2px 11px;gap:8px;
+    scroll-snap-type:x proximity;scrollbar-width:none;
+    mask-image:linear-gradient(to right,#000 0%,#000 88%,transparent 100%);
+  }
+  .header-inner nav::-webkit-scrollbar{display:none}
+  .header-inner nav a{
+    min-height:40px;padding:0 13px;border:1px solid rgba(37,76,58,.13);
+    border-radius:999px;background:rgba(255,255,255,.55);
+    font-size:12px;scroll-snap-align:start;
+  }
+  .header-inner nav a:after{display:none}
+  .hero{padding-top:35px}
+  .hero-layout{gap:22px}
+  .hero-copy .eyebrow{font-size:10px;letter-spacing:.12em;line-height:1.7}
+  .hero-copy h1{max-width:15ch;margin-bottom:18px;font-size:clamp(35px,9.2vw,49px);line-height:1.04;letter-spacing:-.045em}
+  .hero-copy .lead{max-width:40rem;font-size:16px;line-height:1.7}
+  .notice{align-items:flex-start;margin-top:24px;font-size:12px;line-height:1.6}
+  .hero-visual{min-height:285px}
+  .section-heading{align-items:flex-start;flex-direction:column}
+  .direction-card,.module-card,.preview-card{padding:23px}
+  .prototype-directory{padding-block:54px}
+  .prototype-directory-heading{display:block}
+  .prototype-directory-heading>p{margin-top:15px}
+  .prototype-directory-grid{grid-template-columns:minmax(0,1fr);gap:10px}
+  .prototype-directory-grid a{min-height:130px;padding:19px}
+  .prototype-directory-grid a strong{font-size:16px}
+  .prototype-directory-grid a b{right:16px;bottom:14px}
+}
+@media(min-width:681px) and (max-width:980px){
+  .header-inner{gap:14px}
+  .header-inner nav{gap:12px;font-size:12px}
+  .header-cta{padding-inline:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .header-inner nav{scroll-behavior:auto}
+}
