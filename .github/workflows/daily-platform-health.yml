@@ -11,6 +11,7 @@ on:
       - ".github/workflows/daily-platform-health.yml"
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: platform-health-check
   cancel-in-progress: true
@@ -24,5 +25,16 @@ jobs:
         run: test -s website/404.html
       - name: Check internal links and anchors
         run: node .github/scripts/check-site-links.mjs
+      - name: Check latest website deployment result
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-website.yml/runs?branch=main&per_page=1")"
+          read -r status conclusion < <(printf '%s' "$run_json" | jq -r '.workflow_runs[0] | [.status // "missing", .conclusion // "pending"] | @tsv')
+          if [ "$status" != "completed" ] || [ "$conclusion" != "success" ]; then
+            echo "::error::Latest website deployment is not successful (status=$status, conclusion=$conclusion)."
+            exit 1
+          fi
+          echo "Latest website deployment completed successfully."
       - name: Check published website availability
         run: curl --fail --location --silent --show-error --max-time 25 https://xn--d1abbl2ben.online/ --output /dev/null
