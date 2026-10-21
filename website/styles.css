@@ -170,3 +170,11 @@ a,button{ -webkit-tap-highlight-color:transparent}
   .header-inner nav a:after,.direction-card,.preview-card,.module-card,.button{transition:none}
   .direction-card:hover,.preview-card:hover,.module-card:hover,.button:hover{transform:none}
 }
+
+/* Фирменная эмблема фонда «УСЕРДИЕ» */
+.brand-emblem{display:grid;place-items:center;width:48px;height:48px;flex:none}.brand-emblem svg{width:100%;height:100%}
+.hero-emblem-visual{display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,#fffdf7 0,#f0f2e5 42%,#dfe8d4 100%);border-radius:48% 48% 5px 5px}
+.hero-emblem-visual:before{content:"";position:absolute;width:72%;aspect-ratio:1;border:1px solid rgba(37,76,58,.17);border-radius:50%}
+.hero-emblem-image{position:relative;z-index:1;width:min(78%,360px);filter:drop-shadow(0 14px 18px rgba(23,61,50,.12))}.hero-emblem-image svg{display:block;width:100%;height:auto}
+.direction-emblem{display:block;width:58px;height:58px;margin:0 0 18px}.direction-emblem svg{width:100%;height:100%}
+@media(max-width:700px){.brand-emblem{width:42px;height:42px}.hero-emblem-image{width:min(75%,290px)}.direction-emblem{width:48px;height:48px}}
