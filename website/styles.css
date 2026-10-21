@@ -214,3 +214,38 @@ body{background:#f7f5ef;color:#24362e}
   .footer-inner{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
   .footer-inner>p{max-width:38rem;line-height:1.6}
 }
+
+
+/* Доступность интерфейса: управление касанием, фокусом и якорями */
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{
+  outline:3px solid #8a4d31;
+  outline-offset:3px;
+}
+:where(.header-inner nav a,.cabinet-sidebar>a,.prototype-directory-grid a){
+  min-height:44px;
+}
+:where(.button,button,[role="button"]){
+  min-height:44px;
+}
+:where(input,select,textarea){
+  max-width:100%;
+}
+[id]{
+  scroll-margin-top:110px;
+}
+@media(max-width:680px){
+  .container{overflow-wrap:anywhere}
+  .header-inner nav a{min-height:44px}
+  .header-cta{min-height:44px}
+  .actions{gap:12px}
+  .actions .button{max-width:100%;white-space:normal;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+    transition-duration:.01ms!important;
+  }
+}
