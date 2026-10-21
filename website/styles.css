@@ -178,3 +178,39 @@ a,button{ -webkit-tap-highlight-color:transparent}
 .hero-emblem-image{position:relative;z-index:1;width:min(78%,360px);filter:drop-shadow(0 14px 18px rgba(23,61,50,.12))}.hero-emblem-image svg{display:block;width:100%;height:auto}
 .direction-emblem{display:block;width:58px;height:58px;margin:0 0 18px}.direction-emblem svg{width:100%;height:100%}
 @media(max-width:700px){.brand-emblem{width:42px;height:42px}.hero-emblem-image{width:min(75%,290px)}.direction-emblem{width:48px;height:48px}}
+
+
+/* Исправления мобильной версии и контрастности — октябрь 2026 */
+:root{color-scheme:light}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{background:#f7f5ef;color:#24362e}
+.header{background:rgba(247,245,239,.97);backdrop-filter:blur(14px)}
+.header-inner nav{min-width:0}
+.header-inner nav a{color:#3d5147;opacity:1}
+.hero-copy h1,.section h2,.intro h2,.section-heading h2{color:#203b2f}
+.hero-copy .lead,.body-copy,.section-heading>p,.intro p:not(.eyebrow),.footer p{color:#53645a;opacity:1}
+.hero-copy .eyebrow,.section .eyebrow{color:#526c5b}
+.visual-label{color:#355442}
+.brand-footer .brand-emblem{width:48px;height:48px}
+.brand-footer .brand-emblem svg{display:block;width:100%;height:100%}
+.footer-inner{align-items:center}
+@media(max-width:680px){
+  .header-inner{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+  .header-inner nav{order:3;flex:0 0 100%;width:100%;display:flex;flex-wrap:nowrap;gap:18px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;padding:10px 0 12px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+  .header-inner nav a{flex:0 0 auto;display:inline-flex;align-items:center;min-height:34px;font-size:14px;line-height:1.25}
+  .header-cta{margin-left:auto;max-width:48%;white-space:normal}
+  .hero-layout{grid-template-columns:minmax(0,1fr);gap:28px}
+  .hero-copy{min-width:0}
+  .hero-copy h1{font-size:clamp(36px,10vw,52px);line-height:1.04;letter-spacing:-.045em}
+  .hero-copy .lead{font-size:17px;line-height:1.65}
+  .hero-visual{width:100%;min-height:320px;max-height:420px}
+  .hero-emblem-image{width:min(72%,270px)}
+  .hero-footer{flex-wrap:wrap;gap:8px 12px;font-size:11px}
+  .section{padding-block:58px}
+  .section h2,.intro h2,.section-heading h2{font-size:clamp(29px,8vw,40px);line-height:1.12}
+  .intro-grid{grid-template-columns:1fr;gap:16px}
+  .direction-grid,.contour-grid,.program-grid{grid-template-columns:minmax(0,1fr)}
+  .direction-card,.module-card,.preview-card{min-width:0}
+  .footer-inner{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+  .footer-inner>p{max-width:38rem;line-height:1.6}
+}
