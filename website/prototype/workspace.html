@@ -173,6 +173,15 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 <div class="panel"><div class="panel-head"><div><h2>Список задач</h2><p id="task-summary">4 демонстрационные задачи</p></div><button class="app-button" id="new-task-secondary">＋ Добавить</button></div>
 <div class="filter-row"><input class="search-box" id="task-search" type="search" placeholder="Поиск по задачам…" aria-label="Поиск по задачам"><select class="filter-select" id="task-filter" aria-label="Фильтр по статусу"><option value="all">Все статусы</option><option value="open">Активные</option><option value="done">Выполненные</option></select></div>
 <div class="task-list" id="all-tasks"></div></div>
+<div class="panel decision-panel"><div class="panel-head"><div><h2>Контроль исполнения и решений</h2><p>Обязательные поля будущего рабочего процесса</p></div><span class="task-state">Модель процесса</span></div>
+<div class="module-list">
+<article class="module-tile"><span class="tile-ico">◎</span><strong>Ответственный</strong><small>Один владелец задачи и, при необходимости, соисполнитель. Назначение должно быть подтверждено в рабочей системе.</small><span class="tile-state">Требует реализации</span></article>
+<article class="module-tile"><span class="tile-ico">◷</span><strong>Срок и SLA</strong><small>Дата постановки, контрольный срок, критичность задержки и причина переноса.</small><span class="tile-state">Требует реализации</span></article>
+<article class="module-tile"><span class="tile-ico">✓</span><strong>Критерий завершения</strong><small>Проверяемый результат, подтверждающий документ или ссылка на принятое решение.</small><span class="tile-state">Требует реализации</span></article>
+<article class="module-tile"><span class="tile-ico">↺</span><strong>История решения</strong><small>Кто согласовал, что изменилось, когда и на каком основании. История не должна редактироваться незаметно.</small><span class="tile-state">Журнал не подключён</span></article>
+</div>
+<div class="notice-box"><strong>Правило управления:</strong> задача считается закрытой не по нажатию кнопки, а после подтверждения результата ответственным лицом. В этом прототипе карточки описывают требования; назначения, сроки, уведомления и журнал аудита не работают.</div>
+</div>
 </section>
 <section class="page-view" id="view-programs">
 <div class="view-intro"><p class="eyebrow">02 / ПРОГРАММНАЯ ДЕЯТЕЛЬНОСТЬ</p><h2>Программы фонда</h2><p>Структура будущего модуля: описание программы, ответственный, этапы, подтверждающие документы и критерии результата. Ниже — только условные карточки, не действующие программы фонда.</p></div>
