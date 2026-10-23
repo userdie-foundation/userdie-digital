@@ -296,3 +296,24 @@ body{background:#f7f5ef;color:#24362e}
 @media(prefers-reduced-motion:reduce){
   .header-inner nav{scroll-behavior:auto}
 }
+
+
+/* Публичная витрина цифровых помощников USERDIE DIGITAL */
+.robot-panel{margin-top:26px;padding:clamp(20px,3vw,30px);background:#f0efe8;border:1px solid rgba(32,45,38,.1)}
+.robot-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:20px}
+.robot-heading .eyebrow{margin-bottom:10px}
+.robot-heading h3{margin:0;font-family:Manrope,sans-serif;font-size:clamp(21px,2.4vw,27px);line-height:1.2;letter-spacing:-.7px;color:#203b2f}
+.robot-status{display:flex;align-items:center;gap:8px;padding:8px 11px;background:#fff;color:#59685d;font-size:10px;font-weight:700;white-space:nowrap}
+.robot-status i{width:7px;height:7px;border-radius:50%;background:#c68b67}
+.robot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:rgba(30,48,40,.13);border:1px solid rgba(30,48,40,.13)}
+.robot-item{display:flex;gap:15px;min-width:0;padding:19px;background:#fbfaf6}
+.robot-item>span{flex:0 0 25px;color:#87977d;font-family:Georgia,serif;font-size:19px}
+.robot-item strong{display:block;margin-bottom:6px;color:#26372c;font-size:13px}
+.robot-item p{margin:0;color:#59685d;font-size:12px;line-height:1.75}
+.robot-disclaimer{margin:16px 0 0;color:#68746b;font-size:11px;line-height:1.7}
+@media(max-width:680px){
+ .robot-panel{padding:20px 15px}
+ .robot-heading{align-items:flex-start;flex-direction:column;gap:13px}
+ .robot-grid{grid-template-columns:minmax(0,1fr)}
+ .robot-item{padding:16px}
+}
