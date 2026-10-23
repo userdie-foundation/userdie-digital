@@ -110,6 +110,8 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 <button type="button" data-view="overview" aria-controls="view-overview" aria-current="page"><span class="nav-ico">⌂</span>Обзор</button>
 <button type="button" data-view="tasks" aria-controls="view-tasks"><span class="nav-ico">✓</span>Задачи</button>
 <button type="button" data-view="programs" aria-controls="view-programs"><span class="nav-ico">◫</span>Программы</button>
+<button type="button" data-view="assets" aria-controls="view-assets"><span class="nav-ico">◈</span>Активы</button>
+<button type="button" data-view="knowledge" aria-controls="view-knowledge"><span class="nav-ico">⌁</span>Интеллектуальные ресурсы</button>
 <button type="button" data-view="partners" aria-controls="view-partners"><span class="nav-ico">⌁</span>Партнёры</button>
 <button type="button" data-view="documents" aria-controls="view-documents"><span class="nav-ico">▤</span>Документы</button>
 <button type="button" data-view="security" aria-controls="view-security"><span class="nav-ico">◎</span>Доступы и безопасность</button>
@@ -181,6 +183,26 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 <article class="module-tile"><span class="tile-ico">◌</span><strong>«Дроник»</strong><small>Назначение, этапы и допустимые сценарии уточняются по исходным документам.</small><span class="tile-state">Требует сверки</span></article>
 </div><div class="notice-box">Это инициативы из рабочей концепции, а не подтверждение действующих программ. Не указываются неподтверждённые сборы, бюджеты, сроки или результаты.</div>
 </section>
+<section class="page-view" id="view-assets">
+<div class="view-intro"><p class="eyebrow">06 / ОЦЕНКА АКТИВОВ</p><h2>Активы и оценочная работа</h2><p>Демонстрационная структура для раздельного учёта объектов, источников сведений, методики, даты оценки, ответственного и истории согласования. Реальные активы и финансовые показатели не подключены.</p></div>
+<div class="module-list">
+<article class="module-tile"><span class="tile-ico">▤</span><strong>Акции и долевые инструменты</strong><small>Эмитент, класс инструмента, источник данных, дата актуальности и статус проверки.</small><span class="tile-state">Структура карточки · без реестра</span></article>
+<article class="module-tile"><span class="tile-ico">≋</span><strong>Облигации</strong><small>Выпуск, номинал, валюта, срок, источник котировок и метод оценки.</small><span class="tile-state">Структура карточки · без реестра</span></article>
+<article class="module-tile"><span class="tile-ico">◎</span><strong>Основания оценки</strong><small>Методика, исходные документы, дата расчёта, допущения и согласование.</small><span class="tile-state">Требует утверждения методик</span></article>
+<article class="module-tile"><span class="tile-ico">↺</span><strong>История изменений</strong><small>Версии оценки, автор изменения, причина пересмотра и ссылка на основание.</small><span class="tile-state">Требует журналирования</span></article>
+</div>
+<div class="notice-box"><strong>Принцип контроля:</strong> оценка должна быть воспроизводимой: у каждого результата фиксируются источник, дата, методика и ответственное лицо. До согласования модели и прав доступа реальные финансовые данные не загружаются.</div>
+</section>
+<section class="page-view" id="view-knowledge">
+<div class="view-intro"><p class="eyebrow">07 / БАНКИ ИНТЕЛЛЕКТУАЛЬНЫХ РЕСУРСОВ</p><h2>Знания, исследования и методики</h2><p>Контур для систематизации интеллектуальных ресурсов фонда и аналитической работы. Карточки ниже описывают целевую модель, а не существующее хранилище документов.</p></div>
+<div class="module-list">
+<article class="module-tile"><span class="tile-ico">⌁</span><strong>Банк методик</strong><small>Методика, версия, область применения, авторство и порядок согласования.</small><span class="tile-state">Концепция</span></article>
+<article class="module-tile"><span class="tile-ico">◫</span><strong>Банк исследований</strong><small>Вопрос исследования, дата, источники, выводы и ограничения применимости.</small><span class="tile-state">Концепция</span></article>
+<article class="module-tile"><span class="tile-ico">◇</span><strong>Интеллектуальные продукты</strong><small>Материалы, права использования, лицензии и история версий.</small><span class="tile-state">Требует правовой модели</span></article>
+<article class="module-tile"><span class="tile-ico">↗</span><strong>Связь с оценкой активов</strong><small>Документируемая связь между интеллектуальным ресурсом, основанием оценки и решением.</small><span class="tile-state">Требует согласования</span></article>
+</div>
+<div class="notice-box"><strong>Разделение контуров:</strong> Центр оценки активов и Аналитический центр показаны как функциональные направления общей платформы. Их самостоятельный юридический статус этим интерфейсом не предполагается и должен подтверждаться отдельно.</div>
+</section>
 <section class="page-view" id="view-partners">
 <div class="view-intro"><p class="eyebrow">03 / ПАРТНЁРСКАЯ СРЕДА</p><h2>Партнёры и взаимодействие</h2><p>Будущий модуль может хранить этап сотрудничества, согласованные материалы, рабочие задачи и историю решений. Реальные организации и контакты здесь не используются.</p></div>
 <div class="panel"><div class="panel-head"><div><h2>Примеры карточек взаимодействия</h2><p>Условные названия, не реальные контрагенты.</p></div></div>
@@ -232,7 +254,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 </div>
 <script>
 (function(){
-const names={overview:"Обзор",tasks:"Задачи",programs:"Программы",partners:"Партнёры",documents:"Документы",security:"Доступы и безопасность"};
+const names={overview:"Обзор",tasks:"Задачи",programs:"Программы",assets:"Активы и оценка",knowledge:"Интеллектуальные ресурсы",partners:"Партнёры",documents:"Документы",security:"Доступы и безопасность"};
 const nav=[...document.querySelectorAll("[data-view]")],views=[...document.querySelectorAll(".page-view")],crumb=document.getElementById("crumb"),toast=document.getElementById("toast");
 function showToast(message){toast.textContent=message;toast.classList.add("visible");}
 function go(view){if(!names[view])return;views.forEach(el=>el.classList.toggle("active",el.id==="view-"+view));nav.forEach(el=>{if(el.dataset.view===view)el.setAttribute("aria-current","page");else el.removeAttribute("aria-current")});crumb.textContent=names[view];if(view==="tasks")renderTasks();window.scrollTo({top:0,behavior:"smooth"});}
