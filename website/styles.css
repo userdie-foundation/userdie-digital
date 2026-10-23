@@ -317,3 +317,38 @@ body{background:#f7f5ef;color:#24362e}
  .robot-grid{grid-template-columns:minmax(0,1fr)}
  .robot-item{padding:16px}
 }
+
+
+/* USERDIE DIGITAL — компактная навигация для широких и планшетных экранов */
+@media(min-width:1101px){
+  .header-inner{gap:18px}
+  .header-inner nav{
+    flex:1 1 480px;
+    max-width:690px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-content:center;
+    gap:3px 14px;
+    font-size:11px;
+    line-height:1.35;
+  }
+  .header-inner nav a{min-height:30px;padding:5px 0}
+  .header-cta{flex:0 0 auto;white-space:nowrap}
+}
+@media(min-width:681px) and (max-width:1100px){
+  .header-inner{display:flex;flex-wrap:wrap;gap:10px 16px;padding-block:12px}
+  .header-inner nav{
+    order:3;
+    flex:0 0 100%;
+    width:100%;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-start;
+    gap:4px 18px;
+    padding:4px 0 2px;
+    font-size:12px;
+  }
+  .header-inner nav a{min-height:36px}
+  .header-cta{margin-left:auto}
+}
