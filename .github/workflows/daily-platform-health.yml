@@ -3,12 +3,10 @@ on:
   schedule:
     - cron: "17 3 * * *"
   workflow_dispatch:
-  push:
+  workflow_run:
+    workflows: ["Deploy public website"]
+    types: [completed]
     branches: [main]
-    paths:
-      - "website/**"
-      - ".github/scripts/**"
-      - ".github/workflows/daily-platform-health.yml"
 permissions:
   contents: read
   actions: read
