@@ -48,6 +48,13 @@ export function createServer({ pool, allowedOrigin } = {}) {
       }
     }
 
+    // Explicitly signal that the application module is not ready. Do not query
+    // or mutate the database until authentication and record-level access
+    // control are implemented and verified.
+    if (url.pathname === "/api/v1/applications") {
+      return sendJson(res, 503, { error: "applications_module_unavailable" }, req.method);
+    }
+
     return sendJson(res, 404, { error: "not_found" }, req.method);
   };
 }
