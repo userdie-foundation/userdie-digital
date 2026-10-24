@@ -17,13 +17,16 @@ async function withServer(pool, run, options = {}) {
   }
 }
 
-test("live endpoint returns minimal health information", async () => {
+test("live endpoint returns minimal health information and security headers", async () => {
   await withServer({ query: async () => { throw new Error("should not query"); } }, async (base) => {
     const response = await fetch(`${base}/api/v1/health/live`);
     assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), { status: "ok" });
     assert.equal(response.headers.get("cache-control"), "no-store");
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+    assert.equal(response.headers.get("x-frame-options"), "DENY");
+    assert.equal(response.headers.get("referrer-policy"), "no-referrer");
+    assert.equal(response.headers.get("content-security-policy"), "default-src 'none'; frame-ancestors 'none'");
     const head = await fetch(`${base}/api/v1/health/live`, { method: "HEAD" });
     assert.equal(head.status, 200);
     assert.equal(await head.text(), "");
@@ -48,11 +51,27 @@ test("ready endpoint does not leak database errors", async () => {
   });
 });
 
-test("unknown routes return JSON 404", async () => {
+test("CORS allows only the configured exact origin", async () => {
+  await withServer({ query: async () => ({ rows: [] }) }, async (base) => {
+    const allowed = await fetch(`${base}/api/v1/health/live`, {
+      headers: { origin: "https://platform.example" },
+    });
+    assert.equal(allowed.headers.get("access-control-allow-origin"), "https://platform.example");
+    assert.equal(allowed.headers.get("vary"), "Origin");
+
+    const rejected = await fetch(`${base}/api/v1/health/live`, {
+      headers: { origin: "https://attacker.example" },
+    });
+    assert.equal(rejected.headers.get("access-control-allow-origin"), null);
+  }, { allowedOrigin: "https://platform.example" });
+});
+
+test("unknown routes return JSON 404 with security headers", async () => {
   await withServer({ query: async () => ({ rows: [] }) }, async (base) => {
     const missing = await fetch(`${base}/api/v1/unknown`);
     assert.equal(missing.status, 404);
     assert.deepEqual(await missing.json(), { error: "not_found" });
+    assert.equal(missing.headers.get("x-frame-options"), "DENY");
   });
 });
 
