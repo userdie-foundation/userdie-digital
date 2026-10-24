@@ -7,7 +7,8 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Node.js HTTP API foundation with liveness and database-readiness endpoints.
 - PostgreSQL connection pool and graceful shutdown.
 - Initial relational schema for users, roles, programs, applications, status history, private document metadata, and audit events.
-- A separate migration that records application creation and status changes in the status-history table.
+- A migration that records application creation and status changes in the status-history table.
+- A session-storage migration designed to store only hashes of opaque random session tokens, with expiry and revocation support. It does not enable login or create sessions.
 - Automated HTTP tests for health checks, error handling, and the fail-closed applications endpoint.
 
 ## Local development
@@ -17,11 +18,12 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 1. Create a local PostgreSQL database.
 2. Apply `migrations/001_initial_schema.sql` to a new database after review.
 3. For an existing database created from migration 001, review and apply `migrations/002_application_status_history_trigger.sql`.
-4. Install dependencies with `npm install`.
-5. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
-6. Run `npm test`, `npm run check`, then `npm start`.
+4. Review and apply `migrations/003_auth_sessions.sql` after migration 001 to prepare session storage. Applying it does not enable authentication.
+5. Install dependencies with `npm install`.
+6. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
+7. Run `npm test`, `npm run check`, then `npm start`.
 
-Migrations are reviewed SQL files, not an automated migration runner. Apply them through a controlled deployment process and verify backups first.
+Migrations are reviewed SQL files, not an automated migration runner. Apply them through a controlled deployment process and verify backups first. Do not run migrations against production until a backup and restore procedure has been verified.
 
 ## Endpoints
 
@@ -30,6 +32,18 @@ Migrations are reviewed SQL files, not an automated migration runner. Apply them
 - `GET /api/v1/applications` — returns `503 applications_module_unavailable` until authentication and record-level authorization are implemented.
 
 All other unknown routes return 404; non-GET/HEAD methods return 405. The applications module deliberately fails closed: it does not read or write application records until identity, authorization, validation, and audit requirements are implemented and tested.
+
+## Authentication implementation requirements
+
+The session table is only a storage foundation. Before enabling authentication, implement and test all of the following:
+
+- Password hashing with a maintained password-hashing algorithm and safe parameters; never store plaintext passwords.
+- High-entropy random session tokens; persist only their cryptographic hashes, never raw tokens.
+- Cookies with `HttpOnly`, `Secure` in production, and an appropriate `SameSite` policy; protect state-changing requests against CSRF.
+- Session expiry, rotation after authentication or privilege changes, logout/revocation, and invalidation for suspended/closed accounts.
+- Rate limiting and generic error messages for login attempts; do not reveal whether an email address exists.
+- Server-side role checks and per-record authorization for every read and write, with audit events for sensitive actions.
+- A reviewed account recovery process and MFA policy before real beneficiary accounts are enabled.
 
 ## Production blockers — do not accept real applications yet
 
