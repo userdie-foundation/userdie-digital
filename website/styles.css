@@ -478,3 +478,21 @@ body{background:#f7f5ef;color:#24362e}
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+
+/* USERDIE DIGITAL — shared visual refinement */
+:root{--ink:#172b25;--muted:#5d6d65;--paper:#fbfaf6;--green:#173f32;--green2:#28624d;--line:#dce5dd;--gold:#c4a35a;--surface:#fff}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{line-height:1.7;-webkit-font-smoothing:antialiased}
+a,button{transition:color .18s ease,background-color .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold,#c4a35a);outline-offset:3px}
+.header,.site-header{background:rgba(251,250,246,.95);backdrop-filter:blur(16px)}
+.button-dark,.btn-primary,.primary-button{box-shadow:0 8px 22px rgba(23,63,50,.13)}
+.button-dark:hover,.btn-primary:hover,.primary-button:hover{box-shadow:0 12px 28px rgba(23,63,50,.2)}
+.hero{background-image:radial-gradient(ellipse at 80% 18%,rgba(196,163,90,.12),transparent 35%),linear-gradient(180deg,#fbfaf6 0%,#f5f7f1 100%)}
+.card,.module-card,.panel,.feature-card{border-color:var(--line);box-shadow:0 4px 18px rgba(24,53,39,.03);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.card:hover,.module-card:hover,.feature-card:hover{transform:translateY(-3px);border-color:#c4d6c7;box-shadow:0 14px 32px rgba(24,53,39,.08)}
+h1,h2,h3{letter-spacing:-.025em}
+footer,.footer{background:#102d25}
+img{max-width:100%;height:auto}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
