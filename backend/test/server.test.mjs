@@ -48,14 +48,29 @@ test("ready endpoint does not leak database errors", async () => {
   });
 });
 
-test("unknown routes return JSON 404 and write methods are disabled", async () => {
+test("unknown routes return JSON 404", async () => {
   await withServer({ query: async () => ({ rows: [] }) }, async (base) => {
     const missing = await fetch(`${base}/api/v1/unknown`);
     assert.equal(missing.status, 404);
     assert.deepEqual(await missing.json(), { error: "not_found" });
+  });
+});
 
-    const write = await fetch(`${base}/api/v1/applications`, { method: "POST" });
+test("applications module fails closed without querying or changing records", async () => {
+  let queryCount = 0;
+  const pool = { query: async () => { queryCount += 1; throw new Error("unexpected database access"); } };
+  await withServer(pool, async (base) => {
+    const read = await fetch(`${base}/api/v1/applications`);
+    assert.equal(read.status, 503);
+    assert.deepEqual(await read.json(), { error: "applications_module_unavailable" });
+
+    const write = await fetch(`${base}/api/v1/applications`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ subject: "must not persist" }),
+    });
     assert.equal(write.status, 405);
     assert.deepEqual(await write.json(), { error: "method_not_allowed" });
+    assert.equal(queryCount, 0);
   });
 });
