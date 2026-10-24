@@ -496,3 +496,22 @@ h1,h2,h3{letter-spacing:-.025em}
 footer,.footer{background:#102d25}
 img{max-width:100%;height:auto}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+
+
+/* Public homepage: honest product-status panel */
+.platform-status{background:#f2f5ef;border-top:1px solid #e1e8df;border-bottom:1px solid #e1e8df}
+.platform-status-heading{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.7fr);align-items:end;gap:40px;margin-bottom:30px}
+.platform-status-heading h2{max-width:720px;margin:0}
+.platform-status-heading>p{margin:0;color:var(--muted);max-width:510px}
+.platform-status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.platform-status-card{display:flex;flex-direction:column;align-items:flex-start;min-height:265px;padding:26px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:0 5px 20px rgba(24,53,39,.035)}
+.platform-status-mark{display:grid;place-items:center;width:40px;height:40px;margin-bottom:20px;border-radius:12px;font-size:21px;font-weight:700}
+.platform-status-mark.status-ready{background:#e4f2e5;color:#24653d}
+.platform-status-mark.status-demo{background:#f5eedb;color:#85651f}
+.platform-status-mark.status-build{background:#edf0ee;color:#53635b}
+.platform-status-card .eyebrow{margin:0 0 8px;font-size:10px;letter-spacing:.12em}
+.platform-status-card h3{margin:0 0 10px;font-size:21px;line-height:1.25}
+.platform-status-card>p:not(.eyebrow){margin:0 0 22px;color:var(--muted);font-size:14px;line-height:1.65}
+.platform-status-label,.platform-status-card .text-link{margin-top:auto;font-size:13px;font-weight:700}
+.platform-status-label{color:#53635b}
+@media(max-width:800px){.platform-status-heading{grid-template-columns:1fr;gap:14px}.platform-status-grid{grid-template-columns:1fr}.platform-status-card{min-height:0}.platform-status-card>p:not(.eyebrow){margin-bottom:18px}}
