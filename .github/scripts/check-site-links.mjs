@@ -33,6 +33,17 @@ for (const source of htmlFiles) {
   const markup = await readFile(source, "utf8");
   const localIds = ids(markup);
 
+  // Duplicate HTML IDs make fragment links and accessibility references ambiguous.
+  const seenIds = new Set();
+  for (const match of markup.matchAll(/\\sid\\s*=\\s*(['"])(.*?)\\1/gi)) {
+    const id = match[2].trim();
+    if (!id) continue;
+    if (seenIds.has(id)) {
+      errors.push(`${path.relative(root, source)}: duplicate id "${id}"`);
+    }
+    seenIds.add(id);
+  }
+
   // Catch broken accessibility relationships before the site is published.
   for (const attribute of ["aria-controls", "aria-labelledby", "aria-describedby", "aria-errormessage"]) {
     for (const value of attributes(markup, attribute)) {
