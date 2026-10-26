@@ -33,6 +33,18 @@ jobs:
         run: |
           if [ "$GITHUB_EVENT_NAME" = "workflow_run" ]; then
             read -r status conclusion < <(jq -r '.workflow_run | [.status // "missing", .conclusion // "pending"] | @tsv' "$GITHUB_EVENT_PATH")
+            if [ "$status" = "completed" ] && [ "$conclusion" = "cancelled" ]; then
+              echo "::notice::This deployment run was cancelled or superseded by a newer commit; checking the latest successful deployment separately."
+              run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-website.yml/runs?branch=main&status=success&per_page=1")"
+              read -r success_status success_conclusion < <(printf '%s' "$run_json" | jq -r '.workflow_runs[0] | [.status // "missing", .conclusion // "missing"] | @tsv')
+              if [ "$success_status" = "completed" ] && [ "$success_conclusion" = "success" ]; then
+                echo "A successful website deployment is available; cancelled superseded run is non-blocking."
+              else
+                echo "::error::No successful website deployment found after the cancelled run."
+                exit 1
+              fi
+              exit 0
+            fi
           else
             run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-website.yml/runs?branch=main&status=completed&per_page=1")"
             read -r status conclusion < <(printf '%s' "$run_json" | jq -r '.workflow_runs[0] | [.status // "missing", .conclusion // "pending"] | @tsv')
