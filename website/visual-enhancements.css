@@ -14,3 +14,55 @@
 :where(a,button,input,select,textarea):focus-visible{outline-color:#9b6a4d}
 @media(max-width:680px){.app-main{padding-top:22px}.metric-card{padding:14px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Cohesive editorial system: more depth, clearer hierarchy, restrained motion. */
+:root{--ud-forest:#1d4632;--ud-moss:#6e8957;--ud-paper:#fbfaf6;--ud-soft-line:rgba(30,48,40,.12)}
+body{background-image:linear-gradient(180deg,rgba(255,255,255,.16),transparent 34rem)}
+.header{box-shadow:0 5px 24px rgba(30,48,40,.035)}
+.brand-emblem{display:grid;place-items:center;flex-shrink:0}
+.brand-emblem svg{display:block;width:100%;height:100%}
+.hero{position:relative;isolation:isolate}
+.hero-copy{position:relative;z-index:1}
+.hero-visual{box-shadow:0 24px 70px rgba(30,48,40,.09);background-image:radial-gradient(circle at 50% 35%,rgba(255,255,255,.58),transparent 38%),linear-gradient(145deg,#e9eddf,#dfe6d0)}
+.hero-emblem-visual{border-radius:28px;overflow:hidden}
+.hero-emblem-image{position:absolute;inset:8% 8% 12%;display:grid;place-items:center}
+.hero-emblem-image svg{display:block;width:min(100%,360px);height:auto;max-height:100%;filter:drop-shadow(0 12px 16px rgba(30,48,40,.09))}
+.hero-emblem-visual:after{content:"";position:absolute;inset:14px;border:1px solid rgba(37,76,58,.14);border-radius:20px;pointer-events:none}
+.hero-emblem-visual .emblem-caption{z-index:2;bottom:5%;padding:8px 15px;background:rgba(246,244,238,.72);border:1px solid rgba(37,76,58,.12);border-radius:999px;backdrop-filter:blur(8px)}
+.hero-footer{letter-spacing:1.2px}
+.section-heading{align-items:flex-end}
+.direction-card,.module-card,.platform-status-card,.prototype-directory-grid a{box-shadow:0 3px 14px rgba(30,48,40,.025)}
+.direction-card h3,.module-card h3{line-height:1.25}
+.card-featured,.module-card-accent{background:linear-gradient(145deg,#e4ebd4,#d8e4c3)}
+.help-panel{position:relative;overflow:hidden}
+.help-panel:after{content:"";position:absolute;right:-90px;top:-120px;width:340px;height:340px;border:1px solid rgba(216,230,180,.2);border-radius:50%;box-shadow:0 0 0 35px rgba(216,230,180,.035),0 0 0 70px rgba(216,230,180,.025);pointer-events:none}
+.help-panel>*{position:relative;z-index:1}
+.button-dark{background:linear-gradient(135deg,#254c3a,#1d4632)}
+.button-light{border-radius:7px}
+.text-link{transition:color .18s ease,border-color .18s ease}
+.platform-hero{position:relative;overflow:hidden}
+.platform-hero:after{content:"";position:absolute;right:-140px;top:-160px;width:440px;height:440px;border:1px solid rgba(37,76,58,.08);border-radius:50%;box-shadow:0 0 0 45px rgba(37,76,58,.025),0 0 0 90px rgba(37,76,58,.018);pointer-events:none}
+.platform-hero-inner{position:relative;z-index:1}
+.module-card,.direction-card{overflow:hidden}
+.module-card:hover{box-shadow:var(--ud-shadow)}
+.platform-next{position:relative;overflow:hidden}
+.platform-next:after{content:"";position:absolute;right:-80px;bottom:-240px;width:400px;height:400px;border:1px solid rgba(216,230,180,.17);border-radius:50%;box-shadow:0 0 0 42px rgba(216,230,180,.025),0 0 0 84px rgba(216,230,180,.02);pointer-events:none}
+.platform-next-inner{position:relative;z-index:1}
+.app-main{background-image:radial-gradient(ellipse at 95% 0,rgba(223,233,201,.23),transparent 32rem)}
+.panel,.metric-card,.contour-switcher{box-shadow:0 5px 22px rgba(30,48,40,.025)}
+.metric-value{font-variant-numeric:tabular-nums}
+@media(max-width:900px){
+ .hero-emblem-visual{min-height:360px}
+ .hero-emblem-image{inset:7% 7% 12%}
+}
+@media(max-width:680px){
+ .hero-emblem-visual{min-height:320px;border-radius:20px}
+ .hero-emblem-image{inset:7% 7% 13%}
+ .hero-emblem-visual:after{inset:10px;border-radius:14px}
+ .help-panel:after{right:-220px;top:-100px}
+ .platform-hero:after{right:-290px}
+ .platform-next:after{right:-260px}
+}
+@media(prefers-reduced-motion:reduce){
+ .direction-card:hover,.platform-status-card:hover,.prototype-directory-grid a:hover,.contour-option:hover,.module-card:hover{transform:none}
+}
