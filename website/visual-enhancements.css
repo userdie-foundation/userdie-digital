@@ -393,3 +393,51 @@ hr{border:0;border-top:1px solid var(--ud-line)}
  .partner-page .platform-meta{border-radius:14px;align-items:flex-start}
  .partner-page .module-card{padding:19px}
 }
+
+
+/* Visual release 05 — asset register: evidence-first financial and intellectual capital interface. */
+.asset-page{background:#fbfaf6;color:#20352b}
+.asset-page .asset-hero{position:relative;overflow:hidden;background:radial-gradient(ellipse at 88% 10%,rgba(196,163,90,.18),transparent 32%),linear-gradient(125deg,#173f32 0%,#214b39 62%,#173729 100%);padding-block:clamp(54px,7vw,92px)}
+.asset-page .asset-hero:after{content:"";position:absolute;right:-90px;bottom:-150px;width:330px;height:330px;border:1px solid rgba(245,239,220,.15);border-radius:50%;box-shadow:0 0 0 34px rgba(245,239,220,.035),0 0 0 70px rgba(245,239,220,.025);pointer-events:none}
+.asset-page .asset-hero .container{position:relative;z-index:1}
+.asset-page .asset-hero .eyebrow{color:#d7c18a;font-size:10px;font-weight:800;letter-spacing:.14em}
+.asset-page .asset-hero h1{max-width:900px;font-size:clamp(38px,6vw,72px);line-height:1.04;letter-spacing:-.045em}
+.asset-page .asset-hero p:not(.eyebrow){max-width:700px;color:rgba(248,246,239,.84);font-size:clamp(15px,1.7vw,18px);line-height:1.8}
+.asset-page .asset-back{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:10px 0;color:#f5e8c3;text-underline-offset:5px}
+.asset-page .asset-wrap{padding-block:clamp(32px,5vw,68px)}
+.asset-page .asset-wrap>.container{max-width:1160px}
+.asset-page .asset-note{border:1px solid #e3d7b8;border-left:4px solid #bd9c53;border-radius:0 12px 12px 0;background:#f6f1e4;padding:19px 22px;color:#4c554b;line-height:1.8}
+.asset-page .asset-metric{gap:14px;margin:22px 0 36px}
+.asset-page .asset-tile{position:relative;min-width:0;border:1px solid #dce4d9;border-radius:12px;background:#fffefa;padding:clamp(18px,2.4vw,27px);box-shadow:0 6px 22px rgba(24,53,39,.035);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.asset-page .asset-tile:hover{transform:translateY(-2px);border-color:#bdcdbb;box-shadow:0 12px 28px rgba(24,53,39,.07)}
+.asset-page .asset-label{display:inline-block;color:#72806e;font-size:10px;font-weight:800;letter-spacing:.09em;line-height:1.5}
+.asset-page .asset-number{margin:10px 0;color:#1d4b36;font-size:clamp(34px,4vw,50px);letter-spacing:-.045em}
+.asset-page .asset-tile h2{margin:11px 0;font-size:clamp(17px,2vw,21px);line-height:1.35;letter-spacing:-.02em}
+.asset-page .asset-tile p{margin:10px 0 0;color:#667268;font-size:13px;line-height:1.8}
+.asset-page .asset-wrap h2{margin-top:34px;margin-bottom:14px;font-size:clamp(23px,3vw,32px);line-height:1.25}
+.asset-page .asset-table{border:1px solid #dce4d9;border-radius:10px;border-collapse:separate;border-spacing:0;overflow:hidden;background:#fffefa}
+.asset-page .asset-table th{background:#edf1e8;color:#536451;font-size:10px;letter-spacing:.08em;line-height:1.5}
+.asset-page .asset-table th,.asset-page .asset-table td{padding:16px;border-bottom:1px solid #e4e9e0;line-height:1.7}
+.asset-page .asset-table tbody tr:last-child td{border-bottom:0}
+.asset-page .asset-table tbody tr:hover{background:#f8f9f3}
+.asset-page .asset-table td{color:#59675c;font-size:13px}
+.asset-page .asset-table td strong{color:#263e30}
+.asset-page .asset-pill{border-color:#cbd9c7;background:#f0f5eb;color:#3d6846;font-size:11px;line-height:1.4;white-space:normal}
+.asset-page ol{padding-left:24px;color:#59675c;line-height:1.9}
+.asset-page ol li{padding:4px 0 4px 4px}
+.asset-page .button{margin-top:8px}
+.asset-page .text-link{display:inline-block;margin:8px 0 0 12px;color:#2b6247;text-underline-offset:4px}
+.asset-page .footer{padding-block:24px}
+.asset-page .footer p{color:rgba(255,255,255,.78);font-size:12px;line-height:1.7}
+.asset-page a:focus-visible{outline:3px solid #bd9c53;outline-offset:4px}
+@media(max-width:760px){
+ .asset-page .asset-metric{grid-template-columns:1fr}
+ .asset-page .asset-hero{padding-block:46px 38px}
+ .asset-page .asset-hero h1{font-size:clamp(36px,9vw,52px)}
+ .asset-page .asset-table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .asset-page .asset-table th,.asset-page .asset-table td{min-width:145px;padding:12px}
+ .asset-page .asset-table th:first-child,.asset-page .asset-table td:first-child{min-width:125px}
+ .asset-page .asset-note{padding:16px}
+ .asset-page .text-link{margin-left:0}
+}
+@media(prefers-reduced-motion:reduce){.asset-page .asset-tile{transition:none}}
