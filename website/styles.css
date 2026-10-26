@@ -517,17 +517,9 @@ img{max-width:100%;height:auto}
 @media(max-width:800px){.platform-status-heading{grid-template-columns:1fr;gap:14px}.platform-status-grid{grid-template-columns:1fr}.platform-status-card{min-height:0}.platform-status-card>p:not(.eyebrow){margin-bottom:18px}}
 
 
-/* Mobile navigation: predictable swipe targets without affecting in-page navigation */
-@media(max-width:680px){
-  .header-inner>nav{scroll-snap-type:x proximity;scroll-padding-inline:12px;overscroll-behavior-inline:contain}
-  .header-inner>nav>a{scroll-snap-align:start;white-space:nowrap}
-  .header-inner>nav>a:focus-visible{outline-offset:-3px}
-}
-
-
-/* Mobile navigation: keep every section reachable without compressing labels. */
+/* Mobile navigation: keep all sections reachable without compressing labels. */
 @media (max-width: 680px) {
-  .header nav {
+  .header-inner > nav {
     min-width: 0;
     overflow-x: auto;
     overflow-y: hidden;
@@ -539,16 +531,19 @@ img{max-width:100%;height:auto}
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scroll-snap-type: x proximity;
+    scroll-padding-inline: 12px;
+    overscroll-behavior-inline: contain;
   }
-  .header nav a {
+  .header-inner > nav > a {
     display: inline-flex;
     flex: 0 0 auto;
     align-items: center;
     min-height: 36px;
+    white-space: nowrap;
     scroll-snap-align: start;
   }
-  .header nav a:last-child {
-    margin-right: 4px;
+  .header-inner > nav > a:focus-visible {
+    outline-offset: -3px;
   }
   .header .header-cta {
     min-height: 44px;
