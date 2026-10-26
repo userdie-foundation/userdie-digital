@@ -74,3 +74,124 @@ body{background-image:linear-gradient(180deg,rgba(255,255,255,.16),transparent 3
  .header nav a{white-space:nowrap}
  .header-cta{max-width:100%;white-space:normal}
 }
+
+/* Visual release 01 — consistent typography, icon containers, cards and section rhythm. */
+:root{
+ --ud-ink:#20352b;
+ --ud-forest:#214a37;
+ --ud-forest-deep:#173b2b;
+ --ud-moss:#708b58;
+ --ud-lime:#e4edcf;
+ --ud-paper:#fbfaf6;
+ --ud-card:#fffefa;
+ --ud-line:rgba(32,53,43,.13);
+ --ud-muted:#66736a;
+ --ud-radius-sm:10px;
+ --ud-radius-md:16px;
+ --ud-radius-lg:24px;
+ --ud-shadow-card:0 8px 28px rgba(27,54,39,.055);
+ --ud-shadow-hover:0 16px 38px rgba(27,54,39,.105);
+}
+body{color:var(--ud-ink);text-rendering:optimizeLegibility}
+p{max-width:72ch}
+h1,h2,h3,h4{letter-spacing:-.025em;text-wrap:balance}
+h1{line-height:1.08}
+h2{line-height:1.16}
+h3{line-height:1.28}
+small,.eyebrow,.section-kicker{letter-spacing:.045em}
+:where(.direction-card,.module-card,.platform-status-card,.metric-card,.panel,.contour-option,.prototype-directory-grid a){
+ border-color:var(--ud-line);
+}
+:where(.direction-card,.module-card,.platform-status-card,.metric-card,.panel,.contour-option,.prototype-directory-grid a){
+ border-radius:var(--ud-radius-md);
+}
+:where(.direction-card,.module-card,.platform-status-card,.metric-card,.panel,.prototype-directory-grid a){
+ box-shadow:var(--ud-shadow-card);
+}
+:where(.direction-card,.module-card,.platform-status-card,.prototype-directory-grid a){
+ padding:clamp(18px,2.2vw,28px);
+}
+:where(.direction-card,.module-card,.platform-status-card,.metric-card,.panel){
+ background-color:var(--ud-card);
+}
+:where(.direction-card,.module-card,.platform-status-card,.prototype-directory-grid a){
+ transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background-color .18s ease;
+}
+:where(.direction-card,.module-card,.platform-status-card,.prototype-directory-grid a):hover{
+ transform:translateY(-3px);
+ box-shadow:var(--ud-shadow-hover);
+ border-color:rgba(112,139,88,.48);
+}
+:where(.button,.app-button,.button-dark,.button-light){
+ min-height:44px;
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ gap:9px;
+ line-height:1.25;
+ font-weight:700;
+}
+:where(.button,.app-button,.button-dark,.button-light):focus-visible{
+ outline:3px solid #a7bc7b;
+ outline-offset:3px;
+}
+:where(.button-dark,.app-button-primary,.button-primary){
+ box-shadow:0 5px 14px rgba(29,70,50,.14);
+}
+:where(.brand-emblem,.icon,.card-icon,.module-icon,.direction-icon){
+ flex-shrink:0;
+}
+:where(.icon,.card-icon,.module-icon,.direction-icon){
+ display:inline-grid;
+ place-items:center;
+}
+:where(.card-icon,.module-icon,.direction-icon){
+ width:46px;
+ height:46px;
+ border-radius:14px;
+ background:linear-gradient(145deg,#edf2e3,#e1e9d3);
+ color:var(--ud-forest);
+}
+:where(.card-icon,.module-icon,.direction-icon) svg{
+ display:block;
+ width:23px;
+ height:23px;
+}
+:where(.card-icon,.module-icon,.direction-icon) svg *{
+ vector-effect:non-scaling-stroke;
+}
+:where(.section,.content-section,.platform-section){
+ padding-block:clamp(44px,7vw,88px);
+}
+:where(.section-heading,.platform-section-heading){
+ margin-bottom:clamp(22px,3vw,36px);
+}
+:where(.direction-grid,.module-grid,.platform-status-grid,.prototype-directory-grid){
+ gap:clamp(14px,2vw,22px);
+}
+:where(.metric-value,.stat-value,.platform-stat-value){
+ font-variant-numeric:tabular-nums lining-nums;
+ letter-spacing:-.035em;
+}
+:where(.muted,.text-muted,.card-description,.section-description){color:var(--ud-muted)}
+:where(input,select,textarea){
+ border-radius:var(--ud-radius-sm);
+ border-color:var(--ud-line);
+}
+:where(input,select,textarea):focus{
+ border-color:var(--ud-moss);
+ box-shadow:0 0 0 3px rgba(112,139,88,.14);
+}
+hr{border:0;border-top:1px solid var(--ud-line)}
+@media(max-width:760px){
+ .container{width:min(100% - 36px,1160px)}
+ :where(.direction-card,.module-card,.platform-status-card,.prototype-directory-grid a){padding:18px}
+ :where(.section,.content-section,.platform-section){padding-block:42px}
+ h1{font-size:clamp(2rem,8vw,3.5rem)}
+ h2{font-size:clamp(1.6rem,6vw,2.5rem)}
+}
+@media(max-width:420px){
+ .container{width:calc(100% - 28px)}
+ :where(.button,.app-button,.button-dark,.button-light){max-width:100%;white-space:normal}
+}
+
