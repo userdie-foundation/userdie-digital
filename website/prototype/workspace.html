@@ -88,6 +88,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 .search-box{flex:1;min-width:170px;min-height:40px;padding:0 12px;border:1px solid #dce1d6;border-radius:4px;background:#fff;font:11px 'DM Sans',sans-serif;color:var(--app-text)}
 .filter-select{min-height:40px;padding:0 10px;border:1px solid #dce1d6;border-radius:4px;background:#fff;font:11px 'DM Sans',sans-serif;color:var(--app-text)}
 .empty-state{padding:34px 20px;text-align:center;color:var(--app-muted);font-size:11px}
+.workflow-links{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0 20px;padding:14px;border:1px solid var(--app-line);border-radius:5px;background:#f8f9f3}.workflow-links strong{width:100%;font:700 11px Manrope,sans-serif;color:var(--app-text)}.workflow-links button{min-height:34px;padding:7px 10px;border:1px solid #cbd6c2;border-radius:4px;background:#fff;color:#31583d;font:700 10px 'DM Sans',sans-serif;cursor:pointer}.workflow-links button:hover{background:#eaf0e2}.workflow-links button:focus-visible{outline:3px solid #6b8c54;outline-offset:3px}
 .notice-box{margin-top:18px;padding:13px 15px;border-left:3px solid #c4a16f;background:#f3efe5;color:#74664f;font-size:10px;line-height:1.8}
 .toast{position:fixed;right:22px;bottom:22px;z-index:20;max-width:min(380px,calc(100vw - 36px));padding:14px 17px;border:1px solid #cbd8be;border-radius:5px;background:#f9fbf5;color:#294833;box-shadow:0 12px 35px #20372b1c;font-size:11px;line-height:1.6;display:none}
 .toast.visible{display:block}
@@ -210,6 +211,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 </section>
 <section class="page-view" id="view-tasks">
 <div class="view-intro"><p class="eyebrow">01 / УПРАВЛЕНИЕ РАБОТОЙ</p><h2>Задачи команды</h2><p>Интерактивный пример списка задач. Отметки и новые записи живут только в текущей вкладке браузера; серверного хранения и назначений исполнителям нет.</p></div>
+<div class="workflow-links" aria-label="Связи задач с другими модулями"><strong>Связать работу с объектом</strong><button type="button" data-go="programs">Программа или проект →</button><button type="button" data-go="assets">Объект оценки →</button><button type="button" data-go="knowledge">Методика или исследование →</button></div>
 <div class="panel"><div class="panel-head"><div><h2>Список задач</h2><p id="task-summary">4 демонстрационные задачи</p></div><button class="app-button" id="new-task-secondary">＋ Добавить</button></div>
 <div class="filter-row"><input class="search-box" id="task-search" type="search" placeholder="Поиск по задачам…" aria-label="Поиск по задачам"><select class="filter-select" id="task-filter" aria-label="Фильтр по статусу"><option value="all">Все статусы</option><option value="open">Активные</option><option value="done">Выполненные</option></select></div>
 <div class="task-list" id="all-tasks"></div></div>
@@ -225,6 +227,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 </section>
 <section class="page-view" id="view-programs">
 <div class="view-intro"><p class="eyebrow">02 / ПРОГРАММНАЯ ДЕЯТЕЛЬНОСТЬ</p><h2>Программы фонда</h2><p>Структура будущего модуля: описание программы, ответственный, этапы, подтверждающие документы и критерии результата. Ниже — только условные карточки, не действующие программы фонда.</p></div>
+<div class="workflow-links" aria-label="Связи программ с другими модулями"><strong>Рабочий цикл программы</strong><button type="button" data-go="tasks">Задачи и контроль →</button><button type="button" data-go="partners">Партнёры →</button><button type="button" data-go="knowledge">Методики и материалы →</button></div>
 <div class="module-list">
 <article class="module-tile"><span class="tile-ico">✳</span><strong>«Открытый мир»</strong><small>Структура карточки программы: целевые группы, география, партнёры и подтверждённые результаты.</small><span class="tile-state">Требует сверки</span></article>
 <article class="module-tile"><span class="tile-ico">⌁</span><strong>«Гуманитарный диалог»</strong><small>Инициативы взаимодействия, мероприятия, участники и документальная база.</small><span class="tile-state">Требует сверки</span></article>
@@ -234,6 +237,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 </section>
 <section class="page-view" id="view-assets">
 <div class="view-intro"><p class="eyebrow">06 / ОЦЕНКА АКТИВОВ</p><h2>Активы и оценочная работа</h2><p>Демонстрационная структура для раздельного учёта объектов, источников сведений, методики, даты оценки, ответственного и истории согласования. Реальные активы и финансовые показатели не подключены.</p></div>
+<div class="workflow-links" aria-label="Связи оценки активов с другими модулями"><strong>Проверяемый цикл оценки</strong><button type="button" data-go="tasks">Задачи и согласование →</button><button type="button" data-go="knowledge">Методика и интеллектуальный ресурс →</button><button type="button" data-go="documents">Подтверждающие документы →</button></div>
 <div class="module-list">
 <article class="module-tile"><span class="tile-ico">▤</span><strong>Акции и долевые инструменты</strong><small>Эмитент, класс инструмента, источник данных, дата актуальности и статус проверки.</small><span class="tile-state">Структура карточки · без реестра</span></article>
 <article class="module-tile"><span class="tile-ico">≋</span><strong>Облигации</strong><small>Выпуск, номинал, валюта, срок, источник котировок и метод оценки.</small><span class="tile-state">Структура карточки · без реестра</span></article>
@@ -244,6 +248,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 </section>
 <section class="page-view" id="view-knowledge">
 <div class="view-intro"><p class="eyebrow">07 / БАНКИ ИНТЕЛЛЕКТУАЛЬНЫХ РЕСУРСОВ</p><h2>Знания, исследования и методики</h2><p>Контур для систематизации интеллектуальных ресурсов фонда и аналитической работы. Карточки ниже описывают целевую модель, а не существующее хранилище документов.</p></div>
+<div class="workflow-links" aria-label="Связи интеллектуальных ресурсов с другими модулями"><strong>Использование знания в работе</strong><button type="button" data-go="programs">Программа или проект →</button><button type="button" data-go="assets">Обоснование оценки →</button><button type="button" data-go="tasks">Задачи по внедрению →</button><button type="button" data-go="documents">Документы и версии →</button></div>
 <div class="module-list">
 <article class="module-tile"><span class="tile-ico">⌁</span><strong>Банк методик</strong><small>Методика, версия, область применения, авторство и порядок согласования.</small><span class="tile-state">Концепция</span></article>
 <article class="module-tile"><span class="tile-ico">◫</span><strong>Банк исследований</strong><small>Вопрос исследования, дата, источники, выводы и ограничения применимости.</small><span class="tile-state">Концепция</span></article>
