@@ -1,0 +1,16 @@
+/* USERDIE DIGITAL visual polish */
+:root{--ud-radius:12px;--ud-shadow:0 16px 44px rgba(30,48,40,.08)}
+.button,.app-button,.direction-card,.prototype-directory-grid a,.platform-status-card,.metric-card,.panel,.contour-option{transition:box-shadow .2s ease,transform .2s ease,border-color .2s ease}
+.button,.app-button{border-radius:7px}
+.direction-card,.platform-status-card,.prototype-directory-grid a{border-radius:var(--ud-radius)}
+.direction-card:hover,.platform-status-card:hover,.prototype-directory-grid a:hover{transform:translateY(-4px);box-shadow:var(--ud-shadow);border-color:#b8c9ad}
+.help-panel{border-radius:14px;box-shadow:0 20px 54px rgba(22,58,40,.13)}
+.app-sidebar{box-shadow:8px 0 28px rgba(30,48,40,.025)}
+.app-nav button{border-radius:8px}
+.app-nav button[aria-current=page]{box-shadow:inset 3px 0 0 #77965e}
+.metric-card,.panel,.contour-switcher,.sidebar-status{border-radius:10px}
+.contour-option{border-radius:8px}
+.contour-option:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(30,48,40,.07)}
+:where(a,button,input,select,textarea):focus-visible{outline-color:#9b6a4d}
+@media(max-width:680px){.app-main{padding-top:22px}.metric-card{padding:14px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}}
