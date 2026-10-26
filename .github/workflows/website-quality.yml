@@ -1,0 +1,42 @@
+name: Website quality gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - ".github/scripts/check-site-links.mjs"
+      - ".github/scripts/check-inline-js.mjs"
+      - ".github/workflows/website-quality.yml"
+  pull_request:
+    paths:
+      - "website/**"
+      - ".github/scripts/check-site-links.mjs"
+      - ".github/scripts/check-inline-js.mjs"
+      - ".github/workflows/website-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-quality:
+    name: Check links, anchors and inline JavaScript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check internal links and accessibility references
+        run: node .github/scripts/check-site-links.mjs
+      - name: Check inline JavaScript syntax
+        run: node .github/scripts/check-inline-js.mjs
+      - name: Check required 404 page
+        run: test -s website/404.html
