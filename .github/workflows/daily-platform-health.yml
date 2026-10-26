@@ -23,6 +23,8 @@ jobs:
         run: test -s website/404.html
       - name: Check internal links and anchors
         run: node .github/scripts/check-site-links.mjs
+      - name: Check inline JavaScript syntax
+        run: node .github/scripts/check-inline-js.mjs
       - name: Check website deployment result
         env:
           GH_TOKEN: ${{ github.token }}
