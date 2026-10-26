@@ -38,5 +38,7 @@ jobs:
         run: node .github/scripts/check-site-links.mjs
       - name: Check inline JavaScript syntax
         run: node .github/scripts/check-inline-js.mjs
+      - name: Validate visual enhancement assets
+        run: node .github/scripts/apply-visual-enhancements.mjs --check
       - name: Check required 404 page
         run: test -s website/404.html
