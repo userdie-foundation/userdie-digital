@@ -23,17 +23,21 @@ jobs:
         run: test -s website/404.html
       - name: Check internal links and anchors
         run: node .github/scripts/check-site-links.mjs
-      - name: Check latest website deployment result
+      - name: Check website deployment result
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-website.yml/runs?branch=main&per_page=1")"
-          read -r status conclusion < <(printf '%s' "$run_json" | jq -r '.workflow_runs[0] | [.status // "missing", .conclusion // "pending"] | @tsv')
+          if [ "$GITHUB_EVENT_NAME" = "workflow_run" ]; then
+            read -r status conclusion < <(jq -r '.workflow_run | [.status // "missing", .conclusion // "pending"] | @tsv' "$GITHUB_EVENT_PATH")
+          else
+            run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-website.yml/runs?branch=main&status=completed&per_page=1")"
+            read -r status conclusion < <(printf '%s' "$run_json" | jq -r '.workflow_runs[0] | [.status // "missing", .conclusion // "pending"] | @tsv')
+          fi
           if [ "$status" != "completed" ] || [ "$conclusion" != "success" ]; then
-            echo "::error::Latest website deployment is not successful (status=$status, conclusion=$conclusion)."
+            echo "::error::Website deployment check failed (status=$status, conclusion=$conclusion)."
             exit 1
           fi
-          echo "Latest website deployment completed successfully."
+          echo "Website deployment completed successfully."
       - name: Check custom-domain HTTPS readiness (non-blocking)
         run: |
           if curl --fail --location --silent --show-error --max-time 25 https://xn--d1abbl2ben.online/ --output /dev/null; then
