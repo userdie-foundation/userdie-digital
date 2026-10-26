@@ -35,7 +35,7 @@ for (const source of htmlFiles) {
 
   // Duplicate HTML IDs make fragment links and accessibility references ambiguous.
   const seenIds = new Set();
-  for (const match of markup.matchAll(/\\sid\\s*=\\s*(['"])(.*?)\\1/gi)) {
+  for (const match of markup.matchAll(/\sid\s*=\s*(['"])(.*?)\1/gi)) {
     const id = match[2].trim();
     if (!id) continue;
     if (seenIds.has(id)) {
