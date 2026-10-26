@@ -538,7 +538,7 @@ img{max-width:100%;height:auto}
     display: inline-flex;
     flex: 0 0 auto;
     align-items: center;
-    min-height: 36px;
+    min-height: 44px;
     white-space: nowrap;
     scroll-snap-align: start;
   }
