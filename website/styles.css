@@ -523,3 +523,34 @@ img{max-width:100%;height:auto}
   .header-inner>nav>a{scroll-snap-align:start;white-space:nowrap}
   .header-inner>nav>a:focus-visible{outline-offset:-3px}
 }
+
+
+/* Mobile navigation: keep every section reachable without compressing labels. */
+@media (max-width: 680px) {
+  .header nav {
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 18px;
+    padding: 8px 2px 10px;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scroll-snap-type: x proximity;
+  }
+  .header nav a {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    min-height: 36px;
+    scroll-snap-align: start;
+  }
+  .header nav a:last-child {
+    margin-right: 4px;
+  }
+  .header .header-cta {
+    min-height: 44px;
+  }
+}
