@@ -549,3 +549,86 @@ img{max-width:100%;height:auto}
     min-height: 44px;
   }
 }
+
+
+/* USERDIE DIGITAL — release refinement 06: consistent controls and responsive behavior. */
+:root {
+  --focus-ring: #9a694b;
+  --card-radius: 14px;
+  --surface-shadow: 0 10px 30px rgba(23, 63, 50, .055);
+}
+html { scroll-padding-top: 100px; }
+.button, .direction-card, .preview-card, .module-card, .platform-status-card {
+  border-radius: var(--card-radius);
+}
+.button {
+  min-height: 48px;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.button:focus-visible,
+.header-inner nav a:focus-visible,
+a:focus-visible, button:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+.direction-card, .preview-card, .module-card, .platform-status-card {
+  box-shadow: 0 3px 14px rgba(23, 63, 50, .025);
+}
+.direction-card:hover, .preview-card:hover, .module-card:hover, .platform-status-card:hover {
+  border-color: #b7c9ad;
+  box-shadow: var(--surface-shadow);
+}
+.header-inner > nav { min-width: 0; }
+.header-inner > nav > a {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+@media (min-width: 681px) and (max-width: 1100px) {
+  .header-inner > nav { row-gap: 6px; }
+  .header-inner > nav > a { min-height: 40px; }
+}
+@media (max-width: 680px) {
+  html { scroll-padding-top: 16px; }
+  .header { position: relative; }
+  .header-inner { align-items: center; }
+  .header-inner > nav {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    gap: 8px;
+    padding: 6px 0 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scroll-snap-type: x proximity;
+  }
+  .header-inner > nav > a {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 15px;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: #fffefa;
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+  .header-inner .header-cta { min-height: 44px; }
+  .direction-card, .preview-card, .module-card { min-width: 0; }
+  .help-panel { border-radius: 14px; }
+  .platform-status-card { padding: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
