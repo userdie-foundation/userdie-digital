@@ -23,6 +23,19 @@ EXPLICIT_PLACEHOLDER_VALUE = re.compile(
     r"(?:example|placeholder|dummy|redacted)(?:[_ -]?(?:value|secret|token|key))?)$"
 )
 
+def detect_secret_pattern(line: str):
+    """Return a finding label, or None; never return or log the matched value."""
+    for label, pattern in PATTERNS:
+        match = pattern.search(line)
+        if not match:
+            continue
+        if label == "generic-secret-assignment":
+            value = match.group(2).strip()
+            if EXPLICIT_PLACEHOLDER_VALUE.fullmatch(value):
+                continue
+        return label
+    return None
+
 def main() -> int:
     try:
         files = subprocess.check_output(
@@ -45,16 +58,9 @@ def main() -> int:
         except OSError:
             continue
         for line_no, line in enumerate(text.splitlines(), 1):
-            for label, pattern in PATTERNS:
-                match = pattern.search(line)
-                if not match:
-                    continue
-                if label == "generic-secret-assignment":
-                    value = match.group(2).strip()
-                    if EXPLICIT_PLACEHOLDER_VALUE.fullmatch(value):
-                        continue
+            label = detect_secret_pattern(line)
+            if label:
                 findings.append((name, line_no, label))
-                break
 
     if findings:
         print("Potential secret patterns detected (values intentionally omitted):")
