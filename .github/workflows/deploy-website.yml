@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Check internal website links
         run: node .github/scripts/check-site-links.mjs
       - name: Check inline JavaScript syntax
