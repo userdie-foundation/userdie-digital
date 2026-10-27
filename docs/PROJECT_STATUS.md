@@ -11,7 +11,7 @@
 
 - Репозиторий содержит публичный сайт фонда и набор интерфейсных концепций USERDIE DIGITAL.
 - В `website/` присутствуют главная страница, общие стили, пользовательская страница 404 и прототипы карты платформы, кабинета заявителя, партнёрского пространства, рабочего пространства команды и реестра активов.
-- Последний проверенный коммит ветки `main` на дату сверки: [`e9704cc8d13be392315d049dab55aca4193f4453`](https://github.com/userdie-foundation/userdie-digital/commit/e9704cc8d13be392315d049dab55aca4193f4453) — «Connect asset register with platform navigation».
+- Последний проверенный коммит с изменениями интерфейса/кода платформы до обновления этой документации: [`e9704cc8d13be392315d049dab55aca4193f4453`](https://github.com/userdie-foundation/userdie-digital/commit/e9704cc8d13be392315d049dab55aca4193f4453) — «Connect asset register with platform navigation». Документация статуса обновлена отдельным коммитом; это не изменение интерфейса сайта.
 - Последняя проверенная публикация GitHub Actions workflow **Deploy public website** завершилась успешно: [запуск 40416358538](https://github.com/userdie-foundation/userdie-digital/actions/runs/40416358538).
 - Автоматическая проверка качества завершилась успешно: [запуск 40416356627](https://github.com/userdie-foundation/userdie-digital/actions/runs/40416356627).
 - Автоматическая проверка безопасности завершилась успешно: [запуск 40416356690](https://github.com/userdie-foundation/userdie-digital/actions/runs/40416356690).
@@ -90,7 +90,7 @@
 
 ## 10. Контрольная точка на 27 октября 2026 года
 
-- Подтверждённый HEAD ветки `main`: [`e9704cc8d13be392315d049dab55aca4193f4453`](https://github.com/userdie-foundation/userdie-digital/commit/e9704cc8d13be392315d049dab55aca4193f4453).
+- Последний подтверждённый коммит с изменениями кода платформы до обновления этого статуса: [`e9704cc8d13be392315d049dab55aca4193f4453`](https://github.com/userdie-foundation/userdie-digital/commit/e9704cc8d13be392315d049dab55aca4193f4453). Сам документ статуса записан отдельным коммитом [`63da70b5cf22bb9edeb44523d00fbac73aa30be9`](https://github.com/userdie-foundation/userdie-digital/commit/63da70b5cf22bb9edeb44523d00fbac73aa30be9); он не меняет опубликованный интерфейс.
 - Проверенная публикация: [Deploy public website — run 40416358538](https://github.com/userdie-foundation/userdie-digital/actions/runs/40416358538), успешное завершение.
 - Проверка качества: [run 40416356627](https://github.com/userdie-foundation/userdie-digital/actions/runs/40416356627), успешное завершение.
 - Проверка безопасности: [run 40416356690](https://github.com/userdie-foundation/userdie-digital/actions/runs/40416356690), успешное завершение с ограниченным набором проверок.
