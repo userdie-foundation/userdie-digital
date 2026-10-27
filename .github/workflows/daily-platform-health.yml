@@ -116,7 +116,7 @@ jobs:
 
       - name: Notify office about failed checks
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           CHECK_404: ${{ steps.page404.outcome || 'not-run' }}
           CHECK_LINKS: ${{ steps.links.outcome || 'not-run' }}
