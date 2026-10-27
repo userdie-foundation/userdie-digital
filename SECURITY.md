@@ -9,6 +9,8 @@ The `USERDIE security guard` workflow runs on changes to `main`, pull requests t
 - CodeQL analysis for JavaScript/TypeScript;
 - a job summary with the result of each control.
 
+Dependabot is configured in `.github/dependabot.yml` to propose weekly updates to GitHub Actions dependencies. Review and merge dependency updates deliberately; automated updates are not a substitute for release validation.
+
 These checks are detection aids, not a guarantee of security. Pattern scanning can produce false positives and miss secrets, and scanning the current checkout does not audit the complete Git history. Review GitHub's Security tab and repository settings for native secret scanning, push protection, Dependabot alerts, and private vulnerability reporting availability.
 
 ## DDoS and live-site protection
