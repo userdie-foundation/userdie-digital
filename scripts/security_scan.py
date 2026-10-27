@@ -11,11 +11,17 @@ PATTERNS = [
     ("github-fine-grained-token", re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}\b")),
     ("aws-access-key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
     ("generic-secret-assignment", re.compile(
-        r"(?i)\b(?:api[_-]?key|access[_-]?token|client[_-]?secret|password)\b"
-        r"\s*[:=]\s*['\"][^'\"]{12,}['\"]"
+        r"""(?i)\b(?:api[_-]?key|access[_-]?token|client[_-]?secret|password)\b"""
+        r"""\s*[:=]\s*(['"])([^'"]{12,})\1"""
     )),
 ]
-ALLOW_HINTS = ("example", "placeholder", "your_", "changeme", "dummy", "redacted")
+# Only exempt a clearly placeholder-shaped VALUE in a generic assignment.
+# Never skip an entire line: a real credential may coexist with explanatory text.
+EXPLICIT_PLACEHOLDER_VALUE = re.compile(
+    r"(?i)^(?:your[_ -]?(?:api[_ -]?)?(?:key|token|secret|password)(?:[_ -]?here)?|"
+    r"(?:replace|change|insert)[_ -]?(?:this[_ -]?)?(?:value|me|here)|"
+    r"(?:example|placeholder|dummy|redacted)(?:[_ -]?(?:value|secret|token|key))?)$"
+)
 
 def main() -> int:
     try:
@@ -39,13 +45,16 @@ def main() -> int:
         except OSError:
             continue
         for line_no, line in enumerate(text.splitlines(), 1):
-            lowered = line.lower()
-            if any(hint in lowered for hint in ALLOW_HINTS):
-                continue
             for label, pattern in PATTERNS:
-                if pattern.search(line):
-                    findings.append((name, line_no, label))
-                    break
+                match = pattern.search(line)
+                if not match:
+                    continue
+                if label == "generic-secret-assignment":
+                    value = match.group(2).strip()
+                    if EXPLICIT_PLACEHOLDER_VALUE.fullmatch(value):
+                        continue
+                findings.append((name, line_no, label))
+                break
 
     if findings:
         print("Potential secret patterns detected (values intentionally omitted):")
