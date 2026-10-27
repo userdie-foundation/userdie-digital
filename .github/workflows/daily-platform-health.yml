@@ -18,16 +18,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
+        id: checkout
         uses: actions/checkout@v4
       - name: Check required 404 page
+        id: page404
         run: test -s website/404.html
       - name: Check internal links and anchors
+        id: links
         run: node .github/scripts/check-site-links.mjs
       - name: Check inline JavaScript syntax
+        id: javascript
         run: node .github/scripts/check-inline-js.mjs
       - name: Validate visual enhancement assets
+        id: visual_assets
         run: node .github/scripts/apply-visual-enhancements.mjs --check
       - name: Check website deployment result
+        id: deployment
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -55,9 +61,54 @@ jobs:
           fi
           echo "Website deployment completed successfully."
       - name: Check custom-domain HTTPS readiness (non-blocking)
+        id: domain
         run: |
           if curl --fail --location --silent --show-error --max-time 25 https://xn--d1abbl2ben.online/ --output /dev/null; then
+            echo "status=PASS — HTTPS доступен" >> "$GITHUB_OUTPUT"
             echo "Custom-domain HTTPS check passed."
           else
+            echo "status=WARNING — HTTPS не подтверждён" >> "$GITHUB_OUTPUT"
             echo "::warning::Custom-domain HTTPS is not verified yet. Keep DNS and certificate readiness as a separate release task; repository, link and deployment checks are independent."
           fi
+      - name: Publish readable health report
+        id: report
+        if: always()
+        env:
+          CHECK_404: ${{ steps.page404.outcome || 'not-run' }}
+          CHECK_LINKS: ${{ steps.links.outcome || 'not-run' }}
+          CHECK_JS: ${{ steps.javascript.outcome || 'not-run' }}
+          CHECK_VISUAL: ${{ steps.visual_assets.outcome || 'not-run' }}
+          CHECK_DEPLOY: ${{ steps.deployment.outcome || 'not-run' }}
+          CHECK_DOMAIN: ${{ steps.domain.outputs.status || 'not-run' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          JOB_RESULT: ${{ job.status }}
+        run: |
+          {
+            echo "# USERDIE DIGITAL — отчёт технического контроля"
+            echo
+            echo "- Результат задания: **$JOB_RESULT**"
+            echo "- Запуск: [$GITHUB_RUN_ID]($RUN_URL)"
+            echo "- Событие: $EVENT_NAME"
+            echo "- Commit: `$COMMIT_SHA`"
+            echo "- Время формирования: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            echo
+            echo "| Проверка | Результат |"
+            echo "|---|---|"
+            echo "| Страница 404 | $CHECK_404 |"
+            echo "| Внутренние ссылки и якоря | $CHECK_LINKS |"
+            echo "| Синтаксис JavaScript | $CHECK_JS |"
+            echo "| Визуальные ресурсы | $CHECK_VISUAL |"
+            echo "| Результат публикации | $CHECK_DEPLOY |"
+            echo "| HTTPS пользовательского домена | $CHECK_DOMAIN |"
+            echo
+            echo "Автопроверка не заменяет ручную проверку сайта в браузере. Предупреждение по домену не отменяет независимые проверки репозитория и публикации."
+          } | tee platform-health-report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload health report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: userdie-platform-health-report-${{ github.run_id }}
+          path: platform-health-report.md
+          if-no-files-found: warn
