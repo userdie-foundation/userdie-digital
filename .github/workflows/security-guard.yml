@@ -1,0 +1,70 @@
+name: USERDIE security guard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "23 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+concurrency:
+  group: security-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secret-pattern-scan:
+    name: Scan tracked files for likely exposed secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Scan without printing secret values
+        run: python3 scripts/security_scan.py
+
+  codeql:
+    name: CodeQL JavaScript and TypeScript analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          build-mode: none
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
+
+  security-summary:
+    name: Security operating notes
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [secret-pattern-scan, codeql]
+    steps:
+      - name: Summarize checks
+        env:
+          SECRET_SCAN_RESULT: ${{ needs.secret-pattern-scan.result }}
+          CODEQL_RESULT: ${{ needs.codeql.result }}
+        run: |
+          {
+            echo "## USERDIE DIGITAL — security guard"
+            echo ""
+            echo "| Control | Result |"
+            echo "|---|---|"
+            echo "| Tracked-file secret-pattern scan | ${SECRET_SCAN_RESULT} |"
+            echo "| CodeQL JavaScript/TypeScript analysis | ${CODEQL_RESULT} |"
+            echo ""
+            echo "This workflow is a detection layer, not a DDoS mitigation service. It does not inspect live traffic, change access controls, or automatically remediate findings."
+            echo "A successful run does not prove that the website is immune to attacks. Review alerts and configure provider-level DDoS/WAF protections separately."
+          } >> "$GITHUB_STEP_SUMMARY"
