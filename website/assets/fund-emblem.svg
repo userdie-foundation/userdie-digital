@@ -1,13 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-labelledby="title desc">
-<title id="title">Эмблема фонда «УСЕРДИЕ»</title><desc id="desc">Зелёное дерево с листьями — символ заботы, поддержки и развития.</desc>
-<defs><linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8bcf35"/><stop offset="1" stop-color="#1f7138"/></linearGradient><linearGradient id="trunk" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1c6b2d"/><stop offset="1" stop-color="#103d27"/></linearGradient></defs>
-<g fill="url(#leaf)" stroke="#fff" stroke-width="2">
-<ellipse cx="180" cy="49" rx="10" ry="23" transform="rotate(-8 180 49)"/><ellipse cx="148" cy="61" rx="10" ry="22" transform="rotate(-35 148 61)"/><ellipse cx="211" cy="64" rx="10" ry="22" transform="rotate(34 211 64)"/>
-<ellipse cx="116" cy="86" rx="10" ry="22" transform="rotate(-48 116 86)"/><ellipse cx="244" cy="88" rx="10" ry="22" transform="rotate(48 244 88)"/><ellipse cx="82" cy="121" rx="10" ry="21" transform="rotate(-60 82 121)"/><ellipse cx="278" cy="121" rx="10" ry="21" transform="rotate(60 278 121)"/>
-<ellipse cx="128" cy="126" rx="10" ry="21" transform="rotate(-35 128 126)"/><ellipse cx="231" cy="128" rx="10" ry="21" transform="rotate(35 231 128)"/><ellipse cx="160" cy="100" rx="9" ry="20" transform="rotate(-16 160 100)"/><ellipse cx="199" cy="101" rx="9" ry="20" transform="rotate(16 199 101)"/>
-<ellipse cx="55" cy="158" rx="9" ry="20" transform="rotate(-70 55 158)"/><ellipse cx="304" cy="158" rx="9" ry="20" transform="rotate(70 304 158)"/><ellipse cx="92" cy="171" rx="10" ry="21" transform="rotate(-55 92 171)"/><ellipse cx="267" cy="171" rx="10" ry="21" transform="rotate(55 267 171)"/>
-<ellipse cx="143" cy="163" rx="10" ry="21" transform="rotate(-30 143 163)"/><ellipse cx="218" cy="163" rx="10" ry="21" transform="rotate(30 218 163)"/><ellipse cx="116" cy="205" rx="10" ry="21" transform="rotate(-52 116 205)"/><ellipse cx="245" cy="205" rx="10" ry="21" transform="rotate(52 245 205)"/><ellipse cx="170" cy="144" rx="9" ry="20" transform="rotate(-8 170 144)"/><ellipse cx="191" cy="144" rx="9" ry="20" transform="rotate(8 191 144)"/>
+<title id="title">Эмблема фонда «УСЕРДИЕ»</title>
+<desc id="desc">Фирменное дерево фонда: тёмно-зелёная крона, ветви, ствол и корни.</desc>
+<g fill="#155b32">
+<!-- центральная верхушка и верхние ярусы кроны -->
+<ellipse cx="180" cy="42" rx="9" ry="22" transform="rotate(2 180 42)"/>
+<ellipse cx="151" cy="53" rx="8" ry="20" transform="rotate(-31 151 53)"/>
+<ellipse cx="209" cy="53" rx="8" ry="20" transform="rotate(31 209 53)"/>
+<ellipse cx="128" cy="73" rx="8" ry="19" transform="rotate(-43 128 73)"/>
+<ellipse cx="232" cy="73" rx="8" ry="19" transform="rotate(43 232 73)"/>
+<ellipse cx="96" cy="91" rx="8" ry="19" transform="rotate(-52 96 91)"/>
+<ellipse cx="264" cy="91" rx="8" ry="19" transform="rotate(52 264 91)"/>
+<ellipse cx="166" cy="78" rx="7" ry="17" transform="rotate(-13 166 78)"/>
+<ellipse cx="194" cy="78" rx="7" ry="17" transform="rotate(13 194 78)"/>
+<ellipse cx="75" cy="121" rx="8" ry="18" transform="rotate(-62 75 121)"/>
+<ellipse cx="285" cy="121" rx="8" ry="18" transform="rotate(62 285 121)"/>
+<ellipse cx="116" cy="116" rx="8" ry="19" transform="rotate(-42 116 116)"/>
+<ellipse cx="244" cy="116" rx="8" ry="19" transform="rotate(42 244 116)"/>
+<ellipse cx="146" cy="105" rx="7" ry="17" transform="rotate(-25 146 105)"/>
+<ellipse cx="214" cy="105" rx="7" ry="17" transform="rotate(25 214 105)"/>
+<ellipse cx="55" cy="151" rx="7" ry="17" transform="rotate(-70 55 151)"/>
+<ellipse cx="305" cy="151" rx="7" ry="17" transform="rotate(70 305 151)"/>
+<ellipse cx="91" cy="151" rx="8" ry="18" transform="rotate(-55 91 151)"/>
+<ellipse cx="269" cy="151" rx="8" ry="18" transform="rotate(55 269 151)"/>
+<ellipse cx="126" cy="148" rx="8" ry="18" transform="rotate(-35 126 148)"/>
+<ellipse cx="234" cy="148" rx="8" ry="18" transform="rotate(35 234 148)"/>
+<ellipse cx="158" cy="132" rx="7" ry="17" transform="rotate(-16 158 132)"/>
+<ellipse cx="202" cy="132" rx="7" ry="17" transform="rotate(16 202 132)"/>
+<ellipse cx="104" cy="183" rx="8" ry="18" transform="rotate(-54 104 183)"/>
+<ellipse cx="256" cy="183" rx="8" ry="18" transform="rotate(54 256 183)"/>
+<ellipse cx="139" cy="177" rx="8" ry="18" transform="rotate(-29 139 177)"/>
+<ellipse cx="221" cy="177" rx="8" ry="18" transform="rotate(29 221 177)"/>
+<ellipse cx="173" cy="160" rx="7" ry="16" transform="rotate(-8 173 160)"/>
+<ellipse cx="187" cy="160" rx="7" ry="16" transform="rotate(8 187 160)"/>
 </g>
-<path d="M180 265 C181 225 177 194 180 157 C165 137 151 123 137 115 C157 119 172 133 181 146 C190 126 207 111 225 104 C210 121 197 137 188 158 C190 192 187 225 190 265 Z" fill="url(#trunk)"/>
-<path d="M178 263 C150 267 121 278 87 292 C129 286 158 282 180 282 C205 282 234 287 275 293 C244 277 213 266 188 263 Z" fill="#1d5d2b"/>
+<!-- Изогнутый ствол и расходящиеся ветви -->
+<path d="M174 278 C184 247 179 218 176 190 C173 171 162 157 148 144 C164 148 178 160 184 174 C191 154 205 139 225 130 C207 148 196 166 191 190 C191 222 198 249 198 278 C191 272 183 272 174 278Z" fill="#164f2e"/>
+<!-- открытые корни, характерный широкий силуэт -->
+<path d="M179 270 C158 273 135 282 106 295 C131 291 153 286 177 285 C197 285 224 290 257 296 C235 283 212 274 191 270 C188 273 183 273 179 270Z" fill="#164f2e"/>
 </svg>
