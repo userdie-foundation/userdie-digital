@@ -664,3 +664,62 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   .platform-status-grid { gap: 12px; }
   .platform-status-card { padding: 20px; border-radius: 14px; }
 }
+
+
+/* USERDIE DIGITAL — mobile hierarchy and whitespace control */
+@media (max-width: 680px) {
+  .hero-layout {
+    align-items: start;
+    gap: 18px;
+  }
+  .hero-visual.hero-emblem-visual {
+    width: 100%;
+    max-width: 420px;
+    justify-self: center;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  .hero-emblem-image {
+    width: min(58%, 220px);
+  }
+  .hero-emblem-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .ring-one, .ring-two {
+    max-width: 100%;
+  }
+  .hero-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+  .hero-footer .footer-line { display: none; }
+  .platform-status-heading { margin-bottom: 22px; }
+  .platform-status-heading h2 { font-size: clamp(28px, 7vw, 36px); line-height: 1.12; }
+  .platform-status-card { padding: 20px; }
+  .intro.section, .directions.section, .preview-section.section,
+  .help-section.section, .transparency.section {
+    padding-top: 52px;
+    padding-bottom: 52px;
+  }
+  .intro-grid { align-items: start; }
+  .intro-grid h2, .section-heading h2 {
+    font-size: clamp(29px, 7.2vw, 38px);
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+  .direction-grid, .preview-grid, .help-grid {
+    gap: 12px;
+  }
+}
+@media (max-width: 390px) {
+  .hero-visual.hero-emblem-visual {
+    height: 260px;
+    min-height: 260px;
+  }
+  .hero-footer { font-size: 10px; }
+  .platform-status-card { padding: 18px; }
+}
