@@ -136,6 +136,53 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
   .app-nav button{font-size:9px}
 }
 
+
+/* USERDIE DIGITAL — mobile layout correction, reviewed against iPhone screenshots */
+@media (max-width: 720px) {
+  .app-sidebar { padding: 12px 14px 14px; }
+  .sidebar-caption { margin: 4px 2px 8px; font-size: 9px; }
+  .app-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin-bottom: 0;
+  }
+  .app-nav button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 72px;
+    padding: 9px 5px;
+    border: 1px solid var(--app-line);
+    border-radius: 12px;
+    background: #fffefa;
+    font-size: 11px;
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+  .app-nav button[aria-current=page] {
+    border-color: #9fb48e;
+    background: #e8efdf;
+    box-shadow: inset 3px 0 #78945f;
+  }
+  .nav-ico { width: 27px; height: 27px; flex: 0 0 27px; font-size: 15px; }
+  .app-main { padding: 22px 16px 38px; }
+  .app-topline { margin-bottom: 24px; }
+  .welcome-row { display: block; margin-bottom: 22px; }
+  .welcome-row h1 { max-width: 100%; margin-bottom: 0; font-size: clamp(31px, 8vw, 40px); }
+  .welcome-row .app-button { width: 100%; margin-top: 16px; }
+  .module-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .module-tile { min-width: 0; overflow-wrap: anywhere; }
+}
+@media (max-width: 390px) {
+  .app-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-nav button { min-height: 66px; font-size: 11px; }
+  .module-list { grid-template-columns: 1fr; }
+}
+
 </style>
 </head>
 <body class="workspace">
