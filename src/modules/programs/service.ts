@@ -10,7 +10,7 @@ import type {
 function isValidDate(value: string): boolean {
   // Date-only values must be real calendar dates; Date.parse alone accepts
   // impossible dates such as 2026-02-30 in some JavaScript runtimes.
-  const dateOnly = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(value);
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (dateOnly) {
     const year = Number(dateOnly[1]);
     const month = Number(dateOnly[2]);
