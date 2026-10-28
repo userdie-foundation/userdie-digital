@@ -441,3 +441,87 @@ hr{border:0;border-top:1px solid var(--ud-line)}
  .asset-page .text-link{margin-left:0}
 }
 @media(prefers-reduced-motion:reduce){.asset-page .asset-tile{transition:none}}
+
+/* USERDIE DIGITAL — визуальная система, релиз 02 */
+:root {
+  --ud-focus: #8a4d31;
+  --ud-card-border: #dce4d9;
+  --ud-card-surface: #fffefa;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--ud-focus);
+  outline-offset: 4px;
+}
+
+:where(.direction-card, .module-card, .platform-status-card,
+       .metric-card, .panel, .contour-option,
+       .prototype-directory-grid a, .robot-card, .asset-tile) {
+  min-width: 0;
+  border-color: var(--ud-card-border);
+}
+
+:where(.direction-card, .module-card, .platform-status-card,
+       .metric-card, .panel, .contour-option,
+       .prototype-directory-grid a, .robot-card, .asset-tile) h2,
+:where(.direction-card, .module-card, .platform-status-card,
+       .metric-card, .panel, .contour-option,
+       .prototype-directory-grid a, .robot-card, .asset-tile) h3 {
+  text-wrap: balance;
+}
+
+:where(.direction-card, .module-card, .platform-status-card,
+       .metric-card, .panel, .contour-option,
+       .prototype-directory-grid a, .robot-card, .asset-tile) p {
+  overflow-wrap: anywhere;
+}
+
+.header-inner nav a {
+  text-underline-offset: 5px;
+}
+
+.header-inner nav a:focus-visible,
+.text-link:focus-visible,
+.quiet-link:focus-visible {
+  border-radius: 3px;
+}
+
+img {
+  max-width: 100%;
+}
+
+@media (max-width: 680px) {
+  .container {
+    width: min(100% - 32px, 1160px);
+  }
+
+  .header-inner nav {
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .section-heading,
+  .platform-status-heading {
+    min-width: 0;
+  }
+
+  :where(.direction-card, .module-card, .platform-status-card,
+         .metric-card, .panel, .contour-option,
+         .prototype-directory-grid a, .robot-card, .asset-tile) {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
