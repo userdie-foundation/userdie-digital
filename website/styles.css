@@ -632,3 +632,35 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* USERDIE DIGITAL — homepage mobile rhythm correction */
+@media (max-width: 680px) {
+  .hero { padding-top: 28px; }
+  .hero-layout {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+  .hero-copy { padding: 8px 0 0; }
+  .hero-copy h1 { max-width: 13ch; }
+  .hero-copy .lead { margin-bottom: 20px; }
+  .hero-visual,
+  .hero-emblem-visual {
+    min-height: 0;
+    height: clamp(260px, 78vw, 340px);
+    border-radius: 42% 42% 14px 14px;
+  }
+  .hero-visual .hero-emblem-image {
+    max-width: min(62%, 230px);
+    height: auto;
+  }
+  .hero-footer { gap: 10px; padding: 18px 0 22px; font-size: 9px; }
+  .section { padding: 62px 0; }
+  .section-heading { align-items: flex-start; flex-direction: column; gap: 14px; margin-bottom: 26px; }
+  .section h2 { margin-bottom: 18px; }
+  .intro-grid, .transparency-grid { gap: 18px; }
+  .transparency.section { padding-block: 62px; }
+  .platform-status-grid { gap: 12px; }
+  .platform-status-card { padding: 20px; border-radius: 14px; }
+}
