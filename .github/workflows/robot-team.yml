@@ -1,0 +1,92 @@
+name: USERDIE Digital robot team
+on:
+  schedule:
+    - cron: "29 5 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "docs/**"
+      - ".github/scripts/run-robot-team.mjs"
+      - ".github/workflows/robot-team.yml"
+permissions:
+  contents: read
+  actions: read
+  issues: write
+concurrency:
+  group: userdie-robot-team
+  cancel-in-progress: true
+jobs:
+  robots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+      - name: Run team of bounded repository robots
+        id: team
+        run: node .github/scripts/run-robot-team.mjs
+      - name: Run internal links and anchors robot
+        id: links
+        if: always()
+        run: node .github/scripts/check-site-links.mjs
+      - name: Run public secret-pattern scan
+        id: security
+        if: always()
+        run: node .github/scripts/check-public-secrets.mjs
+      - name: Run inline JavaScript syntax robot
+        id: javascript
+        if: always()
+        run: node .github/scripts/check-inline-js.mjs
+      - name: Add summary
+        if: always()
+        env:
+          TEAM_RESULT: ${{ steps.team.outcome }}
+          LINKS_RESULT: ${{ steps.links.outcome }}
+          SECURITY_RESULT: ${{ steps.security.outcome }}
+          JS_RESULT: ${{ steps.javascript.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "## USERDIE DIGITAL — команда роботов"
+            echo
+            echo "- Запуск: [${GITHUB_RUN_ID}](${RUN_URL})"
+            echo "- Команда: ${TEAM_RESULT}"
+            echo "- Ссылки и якоря: ${LINKS_RESULT}"
+            echo "- Сканер публичных секретов: ${SECURITY_RESULT}"
+            echo "- JavaScript: ${JS_RESULT}"
+            echo
+            cat robot-team-report.md
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload robot team reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: userdie-robot-team-${{ github.run_id }}
+          path: |
+            robot-team-report.md
+            robot-team-report.json
+          if-no-files-found: warn
+      - name: Create or update operations issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'USERDIE DIGITAL — команде роботов требуется внимание';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              'Автоматическая проверка команды роботов завершилась с ошибкой.',
+              '',
+              `- Запуск: [${context.runId}](${runUrl})`,
+              `- Commit: ${context.sha}`,
+              '',
+              'Откройте журнал запуска и приложенный отчёт. Workflow не исправляет код и не публикует изменения автоматически.'
+            ].join('\n');
+            const { owner, repo } = context.repo;
+            const issues = await github.rest.issues.listForRepo({ owner, repo, state: 'open', per_page: 100 });
+            const existing = issues.data.find(i => !i.pull_request && i.title === title);
+            if (existing) {
+              await github.rest.issues.update({ owner, repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({ owner, repo, title, body });
+            }
