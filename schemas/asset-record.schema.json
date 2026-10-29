@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://userdie-foundation.github.io/userdie-digital/schemas/asset-record.schema.json",
+  "title": "USERDIE Digital Asset Record",
+  "description": "Proposed schema for a controlled asset register. This schema is not a deployed database or evidence of ownership/value.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["asset_id", "asset_class", "record_status", "evidence_status", "created_at", "updated_at"],
+  "properties": {
+    "asset_id": {"type": "string", "minLength": 3, "maxLength": 80, "pattern": "^[A-Z0-9][A-Z0-9._-]+$"},
+    "asset_class": {"enum": ["equity", "bond", "cash_or_claim", "real_property", "tangible_property", "intellectual_resource", "license_or_right", "other"]},
+    "display_name": {"type": "string", "maxLength": 300},
+    "description": {"type": "string", "maxLength": 5000},
+    "record_status": {"enum": ["draft", "under_review", "approved", "restricted", "archived"]},
+    "evidence_status": {"enum": ["not_provided", "received_unverified", "review_in_progress", "verified", "disputed", "expired"]},
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "holder_reference": {"type": "string", "maxLength": 160, "description": "Use a controlled internal reference; avoid unnecessary personal data."},
+        "rights_basis_document_ref": {"type": "string", "maxLength": 200},
+        "rights_checked_at": {"type": "string", "format": "date"},
+        "restrictions": {"type": "array", "items": {"type": "string", "maxLength": 500}, "maxItems": 100}
+      }
+    },
+    "financial_details": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "issuer": {"type": "string", "maxLength": 300},
+        "instrument_identifier": {"type": "string", "maxLength": 160},
+        "quantity": {"type": "number", "minimum": 0},
+        "nominal_value": {"type": "number", "minimum": 0},
+        "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+        "maturity_date": {"type": "string", "format": "date"}
+      }
+    },
+    "valuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {"type": "number"},
+        "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+        "valuation_date": {"type": "string", "format": "date"},
+        "method": {"type": "string", "maxLength": 300},
+        "source_reference": {"type": "string", "maxLength": 300},
+        "assumptions_and_limits": {"type": "string", "maxLength": 5000},
+        "review_status": {"enum": ["not_valued", "internal_estimate", "independent_review_pending", "independently_reviewed"]}
+      }
+    },
+    "intellectual_resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resource_type": {"enum": ["research", "methodology", "software", "dataset", "know_how", "brand_or_content", "expertise", "other"]},
+        "version": {"type": "string", "maxLength": 120},
+        "author_or_rights_reference": {"type": "string", "maxLength": 200},
+        "license_or_usage_basis": {"type": "string", "maxLength": 1000},
+        "access_class": {"enum": ["public", "internal", "confidential", "restricted"]}
+      }
+    },
+    "risk_flags": {"type": "array", "items": {"type": "string", "maxLength": 300}, "maxItems": 100},
+    "evidence_references": {"type": "array", "items": {"type": "string", "maxLength": 300}, "maxItems": 500},
+    "data_owner_role": {"type": "string", "maxLength": 120},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "change_log_reference": {"type": "string", "maxLength": 300},
+    "retention_rule": {"type": "string", "maxLength": 300}
+  }
+}
