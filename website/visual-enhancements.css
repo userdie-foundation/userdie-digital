@@ -67,11 +67,23 @@ body{background-image:linear-gradient(180deg,rgba(255,255,255,.16),transparent 3
  .direction-card:hover,.platform-status-card:hover,.prototype-directory-grid a:hover,.contour-option:hover,.module-card:hover{transform:none}
 }
 
-/* Mobile navigation: keep links readable instead of compressing them into one row. */
+/* Mobile navigation: wrap all navigation chips; do not combine wrapping with horizontal scrolling. */
 @media(max-width:680px){
  .header-inner{flex-wrap:wrap;align-items:flex-start}
- .header nav{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px 14px;width:100%;padding:8px 0}
- .header nav a{white-space:nowrap}
+ .header-inner nav{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  gap:8px;
+  width:100%;
+  max-width:100%;
+  padding:8px 0;
+  overflow-x:visible;
+  overflow-y:visible;
+  scroll-snap-type:none;
+  -webkit-overflow-scrolling:auto;
+ }
+ .header-inner nav a{flex:0 0 auto;white-space:nowrap}
  .header-cta{max-width:100%;white-space:normal}
 }
 
