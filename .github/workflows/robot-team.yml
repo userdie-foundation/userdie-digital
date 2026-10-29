@@ -9,6 +9,7 @@ on:
       - "website/**"
       - "docs/**"
       - ".github/scripts/run-robot-team.mjs"
+      - ".github/scripts/check-public-site.mjs"
       - ".github/workflows/robot-team.yml"
 permissions:
   contents: read
@@ -38,6 +39,10 @@ jobs:
         id: javascript
         if: always()
         run: node .github/scripts/check-inline-js.mjs
+      - name: Check published site availability
+        id: uptime
+        if: always()
+        run: node .github/scripts/check-public-site.mjs
       - name: Add summary
         if: always()
         env:
@@ -45,6 +50,7 @@ jobs:
           LINKS_RESULT: ${{ steps.links.outcome }}
           SECURITY_RESULT: ${{ steps.security.outcome }}
           JS_RESULT: ${{ steps.javascript.outcome }}
+          UPTIME_RESULT: ${{ steps.uptime.outcome }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           {
@@ -55,6 +61,7 @@ jobs:
             echo "- Ссылки и якоря: ${LINKS_RESULT}"
             echo "- Сканер публичных секретов: ${SECURITY_RESULT}"
             echo "- JavaScript: ${JS_RESULT}"
+            echo "- Доступность сайта: ${UPTIME_RESULT}"
             echo
             cat robot-team-report.md
           } >> "$GITHUB_STEP_SUMMARY"
