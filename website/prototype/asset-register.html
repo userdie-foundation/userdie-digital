@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f4ee">
+<meta name="description" content="Структура реестра USERDIE DIGITAL: карточки активов, доказательства, оценка, риски и аудит изменений. Демонстрационная модель.">
+<title>Реестр активов — USERDIE DIGITAL</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.registry-hero{padding:62px 0 46px;background:#173f32;color:#f8f6ef}.registry-hero h1{max-width:850px;font-size:clamp(2.4rem,6vw,4.5rem);line-height:1.04;margin:14px 0}.registry-hero p{max-width:780px;line-height:1.75}.registry-wrap{padding:38px 0 54px}.registry-alert{padding:17px 20px;border-left:4px solid #bd9c53;background:#f1eee4;line-height:1.7;margin-bottom:24px}.registry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:22px 0}.registry-card{padding:21px;border:1px solid #d9d9cf;border-radius:14px;background:#fff}.registry-card h2{font-size:1.05rem;margin:9px 0}.registry-card p{font-size:.92rem;line-height:1.7;color:#59645b}.registry-kicker{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:#71806e}.registry-table-wrap{overflow-x:auto;margin:18px 0 28px}.registry-table{width:100%;min-width:760px;border-collapse:collapse;background:#fff}.registry-table th,.registry-table td{padding:13px;text-align:left;vertical-align:top;border-bottom:1px solid #e0e1d8;line-height:1.6}.registry-table th{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:#59645b;background:#f3f3ed}.registry-tag{display:inline-block;border:1px solid #c6c7bb;border-radius:99px;padding:4px 9px;font-size:.76rem;white-space:nowrap}.registry-steps{counter-reset:step;list-style:none;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.registry-steps li{counter-increment:step;padding:18px 18px 18px 52px;background:#eeeee5;border-radius:10px;position:relative;line-height:1.65}.registry-steps li:before{content:counter(step,decimal-leading-zero);position:absolute;left:17px;top:18px;font-weight:800;color:#31573e}.registry-back{display:inline-block;margin:10px 0;text-decoration:underline}
+@media(max-width:760px){.registry-grid{grid-template-columns:1fr}.registry-steps{grid-template-columns:1fr}.registry-hero{padding:44px 0 34px}.registry-card{padding:18px}.registry-table{font-size:.9rem}}
+</style>
+<style>.brand-emblem{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px}.brand-emblem img{display:block;width:100%;height:100%;object-fit:contain}</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<header class="header"><div class="container header-inner">
+<a class="brand" href="../index.html#top" aria-label="Усердие — на главную"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<nav aria-label="Навигация"><a href="platform.html">Карта платформы</a><a href="assets-and-intellectual-capital.html">Активы</a><a href="robots.html">Команда роботов</a></nav>
+<a class="button button-dark header-cta" href="workspace.html">Рабочее пространство ↗</a>
+</div></header>
+<main id="main">
+<section class="registry-hero"><div class="container">
+<p class="eyebrow">USERDIE DIGITAL · ЦЕНТР ОЦЕНКИ АКТИВОВ</p>
+<h1>Реестр активов.<br><em>Каждое значение — с основанием.</em></h1>
+<p>Единая структура учёта финансовых инструментов, имущества и интеллектуальных ресурсов: идентификация, права, источник данных, метод оценки, риски и история изменений.</p>
+<a class="registry-back" href="assets-and-intellectual-capital.html">← К концепции активов и интеллектуального капитала</a>
+</div></section>
+<section class="registry-wrap"><div class="container">
+<div class="registry-alert"><strong>Демонстрационный макет, не рабочая база.</strong> Приведённые ниже строки — условные примеры структуры, не сведения о реальных владельцах, активах фонда или стоимости портфеля. Здесь нет подключения к депозитарию, бухгалтерии или защищённому хранилищу. Не размещайте конфиденциальные данные.</div>
+<div class="registry-grid">
+<article class="registry-card"><span class="registry-kicker">01 · Идентификация</span><h2>Уникальный идентификатор</h2><p>Тип актива, внутренний ID, описание, держатель записи, основание учёта и дата актуальности.</p></article>
+<article class="registry-card"><span class="registry-kicker">02 · Доказательства</span><h2>Право отдельно от стоимости</h2><p>Документ о праве, источник котировки или оценки и независимая проверка фиксируются раздельно.</p></article>
+<article class="registry-card"><span class="registry-kicker">03 · Ответственность</span><h2>Проверяемая история</h2><p>Ответственный, согласование, изменение статуса, дата и причина пересмотра — в отдельном журнале аудита.</p></article>
+</div>
+<h2>Пример структуры записей</h2>
+<p>Значения в таблице условные и предназначены только для демонстрации полей. Они не должны использоваться как фактическая отчётность или оценка.</p>
+<div class="registry-table-wrap"><table class="registry-table">
+<thead><tr><th>ID</th><th>Класс</th><th>Объект / описание</th><th>Право</th><th>Оценка</th><th>Подтверждение</th></tr></thead>
+<tbody>
+<tr><td>DEMO-FIN-001</td><td>Финансовый инструмент</td><td>Условная ценная бумага</td><td>Не проверено</td><td>Не рассчитана</td><td><span class="registry-tag">Демо-запись</span></td></tr>
+<tr><td>DEMO-PROP-001</td><td>Имущество / право</td><td>Условный имущественный объект</td><td>Не проверено</td><td>Не рассчитана</td><td><span class="registry-tag">Демо-запись</span></td></tr>
+<tr><td>DEMO-IP-001</td><td>Интеллектуальный ресурс</td><td>Условная методика / база знаний</td><td>Не проверено</td><td>Метод не утверждён</td><td><span class="registry-tag">Демо-запись</span></td></tr>
+</tbody></table></div>
+<h2>Обязательные поля карточки</h2>
+<div class="registry-grid">
+<article class="registry-card"><h2>Правовой статус</h2><p>Категория актива, предполагаемый правообладатель, документ-основание, дата проверки, ограничения, обременения и статус юридической проверки.</p></article>
+<article class="registry-card"><h2>Методика оценки</h2><p>Сумма и валюта только при наличии основания; дата оценки, метод, источник данных, допущения, диапазон неопределённости и эксперт.</p></article>
+<article class="registry-card"><h2>Доступ и аудит</h2><p>Класс конфиденциальности, назначенные роли, история изменений, ссылки на документы в защищённом хранилище и срок хранения.</p></article>
+</div>
+<h2>Контрольный путь до реального использования</h2>
+<ol class="registry-steps">
+<li><strong>Инвентаризация.</strong> Собрать источники, определить состав, уникальность записей и ответственных за данные.</li>
+<li><strong>Подтверждение прав.</strong> Проверить документы о владении/праве использования и ограничения; не смешивать их с оценкой.</li>
+<li><strong>Оценка.</strong> Утвердить методики, дату, источники котировок, правила пересмотра и независимой проверки.</li>
+<li><strong>Безопасный запуск.</strong> Реализовать аутентификацию, ролевой доступ, аудит, резервное копирование и тест восстановления до загрузки реальных данных.</li>
+</ol>
+<div class="registry-alert"><strong>Критерий готовности:</strong> реестр нельзя считать введённым в эксплуатацию, пока не подтверждены права на записи, качество оценки, контроль доступа, журналирование и восстановление данных. Автоматизированные проверки репозитория не заменяют эти процедуры.</div>
+<p><a class="button button-dark" href="implementation-plan.html">План реализации ↗</a> <a class="text-link" href="platform.html">К карте платформы ↗</a></p>
+</div></section>
+</main>
+<footer class="footer"><div class="container"><p>USERDIE DIGITAL · Реестр активов</p><p>Демонстрационный макет. Реальные данные требуют документального подтверждения и защищённой инфраструктуры.</p></div></footer>
+</body></html>
