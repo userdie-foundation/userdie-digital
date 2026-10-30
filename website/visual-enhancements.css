@@ -537,3 +537,41 @@ img {
     transition-duration: .01ms !important;
   }
 }
+
+/* Visual release 04 — predictable navigation across desktop, tablet and mobile. */
+.header-inner{min-width:0}
+.header-inner>.brand{min-width:0}
+.header-inner>.brand>span:last-child{min-width:0}
+.header-inner>.brand strong,.header-inner>.brand small{white-space:nowrap}
+.header-inner>nav{min-width:0}
+@media (min-width:681px) and (max-width:1100px){
+ .header-inner{flex-wrap:wrap;align-items:center;row-gap:8px;padding-block:12px}
+ .header-inner>nav{order:3;width:100%;flex:1 0 100%;display:flex;flex-wrap:wrap;justify-content:flex-start;gap:6px 18px;padding:4px 0 2px;overflow:visible;white-space:normal}
+ .header-inner>nav>a{display:inline-flex;align-items:center;min-height:40px;white-space:nowrap}
+ .header-inner>.header-cta{margin-left:auto}
+}
+@media (max-width:680px){
+ .header-inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding-block:12px}
+ .header-inner>.brand{order:1;flex:1 1 auto}
+ .header-inner>.header-cta{order:2;flex:0 1 auto;margin-left:auto;min-height:42px;padding:8px 12px;font-size:11px}
+ .header-inner>nav{
+  order:3;display:flex;flex:1 0 100%;width:100%;max-width:100%;min-width:0;
+  flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:7px;
+  padding:7px 0 2px;overflow:visible;overflow-x:visible;overflow-y:visible;
+  white-space:normal;scroll-snap-type:none;overscroll-behavior:contain;
+ }
+ .header-inner>nav>a{
+  display:inline-flex;flex:0 1 auto;align-items:center;justify-content:center;
+  min-height:40px;padding:7px 11px;border:1px solid var(--ud-soft-line,rgba(32,53,43,.13));
+  border-radius:999px;background:rgba(255,254,250,.9);font-size:11px;line-height:1.25;
+  white-space:normal;overflow-wrap:anywhere;
+ }
+ .header-inner>nav>a:focus-visible{outline-offset:2px}
+}
+@media(max-width:360px){
+ .header-inner>.brand strong{font-size:15px}
+ .header-inner>.brand small{font-size:8px}
+ .header-inner>.header-cta{font-size:10px;padding-inline:9px}
+ .header-inner>nav>a{font-size:10px;padding-inline:9px}
+}
+
