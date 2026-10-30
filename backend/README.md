@@ -8,7 +8,8 @@ This directory is the initial backend service scaffold. It is separate from the 
 - PostgreSQL connection pool and graceful shutdown.
 - Initial relational schema for users, roles, programs, applications, status history, private document metadata, and audit events.
 - A migration that records application creation and status changes in the status-history table.
-- A session-storage migration designed to store only hashes of opaque random session tokens, with expiry and revocation support. It does not enable login or create sessions.
+- A session-storage migration designed to store only hashes of opaque random session tokens, with expiry and revocation support. It does not enable login.
+- Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions, authenticate users, or enable login.
 - Automated HTTP tests for health checks, error handling, and the fail-closed applications endpoint.
 
 ## Local development
@@ -38,6 +39,7 @@ All other unknown routes return 404; non-GET/HEAD methods return 405. The applic
 The session table is only a storage foundation. Before enabling authentication, implement and test all of the following:
 
 - Password hashing with a maintained password-hashing algorithm and safe parameters; never store plaintext passwords.
+- Wire the tested session-token primitives into a reviewed login/session lifecycle with database persistence, expiry checks, rotation, revocation, CSRF protection, and MFA. The current helpers alone do not authenticate requests.
 - High-entropy random session tokens; persist only their cryptographic hashes, never raw tokens.
 - Cookies with `HttpOnly`, `Secure` in production, and an appropriate `SameSite` policy; protect state-changing requests against CSRF.
 - Session expiry, rotation after authentication or privilege changes, logout/revocation, and invalidation for suspended/closed accounts.
