@@ -575,3 +575,46 @@ img {
  .header-inner>nav>a{font-size:10px;padding-inline:9px}
 }
 
+
+
+/* Visual correction — center the foundation tree emblem in its frame. */
+.hero-emblem-visual .hero-emblem-image{
+  inset:6% 0 18%;
+  width:auto;
+  min-width:0;
+  display:grid;
+  place-items:center;
+}
+.hero-emblem-visual .hero-emblem-image img,
+.hero-emblem-visual .hero-emblem-image svg{
+  display:block;
+  width:min(100%,340px);
+  max-width:100%;
+  max-height:100%;
+  height:auto;
+  object-fit:contain;
+  object-position:center;
+}
+.hero-emblem-visual .emblem-caption{
+  left:50%;
+  right:auto;
+  bottom:3%;
+  max-width:calc(100% - 28px);
+  white-space:nowrap;
+  transform:translateX(-50%);
+}
+.hero-emblem-visual .visual-label.label-bottom{
+  right:7%;
+  bottom:10%;
+}
+@media(max-width:680px){
+  .hero-emblem-visual .hero-emblem-image{inset:5% 0 19%}
+  .hero-emblem-visual .hero-emblem-image img,
+  .hero-emblem-visual .hero-emblem-image svg{width:min(100%,320px)}
+  .hero-emblem-visual .emblem-caption{bottom:3%;padding:7px 12px;letter-spacing:1.5px}
+  .hero-emblem-visual .visual-label.label-bottom{right:6%;bottom:10%}
+}
+@media(max-width:380px){
+  .hero-emblem-visual .emblem-caption{font-size:9px;letter-spacing:1px}
+  .hero-emblem-visual .emblem-caption span{font-size:7px;letter-spacing:1px}
+}
