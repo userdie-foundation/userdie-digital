@@ -10,6 +10,9 @@ on:
       - "docs/**"
       - ".github/scripts/run-robot-team.mjs"
       - ".github/scripts/check-public-site.mjs"
+      - ".github/scripts/check-site-links.mjs"
+      - ".github/scripts/check-public-secrets.mjs"
+      - ".github/scripts/check-inline-js.mjs"
       - ".github/workflows/robot-team.yml"
 permissions:
   contents: read
@@ -88,7 +91,7 @@ jobs:
               `- Commit: ${context.sha}`,
               '',
               'Откройте журнал запуска и приложенный отчёт. Workflow не исправляет код и не публикует изменения автоматически.'
-            ].join('\n');
+            ].join('\\n');
             const { owner, repo } = context.repo;
             const issues = await github.rest.issues.listForRepo({ owner, repo, state: 'open', per_page: 100 });
             const existing = issues.data.find(i => !i.pull_request && i.title === title);
