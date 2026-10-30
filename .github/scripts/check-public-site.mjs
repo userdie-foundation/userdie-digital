@@ -49,9 +49,16 @@ for (const target of targets) {
     // A redirect from the GitHub Pages project URL to the configured
     // punycode custom domain is expected while that domain's DNS stage is open.
     // Record it as WARNING and do not resolve/follow the custom host here.
+    const redirectWithoutLocation =
+      target.expectedRedirectHosts?.length > 0 &&
+      response.status >= 300 &&
+      response.status < 400 &&
+      !location;
+    if (redirectWithoutLocation) expectedRedirect = true;
+
     const httpOk = response.status >= 200 && response.status < 300;
     const finalUrl = expectedRedirect
-      ? redirectUrl.href
+      ? redirectUrl?.href || target.url
       : response.url || target.url;
     const httpsOk = !expectedRedirect && finalUrl.startsWith("https://");
     const ok = expectedRedirect || (httpOk && (!target.httpsRequired || httpsOk));
@@ -64,7 +71,11 @@ for (const target of targets) {
       httpsOk,
       elapsed,
       finalUrl,
-      detail: expectedRedirect ? "redirect inspected but not followed; DNS/HTTPS is a separate release stage" : undefined,
+      detail: expectedRedirect
+        ? redirectUrl
+          ? "redirect to configured custom domain inspected but not followed; custom-domain HTTPS is checked separately"
+          : "HTTP redirect observed; Location header was not exposed; custom-domain HTTPS is checked separately"
+        : undefined,
     });
     await response.body?.cancel();
   } catch (error) {
