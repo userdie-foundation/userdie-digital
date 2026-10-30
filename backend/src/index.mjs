@@ -1,23 +1,16 @@
 import { createServer as createHttpServer } from "node:http";
 import { Pool } from "pg";
 import { createServer } from "./server.mjs";
+import { readConfig } from "./config.mjs";
 
-const port = Number.parseInt(process.env.PORT ?? "8080", 10);
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!Number.isInteger(port) || port < 1 || port > 65535) {
-  throw new Error("PORT must be an integer between 1 and 65535");
-}
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
-}
+const config = readConfig();
 
 const pool = new Pool({
-  connectionString: databaseUrl,
-  max: Number.parseInt(process.env.DB_POOL_MAX ?? "10", 10),
+  connectionString: config.databaseUrl,
+  max: config.dbPoolMax,
   connectionTimeoutMillis: 5000,
   idleTimeoutMillis: 30000,
-  ssl: process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: true } : undefined,
+  ssl: config.databaseSsl ? { rejectUnauthorized: true } : undefined,
 });
 
 pool.on("error", () => {
@@ -27,7 +20,7 @@ pool.on("error", () => {
 
 const server = createHttpServer(createServer({
   pool,
-  allowedOrigin: process.env.ALLOWED_ORIGIN,
+  allowedOrigin: config.allowedOrigin,
 }));
 
 server.listen(port, "0.0.0.0", () => {
