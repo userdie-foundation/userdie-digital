@@ -213,3 +213,16 @@
 Коммит: [8f3cf40fd9c4b5e4eef8534d53b3becd20a85b37](https://github.com/userdie-foundation/userdie-digital/commit/8f3cf40fd9c4b5e4eef8534d53b3becd20a85b37).
 
 **Техническая самопроверка исходника:** CSS повторно прочитан из main; проверка баланса фигурных скобок прошла (глубина 0, отрицательных значений нет); наличие нового responsive-блока подтверждено. Результат автоматического workflow после коммита и браузерная визуальная приёмка ещё не подтверждены. Не считать внешний вид принятым до просмотра реальных страниц на мобильной и широкой ширине.
+
+## 16. Результаты автоматической приёмки релиза 04 — 30 октября 2026 года
+
+После коммита адаптивной навигации получены следующие фактические результаты GitHub Actions:
+
+- [Deploy public website №41094780979](https://github.com/userdie-foundation/userdie-digital/actions/runs/41094780979) — build и deploy jobs завершились SUCCESS. Сборка подтвердила внутренние ссылки, JavaScript, CSS-ресурсы, подключение общего слоя оформления ко всем HTML-страницам и загрузку Pages artifact.
+- [Website quality gate №41094780734](https://github.com/userdie-foundation/userdie-digital/actions/runs/41094780734) — SUCCESS: внутренние ссылки и якоря, JavaScript, визуальные ресурсы и 404.
+- [USERDIE Digital robot team №41094780938](https://github.com/userdie-foundation/userdie-digital/actions/runs/41094780938) — SUCCESS: репозиторные роботы, ссылки/якоря, публичный secret-pattern scan, JavaScript, доступность опубликованного сайта и загрузка отчёта.
+- [Public repository security check №41094780891](https://github.com/userdie-foundation/userdie-digital/actions/runs/41094780891) — SUCCESS.
+- [Backend checks №41094355258](https://github.com/userdie-foundation/userdie-digital/actions/runs/41094355258) — SUCCESS: установка зависимостей, syntax check и весь набор автоматических Node.js тестов, включая новые тесты runtime-конфигурации.
+- [USERDIE security guard №41094781117](https://github.com/userdie-foundation/userdie-digital/actions/runs/41094781117) — secret scan завершён SUCCESS; CodeQL analysis на момент проверки ещё выполнялся. Не объявлять этот workflow полностью завершённым до итогового статуса.
+
+Таким образом, автоматическая приёмка сборки и публикации адаптивного CSS-изменения прошла. Это не заменяет проверку глазами: реальный браузерный скриншот и визуальная приёмка на физических/эмулируемых ширинах экрана всё ещё не получены.
