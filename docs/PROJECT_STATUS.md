@@ -178,3 +178,22 @@
 4. Отдельно оценить edge/DDoS-защиту и завершить DNS/HTTPS только после согласованного отдельного этапа.
 
 **Принцип отчётности:** успешная публикация, автоматические проверки, визуальная приёмка, готовность backend и защита инфраструктуры фиксируются как отдельные критерии.
+
+
+## 14. Backend configuration hardening — 30 октября 2026 года
+
+В backend добавлена отдельная проверка runtime-конфигурации до создания пула PostgreSQL и запуска HTTP-сервера:
+
+- [backend/src/config.mjs](https://github.com/userdie-foundation/userdie-digital/blob/main/backend/src/config.mjs) — строгая проверка PORT (1–65535), DB_POOL_MAX (1–50), PostgreSQL URL, булевого значения DATABASE_SSL и точного HTTP(S) origin для ALLOWED_ORIGIN.
+- [backend/test/config.test.mjs](https://github.com/userdie-foundation/userdie-digital/blob/main/backend/test/config.test.mjs) — добавлены тесты корректных значений, границ диапазонов и некорректных/частичных параметров.
+- [backend/src/index.mjs](https://github.com/userdie-foundation/userdie-digital/blob/main/backend/src/index.mjs) — запуск сервера и пула переведён на проверенную конфигурацию.
+- [backend/package.json](https://github.com/userdie-foundation/userdie-digital/blob/main/backend/package.json) — синтаксическая проверка теперь включает новый модуль конфигурации.
+
+Связанные коммиты в main:
+- [b4747ae06919dfe520b9534b0cbc3463f055b3d5](https://github.com/userdie-foundation/userdie-digital/commit/b4747ae06919dfe520b9534b0cbc3463f055b3d5) — модуль конфигурации.
+- [fe616999e7c6ead1241f5148a71e8227ac0d2a87](https://github.com/userdie-foundation/userdie-digital/commit/fe616999e7c6ead1241f5148a71e8227ac0d2a87) — тесты конфигурации.
+- [5a67d943f6777ca0a241fc27b13d67c46b92bb0e](https://github.com/userdie-foundation/userdie-digital/commit/5a67d943f6777ca0a241fc27b13d67c46b92bb0e) — подключение валидатора к запуску API.
+- [01ac7cdcb1aaa3899ff96c54cfaba8cd9280fb3c](https://github.com/userdie-foundation/userdie-digital/commit/01ac7cdcb1aaa3899ff96c54cfaba8cd9280fb3c) — расширение syntax check.
+- [1a152707085294c5b1fe752b1f551248e1e5956f](https://github.com/userdie-foundation/userdie-digital/commit/1a152707085294c5b1fe752b1f551248e1e5956f) — исправлена передача проверенного порта в server.listen.
+
+**Статус проверки:** файлы повторно прочитаны из main; наличие новых тестов и использование config.port подтверждены. Результат отдельного запуска workflow Backend checks пока не подтверждён в этой контрольной точке. До получения зелёного результата не считать backend-проверку завершённой. Эти изменения не включают аутентификацию и не делают API готовым к приёму реальных обращений.
