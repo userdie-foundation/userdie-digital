@@ -23,8 +23,8 @@ const server = createHttpServer(createServer({
   allowedOrigin: config.allowedOrigin,
 }));
 
-server.listen(port, "0.0.0.0", () => {
-  process.stdout.write(`USERDIE Digital API listening on port ${port}.\n`);
+server.listen(config.port, "0.0.0.0", () => {
+  process.stdout.write(`USERDIE Digital API listening on port ${config.port}.\n`);
 });
 
 let shuttingDown = false;
