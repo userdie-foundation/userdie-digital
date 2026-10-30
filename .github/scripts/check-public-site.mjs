@@ -12,8 +12,8 @@ const targets = [
   {
     name: "Домен фонда",
     url: "https://усердие.online/",
-    // DNS/HTTPS is a separately scheduled release gate; keep monitoring visible
-    // without failing unrelated repository checks while that work is deferred.
+    // Monitor direct custom-domain HTTPS independently. Keep it non-blocking
+    // for repository checks until the domain release gate is formally accepted.
     required: false,
     redirect: "follow",
     httpsRequired: true,
@@ -103,7 +103,7 @@ const lines = [
     return `- ${r.name}: ${state}; HTTP ${r.status}; final HTTPS=${r.httpsOk ? "yes" : "no"}; ${r.elapsed} мс; ${r.finalUrl || r.url}${r.error ? `; ${r.error}` : ""}${r.detail ? `; ${r.detail}` : ""}`;
   }),
   "",
-  "Проверка различает доступность GitHub Pages, ожидаемый редирект на настроенный пользовательский домен и фактическую готовность HTTPS. Ожидаемый редирект на домен из CNAME фиксируется как WARNING без перехода к домену, пока DNS/HTTPS остаётся отдельным этапом. Неожиданные редиректы и сетевые ошибки GitHub Pages остаются FAIL. До полноценного релиза пользовательский домен обязан открываться по HTTPS.",
+  "Проверка различает доступность GitHub Pages, ожидаемый редирект на настроенный пользовательский домен и прямую готовность HTTPS. HTTP-редирект на домен из CNAME фиксируется как WARNING; прямой HTTPS-запрос к пользовательскому домену проверяется отдельно. Неожиданные редиректы и сетевые ошибки GitHub Pages остаются FAIL. Для закрытия предупреждения GitHub Pages должен перенаправлять на пользовательский домен по HTTPS; прямой HTTPS-ответ домена сам по себе не устраняет downgrade в редиректе.",
   ""
 ];
 console.log(lines.join("\n"));
