@@ -82,14 +82,22 @@ test("applications module fails closed without querying or changing records", as
     const read = await fetch(`${base}/api/v1/applications`);
     assert.equal(read.status, 503);
     assert.deepEqual(await read.json(), { error: "applications_module_unavailable" });
+    assert.equal(read.headers.get("cache-control"), "no-store");
 
-    const write = await fetch(`${base}/api/v1/applications`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ subject: "must not persist" }),
-    });
-    assert.equal(write.status, 405);
-    assert.deepEqual(await write.json(), { error: "method_not_allowed" });
+    const head = await fetch(`${base}/api/v1/applications`, { method: "HEAD" });
+    assert.equal(head.status, 503);
+    assert.equal(await head.text(), "");
+
+    for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
+      const write = await fetch(`${base}/api/v1/applications`, {
+        method,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ subject: "must not persist" }),
+      });
+      assert.equal(write.status, 405, `${method} must remain disabled`);
+      assert.deepEqual(await write.json(), { error: "method_not_allowed" });
+      assert.equal(write.headers.get("x-content-type-options"), "nosniff");
+    }
     assert.equal(queryCount, 0);
   });
 });
