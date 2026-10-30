@@ -226,3 +226,25 @@
 - [USERDIE security guard №41094781117](https://github.com/userdie-foundation/userdie-digital/actions/runs/41094781117) — secret scan завершён SUCCESS; CodeQL analysis на момент проверки ещё выполнялся. Не объявлять этот workflow полностью завершённым до итогового статуса.
 
 Таким образом, автоматическая приёмка сборки и публикации адаптивного CSS-изменения прошла. Это не заменяет проверку глазами: реальный браузерный скриншот и визуальная приёмка на физических/эмулируемых ширинах экрана всё ещё не получены.
+
+## 17. Уточнение мониторинга Pages redirect и HTTPS домена — 30 октября 2026 года
+
+Разбор журнала робота показал, что GitHub Pages отвечает редиректом 301 на настроенный пользовательский домен по HTTP, тогда как прямой HTTPS-запрос к домену фонда в том же окне мониторинга может отвечать успешно. Ранее мониторинг ошибочно трактовал такой ожидаемый редирект как отказ GitHub Pages.
+
+Внесены последовательные уточнения в [check-public-site.mjs](https://github.com/userdie-foundation/userdie-digital/blob/main/.github/scripts/check-public-site.mjs):
+- [c4ef106bf8371da9746f89ba9453dfec5fd2f71e](https://github.com/userdie-foundation/userdie-digital/commit/c4ef106bf8371da9746f89ba9453dfec5fd2f71e) — ручная проверка редиректа Pages без автоматического перехода на домен;
+- [1c760370c11f401f35ee5e9749f0d296544dc948](https://github.com/userdie-foundation/userdie-digital/commit/1c760370c11f401f35ee5e9749f0d296544dc948) — диагностика redirect Location;
+- [1a5c2e8907f4be7cb4c77cacb21c87d9ef30d69c](https://github.com/userdie-foundation/userdie-digital/commit/1a5c2e8907f4be7cb4c77cacb21c87d9ef30d69c) — дополнительная обработка ответа 301;
+- [65e334c18d6b6c0e30603a3d3d599908af095144](https://github.com/userdie-foundation/userdie-digital/commit/65e334c18d6b6c0e30603a3d3d599908af095144) — ожидаемый редирект на настроенный домен классифицируется как WARNING, если он использует HTTP; прямой HTTPS домена проверяется отдельным запросом.
+
+### Подтверждённый результат последнего запуска роботов
+
+[USERDIE Digital robot team №41095293618](https://github.com/userdie-foundation/userdie-digital/actions/runs/41095293618) завершился SUCCESS: проверки репозитория, ссылок/якорей, публичных шаблонов секретов, JavaScript и доступности выполнены.
+
+Фактическая запись проверки в журнале:
+- GitHub Pages: WARNING — HTTP 301 перенаправляет на http://xn--d1abbl2ben.online/; это downgrade и не считается безопасным HTTPS-редиректом.
+- Домен фонда: OK — прямой запрос https://xn--d1abbl2ben.online/ вернул HTTP 200 по HTTPS.
+
+Это наблюдение подтверждает прямую HTTPS-доступность пользовательского домена в момент проверки, но не исправляет HTTP-схему редиректа GitHub Pages. DNS и MX/почтовые записи в рамках этой работы не менялись. Следующий отдельный шаг — проверить настройку Enforce HTTPS в GitHub Pages и добиться HTTPS-редиректа; без отдельного согласования настройки домена не изменять.
+
+По коммиту 65e334c на момент фиксации: [сборка Pages](https://github.com/userdie-foundation/userdie-digital/actions/runs/41095293654) прошла; deploy job ещё выполнялся. Не объявлять эту конкретную публикацию завершённой до финального статуса.
