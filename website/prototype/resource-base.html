@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173f32">
+<meta name="description" content="Демонстрационный кабинет ресурсной базы фонда «УСЕРДИЕ»: целевой ориентир, поступления, активы и участие партнёров.">
+<title>Ресурсная база и участие — USERDIE DIGITAL</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.resource-hero{background:#173f32;color:#f8f6ef;padding:58px 0 48px}.resource-hero h1{font:800 clamp(2.35rem,5.8vw,4.3rem)/1.04 Manrope,Arial,sans-serif;letter-spacing:-.045em;max-width:850px;margin:16px 0}.resource-hero h1 em{font:italic 500 1em Georgia,serif;color:#dce9b7}.resource-hero .lead{color:#e0e8df;max-width:780px}.resource-kicker{font-size:.72rem;letter-spacing:.14em;font-weight:800;color:#dce9b7}.resource-meta{display:flex;gap:12px;flex-wrap:wrap;color:#dce8df;font-size:.82rem;margin-top:24px}.resource-meta span{border:1px solid #ffffff35;border-radius:99px;padding:6px 11px}
+.resource-content{padding:34px 0 64px}.resource-alert{padding:17px 20px;background:#f1eee4;border-left:4px solid #bd9c53;border-radius:0 9px 9px 0;line-height:1.7;margin-bottom:24px}.resource-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.resource-card{background:#fff;border:1px solid #dedfd6;border-radius:13px;padding:19px;min-width:0}.resource-card.featured{background:#e9efdf;border-color:#d4dfc8}.resource-label{font-size:.69rem;letter-spacing:.09em;text-transform:uppercase;color:#69786b;font-weight:800}.resource-value{font:800 clamp(1.35rem,2.7vw,2rem)/1.2 Manrope,Arial,sans-serif;margin:12px 0 8px;color:#214734;overflow-wrap:anywhere}.resource-card p{font-size:.86rem;color:#637067;line-height:1.6;margin:0}.resource-section{margin-top:38px}.resource-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:17px}.resource-heading h2{font:800 clamp(1.55rem,3vw,2.2rem)/1.15 Manrope,Arial,sans-serif;margin:5px 0}.resource-heading p{max-width:470px;color:#68756b;font-size:.9rem;margin:0}.resource-table-wrap{overflow-x:auto;border:1px solid #dedfd6;border-radius:12px;background:#fff}.resource-table{border-collapse:collapse;width:100%;min-width:700px}.resource-table th,.resource-table td{text-align:left;padding:14px 16px;border-bottom:1px solid #e7e8e0;vertical-align:top}.resource-table th{background:#f0f1e9;color:#637067;text-transform:uppercase;letter-spacing:.07em;font-size:.69rem}.resource-table td{font-size:.88rem}.resource-table tr:last-child td{border-bottom:0}.resource-status{display:inline-block;border:1px solid #d3c9a9;background:#f8f4e8;color:#735f32;border-radius:99px;padding:4px 9px;font-size:.72rem;white-space:nowrap}.resource-status.good{border-color:#c7d7c5;background:#edf4eb;color:#315b3d}
+.resource-sources{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.resource-source{background:#fff;border:1px solid #dedfd6;border-radius:12px;padding:20px}.resource-source h3{font:750 1.02rem Manrope,Arial,sans-serif;margin:0 0 8px}.resource-source p{font-size:.87rem;color:#637067;line-height:1.65;margin:0}.resource-source small{display:block;margin-top:14px;color:#6b7b6d;font-weight:700;letter-spacing:.04em}
+.resource-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;counter-reset:step}.resource-step{counter-increment:step;position:relative;background:#ecefe5;border-radius:11px;padding:19px 16px 18px}.resource-step:before{content:counter(step,decimal-leading-zero);display:block;color:#54734e;font:800 1.15rem Manrope,Arial,sans-serif;margin-bottom:12px}.resource-step h3{font:750 .96rem Manrope,Arial,sans-serif;margin:0 0 7px}.resource-step p{font-size:.82rem;line-height:1.6;color:#637067;margin:0}
+.resource-foot{margin-top:28px;padding:24px;border-radius:13px;background:#214734;color:#f5f5ed;display:flex;justify-content:space-between;align-items:center;gap:24px}.resource-foot p{margin:5px 0 0;color:#dce7dc;font-size:.88rem}.resource-foot a{display:inline-flex;padding:11px 16px;border-radius:7px;background:#dce9b7;color:#214734;font-weight:800;white-space:nowrap}
+.resource-back{display:inline-block;margin-top:24px;text-decoration:underline;text-underline-offset:4px}
+@media(max-width:900px){.resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.resource-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.resource-sources{grid-template-columns:1fr}}
+@media(max-width:600px){.resource-hero{padding:42px 0 34px}.resource-content{padding-top:24px}.resource-grid{grid-template-columns:1fr}.resource-heading{display:block}.resource-heading p{margin-top:10px}.resource-steps{grid-template-columns:1fr}.resource-foot{display:block}.resource-foot a{margin-top:16px}.resource-card{padding:17px}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<header class="header"><div class="container header-inner">
+<a class="brand" href="../index.html#top" aria-label="Усердие — на главную"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<nav aria-label="Навигация"><a href="platform.html">Карта платформы</a><a href="asset-register.html">Реестр активов</a><a href="partner-space.html">Партнёрам</a></nav>
+<a class="button button-dark header-cta" href="platform.html">Платформа ↗</a>
+</div></header>
+<main id="main">
+<section class="resource-hero"><div class="container">
+<p class="resource-kicker">ФОНД «УСЕРДИЕ» · РЕСУРСНАЯ МОДЕЛЬ</p>
+<h1>Ресурсная база.<br><em>Участие, которое укрепляет помощь.</em></h1>
+<p class="lead">Единое пространство для прозрачного учёта поступлений, подтверждённых активов, интеллектуальных ресурсов и участия партнёров в программах фонда.</p>
+<div class="resource-meta"><span>Демонстрационный кабинет</span><span>Без приёма платежей</span><span>Без реальных персональных данных</span></div>
+</div></section>
+<section class="resource-content"><div class="container">
+<div class="resource-alert"><strong>Важное разграничение.</strong> 8 трлн USD — заявленный стратегический целевой ориентир формирования ресурсной базы, а не подтверждённый остаток средств, не оценка BFU и не рыночная капитализация токена. Фактические значения появятся только после документального подтверждения и проверки.</div>
+<div class="resource-grid" aria-label="Ключевые показатели">
+<article class="resource-card featured"><div class="resource-label">Стратегическая цель</div><div class="resource-value">8 трлн USD</div><p>Заявленный ориентир пополнения ресурсной базы. Требует утверждения финансовой модели и решения фонда.</p></article>
+<article class="resource-card"><div class="resource-label">Фактически поступило</div><div class="resource-value">Не подтверждено</div><p>Показатель не рассчитывается до загрузки проверенных платёжных и учётных документов.</p></article>
+<article class="resource-card"><div class="resource-label">Подтверждённые активы</div><div class="resource-value">Не подтверждено</div><p>Учитываются по отдельным реестрам, правам собственности и методикам оценки.</p></article>
+<article class="resource-card"><div class="resource-label">Участие партнёров</div><div class="resource-value">Реестр готовится</div><p>Соглашения, гранты, пожертвования и предоставленные ресурсы — раздельно по правовой форме.</p></article>
+</div>
+<section class="resource-section" aria-labelledby="sources-title">
+<div class="resource-heading"><div><p class="resource-kicker">СТРУКТУРА ПОПОЛНЕНИЯ</p><h2 id="sources-title">Из чего формируется ресурсная база</h2></div><p>Категории учитываются отдельно. Денежные поступления не смешиваются с оценочной стоимостью имущества, финансовых инструментов и интеллектуальных прав.</p></div>
+<div class="resource-sources">
+<article class="resource-source"><h3>Денежные поступления</h3><p>Пожертвования, целевые взносы, гранты и субсидии. Учитываются после подтверждения зачисления и оформления документов.</p><small>ДЕНЕЖНЫЙ УЧЁТ</small></article>
+<article class="resource-source"><h3>Партнёрские ресурсы</h3><p>Финансирование, имущество, работы и услуги партнёров. Правовая форма, назначение и условия фиксируются отдельно.</p><small>ДОГОВОРЫ И ОБЯЗАТЕЛЬСТВА</small></article>
+<article class="resource-source"><h3>Финансовые активы</h3><p>Акции и облигации с проверкой прав, ликвидности, ограничений, источника котировки и даты оценки.</p><small>ЦЕНТР ОЦЕНКИ АКТИВОВ</small></article>
+<article class="resource-source"><h3>Материальные активы</h3><p>Недвижимость, оборудование и иное имущество с подтверждением права, обременений и независимой оценкой.</p><small>РЕЕСТР ИМУЩЕСТВА</small></article>
+<article class="resource-source"><h3>Интеллектуальные ресурсы</h3><p>Права на разработки, технологии, базы знаний и иные результаты интеллектуальной деятельности. Не денежные поступления.</p><small>БАНКИ ИНТЕЛЛЕКТУАЛЬНЫХ РЕСУРСОВ</small></article>
+<article class="resource-source"><h3>BFU</h3><p>Отдельный цифровой актив. Адрес и параметры требуют независимой on-chain-проверки; стоимость и обеспечение не предполагаются автоматически.</p><small>ОТДЕЛЬНЫЙ ЦИФРОВОЙ КОНТУР</small></article>
+</div>
+</section>
+<section class="resource-section" aria-labelledby="ledger-title">
+<div class="resource-heading"><div><p class="resource-kicker">КОНТРОЛЬ ДОСТОВЕРНОСТИ</p><h2 id="ledger-title">Статус подтверждения показателей</h2></div><p>Таблица показывает, какие данные система вправе учитывать в отчётности. Сейчас это схема процесса, а не финансовая отчётность фонда.</p></div>
+<div class="resource-table-wrap"><table class="resource-table">
+<thead><tr><th>Показатель</th><th>Что подтверждает</th><th>Текущий статус</th><th>Правило учёта</th></tr></thead>
+<tbody>
+<tr><td>Целевой ориентир 8 трлн USD</td><td>Стратегическая цель привлечения ресурсов</td><td><span class="resource-status">Заявлен</span></td><td>Не включать в фактические поступления и активы</td></tr>
+<tr><td>Денежные поступления</td><td>Банковские документы, платёжные подтверждения, бухгалтерские записи</td><td><span class="resource-status">Данные не подключены</span></td><td>Учитывать по факту поступления</td></tr>
+<tr><td>Гранты и обязательства</td><td>Решение грантодателя и подписанное соглашение</td><td><span class="resource-status">Данные не подключены</span></td><td>Показывать отдельно от полученных средств</td></tr>
+<tr><td>Материальные и финансовые активы</td><td>Права, документы, ограничения и методика оценки</td><td><span class="resource-status">Требуется проверка</span></td><td>Оценочную стоимость не приравнивать к деньгам</td></tr>
+<tr><td>Интеллектуальные ресурсы</td><td>Правообладатель, правовой статус и метод оценки</td><td><span class="resource-status">Требуется проверка</span></td><td>Отдельный реестр, исключить двойной учёт</td></tr>
+<tr><td>BFU</td><td>Jetton master, on-chain supply, права управления и аудит</td><td><span class="resource-status">On-chain проверка не завершена</span></td><td>Не признавать денежным резервом и не назначать цену</td></tr>
+</tbody></table></div>
+</section>
+<section class="resource-section" aria-labelledby="participation-title">
+<div class="resource-heading"><div><p class="resource-kicker">КАК ПРИНЯТЬ УЧАСТИЕ</p><h2 id="participation-title">Понятный и проверяемый путь</h2></div><p>Любое участие оформляется в рамках утверждённых программ и применимого законодательства. Демонстрационная страница не принимает платежи и заявки.</p></div>
+<div class="resource-steps">
+<article class="resource-step"><h3>Выбрать направление</h3><p>Определить программу, назначение помощи и ожидаемый общественный результат.</p></article>
+<article class="resource-step"><h3>Согласовать условия</h3><p>Проверить договор, правовую форму, целевое назначение и порядок отчётности.</p></article>
+<article class="resource-step"><h3>Подтвердить поступление</h3><p>Средства и ресурсы отражаются только после проверки документов и фактического получения.</p></article>
+<article class="resource-step"><h3>Получить отчёт</h3><p>Партнёр видит подтверждение использования вклада в рамках согласованных условий.</p></article>
+</div>
+</section>
+<div class="resource-foot"><div><strong>Партнёрство начинается с прозрачных условий.</strong><p>Посмотрите концепцию партнёрского пространства и порядок взаимодействия с фондом.</p></div><a href="partner-space.html">Пространство партнёров ↗</a></div>
+<a class="resource-back" href="platform.html">← Вернуться к карте платформы</a>
+</div></section>
+</main>
+<footer class="footer"><div class="container"><p>Фонд «УСЕРДИЕ» · USERDIE DIGITAL</p><p>Демонстрационная модель. Не является публичной офертой, платёжной формой или инвестиционным предложением.</p></div></footer>
+</body></html>
