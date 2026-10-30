@@ -618,3 +618,45 @@ img {
   .hero-emblem-visual .emblem-caption{font-size:9px;letter-spacing:1px}
   .hero-emblem-visual .emblem-caption span{font-size:7px;letter-spacing:1px}
 }
+
+
+/* Mobile composition refinement — tree scale and transparency-to-roadmap rhythm. */
+.hero-emblem-visual .hero-emblem-image{
+  position:absolute;
+  inset:7% 8% 18%;
+  width:auto;
+  max-width:none;
+  min-width:0;
+}
+.hero-emblem-visual .hero-emblem-image img{
+  width:min(100%,360px);
+  max-width:100%;
+  max-height:100%;
+  height:auto;
+  object-fit:contain;
+  object-position:center;
+}
+@media(max-width:680px){
+  .hero-emblem-visual .hero-emblem-image{
+    inset:6% 7% 19%;
+    max-width:none;
+  }
+  .hero-emblem-visual .hero-emblem-image img{
+    width:min(100%,340px);
+  }
+  .transparency.section{
+    padding-top:36px;
+    padding-bottom:22px;
+  }
+  .transparency-grid{
+    gap:12px;
+  }
+  .transparency-grid .stamp{
+    width:124px;
+    height:124px;
+    margin-top:8px;
+  }
+  #platform-roadmap.section{
+    padding-top:34px;
+  }
+}
