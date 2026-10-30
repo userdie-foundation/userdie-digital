@@ -39,7 +39,7 @@ for (const target of targets) {
         expectedRedirect =
           response.status >= 300 &&
           response.status < 400 &&
-          redirectUrl.protocol === "https:" &&
+          ["https:", "http:"].includes(redirectUrl.protocol) &&
           target.expectedRedirectHosts?.includes(redirectUrl.hostname.replace(/\\.$/, "")) === true;
       } catch {
         redirectUrl = undefined;
@@ -73,7 +73,9 @@ for (const target of targets) {
       finalUrl,
       detail: expectedRedirect
         ? redirectUrl
-          ? "redirect to configured custom domain inspected but not followed; custom-domain HTTPS is checked separately"
+          ? redirectUrl.protocol === "http:"
+            ? "HTTP downgrade to configured custom domain; direct HTTPS is checked separately and this redirect is not considered secure"
+            : "redirect to configured custom domain inspected but not followed; custom-domain HTTPS is checked separately"
           : "HTTP redirect observed; Location header was not exposed; custom-domain HTTPS is checked separately"
         : response.status >= 300 && response.status < 400
           ? `unrecognized redirect target: ${location || "Location header not exposed"}`
