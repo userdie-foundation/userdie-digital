@@ -3,8 +3,10 @@ const targets = [
     name: "GitHub Pages",
     url: "https://userdie-foundation.github.io/userdie-digital/",
     required: true,
-    // GitHub Pages may redirect the project URL to the configured custom domain.
-    // Record the final protocol separately so a downgrade is never labelled fully secure.
+    // The repository CNAME points to the foundation domain. Inspect the
+    // Pages redirect without following it while DNS/HTTPS is a deferred stage.
+    redirect: "manual",
+    expectedRedirectHosts: ["xn--d1abbl2ben.online"],
     httpsRequired: false,
   },
   {
@@ -13,6 +15,7 @@ const targets = [
     // DNS/HTTPS is a separately scheduled release gate; keep monitoring visible
     // without failing unrelated repository checks while that work is deferred.
     required: false,
+    redirect: "follow",
     httpsRequired: true,
   },
 ];
@@ -22,24 +25,46 @@ for (const target of targets) {
   const started = Date.now();
   try {
     const response = await fetch(target.url, {
-      redirect: "follow",
+      redirect: target.redirect || "follow",
       signal: AbortSignal.timeout(12000),
-      headers: { "user-agent": "USERDIE-Digital-Uptime-Monitor/1.1" },
+      headers: { "user-agent": "USERDIE-Digital-Uptime-Monitor/1.2" },
     });
     const elapsed = Date.now() - started;
-    const httpOk = response.status >= 200 && response.status < 400;
-    const finalUrl = response.url || target.url;
-    const httpsOk = finalUrl.startsWith("https://");
-    const ok = httpOk && (!target.httpsRequired || httpsOk);
-    const warning = httpOk && !httpsOk;
+    const location = response.headers.get("location");
+    let redirectUrl;
+    let expectedRedirect = false;
+    if (location) {
+      try {
+        redirectUrl = new URL(location, target.url);
+        expectedRedirect =
+          response.status >= 300 &&
+          response.status < 400 &&
+          redirectUrl.protocol === "https:" &&
+          target.expectedRedirectHosts?.includes(redirectUrl.hostname) === true;
+      } catch {
+        redirectUrl = undefined;
+      }
+    }
+
+    // A redirect from the GitHub Pages project URL to the configured
+    // punycode custom domain is expected while that domain's DNS stage is open.
+    // Record it as WARNING and do not resolve/follow the custom host here.
+    const httpOk = response.status >= 200 && response.status < 300;
+    const finalUrl = expectedRedirect
+      ? redirectUrl.href
+      : response.url || target.url;
+    const httpsOk = !expectedRedirect && finalUrl.startsWith("https://");
+    const ok = expectedRedirect || (httpOk && (!target.httpsRequired || httpsOk));
+    const warning = expectedRedirect || (httpOk && !httpsOk);
     results.push({
       ...target,
       ok,
       warning,
-      status: response.status,
+      status: expectedRedirect ? "EXPECTED_CUSTOM_DOMAIN_REDIRECT" : response.status,
       httpsOk,
       elapsed,
       finalUrl,
+      detail: expectedRedirect ? "redirect inspected but not followed; DNS/HTTPS is a separate release stage" : undefined,
     });
     await response.body?.cancel();
   } catch (error) {
@@ -60,10 +85,10 @@ const lines = [
   "",
   ...results.map(r => {
     const state = r.warning ? "WARNING" : r.ok ? "OK" : r.required ? "FAIL" : "WARNING";
-    return `- ${r.name}: ${state}; HTTP ${r.status}; final HTTPS=${r.httpsOk ? "yes" : "no"}; ${r.elapsed} мс; ${r.finalUrl || r.url}${r.error ? `; ${r.error}` : ""}`;
+    return `- ${r.name}: ${state}; HTTP ${r.status}; final HTTPS=${r.httpsOk ? "yes" : "no"}; ${r.elapsed} мс; ${r.finalUrl || r.url}${r.error ? `; ${r.error}` : ""}${r.detail ? `; ${r.detail}` : ""}`;
   }),
   "",
-  "Проверка различает HTTP-доступность и HTTPS конечного адреса. До отдельного этапа DNS/HTTPS домен фонда контролируется как WARNING и не блокирует независимые проверки репозитория. Перед объявлением полноценного релиза пользовательский домен обязан открываться по HTTPS; HTTP-редирект GitHub Pages также остаётся предупреждением, а не подтверждением безопасного HTTPS.",
+  "Проверка различает доступность GitHub Pages, ожидаемый редирект на настроенный пользовательский домен и фактическую готовность HTTPS. Ожидаемый редирект на домен из CNAME фиксируется как WARNING без перехода к домену, пока DNS/HTTPS остаётся отдельным этапом. Неожиданные редиректы и сетевые ошибки GitHub Pages остаются FAIL. До полноценного релиза пользовательский домен обязан открываться по HTTPS.",
   ""
 ];
 console.log(lines.join("\n"));
