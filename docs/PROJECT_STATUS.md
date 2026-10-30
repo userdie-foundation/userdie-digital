@@ -247,4 +247,4 @@
 
 Это наблюдение подтверждает прямую HTTPS-доступность пользовательского домена в момент проверки, но не исправляет HTTP-схему редиректа GitHub Pages. DNS и MX/почтовые записи в рамках этой работы не менялись. Следующий отдельный шаг — проверить настройку Enforce HTTPS в GitHub Pages и добиться HTTPS-редиректа; без отдельного согласования настройки домена не изменять.
 
-По коммиту 65e334c на момент фиксации: [сборка Pages](https://github.com/userdie-foundation/userdie-digital/actions/runs/41095293654) прошла; deploy job ещё выполнялся. Не объявлять эту конкретную публикацию завершённой до финального статуса.
+По коммиту 65e334c публикация завершена: [Deploy public website №41095293654](https://github.com/userdie-foundation/userdie-digital/actions/runs/41095293654) — build и deploy jobs завершились SUCCESS.
