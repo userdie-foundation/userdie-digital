@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node src/index.mjs",
     "test": "node --test",
-    "check": "node --check src/config.mjs && node --check src/index.mjs && node --check src/server.mjs && node --check src/security/session.mjs"
+    "check": "node --check src/config.mjs && node --check src/index.mjs && node --check src/server.mjs && node --check src/security/session.mjs && node --check src/security/authorization.mjs"
   },
   "dependencies": {
     "pg": "^8.16.3"
