@@ -135,7 +135,8 @@ test("inactive principal is denied before record lookup", async () => {
   let lookups = 0;
   await withServer(noDb, async (base) => {
     const response = await fetch(`${base}/api/v1/applications/case-a`);
-    assert.equal(response.status, 404);
+    assert.equal(response.status, 401);
+    assert.deepEqual(await response.json(), { error: "authentication_required" });
     assert.equal(lookups, 0);
   }, {
     resolvePrincipal: async () => identity("worker-1", "case_worker", undefined, undefined, "suspended"),
