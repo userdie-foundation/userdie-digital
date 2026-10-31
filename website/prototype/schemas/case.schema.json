@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/userdie-case.schema.json",
+  "title": "USERDIE DIGITAL Case (draft)",
+  "description": "Draft schema for a pseudonymous case record. Not deployed. Do not include names, contact details, addresses, health details, document contents or free-text beneficiary data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "created_at", "direction_id", "status_code", "priority_code", "data_quality_state"],
+  "properties": {
+    "case_id": {"type": "string", "format": "uuid"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "direction_id": {"type": "string", "minLength": 1, "maxLength": 80},
+    "program_id": {"type": ["string", "null"], "maxLength": 80},
+    "status_code": {"type": "string", "enum": ["new", "in_review", "assigned", "in_progress", "waiting", "closed", "rejected"]},
+    "priority_code": {"type": "string", "enum": ["low", "normal", "high", "urgent"]},
+    "owner_role_id": {"type": ["string", "null"], "maxLength": 80},
+    "due_at": {"type": ["string", "null"], "format": "date-time"},
+    "closed_at": {"type": ["string", "null"], "format": "date-time"},
+    "data_quality_state": {"type": "string", "enum": ["valid", "warning", "exception"]}
+  }
+}
