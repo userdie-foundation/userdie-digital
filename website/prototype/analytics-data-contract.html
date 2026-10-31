@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#173f32">
+<meta name="description" content="Проект контракта данных, методики KPI, защиты информации и интеграции аналитического контура USERDIE DIGITAL.">
+<title>Контракт данных и аналитики | USERDIE DIGITAL</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+:root{--dc-bg:#eef0e8;--dc-panel:#fbfaf6;--dc-line:#dce1d6;--dc-ink:#20372b;--dc-muted:#6d796e;--dc-green:#2c553e}
+body.data-contract{background:var(--dc-bg);min-height:100vh;font-size:14px}
+.dc-shell{max-width:1240px;margin:auto;padding:30px clamp(16px,4vw,48px) 64px}
+.dc-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:22px;color:var(--dc-muted);font-size:10px}
+.dc-top a{text-decoration:underline;text-underline-offset:3px}
+.dc-flag{padding:7px 10px;background:#f4efe2;border:1px solid #e3d8bc;color:#806b43;font-size:8px;font-weight:800;letter-spacing:1px}
+.dc-hero{padding:34px;background:#173f32;color:#fff;border-radius:6px;margin-bottom:18px}
+.dc-kicker{font-size:9px;letter-spacing:1.5px;font-weight:800;color:#cad8b9}
+.dc-hero h1{margin:12px 0;font-size:clamp(30px,5vw,52px);letter-spacing:-1.4px;color:#fff}
+.dc-hero h1 em{font-family:Georgia,serif;font-weight:400;color:#dce9b7}
+.dc-hero p{max-width:850px;color:#dce5dc;font-size:12px;line-height:1.85;margin:0}
+.dc-note{padding:14px 16px;margin-bottom:16px;background:#f7f2e7;border:1px solid #e3d8bc;border-left:4px solid #b99a55;color:#5f594b;font-size:10px;line-height:1.8}
+.dc-layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:16px;align-items:start}
+.dc-toc,.dc-card{background:var(--dc-panel);border:1px solid var(--dc-line);border-radius:5px}
+.dc-toc{position:sticky;top:18px;padding:17px}
+.dc-toc strong{display:block;margin-bottom:12px;color:var(--dc-ink);font-size:11px}
+.dc-toc a{display:block;padding:8px 0;border-top:1px solid #e7e9e1;color:#536456;font-size:9px;text-decoration:none}
+.dc-content{min-width:0}
+.dc-card{padding:22px;margin-bottom:14px;scroll-margin-top:18px}
+.dc-card h2{margin:0 0 8px;color:var(--dc-ink);font:750 18px Manrope,sans-serif}
+.dc-card>p{margin:0 0 15px;color:var(--dc-muted);font-size:10px;line-height:1.8}
+.dc-table-wrap{overflow-x:auto}
+.dc-table{width:100%;min-width:620px;border-collapse:collapse}
+.dc-table th,.dc-table td{padding:10px 9px;border-bottom:1px solid #e7e9e1;text-align:left;vertical-align:top;font-size:9px;line-height:1.6}
+.dc-table th{background:#f1f3ec;color:#7c897b;font-size:8px;letter-spacing:.6px;text-transform:uppercase}
+.dc-table td:first-child{font-weight:800;color:#35553d;white-space:nowrap}
+.dc-list{display:grid;gap:9px}
+.dc-row{display:grid;grid-template-columns:145px 1fr;gap:12px;padding:11px 0;border-top:1px solid #e7e9e1;font-size:10px;line-height:1.7}
+.dc-row:first-child{border-top:0}.dc-row strong{color:#36563f}.dc-row span{color:#667467}
+.dc-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.dc-step{padding:13px;background:#f1f3ec;border:1px solid #e1e6db;border-radius:4px}
+.dc-step b{display:block;color:#35553d;font-size:10px}.dc-step p{margin:6px 0 0;color:#6d796e;font-size:9px;line-height:1.7}
+.dc-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.dc-links a{color:#426449;font-size:10px;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.dc-footer{padding:16px;background:#e3e9d9;border:1px solid #d4deca;color:#53634f;font-size:10px;line-height:1.8}
+@media(max-width:850px){.dc-layout{grid-template-columns:1fr}.dc-toc{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}.dc-toc strong{grid-column:1/-1}.dc-flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.dc-shell{padding:18px 13px 42px}.dc-hero{padding:24px 19px}.dc-card{padding:16px}.dc-row{grid-template-columns:1fr;gap:3px}.dc-flow{grid-template-columns:1fr}.dc-toc{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body class="data-contract">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<header class="header"><div class="container header-inner">
+<a class="brand" href="../index.html" aria-label="УСЕРДИЕ — главная"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<nav aria-label="Навигация"><a href="platform.html">Платформа</a><a href="workspace.html">Рабочее пространство</a><a href="analytics-dashboard.html">Аналитика</a></nav>
+<a class="button button-dark header-cta" href="analytics-dashboard.html">Панель руководителя ↗</a>
+</div></header>
+<main id="main" class="dc-shell">
+<div class="dc-top"><span><a href="platform.html">USERDIE DIGITAL</a> / Аналитический центр / Контракт данных</span><span class="dc-flag">ПРОЕКТНЫЙ ДОКУМЕНТ · НЕ ВВЕДЁН</span></div>
+<section class="dc-hero"><div class="dc-kicker">DATA GOVERNANCE · ANALYTICS SPECIFICATION</div><h1>Сначала достоверные данные.<br><em>Затем управленческие решения.</em></h1><p>Проектный контракт данных определяет, какие сведения система вправе собирать, как связываются обращения и программы, кто отвечает за качество, как рассчитываются показатели и каким образом обезличенная аналитика передаётся руководителю.</p></section>
+<div class="dc-note"><strong>Статус документа: проект на согласование.</strong> Это архитектурная спецификация, а не действующий backend, утверждённый регламент обработки персональных данных или юридическое заключение. Реальные данные фонда нельзя загружать в демонстрационные страницы. Ввод в эксплуатацию возможен только после утверждения руководством, правовой проверки, выбора защищённой инфраструктуры и приёмочных испытаний.</div>
+<div class="dc-layout">
+<aside class="dc-toc"><strong>Содержание</strong><a href="#principles">01 · Принципы управления</a><a href="#entities">02 · Сущности и связи</a><a href="#dictionary">03 · Словарь полей</a><a href="#kpi">04 · Методика KPI</a><a href="#privacy">05 · Приватность и доступ</a><a href="#quality">06 · Качество данных</a><a href="#integration">07 · Интеграционный контур</a><a href="#acceptance">08 · Условия запуска</a></aside>
+<div class="dc-content">
+<section class="dc-card" id="principles"><h2>01. Принципы управления данными</h2><p>Единая логика учёта для фонда «УСЕРДИЕ», Центра оценки активов и Аналитического центра. Названия центров обозначают организационные контуры, а не отдельные юридические лица без подтверждения их статуса.</p><div class="dc-list">
+<div class="dc-row"><strong>Единый источник</strong><span>Одна утверждённая запись обращения в рабочей системе. Аналитическая витрина не создаёт и не исправляет первичные дела самостоятельно.</span></div>
+<div class="dc-row"><strong>Минимизация</strong><span>В аналитическую витрину передаются только необходимые атрибуты и агрегаты. ФИО, контакты, адреса, диагнозы, документы и свободный текст обращения исключаются.</span></div>
+<div class="dc-row"><strong>Прослеживаемость</strong><span>У каждого KPI есть владелец, источник, период, формула, версия методики и дата последнего обновления.</span></div>
+<div class="dc-row"><strong>Человеческое решение</strong><span>Алгоритмы выявляют отклонения и готовят сводки. Приоритет помощи, отказ, назначение ресурсов и юридически значимые решения утверждает уполномоченный человек.</span></div>
+<div class="dc-row"><strong>Разделение контуров</strong><span>Данные обращений, программ, активов и финансов не смешиваются в одну таблицу. Межконтурные связи задаются идентификаторами и правами доступа.</span></div>
+</div></section>
+<section class="dc-card" id="entities"><h2>02. Сущности и связи</h2><p>Логическая модель минимального первого релиза. Схема не предполагает автоматического раскрытия персональных данных аналитикам.</p><div class="dc-flow">
+<div class="dc-step"><b>Обращение</b><p>Идентификатор, даты, направление, статус, приоритет, контрольный срок.</p></div>
+<div class="dc-step"><b>Программа</b><p>Код, утверждённое название, период действия, владелец и статус.</p></div>
+<div class="dc-step"><b>Назначение</b><p>Роль/команда, дата назначения, период ответственности.</p></div>
+<div class="dc-step"><b>Событие</b><p>Изменение статуса, согласование, решение, эскалация, закрытие.</p></div>
+</div><div class="dc-row"><strong>Связь дела</strong><span>Обращение может иметь одно основное направление и одну или несколько программных связей по утверждённым правилам. История привязки хранится отдельно.</span></div><div class="dc-row"><strong>Связь программы</strong><span>Программа принадлежит организационному контуру фонда и имеет владельца. Проекты «Открытый мир», «Гуманитарный диалог», «Помоги сам себе», «Дроник» должны быть заведены как справочник только после подтверждения их актуального статуса и владельцев.</span></div><div class="dc-row"><strong>Связь события</strong><span>События неизменяемы в журнале аудита; исправления выполняются новой записью с автором, временем и основанием.</span></div></section>
+<section class="dc-card" id="dictionary"><h2>03. Словарь данных первого релиза</h2><p>Обязательные поля и требования к их содержанию. Точный состав должен быть согласован владельцами процессов и специалистом по защите данных.</p><div class="dc-table-wrap"><table class="dc-table"><thead><tr><th>Поле</th><th>Тип / формат</th><th>Обязательность</th><th>Правило</th></tr></thead><tbody>
+<tr><td>case_id</td><td>UUID / внутренний ID</td><td>Обязательно</td><td>Уникальный псевдонимный идентификатор; не содержит ФИО или телефон.</td></tr>
+<tr><td>created_at</td><td>Timestamp + timezone</td><td>Обязательно</td><td>Дата регистрации; хранить исходное время и нормализованное UTC.</td></tr>
+<tr><td>direction_id</td><td>Справочник</td><td>Обязательно</td><td>Только активное утверждённое направление.</td></tr>
+<tr><td>program_id</td><td>Nullable FK</td><td>Условно</td><td>Заполняется при подтверждённой связи с программой; не угадывать по тексту.</td></tr>
+<tr><td>status_code</td><td>Enum</td><td>Обязательно</td><td>Переходы по утверждённой state machine; свободные значения запрещены.</td></tr>
+<tr><td>priority_code</td><td>Enum</td><td>Обязательно</td><td>Критерии приоритета утверждены отдельно; автоматическая оценка только рекомендация.</td></tr>
+<tr><td>owner_role_id</td><td>Справочник ролей</td><td>Обязательно для активного дела</td><td>Назначается через матрицу полномочий; персональная нагрузка руководству показывается по правилам доступа.</td></tr>
+<tr><td>due_at</td><td>Timestamp + timezone</td><td>Условно</td><td>Срок рассчитывается по календарю и SLA, а не вводится произвольно.</td></tr>
+<tr><td>closed_at</td><td>Timestamp + timezone</td><td>Для закрытых</td><td>Фиксируется только при наличии основания и подтверждённого события закрытия.</td></tr>
+<tr><td>event_id</td><td>UUID</td><td>Для истории</td><td>Неизменяемое событие с actor, timestamp, action, reason_code.</td></tr>
+<tr><td>data_quality_state</td><td>Enum</td><td>Обязательно для витрины</td><td>valid / incomplete / disputed / excluded; причины должны быть доступны аудитору.</td></tr>
+</tbody></table></div></section>
+<section class="dc-card" id="kpi"><h2>04. Методика управленческих показателей</h2><p>Предлагаемые определения для утверждения. Показатели не должны сравниваться между периодами до фиксации версий методики и календарей SLA.</p><div class="dc-list">
+<div class="dc-row"><strong>Входящий поток</strong><span>Количество уникальных case_id, созданных в выбранном периоде. Повторное открытие не считается новым обращением без отдельного правила.</span></div>
+<div class="dc-row"><strong>Активный портфель</strong><span>Количество дел, не находящихся в конечном статусе на конец выбранной даты. Включает явную дату среза.</span></div>
+<div class="dc-row"><strong>Время решения</strong><span>Медиана времени от created_at до первого подтверждённого решения; незавершённые дела не включаются в эту метрику, но показываются отдельно.</span></div>
+<div class="dc-row"><strong>Соблюдение SLA</strong><span>Доля закрытых дел, завершённых не позже due_at, среди дел с валидным SLA и полными временными метками. Приостановки учитываются по утверждённым правилам.</span></div>
+<div class="dc-row"><strong>Просроченный портфель</strong><span>Активные дела, у которых due_at меньше времени среза и нет допустимой приостановки. Нельзя выводить просрочку из одного лишь календарного сравнения без рабочего календаря.</span></div>
+<div class="dc-row"><strong>Нагрузка</strong><span>Число активных дел по роли/команде на дату среза. Это прокси-показатель, не равный трудозатратам; для оценки ресурсов нужны веса сложности и фактические часы.</span></div>
+<div class="dc-row"><strong>Результат программы</strong><span>Только утверждённые программные выходы и outcomes с базовой линией, целевым значением, периодом и подтверждающим источником. Число обращений не равно социальному эффекту.</span></div>
+</div></section>
+<section class="dc-card" id="privacy"><h2>05. Приватность, безопасность и роли</h2><p>Защита бенефициаров и доноров является блокирующим условием запуска. Конкретные правовые основания и трансграничные требования устанавливаются профильным юристом для фактической юрисдикции и инфраструктуры.</p><div class="dc-list">
+<div class="dc-row"><strong>Операционный сотрудник</strong><span>Доступ только к назначенным делам и минимальным сведениям, необходимым для сопровождения.</span></div>
+<div class="dc-row"><strong>Руководитель направления</strong><span>Доступ к делам своего контура, эскалациям и сводкам; экспорт персональных сведений отдельно разрешается.</span></div>
+<div class="dc-row"><strong>Аналитик</strong><span>По умолчанию — обезличенные или агрегированные данные; доступ к первичным карточкам не входит в базовую роль.</span></div>
+<div class="dc-row"><strong>Аудитор</strong><span>Чтение журналов и контрольных следов без права изменять первичные записи.</span></div>
+<div class="dc-row"><strong>Администратор</strong><span>Техническое управление не означает автоматического права читать содержание дел; административный доступ журналируется и ограничивается.</span></div>
+<div class="dc-row"><strong>AI-ассистенты</strong><span>Работа только с разрешённым набором данных; без самостоятельного решения по помощи, отказу, юридическим вопросам или переводам средств.</span></div>
+</div><div class="dc-footer">До запуска обязательны: карта потоков данных, классификация данных, модель угроз, шифрование при передаче и хранении, управление ключами, резервное копирование и тест восстановления, журналирование доступа, сроки хранения и удаления, процесс реагирования на инциденты, договоры с обработчиками и правовая проверка трансграничной передачи.</div></section>
+<section class="dc-card" id="quality"><h2>06. Контроль качества данных</h2><p>Аналитика должна уметь показывать не только KPI, но и степень доверия к исходной информации.</p><div class="dc-list">
+<div class="dc-row"><strong>Полнота</strong><span>Доля записей с обязательными полями, раздельно по каждому полю и периоду.</span></div>
+<div class="dc-row"><strong>Уникальность</strong><span>Отсутствие дублей идентификаторов и повторных событий с одинаковым idempotency key.</span></div>
+<div class="dc-row"><strong>Согласованность</strong><span>Допустимые переходы статусов, корректная связь направления и программы, наличие владельца активного дела.</span></div>
+<div class="dc-row"><strong>Актуальность</strong><span>Время последней синхронизации и возраст данных на экране; устаревшая витрина маркируется предупреждением.</span></div>
+<div class="dc-row"><strong>Исключения</strong><span>Записи с конфликтом, пропущенными полями или неподтверждёнными связями не попадают в KPI без явной маркировки.</span></div>
+</div></section>
+<section class="dc-card" id="integration"><h2>07. Интеграционный контур</h2><p>Предлагаемая последовательность реализации — без прямого доступа аналитического интерфейса к базе персональных дел.</p><div class="dc-flow">
+<div class="dc-step"><b>01 · Источник</b><p>Защищённый реестр дел и справочники программ с разграничением доступа.</p></div>
+<div class="dc-step"><b>02 · События</b><p>Журнал изменений, проверка схемы, дедупликация и контроль правомерности.</p></div>
+<div class="dc-step"><b>03 · Обезличивание</b><p>Фильтрация полей, псевдонимизация, агрегация и контроль малых групп.</p></div>
+<div class="dc-step"><b>04 · Витрина</b><p>Версионированные агрегаты KPI с происхождением и временем обновления.</p></div>
+</div><div class="dc-row"><strong>Технический принцип</strong><span>Клиентский HTML не подключается напрямую к БД и не содержит секретов. Доступ к API — только через серверную авторизацию, проверку ролей, rate limiting, аудит и безопасную обработку ошибок.</span></div><div class="dc-row"><strong>Обновление</strong><span>Для первого пилота допустима пакетная синхронизация по расписанию с контрольной суммой и журналом ошибок; near-real-time не является обязательным требованием.</span></div><div class="dc-row"><strong>Экспорт</strong><span>Экспорт управленческих сводок — отдельное право, с отметкой даты, фильтров, версии методики и watermark конфиденциальности.</span></div></section>
+<section class="dc-card" id="acceptance"><h2>08. Условия перехода к реальной эксплуатации</h2><p>Ни один пункт не считается выполненным по наличию страницы или коммита. Нужны доказательства в тестовой среде и письменное согласование ответственных.</p><div class="dc-list">
+<div class="dc-row"><strong>А. Управление</strong><span>Назначены владельцы данных, утверждены справочники направлений/программ, статусы, приоритеты и матрица доступа.</span></div>
+<div class="dc-row"><strong>Б. Право</strong><span>Утверждены цели и основания обработки, уведомления/согласия при необходимости, сроки хранения, порядок запросов субъектов и трансграничная схема.</span></div>
+<div class="dc-row"><strong>В. Технологии</strong><span>Backend, авторизация, API, шифрование, мониторинг, резервное восстановление, тесты доступа и независимая проверка безопасности.</span></div>
+<div class="dc-row"><strong>Г. Аналитика</strong><span>Контрольные наборы с ожидаемыми результатами, сверка KPI с первичными записями, журнал версий методики и контроль малых групп.</span></div>
+<div class="dc-row"><strong>Д. Пилот</strong><span>Ограниченный пилот на минимальном наборе разрешённых данных, обучение персонала, план отката и письменный допуск руководителя.</span></div>
+</div></section>
+<div class="dc-links"><a href="analytics-dashboard.html">Панель руководителя ↗</a><a href="case-management.html">Кабинет обращений ↗</a><a href="implementation-plan.html">План реализации ↗</a><a href="workspace.html">Рабочее пространство ↗</a></div>
+</div></div>
+</main>
+<footer class="footer"><div class="container footer-inner"><a class="brand brand-footer" href="../index.html"><span class="brand-symbol">у.</span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a><p>Контракт данных · Проект на согласование</p><a href="platform.html">Карта платформы ↗</a></div></footer>
+</body></html>
