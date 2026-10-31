@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#173f32">
+<meta name="description" content="Демонстрационная аналитическая панель руководителя USERDIE DIGITAL: обращения, программы, сроки и качество данных.">
+<title>Аналитика руководителя | USERDIE DIGITAL</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+:root{--ad-bg:#eef0e8;--ad-panel:#fbfaf6;--ad-line:#dce1d6;--ad-ink:#20372b;--ad-muted:#6d796e;--ad-green:#2c553e}
+body.analytics-page{background:var(--ad-bg);min-height:100vh;font-size:14px}
+.ad-shell{max-width:1440px;margin:auto;padding:30px clamp(16px,4vw,48px) 64px}
+.ad-top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:25px}
+.ad-crumb{font-size:11px;color:var(--ad-muted)}.ad-crumb a{text-decoration:underline;text-underline-offset:3px}
+.ad-demo{padding:8px 11px;border:1px solid #d9cba8;background:#f5f0e3;color:#806b43;font-size:9px;font-weight:800;letter-spacing:1px}
+.ad-hero{padding:32px;background:#173f32;color:#f8f6ef;border-radius:7px;margin-bottom:17px}
+.ad-kicker{font-size:9px;font-weight:800;letter-spacing:1.5px;color:#c8d7b7}
+.ad-hero h1{margin:12px 0;font-size:clamp(32px,5vw,54px);letter-spacing:-1.6px;color:white}
+.ad-hero h1 em{color:#dce9b7;font-family:Georgia,serif;font-weight:400}
+.ad-hero p{max-width:790px;margin:0;color:#dbe5dc;font-size:12px;line-height:1.8}
+.ad-warning{margin:0 0 18px;padding:14px 17px;border:1px solid #e3d8bc;border-left:4px solid #b99a55;background:#f7f2e7;color:#5d594d;font-size:10px;line-height:1.8}
+.ad-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:16px}
+.ad-select,.ad-button{min-height:39px;padding:0 12px;border:1px solid #d7ded2;border-radius:4px;background:white;color:var(--ad-ink);font:11px 'DM Sans',sans-serif}
+.ad-button{background:var(--ad-green);border-color:var(--ad-green);color:white;font-weight:700;cursor:pointer}
+.ad-period{margin-left:auto;color:var(--ad-muted);font-size:10px}
+.ad-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:17px}
+.ad-card,.ad-panel{background:var(--ad-panel);border:1px solid var(--ad-line);border-radius:5px}
+.ad-card{padding:17px}.ad-card span{display:block;color:var(--ad-muted);font-size:10px}
+.ad-card strong{display:block;margin:12px 0 5px;font:800 30px/1 Manrope,sans-serif;color:var(--ad-ink)}
+.ad-card small{color:#899287;font-size:9px;line-height:1.6}
+.ad-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:start}
+.ad-panel{padding:20px;margin-bottom:16px;min-width:0}
+.ad-panel h2{margin:0;font:750 15px Manrope,sans-serif;color:var(--ad-ink)}
+.ad-panel-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:16px}
+.ad-panel-head p{margin:5px 0 0;color:var(--ad-muted);font-size:9px;line-height:1.6}
+.ad-tag{padding:5px 7px;background:#edf1e5;color:#59734e;font-size:8px;font-weight:800;white-space:nowrap}
+.ad-bars{display:grid;gap:13px}
+.ad-bar-row{display:grid;grid-template-columns:minmax(110px,1fr) minmax(90px,2fr) 28px;gap:10px;align-items:center;font-size:10px;color:#536456}
+.ad-track{height:9px;background:#e9ece3;border-radius:2px;overflow:hidden}
+.ad-fill{height:100%;background:#78946b;border-radius:2px;min-width:0}
+.ad-fill.alt{background:#a9b985}.ad-fill.gold{background:#c5a66f}
+.ad-legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:15px;color:var(--ad-muted);font-size:9px}
+.ad-legend span:before{content:"";display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:2px;background:#78946b}
+.ad-legend span:nth-child(2):before{background:#a9b985}.ad-legend span:nth-child(3):before{background:#c5a66f}
+.ad-list{display:grid;gap:0}
+.ad-list-item{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #e7e9e1;font-size:10px}
+.ad-list-item:first-child{border-top:0;padding-top:0}
+.ad-list-item strong{display:block;color:var(--ad-ink);font-size:10px}.ad-list-item small{display:block;margin-top:4px;color:var(--ad-muted);font-size:9px}
+.ad-value{font-weight:800;color:#466448;white-space:nowrap}
+.ad-table-wrap{overflow-x:auto}.ad-table{width:100%;min-width:600px;border-collapse:collapse}
+.ad-table th,.ad-table td{padding:11px 9px;border-bottom:1px solid #e7e9e1;text-align:left;font-size:9px}
+.ad-table th{background:#f3f4ee;color:#859084;font-size:8px;letter-spacing:.6px;text-transform:uppercase}
+.ad-table td:last-child,.ad-table th:last-child{text-align:right}
+.ad-status{display:inline-block;padding:4px 6px;border-radius:3px;background:#edf0e7;color:#596d53;font-size:8px;font-weight:800}
+.ad-status.closed{background:#e5eddb;color:#58794c}.ad-status.high{background:#f5efdf;color:#8a7042}
+.ad-quality{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.ad-quality-item{padding:13px;background:#f3f4ee;border:1px solid #e5e8df;border-radius:4px}
+.ad-quality-item strong{display:block;font:800 22px Manrope,sans-serif;color:var(--ad-ink)}
+.ad-quality-item span{display:block;margin-top:5px;color:var(--ad-muted);font-size:9px;line-height:1.5}
+.ad-method{padding:17px;background:#e3e9d9;border:1px solid #d4deca;border-radius:5px;color:#52634f;font-size:10px;line-height:1.8}
+.ad-method strong{color:#294a35}
+.ad-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}
+.ad-links a{color:#426449;font-size:10px;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.ad-empty{padding:15px;color:var(--ad-muted);font-size:10px}
+@media(max-width:900px){.ad-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ad-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.ad-shell{padding:18px 13px 42px}.ad-hero{padding:24px 19px}.ad-card{padding:13px}.ad-card strong{font-size:26px}.ad-panel{padding:15px}.ad-period{width:100%;margin-left:0}.ad-bar-row{grid-template-columns:minmax(95px,1fr) minmax(70px,1.5fr) 22px;gap:7px}}
+</style>
+</head>
+<body class="analytics-page">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<header class="header"><div class="container header-inner">
+<a class="brand" href="../index.html" aria-label="УСЕРДИЕ — главная"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<nav aria-label="Навигация"><a href="platform.html">Платформа</a><a href="workspace.html">Рабочее пространство</a><a href="case-management.html">Обращения</a></nav>
+<a class="button button-dark header-cta" href="workspace.html">В рабочее пространство ↗</a>
+</div></header>
+<main id="main" class="ad-shell">
+<div class="ad-top"><div class="ad-crumb"><a href="platform.html">USERDIE DIGITAL</a> / Аналитический центр / Панель руководителя</div><span class="ad-demo">ДЕМО · НЕ ОТЧЁТ ФОНДА</span></div>
+<section class="ad-hero"><div class="ad-kicker">DIRECTOR VIEW · MANAGEMENT ANALYTICS</div><h1>Управление на основе <em>показателей.</em></h1><p>Сводная модель для руководителя: поток обращений, нагрузка по направлениям, контрольные сроки, статус программ и качество исходных данных. Каждый показатель должен иметь источник, период и методику расчёта.</p></section>
+<div class="ad-warning" role="note"><strong>Демонстрационный режим.</strong> Все цифры рассчитаны в браузере из восьми условных записей кабинета обращений, показанных ниже. Это не данные фонда, не финансовая отчётность и не подтверждение фактической нагрузки сотрудников. Реальная интеграция с базой дел и программами не подключена.</div>
+<div class="ad-toolbar">
+<label for="ad-status" class="skip-link">Фильтр статуса</label><select class="ad-select" id="ad-status"><option value="all">Все статусы</option><option value="open">Только открытые</option><option value="closed">Только завершённые</option></select>
+<label for="ad-priority" class="skip-link">Фильтр приоритета</label><select class="ad-select" id="ad-priority"><option value="all">Все приоритеты</option><option value="high">Высокий приоритет</option><option value="normal">Обычный приоритет</option></select>
+<button class="ad-button" id="ad-reset" type="button">Сбросить фильтры</button><span class="ad-period" id="ad-period">Период демо-выборки: 18–31 октября 2026</span>
+</div>
+<section class="ad-kpis" aria-label="Ключевые показатели">
+<article class="ad-card"><span>Обращений в выборке</span><strong id="kpi-total">8</strong><small>Условные записи · всего</small></article>
+<article class="ad-card"><span>Открытые дела</span><strong id="kpi-open">6</strong><small>Не имеют статуса закрытия</small></article>
+<article class="ad-card"><span>Высокий приоритет</span><strong id="kpi-high">3</strong><small>Требуют повышенного внимания</small></article>
+<article class="ad-card"><span>Завершённые дела</span><strong id="kpi-closed">2</strong><small>Закрыто / решение принято</small></article>
+</section>
+<div class="ad-grid">
+<div>
+<section class="ad-panel"><div class="ad-panel-head"><div><h2>Распределение по направлениям</h2><p>Количество демонстрационных обращений в текущей выборке</p></div><span class="ad-tag">ПО ТИПУ</span></div><div class="ad-bars" id="ad-program-bars"></div></section>
+<section class="ad-panel"><div class="ad-panel-head"><div><h2>Статусы рассмотрения</h2><p>Стадии процесса по тестовым записям</p></div><span class="ad-tag">ПО СТАТУСУ</span></div><div class="ad-bars" id="ad-status-bars"></div></section>
+<section class="ad-panel"><div class="ad-panel-head"><div><h2>Реестр выборки</h2><p>Сводка без персональных данных заявителей</p></div><span class="ad-tag" id="ad-count-label">8 записей</span></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>ID</th><th>Направление</th><th>Ответственная роль</th><th>Статус</th><th>Приоритет</th></tr></thead><tbody id="ad-case-rows"></tbody></table></div></section>
+</div>
+<div>
+<section class="ad-panel"><div class="ad-panel-head"><div><h2>Нагрузка по ролям</h2><p>Количество назначенных записей в демо-выборке</p></div></div><div class="ad-bars" id="ad-owner-bars"></div></section>
+<section class="ad-panel"><div class="ad-panel-head"><div><h2>Контроль качества данных</h2><p>Проверка заполненности обязательных атрибутов в демонстрационном наборе</p></div></div><div class="ad-quality" id="ad-quality"></div></section>
+<section class="ad-panel"><div class="ad-panel-head"><div><h2>Управленческие сигналы</h2><p>Наблюдения по текущему макету, а не рекомендации по реальным делам</p></div></div><div class="ad-list" id="ad-signals"></div></section>
+<div class="ad-method"><strong>Методика и ограничения.</strong> Единица учёта — одна строка реестра. Открытое дело — запись, статус которой не равен «Закрыто» и «Решение принято». Высокий приоритет учитывается по явной отметке в реестре. Нагрузка — количество назначений на роль, а не оценка трудозатрат. Контроль сроков в этой версии не классифицируется как просрочка: для этого нужна утверждённая календарная модель, рабочий график и подтверждённые даты исполнения. До интеграции показатели не использовать для кадровых или финансовых решений.</div>
+</div>
+</div>
+<div class="ad-links"><a href="case-management.html">Открыть кабинет обращений ↗</a><a href="workspace.html">Рабочее пространство ↗</a><a href="platform.html#organizational-model">Организационная модель ↗</a></div>
+</main>
+<script>
+(function(){
+const cases=[
+{id:"UD-26-001",date:"29.10.2026",direction:"Юридическая помощь",owner:"Координатор дел",due:"02.11.2026",priority:"high",status:"В работе",closed:false},
+{id:"UD-26-002",date:"28.10.2026",direction:"Социальная поддержка",owner:"Специалист программ",due:"03.11.2026",priority:"normal",status:"Ожидает документов",closed:false},
+{id:"UD-26-003",date:"27.10.2026",direction:"Доступная среда",owner:"Координатор дел",due:"04.11.2026",priority:"normal",status:"Проверка комплектности",closed:false},
+{id:"UD-26-004",date:"26.10.2026",direction:"Гуманитарная программа",owner:"Руководитель направления",due:"02.11.2026",priority:"high",status:"Согласование",closed:false},
+{id:"UD-26-005",date:"25.10.2026",direction:"Поддержка пенсионеров",owner:"Специалист программ",due:"05.11.2026",priority:"normal",status:"Назначено",closed:false},
+{id:"UD-26-006",date:"31.10.2026",direction:"Правовая консультация",owner:"Юридический контур",due:"03.11.2026",priority:"high",status:"Новое",closed:false},
+{id:"UD-26-007",date:"20.10.2026",direction:"«Открытый мир»",owner:"Руководитель программы",due:"—",priority:"normal",status:"Закрыто",closed:true},
+{id:"UD-26-008",date:"18.10.2026",direction:"«Гуманитарный диалог»",owner:"Координатор дел",due:"—",priority:"normal",status:"Решение принято",closed:true}
+];
+const $=id=>document.getElementById(id);
+const safe=(value)=>String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+function filtered(){return cases.filter(c=>($("ad-status").value==="all"||($("ad-status").value==="open"?!c.closed:c.closed))&&($("ad-priority").value==="all"||c.priority===$("ad-priority").value));}
+function barRows(target,entries,total){const root=$(target);root.replaceChildren();if(!entries.length){root.innerHTML='<div class="ad-empty">Нет записей по выбранным фильтрам.</div>';return;}entries.forEach(([label,value],i)=>{const row=document.createElement("div");row.className="ad-bar-row";const name=document.createElement("span");name.textContent=label;const track=document.createElement("div");track.className="ad-track";const fill=document.createElement("div");fill.className="ad-fill"+(i%3===1?" alt":i%3===2?" gold":"");fill.style.width=(total?value/total*100:0)+"%";track.append(fill);const count=document.createElement("strong");count.textContent=value;row.append(name,track,count);root.append(row);});}
+function render(){const list=filtered(),total=list.length,open=list.filter(c=>!c.closed).length,closed=total-open,high=list.filter(c=>c.priority==="high").length;
+$("kpi-total").textContent=total;$("kpi-open").textContent=open;$("kpi-high").textContent=high;$("kpi-closed").textContent=closed;$("ad-count-label").textContent=total+" записей";
+const group=key=>{const m=new Map();list.forEach(c=>m.set(c[key],(m.get(c[key])||0)+1));return [...m.entries()].sort((a,b)=>b[1]-a[1]);};
+barRows("ad-program-bars",group("direction"),total);barRows("ad-status-bars",group("status"),total);barRows("ad-owner-bars",group("owner"),total);
+const body=$("ad-case-rows");body.replaceChildren();list.forEach(c=>{const tr=document.createElement("tr");tr.innerHTML="<td><strong>"+safe(c.id)+"</strong><small style='display:block;color:#899287;margin-top:3px'>"+safe(c.date)+"</small></td><td>"+safe(c.direction)+"</td><td>"+safe(c.owner)+"</td><td><span class='ad-status"+(c.closed?" closed":"")+"'>"+safe(c.status)+"</span></td><td><span class='ad-status"+(c.priority==="high"?" high":"")+"'>"+(c.priority==="high"?"Высокий":"Обычный")+"</span></td>";body.append(tr);});
+const filled=list.filter(c=>c.id&&c.direction&&c.owner&&c.status&&c.priority).length,assigned=list.filter(c=>c.owner).length,withDue=list.filter(c=>!c.closed&&c.due!=="—").length,sourceCount=cases.length;
+const quality=[["Атрибуты заполнены",filled,sourceCount+" записей с основными полями"],["Назначена роль",assigned,sourceCount+" записей с ответственным"],["Контрольная дата",withDue,"Открытые записи с указанным сроком"],["Персональные данные",0,"В этой модели не используются"]];
+$("ad-quality").innerHTML=quality.map(q=>"<div class='ad-quality-item'><strong>"+q[1]+(q[0]==="Персональные данные"?"":" / "+(q[0]==="Контрольная дата"?open:sourceCount))+"</strong><span>"+safe(q[0])+" · "+safe(q[2])+"</span></div>").join("");
+const signals=[];if(high)signals.push(["Приоритет","В выборке "+high+" обращений с высоким приоритетом."]);if(open)signals.push(["Незавершённые дела","Открытых записей: "+open+". Нужен контроль оснований и сроков по регламенту."]);if(withDue<open)signals.push(["Полнота сроков","Не у всех открытых записей указана контрольная дата."]);signals.push(["Интеграция","Связь с реестром дел и программами пока не подключена."]);
+$("ad-signals").innerHTML=signals.map(s=>"<div class='ad-list-item'><div><strong>"+safe(s[0])+"</strong><small>"+safe(s[1])+"</small></div><span class='ad-value'>ДЕМО</span></div>").join("");
+}
+$("ad-status").addEventListener("change",render);$("ad-priority").addEventListener("change",render);$("ad-reset").addEventListener("click",()=>{$("ad-status").value="all";$("ad-priority").value="all";render();});render();
+})();
+</script>
+</body></html>
