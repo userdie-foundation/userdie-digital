@@ -3,12 +3,16 @@ import path from "node:path";
 
 const root = path.resolve("website");
 const htmlFiles = [];
+const cssFiles = [];
 
 async function walk(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) await walk(fullPath);
-    else if (entry.isFile() && entry.name.endsWith(".html")) htmlFiles.push(fullPath);
+    else if (entry.isFile()) {
+      if (entry.name.endsWith(".html")) htmlFiles.push(fullPath);
+      if (entry.name.endsWith(".css")) cssFiles.push(fullPath);
+    }
   }
 }
 
@@ -86,6 +90,31 @@ for (const source of htmlFiles) {
       if (!ids(targetMarkup).has(fragment)) {
         errors.push(`${path.relative(root, source)}: missing anchor "${fragment}" in "${path.relative(root, target)}"`);
       }
+    }
+  }
+}
+
+// Validate local assets referenced from CSS (backgrounds, icons and @font-face files).
+for (const source of cssFiles) {
+  const stylesheet = await readFile(source, "utf8");
+  for (const match of stylesheet.matchAll(/url\\(\\s*(?:(["'])(.*?)\\1|([^)]*?))\\s*\\)/gi)) {
+    const raw = (match[2] ?? match[3] ?? "").trim();
+    if (!raw || /^(?:[a-z][a-z0-9+.-]*:|\\/\\/|#)/i.test(raw)) continue;
+    let pathname;
+    try {
+      pathname = decodeURIComponent(raw.split(/[?#]/, 1)[0]);
+    } catch {
+      errors.push(`${path.relative(root, source)}: invalid CSS asset URL "${raw}"`);
+      continue;
+    }
+    if (!pathname) continue;
+    const target = pathname.startsWith("/")
+      ? path.resolve(root, "." + pathname)
+      : path.resolve(path.dirname(source), pathname);
+    try {
+      await access(target);
+    } catch {
+      errors.push(`${path.relative(root, source)}: missing CSS asset "${raw}"`);
     }
   }
 }
