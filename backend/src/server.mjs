@@ -1,4 +1,4 @@
-import { isAuthorized } from "./security/authorization.mjs";
+import { isAuthorized, isValidPrincipal } from "./security/authorization.mjs";
 
 const SECURITY_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -95,7 +95,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       } catch {
         return sendJson(res, 401, { error: "authentication_required" }, req.method);
       }
-      if (!principal) {
+      if (!isValidPrincipal(principal)) {
         return sendJson(res, 401, { error: "authentication_required" }, req.method);
       }
 
