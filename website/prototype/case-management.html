@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#173f32">
+<meta name="description" content="Демонстрационный кабинет сопровождения обращений фонда «УСЕРДИЕ»: реестр, статусы, сроки, роли и аудит.">
+<title>Кабинет обращений | USERDIE DIGITAL</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+:root{--cm-bg:#eef0e8;--cm-panel:#fbfaf6;--cm-line:#dce1d6;--cm-ink:#20372b;--cm-muted:#6d796e;--cm-green:#2c553e}
+body.case-page{background:var(--cm-bg);min-height:100vh;font-size:14px}
+.cm-shell{max-width:1440px;margin:auto;padding:30px clamp(18px,4vw,48px) 64px}
+.cm-top{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px}
+.cm-crumb{font-size:11px;color:var(--cm-muted)}.cm-crumb a{text-decoration:underline;text-underline-offset:3px}
+.cm-demo{padding:8px 11px;border:1px solid #d9cba8;background:#f5f0e3;color:#806b43;font-size:9px;font-weight:800;letter-spacing:1px}
+.cm-hero{padding:34px;background:#173f32;color:#f8f6ef;border-radius:7px;margin-bottom:20px}
+.cm-kicker{font-size:9px;font-weight:800;letter-spacing:1.5px;color:#c8d7b7}
+.cm-hero h1{margin:12px 0;font-size:clamp(34px,5vw,56px);letter-spacing:-1.8px;color:white}
+.cm-hero h1 em{color:#dce9b7;font-family:Georgia,serif;font-weight:400}
+.cm-hero p{max-width:760px;margin:0;color:#dbe5dc;font-size:12px;line-height:1.8}
+.cm-warning{margin:18px 0 22px;padding:15px 18px;border:1px solid #e3d8bc;border-left:4px solid #b99a55;background:#f7f2e7;color:#5d594d;font-size:11px;line-height:1.7}
+.cm-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.cm-metric,.cm-panel{background:var(--cm-panel);border:1px solid var(--cm-line);border-radius:5px}
+.cm-metric{padding:18px}.cm-metric span{display:block;color:var(--cm-muted);font-size:10px}.cm-metric strong{display:block;margin:12px 0 5px;font:800 29px/1 Manrope,sans-serif;color:var(--cm-ink)}.cm-metric small{color:#899287;font-size:9px}
+.cm-panel{padding:22px;margin-bottom:17px}.cm-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:17px}
+.cm-panel h2{margin:0;font:750 16px Manrope,sans-serif;letter-spacing:-.4px}.cm-panel-head p{margin:5px 0 0;color:var(--cm-muted);font-size:10px}
+.cm-toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.cm-input,.cm-select{min-height:39px;padding:0 11px;border:1px solid #d7ded2;border-radius:4px;background:white;color:var(--cm-ink);font:11px 'DM Sans',sans-serif}
+.cm-input{flex:1;min-width:190px}.cm-select{min-width:160px}
+.cm-table-wrap{overflow-x:auto}.cm-table{width:100%;min-width:780px;border-collapse:collapse}
+.cm-table th,.cm-table td{padding:13px 12px;border-bottom:1px solid #e7e9e1;text-align:left;vertical-align:middle;font-size:10px}
+.cm-table th{color:#859084;font-size:8px;letter-spacing:.8px;text-transform:uppercase;background:#f3f4ee}
+.cm-id{font-weight:800;color:#36583e}.cm-sub{display:block;margin-top:4px;color:#899287;font-size:9px}
+.cm-status{display:inline-block;padding:5px 8px;border-radius:3px;background:#edf0e7;color:#596d53;font-size:8px;font-weight:800;white-space:nowrap}
+.cm-status.work{background:#e6edf1;color:#526c7a}.cm-status.wait{background:#f5efdf;color:#8a7042}.cm-status.done{background:#e5eddb;color:#58794c}
+.cm-priority{font-size:9px;font-weight:800}.cm-priority.high{color:#a05d42}.cm-priority.normal{color:#6b795e}
+.cm-empty{display:none;padding:28px;text-align:center;color:var(--cm-muted);font-size:11px}
+.cm-columns{display:grid;grid-template-columns:1.2fr .8fr;gap:17px}
+.cm-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.cm-step{padding:14px;background:#f0f2e9;border:1px solid #e0e5da;border-radius:4px}
+.cm-step b{display:block;color:#36583e;font:700 10px Manrope,sans-serif;margin-bottom:7px}.cm-step p{margin:0;color:var(--cm-muted);font-size:9px;line-height:1.6}
+.cm-list{display:grid;gap:12px}.cm-list-item{display:grid;grid-template-columns:25px 1fr;gap:10px}.cm-icon{display:grid;place-items:center;width:24px;height:24px;border-radius:4px;background:#edf1e5;color:#54724d;font-size:12px}.cm-list-item strong{display:block;font-size:10px}.cm-list-item p{margin:4px 0 0;color:var(--cm-muted);font-size:9px;line-height:1.6}
+.cm-foot{margin-top:18px;padding:18px;background:#e3e9d9;border:1px solid #d4deca;border-radius:5px;color:#52634f;font-size:10px;line-height:1.7}
+.cm-foot strong{color:#294a35}
+.cm-back{display:inline-flex;margin-top:20px;color:#426449;font-size:11px;font-weight:800;text-decoration:underline;text-underline-offset:4px}
+@media(max-width:900px){.cm-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.cm-columns{grid-template-columns:1fr}.cm-flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.cm-shell{padding:18px 14px 44px}.cm-hero{padding:25px 20px}.cm-metrics{gap:8px}.cm-metric{padding:14px}.cm-metric strong{font-size:25px}.cm-panel{padding:16px}.cm-panel-head{display:block}.cm-demo{font-size:8px}.cm-flow{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="case-page">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<header class="header"><div class="container header-inner">
+<a class="brand" href="../index.html" aria-label="УСЕРДИЕ — главная"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<nav aria-label="Навигация"><a href="platform.html">Платформа</a><a href="workspace.html">Рабочее пространство</a><a href="robots.html">Роботы</a></nav>
+<a class="button button-dark header-cta" href="platform.html">К карте ↗</a>
+</div></header>
+<main id="main" class="cm-shell">
+<div class="cm-top"><div class="cm-crumb"><a href="platform.html">USERDIE DIGITAL</a> / Управление фондом / Обращения и дела</div><span class="cm-demo">ДЕМО · ТЕСТОВЫЕ ДАННЫЕ</span></div>
+<section class="cm-hero"><div class="cm-kicker">CASE MANAGEMENT · FOUNDATION OPERATIONS</div><h1>Обращения под <em>контролем.</em></h1><p>Единый контур сопровождения: от регистрации и проверки комплектности до решения, обратной связи и архивирования. Каждое действие в рабочей версии должно иметь ответственного, срок и проверяемое основание.</p></section>
+<div class="cm-warning" role="note"><strong>Важно: демонстрационный интерфейс.</strong> Записи ниже вымышлены. Здесь нет авторизации, серверной базы, загрузки документов, отправки обращений, уведомлений или юридически значимого журнала. Не вводите персональные данные и не используйте этот экран для реальных дел.</div>
+<section class="cm-metrics" aria-label="Демонстрационные показатели">
+<div class="cm-metric"><span>Всего в реестре</span><strong>08</strong><small>Условные карточки</small></div>
+<div class="cm-metric"><span>На рассмотрении</span><strong>05</strong><small>Демо-статистика</small></div>
+<div class="cm-metric"><span>Ожидают уточнений</span><strong>02</strong><small>Не реальные обращения</small></div>
+<div class="cm-metric"><span>Закрыто в примере</span><strong>03</strong><small>Не показатель работы фонда</small></div>
+</section>
+<section class="cm-panel" aria-labelledby="register-title">
+<div class="cm-panel-head"><div><h2 id="register-title">Реестр обращений</h2><p>Поиск и фильтры работают только в текущей демонстрационной странице.</p></div></div>
+<div class="cm-toolbar"><input class="cm-input" id="caseSearch" type="search" placeholder="Поиск по номеру, программе или ответственному" aria-label="Поиск по демонстрационному реестру"><select class="cm-select" id="statusFilter" aria-label="Фильтр по статусу"><option value="">Все статусы</option><option>Новое</option><option>Проверка комплектности</option><option>Назначено</option><option>В работе</option><option>Ожидает документов</option><option>Согласование</option><option>Решение принято</option><option>Закрыто</option></select><select class="cm-select" id="priorityFilter" aria-label="Фильтр по приоритету"><option value="">Любой приоритет</option><option>Высокий</option><option>Обычный</option></select></div>
+<div class="cm-table-wrap"><table class="cm-table"><thead><tr><th>Номер / дата</th><th>Направление</th><th>Ответственный</th><th>Срок контроля</th><th>Приоритет</th><th>Статус</th></tr></thead><tbody id="caseRows">
+<tr data-search="ud-2601 юридическая помощь координатор 01" data-status="В работе" data-priority="Высокий"><td><span class="cm-id">UD-26-001</span><span class="cm-sub">29.10.2026 · входящий</span></td><td>Юридическая помощь</td><td>Координатор дел</td><td>02.11.2026</td><td><span class="cm-priority high">Высокий</span></td><td><span class="cm-status work">В работе</span></td></tr>
+<tr data-search="ud-2602 социальная поддержка специалист программ 02" data-status="Ожидает документов" data-priority="Обычный"><td><span class="cm-id">UD-26-002</span><span class="cm-sub">28.10.2026 · входящий</span></td><td>Социальная поддержка</td><td>Специалист программ</td><td>03.11.2026</td><td><span class="cm-priority normal">Обычный</span></td><td><span class="cm-status wait">Ожидает документов</span></td></tr>
+<tr data-search="ud-2603 доступная среда координатор 03" data-status="Проверка комплектности" data-priority="Обычный"><td><span class="cm-id">UD-26-003</span><span class="cm-sub">27.10.2026 · входящий</span></td><td>Доступная среда</td><td>Координатор дел</td><td>04.11.2026</td><td><span class="cm-priority normal">Обычный</span></td><td><span class="cm-status">Проверка комплектности</span></td></tr>
+<tr data-search="ud-2604 гуманитарная программа руководитель направления 04" data-status="Согласование" data-priority="Высокий"><td><span class="cm-id">UD-26-004</span><span class="cm-sub">26.10.2026 · входящий</span></td><td>Гуманитарная программа</td><td>Руководитель направления</td><td>02.11.2026</td><td><span class="cm-priority high">Высокий</span></td><td><span class="cm-status wait">Согласование</span></td></tr>
+<tr data-search="ud-2605 поддержка пенсионеров специалист программ 05" data-status="Назначено" data-priority="Обычный"><td><span class="cm-id">UD-26-005</span><span class="cm-sub">25.10.2026 · входящий</span></td><td>Поддержка пенсионеров</td><td>Специалист программ</td><td>05.11.2026</td><td><span class="cm-priority normal">Обычный</span></td><td><span class="cm-status">Назначено</span></td></tr>
+<tr data-search="ud-2606 правовая консультация юрист 06" data-status="Новое" data-priority="Высокий"><td><span class="cm-id">UD-26-006</span><span class="cm-sub">31.10.2026 · входящий</span></td><td>Правовая консультация</td><td>Юридический контур</td><td>03.11.2026</td><td><span class="cm-priority high">Высокий</span></td><td><span class="cm-status">Новое</span></td></tr>
+<tr data-search="ud-2607 открытый мир руководитель программы 07" data-status="Закрыто" data-priority="Обычный"><td><span class="cm-id">UD-26-007</span><span class="cm-sub">20.10.2026 · входящий</span></td><td>«Открытый мир»</td><td>Руководитель программы</td><td>Закрыто</td><td><span class="cm-priority normal">Обычный</span></td><td><span class="cm-status done">Закрыто</span></td></tr>
+<tr data-search="ud-2608 гуманитарный диалог координатор 08" data-status="Решение принято" data-priority="Обычный"><td><span class="cm-id">UD-26-008</span><span class="cm-sub">18.10.2026 · входящий</span></td><td>«Гуманитарный диалог»</td><td>Координатор дел</td><td>Закрыто</td><td><span class="cm-priority normal">Обычный</span></td><td><span class="cm-status done">Решение принято</span></td></tr>
+</tbody></table><div class="cm-empty" id="caseEmpty" role="status">По заданным условиям демонстрационных записей нет.</div></div>
+</section>
+<div class="cm-columns">
+<section class="cm-panel"><div class="cm-panel-head"><div><h2>Маршрут обращения</h2><p>Предлагаемая модель процесса — подлежит утверждению фондом.</p></div></div>
+<div class="cm-flow">
+<div class="cm-step"><b>01 · Регистрация</b><p>Номер, дата, канал поступления, согласие и основание обработки.</p></div>
+<div class="cm-step"><b>02 · Комплектность</b><p>Проверка минимально необходимых сведений и запрос уточнений.</p></div>
+<div class="cm-step"><b>03 · Назначение</b><p>Ответственный, направление, приоритет и контрольный срок.</p></div>
+<div class="cm-step"><b>04 · Рассмотрение</b><p>Экспертная оценка, согласование, решение и безопасный ответ.</p></div>
+</div>
+<div class="cm-foot"><strong>Закрытие дела:</strong> фиксируются основание решения, дата, уполномоченный согласующий, результат коммуникации и срок хранения. Возврат в работу и апелляция должны иметь отдельные основания.</div>
+</section>
+<section class="cm-panel"><div class="cm-panel-head"><div><h2>Контроль и ответственность</h2><p>Обязательные элементы будущей рабочей системы.</p></div></div>
+<div class="cm-list">
+<div class="cm-list-item"><span class="cm-icon">◎</span><div><strong>Разделение ролей</strong><p>Регистратор, координатор, эксперт, согласующий, руководитель и аудитор — разные полномочия.</p></div></div>
+<div class="cm-list-item"><span class="cm-icon">◷</span><div><strong>SLA и эскалация</strong><p>Сроки назначаются по утверждённому регламенту; просрочка передаётся руководителю, а не скрывается.</p></div></div>
+<div class="cm-list-item"><span class="cm-icon">▤</span><div><strong>Документы и доступ</strong><p>Классификация конфиденциальности, минимизация копий, доступ по принципу необходимости.</p></div></div>
+<div class="cm-list-item"><span class="cm-icon">⌁</span><div><strong>Аудит решений</strong><p>История изменения статусов, оснований и согласований с идентификацией пользователя.</p></div></div>
+</div>
+</section>
+</div>
+<section class="cm-panel"><div class="cm-panel-head"><div><h2>Границы демонстрации</h2><p>Что потребуется до перехода к реальному сопровождению дел.</p></div></div>
+<div class="cm-flow">
+<div class="cm-step"><b>Правовая модель</b><p>Утвердить цели, основания, согласия, сроки хранения и порядок реализации прав субъектов данных.</p></div>
+<div class="cm-step"><b>Безопасная инфраструктура</b><p>Авторизация, шифрование, резервное копирование, журнал доступа и тестирование угроз.</p></div>
+<div class="cm-step"><b>Регламенты фонда</b><p>Матрица полномочий, SLA, критерии приоритета, маршруты эскалации и апелляции.</p></div>
+<div class="cm-step"><b>Приёмочные испытания</b><p>Проверка доступности, отказоустойчивости, прав доступа и восстановления до запуска.</p></div>
+</div></section>
+<a class="cm-back" href="platform.html">← Вернуться к карте платформы</a>
+</main>
+<script>
+(function(){
+  const search=document.getElementById('caseSearch');
+  const status=document.getElementById('statusFilter');
+  const priority=document.getElementById('priorityFilter');
+  const rows=[...document.querySelectorAll('#caseRows tr')];
+  const empty=document.getElementById('caseEmpty');
+  function applyFilters(){
+    const q=search.value.trim().toLowerCase();
+    let visible=0;
+    rows.forEach(row=>{
+      const matchText=row.dataset.search.includes(q);
+      const matchStatus=!status.value||row.dataset.status===status.value;
+      const matchPriority=!priority.value||row.dataset.priority===priority.value;
+      const show=matchText&&matchStatus&&matchPriority;
+      row.hidden=!show;
+      if(show)visible++;
+    });
+    empty.style.display=visible?'none':'block';
+  }
+  search.addEventListener('input',applyFilters);
+  status.addEventListener('change',applyFilters);
+  priority.addEventListener('change',applyFilters);
+})();
+</script>
+</body></html>
