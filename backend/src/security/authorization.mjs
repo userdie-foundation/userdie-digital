@@ -7,7 +7,7 @@
  */
 const ACTIVE_ACCOUNT_STATES = new Set(["active"]);
 
-function validPrincipal(principal) {
+export function isValidPrincipal(principal) {
   return Boolean(
     principal &&
     typeof principal.id === "string" &&
@@ -40,7 +40,7 @@ function hasProgramGrant(principal, roleCode, programId) {
  * @returns {boolean} false for malformed or insufficient context
  */
 export function isAuthorized({ principal, permission, resource = {} } = {}) {
-  if (!validPrincipal(principal) || !resource || typeof resource !== "object") return false;
+  if (!isValidPrincipal(principal) || !resource || typeof resource !== "object") return false;
 
   switch (permission) {
     case "applications:read":
