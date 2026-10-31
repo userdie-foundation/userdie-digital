@@ -1,0 +1,237 @@
+openapi: 3.1.0
+info:
+  title: USERDIE DIGITAL Case and Program API
+  version: 0.1.0-draft
+  description: >
+    Draft contract only. No production API is currently deployed. All routes
+    require server-side authentication and authorization. Never submit real
+    beneficiary data to the public demo site.
+servers:
+  - url: https://api.example.invalid/v1
+    description: Placeholder only — replace after infrastructure approval.
+security:
+  - bearerAuth: []
+tags:
+  - name: Cases
+  - name: Programs
+  - name: Analytics
+  - name: Audit
+paths:
+  /cases:
+    get:
+      tags: [Cases]
+      summary: List cases visible to the authenticated principal
+      description: Server enforces row-level scope; never trust client-supplied role or owner filters.
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, maxLength: 40 }
+        - in: query
+          name: direction_id
+          schema: { type: string, maxLength: 80 }
+        - in: query
+          name: cursor
+          schema: { type: string, maxLength: 200 }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+      responses:
+        '200':
+          description: Page of authorized case summaries
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/CaseSummary' }
+                  next_cursor: { type: [string, 'null'] }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /cases/{case_id}:
+    get:
+      tags: [Cases]
+      summary: Read one case within authorized scope
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Authorized case record
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CaseRecord' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: Not found or not visible to prevent object enumeration }
+  /cases/{case_id}/events:
+    post:
+      tags: [Cases]
+      summary: Append a case event
+      description: Requires case-specific permission; event is append-only and creates an audit record. High-impact transitions require a separate approval workflow.
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CaseEventInput' }
+      responses:
+        '201': { description: Event accepted and audit record created }
+        '400': { description: Validation failed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { description: State conflict or duplicate idempotency key }
+  /programs:
+    get:
+      tags: [Programs]
+      summary: List approved program directory entries
+      responses:
+        '200':
+          description: Programs visible to principal
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Program' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /analytics/summary:
+    get:
+      tags: [Analytics]
+      summary: Read privacy-filtered aggregate indicators
+      description: Aggregate-only endpoint. Suppress small cohorts and never return direct identifiers or free text.
+      parameters:
+        - in: query
+          name: period_from
+          schema: { type: string, format: date }
+        - in: query
+          name: period_to
+          schema: { type: string, format: date }
+        - in: query
+          name: direction_id
+          schema: { type: string, maxLength: 80 }
+      responses:
+        '200':
+          description: Aggregated indicators
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnalyticsSummary' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /audit/events:
+    get:
+      tags: [Audit]
+      summary: Read audit events for authorized auditors
+      description: Read-only, separately permissioned, fully logged access. No endpoint to mutate or delete audit events.
+      parameters:
+        - in: query
+          name: since
+          schema: { type: string, format: date-time }
+        - in: query
+          name: cursor
+          schema: { type: string, maxLength: 200 }
+      responses:
+        '200':
+          description: Audit event page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/AuditEvent' }
+                  next_cursor: { type: [string, 'null'] }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Placeholder security contract; issuer, audience, claims, key rotation and MFA policy must be approved.
+  parameters:
+    CaseId:
+      in: path
+      name: case_id
+      required: true
+      schema: { type: string, format: uuid }
+    IdempotencyKey:
+      in: header
+      name: Idempotency-Key
+      required: true
+      schema: { type: string, minLength: 16, maxLength: 128 }
+  responses:
+    Unauthorized:
+      description: Authentication required or token invalid/expired
+    Forbidden:
+      description: Authenticated principal lacks permission or scope
+  schemas:
+    CaseSummary:
+      type: object
+      additionalProperties: false
+      required: [case_id, created_at, direction_id, status_code, priority_code]
+      properties:
+        case_id: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+        direction_id: { type: string, maxLength: 80 }
+        program_id: { type: [string, 'null'], maxLength: 80 }
+        status_code: { type: string, maxLength: 40 }
+        priority_code: { type: string, enum: [low, normal, high, urgent] }
+        due_at: { type: [string, 'null'], format: date-time }
+        data_quality_state: { type: string, enum: [valid, warning, exception] }
+    CaseRecord:
+      allOf:
+        - $ref: '#/components/schemas/CaseSummary'
+        - type: object
+          properties:
+            owner_role_id: { type: [string, 'null'], maxLength: 80 }
+            closed_at: { type: [string, 'null'], format: date-time }
+    CaseEventInput:
+      type: object
+      additionalProperties: false
+      required: [event_type, occurred_at]
+      properties:
+        event_type: { type: string, enum: [note_added, status_changed, assigned, deadline_changed, approval_requested, approved, escalated, closed] }
+        occurred_at: { type: string, format: date-time }
+        reason_code: { type: [string, 'null'], maxLength: 80 }
+        payload:
+          type: object
+          description: Strict allowlist per event_type; do not place personal data or free-text beneficiary details here.
+          additionalProperties: false
+    Program:
+      type: object
+      additionalProperties: false
+      required: [program_id, title, state]
+      properties:
+        program_id: { type: string, maxLength: 80 }
+        title: { type: string, maxLength: 160 }
+        state: { type: string, enum: [draft, active, paused, closed] }
+        owner_role_id: { type: [string, 'null'], maxLength: 80 }
+    AnalyticsSummary:
+      type: object
+      additionalProperties: false
+      required: [period_from, period_to, total_cases, open_cases]
+      properties:
+        period_from: { type: string, format: date }
+        period_to: { type: string, format: date }
+        total_cases: { type: integer, minimum: 0 }
+        open_cases: { type: integer, minimum: 0 }
+        closed_cases: { type: integer, minimum: 0 }
+        overdue_cases: { type: integer, minimum: 0 }
+        suppressed_groups: { type: integer, minimum: 0, description: Number of groups hidden by privacy threshold }
+    AuditEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, actor_role, action, target_type]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, format: date-time }
+        actor_role: { type: string, maxLength: 80 }
+        action: { type: string, maxLength: 80 }
+        target_type: { type: string, maxLength: 80 }
+        target_id: { type: string, maxLength: 80 }
+        correlation_id: { type: string, maxLength: 100 }
