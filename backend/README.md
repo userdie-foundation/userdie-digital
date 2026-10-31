@@ -9,7 +9,7 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Initial relational schema for users, roles, programs, applications, status history, private document metadata, and audit events.
 - A migration that records application creation and status changes in the status-history table.
 - A session-storage migration designed to store only hashes of opaque random session tokens, with expiry and revocation support. It does not enable login.
-- Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions, authenticate users, or enable login.
+- Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions, authenticate users, or enable login.\n- Fail-closed authorization policy primitives and synthetic unit tests for applicant ownership, assigned case workers, program-scoped managers, explicitly shared partner records, auditors, and administrators. These policies are not yet wired into HTTP routes.
 - Automated HTTP tests for health checks, error handling, and the fail-closed applications endpoint.
 
 ## Local development
@@ -50,7 +50,7 @@ The session table is only a storage foundation. Before enabling authentication, 
 ## Production blockers — do not accept real applications yet
 
 - Authentication, session lifecycle, account recovery, and MFA policy are not implemented.
-- Role-based authorization and per-record access control are not implemented.
+- Role-based authorization and per-record access control are not yet enforced by HTTP routes. The policy module is a tested building block only; it must be integrated into every route and backed by trusted database-loaded grants before any case endpoint is enabled.
 - Application CRUD, file upload/download, malware scanning, notifications, and reporting are not implemented.
 - Secrets management, production hosting, TLS termination, migrations automation, monitoring, backups, and restore tests must be configured and verified separately.
 - Review applicable personal-data, consent, retention, and incident-response requirements before collecting real beneficiary data.
