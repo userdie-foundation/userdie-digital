@@ -13,6 +13,10 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 .app-sidebar{position:sticky;top:82px;align-self:start;height:calc(100vh - 82px);overflow:auto;padding:25px 16px;background:#f8f7f1;border-right:1px solid var(--app-line)}
 .sidebar-caption{margin:4px 12px 10px;color:#879187;font-size:9px;font-weight:800;letter-spacing:1.5px}
 .app-nav{display:grid;gap:4px;margin-bottom:28px}
+.app-nav-link{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:5px;color:#5e6e61;text-decoration:none;font:600 12px 'DM Sans',sans-serif}
+.app-nav-link:hover{background:#eef0e8}.app-nav-link .nav-external{margin-left:auto;color:#8a9989;font-size:10px}
+.module-tile-link{display:flex;flex-direction:column;align-items:flex-start;text-align:left;text-decoration:none;color:inherit;cursor:pointer}
+.module-tile-link:hover{border-color:#b8c8ae;background:#f8faf3}
 .app-nav button{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:0;border-radius:5px;background:transparent;color:#5e6e61;text-align:left;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
 .app-nav button:hover{background:#eef0e8}
 .app-nav button:focus-visible,.app-button:focus-visible,.panel-link:focus-visible,.task-check:focus-visible,.module-tile:focus-visible,.search-box:focus-visible,.filter-select:focus-visible,.prototype-directory a:focus-visible{outline:3px solid #6b8c54;outline-offset:3px}
@@ -205,6 +209,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 <button type="button" data-view="partners" aria-controls="view-partners"><span class="nav-ico">⌁</span>Партнёры</button>
 <button type="button" data-view="documents" aria-controls="view-documents"><span class="nav-ico">▤</span>Документы</button>
 <button type="button" data-view="security" aria-controls="view-security"><span class="nav-ico">◎</span>Доступы и безопасность</button>
+<a href="case-management.html" class="app-nav-link"><span class="nav-ico">▣</span>Обращения и дела <span class="nav-external">↗</span></a>
 </nav>
 <div class="sidebar-status"><div class="status-line"><span></span>ДЕМО-СРЕДА</div><strong>Данные не отправляются</strong><p>Демо-задачи сохраняются только в локальном хранилище этого браузера. На сервер не отправляются; реальные данные вводить нельзя.</p></div>
 </aside>
@@ -244,6 +249,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 <button class="module-tile" data-go="assets"><span class="tile-ico">◈</span><strong>Активы и оценка</strong><small>Акции, облигации, основания оценки и история источников</small><span class="tile-state">Концепция · без реестра реальных активов</span></button>
 <button class="module-tile" data-go="knowledge"><span class="tile-ico">⌁</span><strong>Интеллектуальные ресурсы</strong><small>Методики, исследования, знания и банки интеллектуальных ресурсов</small><span class="tile-state">Концепция · демонстрационный режим</span></button>
 <button class="module-tile" data-go="programs"><span class="tile-ico">◫</span><strong>Программы фонда</strong><small>Карточки, этапы и контроль материалов</small><span class="tile-state">Демо-данные</span></button>
+<a class="module-tile module-tile-link" href="case-management.html"><span class="tile-ico">▣</span><strong>Обращения и дела</strong><small>Реестр, статусы, ответственные и контроль сроков</small><span class="tile-state">Отдельный демо-кабинет ↗</span></a>
 <button class="module-tile" data-go="partners"><span class="tile-ico">⌁</span><strong>Партнёры</strong><small>Сценарий взаимодействия и статусы</small><span class="tile-state">Демо-данные</span></button>
 <button class="module-tile" data-go="documents"><span class="tile-ico">▤</span><strong>Документы</strong><small>Проверка перед публикацией</small><span class="tile-state">Нужна проверка</span></button>
 </div></section>
