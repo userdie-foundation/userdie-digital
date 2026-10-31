@@ -97,9 +97,9 @@ for (const source of htmlFiles) {
 // Validate local assets referenced from CSS (backgrounds, icons and @font-face files).
 for (const source of cssFiles) {
   const stylesheet = await readFile(source, "utf8");
-  for (const match of stylesheet.matchAll(/url\\(\\s*(?:(["'])(.*?)\\1|([^)]*?))\\s*\\)/gi)) {
+  for (const match of stylesheet.matchAll(/url\(\s*(?:(["'])(.*?)\1|([^)]*?))\s*\)/gi)) {
     const raw = (match[2] ?? match[3] ?? "").trim();
-    if (!raw || /^(?:[a-z][a-z0-9+.-]*:|\\/\\/|#)/i.test(raw)) continue;
+    if (!raw || /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(raw)) continue;
     let pathname;
     try {
       pathname = decodeURIComponent(raw.split(/[?#]/, 1)[0]);
