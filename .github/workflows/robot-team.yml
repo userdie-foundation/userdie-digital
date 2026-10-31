@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - "website/**"
+      - "backend/**"
       - "docs/**"
       - ".github/scripts/run-robot-team.mjs"
       - ".github/scripts/check-public-site.mjs"
