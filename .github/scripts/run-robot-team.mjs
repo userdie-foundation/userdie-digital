@@ -13,6 +13,7 @@ function walk(dir) {
   }
 }
 walk(path.join(root, "website"));
+walk(path.join(root, "backend"));
 walk(path.join(root, "docs"));
 walk(path.join(root, ".github", "workflows"));
 
