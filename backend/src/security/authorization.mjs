@@ -71,9 +71,14 @@ export function isAuthorized({ principal, permission, resource = {} } = {}) {
         hasGrant(principal, "administrator", "global") ||
         hasGrant(principal, "auditor", "global") ||
         hasGrant(principal, "case_worker", "global") ||
-        hasGrant(principal, "applicant", "global") ||
-        hasGrant(principal, "partner", "global") ||
-        hasProgramGrant(principal, "program_manager", resource.programId)
+        hasProgramGrant(principal, "program_manager", resource.programId) ||
+        (
+          resource.status === "open" &&
+          (
+            hasGrant(principal, "applicant", "global") ||
+            hasGrant(principal, "partner", "global")
+          )
+        )
       );
 
     case "programs:manage":
