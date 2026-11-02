@@ -250,3 +250,16 @@ test("program detail fails closed without trusted authentication and returns gen
     programRepository: { async getById() { throw new Error("private database details"); } },
   });
 });
+
+test("applicant program directory access is limited to open programs", async () => {
+  await withServer(noDb, async (base) => {
+    const openProgram = await fetch(`${base}/api/v1/programs/program-a`);
+    const draftProgram = await fetch(`${base}/api/v1/programs/program-b`);
+    assert.equal(openProgram.status, 200);
+    assert.equal(draftProgram.status, 404);
+    assert.deepEqual(await draftProgram.json(), { error: "not_found" });
+  }, {
+    resolvePrincipal: async () => identity("applicant-1", "applicant"),
+    programRepository: syntheticProgramRepository,
+  });
+});
