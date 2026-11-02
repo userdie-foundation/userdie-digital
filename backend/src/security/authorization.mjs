@@ -59,6 +59,12 @@ export function isAuthorized({ principal, permission, resource = {} } = {}) {
           resource.sharedWithPrincipalIds.includes(principal.id)
       );
 
+    case "applications:workflow:read":
+      return (
+        hasGrant(principal, "case_worker", "global") &&
+        resource.assignedTo === principal.id
+      ) || hasProgramGrant(principal, "program_manager", resource.programId);
+
     case "applications:update":
     case "applications:transition":
       return (
