@@ -120,13 +120,16 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { description: Not found or outside authorized scope }
         '503': { description: Program repository unavailable }
-  /cases/{case_id}/workflow:
+  /applications/{application_id}/workflow:
     get:
       tags: [Cases]
       summary: Read internal task assignments, SLA state and workflow event timeline
       description: Implemented as a read-only backend route. Visible only to the assigned case worker or the program manager for the exact program. Applicants and partners do not receive internal task or escalation data. Production authentication is not yet wired.
       parameters:
-        - $ref: '#/components/parameters/CaseId'
+        - in: path
+          name: application_id
+          required: true
+          schema: { type: string, format: uuid }
       responses:
         '200':
           description: Internal workflow snapshot with tasks and append-only event history
