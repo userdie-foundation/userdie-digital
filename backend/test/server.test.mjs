@@ -263,3 +263,88 @@ test("applicant program directory access is limited to open programs", async () 
     programRepository: syntheticProgramRepository,
   });
 });
+
+const syntheticWorkflowRepository = {
+  async getByApplicationId(applicationId) {
+    assert.equal(applicationId, "case-a");
+    return {
+      tasks: [
+        {
+          id: "task-a", title: "Verify supporting documents", status: "in_progress",
+          priority: "high", assignedTo: "worker-1", dueAt: "2020-01-01T00:00:00.000Z",
+          escalationLevel: 1, escalatedAt: "2020-01-02T00:00:00.000Z", completedAt: null,
+        },
+        {
+          id: "task-b", title: "Close case", status: "completed",
+          priority: "normal", assignedTo: "worker-1", dueAt: "2020-01-01T00:00:00.000Z",
+          escalationLevel: 0, escalatedAt: null, completedAt: "2020-01-03T00:00:00.000Z",
+        },
+      ],
+      events: [
+        {
+          id: 1, taskId: "task-a", type: "task_assigned", actorId: "manager-1",
+          summary: "task_assigned", status: "in_progress", priority: "high",
+          escalationLevel: 1, createdAt: "2020-01-02T00:00:00.000Z",
+        },
+      ],
+    };
+  },
+};
+
+test("case workflow returns task ownership, overdue state and audit timeline to assigned worker", async () => {
+  await withServer(noDb, async (base) => {
+    const response = await fetch(`${base}/api/v1/applications/case-a/workflow`);
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.applicationId, "case-a");
+    assert.equal(body.tasks.length, 2);
+    assert.equal(body.tasks[0].overdue, true);
+    assert.equal(body.tasks[0].escalationLevel, 1);
+    assert.equal(body.tasks[1].overdue, false);
+    assert.equal(body.events[0].type, "task_assigned");
+  }, {
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+    applicationRepository: syntheticRepository,
+    applicationWorkflowRepository: syntheticWorkflowRepository,
+  });
+});
+
+test("case workflow is not visible to applicant or unassigned worker", async () => {
+  for (const principal of [
+    identity("applicant-1", "applicant"),
+    identity("worker-2", "case_worker"),
+  ]) {
+    let workflowLookups = 0;
+    await withServer(noDb, async (base) => {
+      const response = await fetch(`${base}/api/v1/applications/case-a/workflow`);
+      assert.equal(response.status, 404);
+      assert.deepEqual(await response.json(), { error: "not_found" });
+      assert.equal(workflowLookups, 0);
+    }, {
+      resolvePrincipal: async () => principal,
+      applicationRepository: syntheticRepository,
+      applicationWorkflowRepository: {
+        async getByApplicationId() { workflowLookups += 1; return { tasks: [], events: [] }; },
+      },
+    });
+  }
+});
+
+test("program manager can read workflow only inside exact program scope", async () => {
+  await withServer(noDb, async (base) => {
+    const allowed = await fetch(`${base}/api/v1/applications/case-a/workflow`);
+    assert.equal(allowed.status, 200);
+  }, {
+    resolvePrincipal: async () => identity("manager-1", "program_manager", "program", "program-a"),
+    applicationRepository: syntheticRepository,
+    applicationWorkflowRepository: syntheticWorkflowRepository,
+  });
+  await withServer(noDb, async (base) => {
+    const denied = await fetch(`${base}/api/v1/applications/case-a/workflow`);
+    assert.equal(denied.status, 404);
+  }, {
+    resolvePrincipal: async () => identity("manager-2", "program_manager", "program", "program-b"),
+    applicationRepository: syntheticRepository,
+    applicationWorkflowRepository: syntheticWorkflowRepository,
+  });
+});
