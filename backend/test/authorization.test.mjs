@@ -60,3 +60,27 @@ test("inactive, malformed and unscoped principals fail closed", () => {
   assert.equal(isAuthorized({ principal: active("x", [grant("case_worker")]), permission: "unknown:permission", resource: caseA }), false);
   assert.equal(isAuthorized({ principal: active("x", [grant("case_worker")]), permission: "applications:read" }), false);
 });
+
+test("applicants and partners can read open program directory entries only", () => {
+  const applicant = active("person-1", [grant("applicant")]);
+  const partner = active("partner-1", [grant("partner")]);
+  const openProgram = { programId: "program-a", status: "open" };
+  const draftProgram = { programId: "program-a", status: "draft" };
+  for (const principal of [applicant, partner]) {
+    assert.equal(isAuthorized({ principal, permission: "programs:read", resource: openProgram }), true);
+    assert.equal(isAuthorized({ principal, permission: "programs:read", resource: draftProgram }), false);
+    assert.equal(isAuthorized({ principal, permission: "programs:manage", resource: openProgram }), false);
+  }
+});
+
+test("program manager and internal roles retain their defined program visibility", () => {
+  const manager = active("manager-1", [grant("program_manager", "program", "program-a")]);
+  const caseWorker = active("worker-1", [grant("case_worker")]);
+  const auditor = active("auditor-1", [grant("auditor")]);
+  const administrator = active("admin-1", [grant("administrator")]);
+  const draft = { programId: "program-a", status: "draft" };
+  assert.equal(isAuthorized({ principal: manager, permission: "programs:read", resource: draft }), true);
+  for (const principal of [caseWorker, auditor, administrator]) {
+    assert.equal(isAuthorized({ principal, permission: "programs:read", resource: draft }), true);
+  }
+});
