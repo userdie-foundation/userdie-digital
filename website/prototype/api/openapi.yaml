@@ -120,6 +120,22 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { description: Not found or outside authorized scope }
         '503': { description: Program repository unavailable }
+  /cases/{case_id}/workflow:
+    get:
+      tags: [Cases]
+      summary: Read internal task assignments, SLA state and workflow event timeline
+      description: Implemented as a read-only backend route. Visible only to the assigned case worker or the program manager for the exact program. Applicants and partners do not receive internal task or escalation data. Production authentication is not yet wired.
+      parameters:
+        - $ref: '#/components/parameters/CaseId'
+      responses:
+        '200':
+          description: Internal workflow snapshot with tasks and append-only event history
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CaseWorkflow' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: Case not found or outside authorized workflow scope }
+        '503': { description: Workflow repository unavailable }
   /analytics/summary:
     get:
       tags: [Analytics]
@@ -265,6 +281,47 @@ components:
         status: { type: string, enum: [planned, in_progress, blocked, completed, cancelled] }
         dueAt: { type: [string, 'null'], format: date-time }
         completedAt: { type: [string, 'null'], format: date-time }
+    CaseWorkflow:
+      type: object
+      additionalProperties: false
+      required: [applicationId, tasks, events]
+      properties:
+        applicationId: { type: string, format: uuid }
+        tasks:
+          type: array
+          items: { $ref: '#/components/schemas/WorkflowTask' }
+        events:
+          type: array
+          items: { $ref: '#/components/schemas/WorkflowEvent' }
+    WorkflowTask:
+      type: object
+      additionalProperties: false
+      required: [id, title, status, priority, overdue, escalationLevel]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string, maxLength: 200 }
+        status: { type: string, enum: [open, in_progress, blocked, completed, cancelled] }
+        priority: { type: string, enum: [low, normal, high, critical] }
+        assignedTo: { type: [string, 'null'], format: uuid }
+        dueAt: { type: [string, 'null'], format: date-time }
+        overdue: { type: boolean, description: Computed by the API; completed and cancelled tasks are never overdue }
+        escalationLevel: { type: integer, minimum: 0, maximum: 3 }
+        escalatedAt: { type: [string, 'null'], format: date-time }
+        completedAt: { type: [string, 'null'], format: date-time }
+    WorkflowEvent:
+      type: object
+      additionalProperties: false
+      required: [id, type, summary, createdAt]
+      properties:
+        id: { type: integer }
+        taskId: { type: [string, 'null'], format: uuid }
+        type: { type: string, enum: [case_created, case_assigned, case_status_changed, task_created, task_assigned, task_status_changed, sla_escalated, comment_added, milestone_linked] }
+        actorId: { type: [string, 'null'], format: uuid }
+        summary: { type: string, maxLength: 500 }
+        status: { type: [string, 'null'] }
+        priority: { type: [string, 'null'] }
+        escalationLevel: { type: [integer, 'null'], minimum: 0, maximum: 3 }
+        createdAt: { type: string, format: date-time }
     AnalyticsSummary:
       type: object
       additionalProperties: false
