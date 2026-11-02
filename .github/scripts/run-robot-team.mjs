@@ -14,6 +14,14 @@ function walk(dir) {
 }
 walk(path.join(root, "website"));
 walk(path.join(root, "backend"));
+walk(path.join(root, "src"));
+walk(path.join(root, "apps"));
+walk(path.join(root, "packages"));
+walk(path.join(root, "schemas"));
+walk(path.join(root, "config"));
+walk(path.join(root, "scripts"));
+walk(path.join(root, "tests"));
+walk(path.join(root, "assets"));
 walk(path.join(root, "docs"));
 walk(path.join(root, ".github", "workflows"));
 
