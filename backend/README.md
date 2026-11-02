@@ -34,6 +34,7 @@ Migrations are reviewed SQL files, not an automated migration runner. Apply them
 - `GET /api/v1/health/ready` — checks database connectivity and returns only a generic status.
 - `GET /api/v1/applications/:id` — read-only detail route; requires a trusted server-side principal resolver and record-level authorization. The production entry point currently fails closed with `401` until authentication/session verification is wired.
 - `GET /api/v1/applications` — returns `503 applications_module_unavailable`; collection access remains disabled.
+- `GET /api/v1/programs/:id` — read-only program dossier and milestone timeline; requires a trusted server-side principal resolver and `programs:read` authorization. The production entry point currently returns `401` until authentication/session verification is wired.
 
 All other unknown routes return 404; non-GET/HEAD methods return 405. The applications module deliberately fails closed: it does not read or write application records until identity, authorization, validation, and audit requirements are implemented and tested.
 
@@ -53,7 +54,7 @@ The session table is only a storage foundation. Before enabling authentication, 
 ## Production blockers — do not accept real applications yet
 
 - Authentication, session lifecycle, account recovery, and MFA policy are not implemented.
-- Role-based authorization is enforced only for the read-only application detail route when a trusted server-side principal resolver is injected. Production session verification is not wired, and full application/program lifecycle routes remain disabled. All future routes must use trusted database-loaded grants and per-record checks.
+- Role-based authorization is enforced only for the read-only application detail and program detail routes when a trusted server-side principal resolver is injected. Production session verification is not wired; application and program write/lifecycle routes remain disabled. All future routes must use trusted database-loaded grants and per-record checks.
 - Application CRUD, file upload/download, malware scanning, notifications, and reporting are not implemented.
 - Secrets management, production hosting, TLS termination, migrations automation, monitoring, backups, and restore tests must be configured and verified separately.
 - Review applicable personal-data, consent, retention, and incident-response requirements before collecting real beneficiary data.
