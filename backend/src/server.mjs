@@ -211,7 +211,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       }, req.method);
     }
 
-    const workflowMatch = url.pathname.match(/^\\/api\\/v1\\/applications\\/([^/]+)\\/workflow$/);
+    const workflowMatch = url.pathname.match(/^\/api\/v1\/applications\/([^/]+)\/workflow$/);
     if (workflowMatch) {
       if (typeof resolvePrincipal !== "function") {
         return sendJson(res, 401, { error: "authentication_required" }, req.method);
