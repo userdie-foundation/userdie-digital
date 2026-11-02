@@ -7,6 +7,7 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Node.js HTTP API foundation with liveness and database-readiness endpoints.
 - PostgreSQL connection pool and graceful shutdown.
 - Initial relational schema for users, roles, programs, applications, status history, private document metadata, and audit events.
+- Program portfolio lifecycle fields, organizational contours, accountable owners, approval metadata, milestone gates, and append-only program status history (migration 004).
 - A migration that records application creation and status changes in the status-history table.
 - A session-storage migration designed to store only hashes of opaque random session tokens, with expiry and revocation support. It does not enable login.
 - Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions, authenticate users, or enable login.\n- Fail-closed authorization policy primitives and synthetic unit tests for applicant ownership, assigned case workers, program-scoped managers, explicitly shared partner records, auditors, and administrators. These policies are not yet wired into HTTP routes.
@@ -20,9 +21,10 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 2. Apply `migrations/001_initial_schema.sql` to a new database after review.
 3. For an existing database created from migration 001, review and apply `migrations/002_application_status_history_trigger.sql`.
 4. Review and apply `migrations/003_auth_sessions.sql` after migration 001 to prepare session storage. Applying it does not enable authentication.
-5. Install dependencies with `npm install`.
-6. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
-7. Run `npm test`, `npm run check`, then `npm start`.
+5. Review and apply `migrations/004_program_portfolio_lifecycle.sql` after migration 001 to add program governance and milestone structures. Applying it does not create or approve real programs.
+6. Install dependencies with `npm install`.
+7. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
+8. Run `npm test`, `npm run check`, then `npm start`.
 
 Migrations are reviewed SQL files, not an automated migration runner. Apply them through a controlled deployment process and verify backups first. Do not run migrations against production until a backup and restore procedure has been verified.
 
@@ -30,7 +32,8 @@ Migrations are reviewed SQL files, not an automated migration runner. Apply them
 
 - `GET /api/v1/health/live` — process liveness; no database query.
 - `GET /api/v1/health/ready` — checks database connectivity and returns only a generic status.
-- `GET /api/v1/applications` — returns `503 applications_module_unavailable` until authentication and record-level authorization are implemented.
+- `GET /api/v1/applications/:id` — read-only detail route; requires a trusted server-side principal resolver and record-level authorization. The production entry point currently fails closed with `401` until authentication/session verification is wired.
+- `GET /api/v1/applications` — returns `503 applications_module_unavailable`; collection access remains disabled.
 
 All other unknown routes return 404; non-GET/HEAD methods return 405. The applications module deliberately fails closed: it does not read or write application records until identity, authorization, validation, and audit requirements are implemented and tested.
 
@@ -50,7 +53,7 @@ The session table is only a storage foundation. Before enabling authentication, 
 ## Production blockers — do not accept real applications yet
 
 - Authentication, session lifecycle, account recovery, and MFA policy are not implemented.
-- Role-based authorization and per-record access control are not yet enforced by HTTP routes. The policy module is a tested building block only; it must be integrated into every route and backed by trusted database-loaded grants before any case endpoint is enabled.
+- Role-based authorization is enforced only for the read-only application detail route when a trusted server-side principal resolver is injected. Production session verification is not wired, and full application/program lifecycle routes remain disabled. All future routes must use trusted database-loaded grants and per-record checks.
 - Application CRUD, file upload/download, malware scanning, notifications, and reporting are not implemented.
 - Secrets management, production hosting, TLS termination, migrations automation, monitoring, backups, and restore tests must be configured and verified separately.
 - Review applicable personal-data, consent, retention, and incident-response requirements before collecting real beneficiary data.
