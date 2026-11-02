@@ -10,8 +10,11 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Program portfolio lifecycle fields, organizational contours, accountable owners, approval metadata, milestone gates, and append-only program status history (migration 004).
 - A migration that records application creation and status changes in the status-history table.
 - A session-storage migration designed to store only hashes of opaque random session tokens, with expiry and revocation support. It does not enable login.
-- Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions, authenticate users, or enable login.\n- Fail-closed authorization policy primitives and synthetic unit tests for applicant ownership, assigned case workers, program-scoped managers, explicitly shared partner records, auditors, and administrators. These policies are not yet wired into HTTP routes.
-- Automated HTTP tests for health checks, error handling, and the fail-closed applications endpoint.
+- Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions, authenticate users, or enable login.
+- Fail-closed authorization policy primitives are enforced by the read-only application detail and program detail routes when a trusted server-side principal resolver is injected.
+- Program detail reads include approved program fields and milestone timelines; program managers are restricted to their exact program scope.
+- Synthetic HTTP tests cover program access, cross-program denial, missing records, fail-closed authentication, and generic repository failures.
+- Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint.
 
 ## Local development
 
