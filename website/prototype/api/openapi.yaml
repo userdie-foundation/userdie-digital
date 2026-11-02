@@ -97,6 +97,29 @@ paths:
                 type: array
                 items: { $ref: '#/components/schemas/Program' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /programs/{program_id}:
+    get:
+      tags: [Programs]
+      summary: Read a program dossier and its milestone timeline
+      description: Implemented as a read-only backend route; requires trusted server-side identity and program-scope authorization. Production authentication is not yet wired.
+      parameters:
+        - in: path
+          name: program_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Authorized program dossier and milestones
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [program]
+                properties:
+                  program: { $ref: '#/components/schemas/ProgramDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: Not found or outside authorized scope }
+        '503': { description: Program repository unavailable }
   /analytics/summary:
     get:
       tags: [Analytics]
@@ -211,6 +234,37 @@ components:
         title: { type: string, maxLength: 160 }
         state: { type: string, enum: [draft, active, paused, closed] }
         owner_role_id: { type: [string, 'null'], maxLength: 80 }
+    ProgramDetail:
+      type: object
+      additionalProperties: false
+      required: [id, name, status, organizationalContour, milestones]
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: [string, 'null'], maxLength: 40 }
+        name: { type: string, maxLength: 200 }
+        description: { type: string }
+        status: { type: string, enum: [draft, open, paused, closed] }
+        organizationalContour: { type: string, enum: [foundation, asset_valuation, analytics] }
+        objective: { type: string }
+        targetGroups: { type: array, items: { type: string, maxLength: 80 } }
+        geography: { type: string, maxLength: 200 }
+        startsAt: { type: [string, 'null'], format: date-time }
+        endsAt: { type: [string, 'null'], format: date-time }
+        milestones:
+          type: array
+          items: { $ref: '#/components/schemas/ProgramMilestone' }
+    ProgramMilestone:
+      type: object
+      additionalProperties: false
+      required: [id, code, title, status]
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string, maxLength: 40 }
+        title: { type: string, maxLength: 200 }
+        description: { type: string }
+        status: { type: string, enum: [planned, in_progress, blocked, completed, cancelled] }
+        dueAt: { type: [string, 'null'], format: date-time }
+        completedAt: { type: [string, 'null'], format: date-time }
     AnalyticsSummary:
       type: object
       additionalProperties: false
