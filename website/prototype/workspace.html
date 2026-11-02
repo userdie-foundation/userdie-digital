@@ -190,7 +190,7 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 
 .app-nav-group-label{margin:14px 12px 5px;color:#879187;font-size:9px;font-weight:800;letter-spacing:1.35px;line-height:1.5}
 @media(max-width:900px){.app-nav-group-label{grid-column:1/-1;margin:8px 2px 0}}
-</style>
+.program-gates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:4px 0 18px}.program-gates .module-tile{min-height:158px}@media(max-width:620px){.program-gates{grid-template-columns:1fr}}</style>
 </head>
 <body class="workspace">
 <a class="skip-link" href="#app-content">Перейти к содержанию</a>
@@ -305,7 +305,19 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 <article class="module-tile"><span class="tile-ico">⌁</span><strong>«Гуманитарный диалог»</strong><small>Инициативы взаимодействия, мероприятия, участники и документальная база.</small><span class="tile-state">Требует сверки</span></article>
 <article class="module-tile"><span class="tile-ico">◇</span><strong>«Помоги сам себе»</strong><small>Материалы само-помощи, социально-правовая навигация и проверенные инструкции.</small><span class="tile-state">Требует сверки</span></article>
 <article class="module-tile"><span class="tile-ico">◌</span><strong>«Дроник»</strong><small>Назначение, этапы и допустимые сценарии уточняются по исходным документам.</small><span class="tile-state">Требует сверки</span></article>
-</div><div class="notice-box">Это инициативы из рабочей концепции, а не подтверждение действующих программ. Не указываются неподтверждённые сборы, бюджеты, сроки или результаты.</div>
+</div>
+<section class="panel program-governance" aria-labelledby="program-governance-title">
+<div class="panel-head"><div><h2 id="program-governance-title">Единый цикл управления программой</h2><p>Целевая модель контрольных этапов — не отметка о фактическом прохождении.</p></div><span class="task-state">Модель процесса</span></div>
+<div class="program-gates">
+<article class="module-tile"><span class="tile-ico">01</span><strong>Основание и паспорт</strong><small>Миссия, целевая группа, география, правовое основание, критерии участия и владелец программы.</small><span class="tile-state">Контрольные документы · до запуска</span></article>
+<article class="module-tile"><span class="tile-ico">02</span><strong>План и ресурсы</strong><small>Этапы, ответственные, сроки, подтверждённые источники финансирования, риски и показатели.</small><span class="tile-state">Утверждение уполномоченным лицом</span></article>
+<article class="module-tile"><span class="tile-ico">03</span><strong>Исполнение и сопровождение</strong><small>Обращения, задачи, партнёры, документы, сроки реакции и эскалация отклонений.</small><span class="tile-state">Операционный контроль</span></article>
+<article class="module-tile"><span class="tile-ico">04</span><strong>Результат и отчётность</strong><small>Подтверждение результата, обезличенные показатели, анализ эффективности и архив решений.</small><span class="tile-state">Проверка и закрытие этапа</span></article>
+</div>
+<div class="workflow-links" aria-label="Связанные модули программы"><strong>Связанные модули</strong><a href="case-management.html">Обращения и сопровождение ↗</a><a href="analytics-dashboard.html">Аналитика руководителя ↗</a><a href="asset-register.html">Реестр активов ↗</a><button type="button" data-go="documents">Документы и основания →</button></div>
+<div class="notice-box"><strong>Правило запуска:</strong> программа не переводится в рабочий статус только по наличию карточки. Нужны подтверждённое основание, ответственный, согласованный план, документы и решение уполномоченного лица. Показанные этапы — проектная модель, не утверждённый регламент фонда.</div>
+</section>
+<div class="notice-box">Это инициативы из рабочей концепции, а не подтверждение действующих программ. Не указываются неподтверждённые сборы, бюджеты, сроки или результаты.</div>
 </section>
 <section class="page-view" id="view-assets">
 <div class="view-intro"><p class="eyebrow">06 / ОЦЕНКА АКТИВОВ</p><h2>Активы и оценочная работа</h2><p>Демонстрационная структура для раздельного учёта объектов, источников сведений, методики, даты оценки, ответственного и истории согласования. Реальные активы и финансовые показатели не подключены.</p></div>
