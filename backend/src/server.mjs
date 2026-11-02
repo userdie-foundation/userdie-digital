@@ -16,6 +16,45 @@ function sendJson(res, status, body, method = "GET") {
   res.end(method === "HEAD" ? undefined : JSON.stringify(body));
 }
 
+function createProgramRepository(pool) {
+  return {
+    async getById(id) {
+      const result = await pool.query(
+        "SELECT id, code, name, description, status, organizational_contour, objective, target_groups, geography, starts_at, ends_at FROM programs WHERE id = $1 LIMIT 1",
+        [id],
+      );
+      const row = result.rows?.[0];
+      if (!row) return null;
+      const milestonesResult = await pool.query(
+        "SELECT id, code, title, description, status, due_at, completed_at FROM program_milestones WHERE program_id = $1 ORDER BY due_at NULLS LAST, created_at ASC",
+        [id],
+      );
+      return {
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        description: row.description,
+        status: row.status,
+        organizationalContour: row.organizational_contour,
+        objective: row.objective,
+        targetGroups: row.target_groups,
+        geography: row.geography,
+        startsAt: row.starts_at,
+        endsAt: row.ends_at,
+        milestones: (milestonesResult.rows ?? []).map((milestone) => ({
+          id: milestone.id,
+          code: milestone.code,
+          title: milestone.title,
+          description: milestone.description,
+          status: milestone.status,
+          dueAt: milestone.due_at,
+          completedAt: milestone.completed_at,
+        })),
+      };
+    },
+  };
+}
+
 function createApplicationRepository(pool) {
   return {
     async getById(id) {
@@ -48,11 +87,12 @@ function createApplicationRepository(pool) {
  * The production entry point currently omits this resolver; protected routes
  * therefore remain unavailable (401) until authentication is implemented.
  */
-export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository } = {}) {
+export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository, programRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
   const applications = applicationRepository ?? createApplicationRepository(pool);
+  const programs = programRepository ?? createProgramRepository(pool);
 
   return async function handleRequest(req, res) {
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
@@ -81,6 +121,62 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       } catch {
         return sendJson(res, 503, { status: "unavailable" }, req.method);
       }
+    }
+
+    const programMatch = url.pathname.match(/^\\/api\\/v1\\/programs\\/([^/]+)$/);
+    if (programMatch) {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+
+      let principal;
+      try {
+        principal = await resolvePrincipal(req);
+      } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+
+      let programId;
+      try {
+        programId = decodeURIComponent(programMatch[1]);
+      } catch {
+        return sendJson(res, 400, { error: "invalid_program_id" }, req.method);
+      }
+
+      let program;
+      try {
+        program = await programs.getById(programId);
+      } catch {
+        return sendJson(res, 503, { error: "programs_unavailable" }, req.method);
+      }
+
+      if (!program || !isAuthorized({
+        principal,
+        permission: "programs:read",
+        resource: { programId: program.id },
+      })) {
+        return sendJson(res, 404, { error: "not_found" }, req.method);
+      }
+
+      return sendJson(res, 200, {
+        program: {
+          id: program.id,
+          code: program.code,
+          name: program.name,
+          description: program.description,
+          status: program.status,
+          organizationalContour: program.organizationalContour,
+          objective: program.objective,
+          targetGroups: program.targetGroups,
+          geography: program.geography,
+          startsAt: program.startsAt,
+          endsAt: program.endsAt,
+          milestones: program.milestones,
+        },
+      }, req.method);
     }
 
     const applicationMatch = url.pathname.match(/^\/api\/v1\/applications\/([^/]+)$/);
