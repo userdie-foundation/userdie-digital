@@ -13,6 +13,8 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions, authenticate users, or enable login.
 - Fail-closed authorization policy primitives are enforced by the read-only application detail and program detail routes when a trusted server-side principal resolver is injected.
 - Program detail reads include approved program fields and milestone timelines; program managers are restricted to their exact program scope.
+- Application workflow migration 005 adds task ownership, priorities, due dates, escalation levels, and append-only workflow events linked to the parent application and program.
+- A read-only internal workflow endpoint exposes task status, overdue flags, escalation metadata, and the latest 100 workflow events only to the assigned case worker or the program manager for that exact program.
 - Synthetic HTTP tests cover program access, cross-program denial, missing records, fail-closed authentication, and generic repository failures.
 - Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint.
 
@@ -25,9 +27,10 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 3. For an existing database created from migration 001, review and apply `migrations/002_application_status_history_trigger.sql`.
 4. Review and apply `migrations/003_auth_sessions.sql` after migration 001 to prepare session storage. Applying it does not enable authentication.
 5. Review and apply `migrations/004_program_portfolio_lifecycle.sql` after migration 001 to add program governance and milestone structures. Applying it does not create or approve real programs.
-6. Install dependencies with `npm install`.
-7. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
-8. Run `npm test`, `npm run check`, then `npm start`.
+6. Review and apply `migrations/005_application_workflow_tasks_sla.sql` after migrations 001-004 to add task and workflow-event structures. Applying it does not create tasks or enable scheduled escalation.
+7. Install dependencies with `npm install`.
+8. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
+9. Run `npm test`, `npm run check`, then `npm start`.
 
 Migrations are reviewed SQL files, not an automated migration runner. Apply them through a controlled deployment process and verify backups first. Do not run migrations against production until a backup and restore procedure has been verified.
 
@@ -38,6 +41,7 @@ Migrations are reviewed SQL files, not an automated migration runner. Apply them
 - `GET /api/v1/applications/:id` — read-only detail route; requires a trusted server-side principal resolver and record-level authorization. The production entry point currently fails closed with `401` until authentication/session verification is wired.
 - `GET /api/v1/applications` — returns `503 applications_module_unavailable`; collection access remains disabled.
 - `GET /api/v1/programs/:id` — read-only program dossier and milestone timeline; requires a trusted server-side principal resolver and `programs:read` authorization. The production entry point currently returns `401` until authentication/session verification is wired.
+- `GET /api/v1/applications/:id/workflow` — internal read-only task, SLA and event timeline; visible only to the assigned case worker or exact-scope program manager. The production entry point currently returns `401` until authentication/session verification is wired.
 
 All other unknown routes return 404; non-GET/HEAD methods return 405. The applications module deliberately fails closed: it does not read or write application records until identity, authorization, validation, and audit requirements are implemented and tested.
 
@@ -58,7 +62,8 @@ The session table is only a storage foundation. Before enabling authentication, 
 
 - Authentication, session lifecycle, account recovery, and MFA policy are not implemented.
 - Role-based authorization is enforced only for the read-only application detail and program detail routes when a trusted server-side principal resolver is injected. Production session verification is not wired; application and program write/lifecycle routes remain disabled. All future routes must use trusted database-loaded grants and per-record checks.
-- Application CRUD, file upload/download, malware scanning, notifications, and reporting are not implemented.
+- Application CRUD, task creation/update, file upload/download, malware scanning, notifications, and reporting are not implemented.
+- SLA overdue state is computed on read; no background scheduler, automatic escalation worker, notification channel, or task write endpoint is deployed. Escalation levels are data fields awaiting a governed write workflow.
 - Secrets management, production hosting, TLS termination, migrations automation, monitoring, backups, and restore tests must be configured and verified separately.
 - Review applicable personal-data, consent, retention, and incident-response requirements before collecting real beneficiary data.
 
