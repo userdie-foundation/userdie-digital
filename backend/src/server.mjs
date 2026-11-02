@@ -79,6 +79,37 @@ function createApplicationRepository(pool) {
   };
 }
 
+function createApplicationWorkflowRepository(pool) {
+  return {
+    async getByApplicationId(applicationId) {
+      const tasksResult = await pool.query(
+        "SELECT id, title, status, priority, assigned_to, due_at, escalation_level, escalated_at, completed_at FROM application_tasks WHERE application_id = $1 ORDER BY due_at NULLS LAST, created_at ASC",
+        [applicationId],
+      );
+      const eventsResult = await pool.query(
+        "SELECT id, task_id, event_type, actor_id, summary, metadata, created_at FROM application_workflow_events WHERE application_id = $1 ORDER BY created_at DESC LIMIT 100",
+        [applicationId],
+      );
+      return {
+        tasks: (tasksResult.rows ?? []).map((row) => ({
+          id: row.id, title: row.title, status: row.status, priority: row.priority,
+          assignedTo: row.assigned_to, dueAt: row.due_at,
+          escalationLevel: row.escalation_level, escalatedAt: row.escalated_at,
+          completedAt: row.completed_at,
+        })),
+        events: (eventsResult.rows ?? []).map((row) => ({
+          id: row.id, taskId: row.task_id, type: row.event_type,
+          actorId: row.actor_id, summary: row.summary,
+          status: row.metadata?.status ?? null,
+          priority: row.metadata?.priority ?? null,
+          escalationLevel: row.metadata?.escalation_level ?? null,
+          createdAt: row.created_at,
+        })),
+      };
+    },
+  };
+}
+
 /**
  * resolvePrincipal must verify a server-side session and load account status
  * and grants from trusted storage. Never trust role/user/scope claims supplied
@@ -87,11 +118,12 @@ function createApplicationRepository(pool) {
  * The production entry point currently omits this resolver; protected routes
  * therefore remain unavailable (401) until authentication is implemented.
  */
-export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository, programRepository } = {}) {
+export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository, programRepository, applicationWorkflowRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
   const applications = applicationRepository ?? createApplicationRepository(pool);
+  const applicationWorkflows = applicationWorkflowRepository ?? createApplicationWorkflowRepository(pool);
   const programs = programRepository ?? createProgramRepository(pool);
 
   return async function handleRequest(req, res) {
@@ -176,6 +208,55 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
           endsAt: program.endsAt,
           milestones: program.milestones,
         },
+      }, req.method);
+    }
+
+    const workflowMatch = url.pathname.match(/^\\/api\\/v1\\/applications\\/([^/]+)\\/workflow$/);
+    if (workflowMatch) {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let applicationId;
+      try { applicationId = decodeURIComponent(workflowMatch[1]); } catch {
+        return sendJson(res, 400, { error: "invalid_application_id" }, req.method);
+      }
+      let application;
+      try { application = await applications.getById(applicationId); } catch {
+        return sendJson(res, 503, { error: "applications_unavailable" }, req.method);
+      }
+      if (!application || !isAuthorized({
+        principal, permission: "applications:workflow:read", resource: application,
+      })) {
+        return sendJson(res, 404, { error: "not_found" }, req.method);
+      }
+      let workflow;
+      try { workflow = await applicationWorkflows.getByApplicationId(application.id); } catch {
+        return sendJson(res, 503, { error: "application_workflow_unavailable" }, req.method);
+      }
+      const now = Date.now();
+      return sendJson(res, 200, {
+        applicationId: application.id,
+        tasks: workflow.tasks.map((task) => ({
+          id: task.id, title: task.title, status: task.status, priority: task.priority,
+          assignedTo: task.assignedTo, dueAt: task.dueAt,
+          overdue: Boolean(task.dueAt && new Date(task.dueAt).getTime() < now &&
+            !["completed", "cancelled"].includes(task.status)),
+          escalationLevel: task.escalationLevel, escalatedAt: task.escalatedAt,
+          completedAt: task.completedAt,
+        })),
+        events: workflow.events.map((event) => ({
+          id: event.id, taskId: event.taskId, type: event.type,
+          actorId: event.actorId, summary: event.summary, status: event.status,
+          priority: event.priority, escalationLevel: event.escalationLevel,
+          createdAt: event.createdAt,
+        })),
       }, req.method);
     }
 
