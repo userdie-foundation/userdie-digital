@@ -123,7 +123,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       }
     }
 
-    const programMatch = url.pathname.match(/^\\/api\\/v1\\/programs\\/([^/]+)$/);
+    const programMatch = url.pathname.match(/^\/api\/v1\/programs\/([^/]+)$/);
     if (programMatch) {
       if (typeof resolvePrincipal !== "function") {
         return sendJson(res, 401, { error: "authentication_required" }, req.method);
