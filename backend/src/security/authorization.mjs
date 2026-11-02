@@ -1,8 +1,9 @@
 /**
  * Fail-closed authorization policy primitives.
  *
- * This module is not wired into HTTP routes yet. Every route must call this
- * policy (or an equivalently reviewed policy) before accessing case data.
+ * The policy is enforced by the read-only application detail and program
+ * detail routes when a trusted server-side principal resolver is injected.
+ * Production session verification is not wired; all writes remain disabled.
  * The client must never supply trusted roles or scopes.
  */
 const ACTIVE_ACCOUNT_STATES = new Set(["active"]);
