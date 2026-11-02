@@ -25,6 +25,9 @@ test("workflow event history is append-only and task changes create controlled e
   assert.match(sql, /CREATE TABLE application_workflow_events/);
   assert.match(sql, /CREATE TRIGGER application_tasks_workflow_event_insert/);
   assert.match(sql, /CREATE TRIGGER application_tasks_workflow_event_update/);
+  assert.match(sql, /CREATE TRIGGER applications_workflow_event_insert/);
+  assert.match(sql, /CREATE TRIGGER applications_workflow_event_update/);
+  assert.match(sql, /CREATE TRIGGER application_tasks_updated_at/);
   assert.match(sql, /CREATE TRIGGER application_workflow_events_no_update/);
   assert.match(sql, /application_workflow_events is append-only/);
 });
