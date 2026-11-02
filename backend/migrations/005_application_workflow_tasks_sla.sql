@@ -102,35 +102,145 @@ BEGIN
   END IF;
 
   IF TG_OP = 'INSERT' THEN
-    event_name := 'task_created';
-    event_summary := 'task_created';
-  ELSIF OLD.assigned_to IS DISTINCT FROM NEW.assigned_to THEN
-    event_name := 'task_assigned';
-    event_summary := 'task_assigned';
-  ELSIF OLD.status IS DISTINCT FROM NEW.status THEN
-    event_name := 'task_status_changed';
-    event_summary := 'task_status_changed';
-  ELSIF OLD.escalation_level IS DISTINCT FROM NEW.escalation_level THEN
-    event_name := 'sla_escalated';
-    event_summary := 'sla_escalated';
-  ELSE
+    INSERT INTO application_workflow_events (
+      application_id, task_id, event_type, actor_id, summary, metadata
+    ) VALUES (
+      NEW.application_id, NEW.id, 'task_created', actor_uuid, 'task_created',
+      jsonb_build_object('status', NEW.status, 'priority', NEW.priority, 'escalation_level', NEW.escalation_level)
+    );
     RETURN NEW;
   END IF;
 
-  INSERT INTO application_workflow_events (
-    application_id, task_id, event_type, actor_id, summary, metadata
-  ) VALUES (
-    NEW.application_id, NEW.id, event_name, actor_uuid, event_summary,
-    jsonb_build_object(
-      'task_code', NEW.id,
-      'status', NEW.status,
-      'priority', NEW.priority,
-      'escalation_level', NEW.escalation_level
-    )
-  );
+  IF OLD.assigned_to IS DISTINCT FROM NEW.assigned_to THEN
+    INSERT INTO application_workflow_events (
+      application_id, task_id, event_type, actor_id, summary, metadata
+    ) VALUES (
+      NEW.application_id, NEW.id, 'task_assigned', actor_uuid, 'task_assigned',
+      jsonb_build_object('assigned_to', NEW.assigned_to)
+    );
+  END IF;
+  IF OLD.status IS DISTINCT FROM NEW.status THEN
+    INSERT INTO application_workflow_events (
+      application_id, task_id, event_type, actor_id, summary, metadata
+    ) VALUES (
+      NEW.application_id, NEW.id, 'task_status_changed', actor_uuid, 'task_status_changed',
+      jsonb_build_object('previous_status', OLD.status, 'status', NEW.status)
+    );
+  END IF;
+  IF OLD.escalation_level IS DISTINCT FROM NEW.escalation_level THEN
+    INSERT INTO application_workflow_events (
+      application_id, task_id, event_type, actor_id, summary, metadata
+    ) VALUES (
+      NEW.application_id, NEW.id, 'sla_escalated', actor_uuid, 'sla_escalated',
+      jsonb_build_object('escalation_level', NEW.escalation_level, 'due_at', NEW.due_at)
+    );
+  END IF;
   RETURN NEW;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION set_application_task_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $
+BEGIN
+  NEW.updated_at := now();
+  RETURN NEW;
+END;
+$;
+
+CREATE TRIGGER application_tasks_updated_at
+BEFORE UPDATE ON application_tasks
+FOR EACH ROW
+EXECUTE FUNCTION set_application_task_updated_at();
+
+CREATE OR REPLACE FUNCTION record_application_case_workflow_event()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $
+DECLARE
+  actor_setting text;
+  actor_uuid uuid;
+BEGIN
+  actor_setting := current_setting('app.actor_id', true);
+  IF actor_setting ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}AFTER INSERT ON application_tasks
+FOR EACH ROW
+EXECUTE FUNCTION record_application_task_workflow_event();
+
+CREATE TRIGGER application_tasks_workflow_event_update
+AFTER UPDATE OF assigned_to, status, escalation_level ON application_tasks
+FOR EACH ROW
+WHEN (
+  OLD.assigned_to IS DISTINCT FROM NEW.assigned_to
+  OR OLD.status IS DISTINCT FROM NEW.status
+  OR OLD.escalation_level IS DISTINCT FROM NEW.escalation_level
+)
+EXECUTE FUNCTION record_application_task_workflow_event();
+
+CREATE OR REPLACE FUNCTION prevent_application_workflow_event_mutation()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RAISE EXCEPTION 'application_workflow_events is append-only';
+END;
+$$;
+
+CREATE TRIGGER application_workflow_events_no_update
+BEFORE UPDATE OR DELETE ON application_workflow_events
+FOR EACH ROW
+EXECUTE FUNCTION prevent_application_workflow_event_mutation();
+
+COMMIT;
+ THEN
+    actor_uuid := actor_setting::uuid;
+  ELSE
+    actor_uuid := NULL;
+  END IF;
+
+  IF TG_OP = 'INSERT' THEN
+    INSERT INTO application_workflow_events (
+      application_id, event_type, actor_id, summary, metadata
+    ) VALUES (
+      NEW.id, 'case_created', actor_uuid, 'case_created',
+      jsonb_build_object('program_id', NEW.program_id, 'status', NEW.status)
+    );
+    RETURN NEW;
+  END IF;
+
+  IF OLD.assigned_to IS DISTINCT FROM NEW.assigned_to THEN
+    INSERT INTO application_workflow_events (
+      application_id, event_type, actor_id, summary, metadata
+    ) VALUES (
+      NEW.id, 'case_assigned', actor_uuid, 'case_assigned',
+      jsonb_build_object('assigned_to', NEW.assigned_to)
+    );
+  END IF;
+  IF OLD.status IS DISTINCT FROM NEW.status THEN
+    INSERT INTO application_workflow_events (
+      application_id, event_type, actor_id, summary, metadata
+    ) VALUES (
+      NEW.id, 'case_status_changed', actor_uuid, 'case_status_changed',
+      jsonb_build_object('previous_status', OLD.status, 'status', NEW.status)
+    );
+  END IF;
+  RETURN NEW;
+END;
+$;
+
+CREATE TRIGGER applications_workflow_event_insert
+AFTER INSERT ON applications
+FOR EACH ROW
+EXECUTE FUNCTION record_application_case_workflow_event();
+
+CREATE TRIGGER applications_workflow_event_update
+AFTER UPDATE OF assigned_to, status ON applications
+FOR EACH ROW
+WHEN (
+  OLD.assigned_to IS DISTINCT FROM NEW.assigned_to
+  OR OLD.status IS DISTINCT FROM NEW.status
+)
+EXECUTE FUNCTION record_application_case_workflow_event();
 
 CREATE TRIGGER application_tasks_workflow_event_insert
 AFTER INSERT ON application_tasks
