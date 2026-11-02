@@ -160,3 +160,93 @@ test("application collection stays disabled and all writes are rejected", async 
     assert.equal(queries, 0);
   });
 });
+
+const programRecords = [
+  {
+    id: "program-a", code: "OPEN-WORLD", name: "Открытый мир",
+    description: "Synthetic program record", status: "open",
+    organizationalContour: "foundation", objective: "Synthetic objective",
+    targetGroups: ["families"], geography: "Synthetic region",
+    startsAt: null, endsAt: null,
+    milestones: [
+      { id: "milestone-a1", code: "M1", title: "Passport approval", description: "Synthetic milestone", status: "in_progress", dueAt: "2026-12-01T00:00:00.000Z", completedAt: null },
+    ],
+  },
+  {
+    id: "program-b", code: "HELP-SELF", name: "Помоги сам себе",
+    description: "Second synthetic program", status: "draft",
+    organizationalContour: "foundation", objective: "Synthetic objective",
+    targetGroups: ["older_adults"], geography: "Synthetic region",
+    startsAt: null, endsAt: null, milestones: [],
+  },
+];
+const syntheticProgramRepository = {
+  async getById(id) { return programRecords.find((program) => program.id === id) ?? null; },
+};
+
+test("program detail returns only its governed fields and milestones to an authorized scoped manager", async () => {
+  await withServer(noDb, async (base) => {
+    const response = await fetch(`${base}/api/v1/programs/program-a`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      program: {
+        id: "program-a",
+        code: "OPEN-WORLD",
+        name: "Открытый мир",
+        description: "Synthetic program record",
+        status: "open",
+        organizationalContour: "foundation",
+        objective: "Synthetic objective",
+        targetGroups: ["families"],
+        geography: "Synthetic region",
+        startsAt: null,
+        endsAt: null,
+        milestones: [
+          { id: "milestone-a1", code: "M1", title: "Passport approval", description: "Synthetic milestone", status: "in_progress", dueAt: "2026-12-01T00:00:00.000Z", completedAt: null },
+        ],
+      },
+    });
+  }, {
+    resolvePrincipal: async () => identity("manager-1", "program_manager", "program", "program-a"),
+    programRepository: syntheticProgramRepository,
+  });
+});
+
+test("program detail denies a manager outside their exact program scope", async () => {
+  await withServer(noDb, async (base) => {
+    const allowed = await fetch(`${base}/api/v1/programs/program-a`);
+    const denied = await fetch(`${base}/api/v1/programs/program-b`);
+    const missing = await fetch(`${base}/api/v1/programs/not-found`);
+    assert.equal(allowed.status, 200);
+    assert.equal(denied.status, 404);
+    assert.deepEqual(await denied.json(), { error: "not_found" });
+    assert.equal(missing.status, 404);
+    assert.deepEqual(await missing.json(), { error: "not_found" });
+  }, {
+    resolvePrincipal: async () => identity("manager-1", "program_manager", "program", "program-a"),
+    programRepository: syntheticProgramRepository,
+  });
+});
+
+test("program detail fails closed without trusted authentication and returns generic database errors", async () => {
+  let lookups = 0;
+  await withServer(noDb, async (base) => {
+    const response = await fetch(`${base}/api/v1/programs/program-a`, {
+      headers: { "x-user-id": "manager-1", "x-role": "administrator" },
+    });
+    assert.equal(response.status, 401);
+    assert.deepEqual(await response.json(), { error: "authentication_required" });
+    assert.equal(lookups, 0);
+  }, {
+    programRepository: { async getById() { lookups += 1; return programRecords[0]; } },
+  });
+
+  await withServer(noDb, async (base) => {
+    const response = await fetch(`${base}/api/v1/programs/program-a`);
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), { error: "programs_unavailable" });
+  }, {
+    resolvePrincipal: async () => identity("manager-1", "program_manager", "program", "program-a"),
+    programRepository: { async getById() { throw new Error("private database details"); } },
+  });
+});
