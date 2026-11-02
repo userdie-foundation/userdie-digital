@@ -84,3 +84,14 @@ test("program manager and internal roles retain their defined program visibility
     assert.equal(isAuthorized({ principal, permission: "programs:read", resource: draft }), true);
   }
 });
+
+test("internal workflow read is limited to assigned case workers and scoped program managers", () => {
+  const worker = active("worker-1", [grant("case_worker")]);
+  const otherWorker = active("worker-2", [grant("case_worker")]);
+  const manager = active("manager-1", [grant("program_manager", "program", "program-a")]);
+  const applicant = active("person-1", [grant("applicant")]);
+  assert.equal(isAuthorized({ principal: worker, permission: "applications:workflow:read", resource: caseA }), true);
+  assert.equal(isAuthorized({ principal: otherWorker, permission: "applications:workflow:read", resource: caseA }), false);
+  assert.equal(isAuthorized({ principal: manager, permission: "applications:workflow:read", resource: caseA }), true);
+  assert.equal(isAuthorized({ principal: applicant, permission: "applications:workflow:read", resource: caseA }), false);
+});
