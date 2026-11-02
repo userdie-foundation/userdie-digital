@@ -156,7 +156,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       if (!program || !isAuthorized({
         principal,
         permission: "programs:read",
-        resource: { programId: program.id },
+        resource: { programId: program.id, status: program.status },
       })) {
         return sendJson(res, 404, { error: "not_found" }, req.method);
       }
