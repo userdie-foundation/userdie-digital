@@ -101,7 +101,7 @@ paths:
     get:
       tags: [Programs]
       summary: Read a program dossier and its milestone timeline
-      description: Implemented as a read-only backend route; requires trusted server-side identity and program-scope authorization. Production authentication is not yet wired.
+      description: Implemented as a read-only backend route; requires trusted server-side identity and role/state authorization. Program managers are restricted to their exact program; applicants and partners can read open programs only. Production authentication is not yet wired.
       parameters:
         - in: path
           name: program_id
