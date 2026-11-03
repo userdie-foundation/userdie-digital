@@ -40,7 +40,7 @@ export function createPrincipalResolver({ pool } = {}) {
        SELECT a.id, a.account_status, r.code AS role_code,
               g.scope_type, g.scope_id
        FROM active_session a
-       JOIN user_role_grants g ON g.user_id = a.id
+       JOIN user_role_grants g ON g.user_id = a.id AND g.revoked_at IS NULL
        JOIN roles r ON r.id = g.role_id`,
       [tokenHash],
     );
