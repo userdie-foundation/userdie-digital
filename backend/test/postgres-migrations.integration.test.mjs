@@ -43,6 +43,11 @@ test("PostgreSQL applies migrations 001-005 and enforces workflow invariants", {
       [actorId, programId, workerId],
     );
     const applicationId = app.rows[0].id;
+    const otherApp = await client.query(
+      "INSERT INTO applications (applicant_id, program_id, subject, description) VALUES ($1, $2, 'Other synthetic case', 'Second integration fixture') RETURNING id",
+      [actorId, otherProgramId],
+    );
+    const otherApplicationId = otherApp.rows[0].id;
 
     const history = await client.query(
       "SELECT new_status, changed_by, reason FROM application_status_history WHERE application_id = $1",
@@ -80,7 +85,7 @@ test("PostgreSQL applies migrations 001-005 and enforces workflow invariants", {
     await assert.rejects(
       client.query(
         "INSERT INTO application_workflow_events (application_id, task_id, event_type) VALUES ($1, $2, 'task_created')",
-        [otherProgramId, taskId],
+        [otherApplicationId, taskId],
       ),
       /foreign key/i,
     );
