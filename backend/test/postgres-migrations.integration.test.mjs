@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
+import { createPrincipalResolver } from "../src/security/principal.mjs";
+import { createSessionToken } from "../src/security/session.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
@@ -44,6 +46,22 @@ test("PostgreSQL applies migrations 001-005 and enforces workflow invariants", {
       [workerId, programId, actorId],
     );
     assert.equal(scopedGrant.rowCount, 1);
+
+    const session = createSessionToken();
+    await client.query(
+      "INSERT INTO auth_sessions (user_id, token_hash, expires_at) VALUES ($1, $2, now() + interval '1 hour')",
+      [workerId, session.tokenHash],
+    );
+    const resolvePrincipal = createPrincipalResolver({ pool });
+    const principal = await resolvePrincipal({
+      headers: { cookie: `__Host-userdie_session=${session.token}` },
+    });
+    assert.deepEqual(principal, {
+      id: workerId,
+      accountStatus: "active",
+      grants: [{ roleCode: "program_manager", scopeType: "program", scopeId: programId }],
+    });
+
     await assert.rejects(
       client.query(
         "INSERT INTO user_role_grants (user_id, role_id, scope_type, scope_id) SELECT $1, id, 'invalid_scope', 'x' FROM roles WHERE code = 'program_manager'",
