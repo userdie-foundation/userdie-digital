@@ -1077,3 +1077,31 @@ h1,h2,h3,h4,strong{color:var(--text-primary)}
 @media(max-width:680px){
  .preview-symbol svg,.platform-status-mark svg{width:22px;height:22px}
 }
+
+/* Accessibility pass: visible keyboard focus and practical navigation targets */
+:where(a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])):focus-visible{
+  outline:3px solid #9a702f;
+  outline-offset:4px;
+  border-radius:3px;
+}
+.header-inner nav a{
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+}
+.skip-link:focus-visible{
+  position:fixed;
+  z-index:1000;
+  top:12px;
+  left:12px;
+  padding:12px 16px;
+  background:#ffffff;
+  color:#173c2d;
+  border:2px solid #9a702f;
+  box-shadow:0 4px 18px rgba(0,0,0,.18);
+}
+@media (forced-colors:active){
+  :where(a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])):focus-visible{
+    outline:2px solid Highlight;
+  }
+}
