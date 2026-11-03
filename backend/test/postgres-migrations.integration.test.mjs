@@ -8,7 +8,7 @@ import { createSessionToken } from "../src/security/session.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-005 and enforces workflow invariants", {
+test("PostgreSQL applies migrations 001-007 and enforces workflow and authorization invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -25,6 +25,7 @@ test("PostgreSQL applies migrations 001-005 and enforces workflow invariants", {
       "004_program_portfolio_lifecycle.sql",
       "005_application_workflow_tasks_sla.sql",
       "006_scoped_role_grants.sql",
+      "007_scoped_role_grant_lifecycle.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -61,6 +62,38 @@ test("PostgreSQL applies migrations 001-005 and enforces workflow invariants", {
       accountStatus: "active",
       grants: [{ roleCode: "program_manager", scopeType: "program", scopeId: programId }],
     });
+    await assert.rejects(
+      client.query(
+        "INSERT INTO user_role_grants (user_id, role_id, scope_type, scope_id, granted_by) SELECT $1, id, 'program', $2, $3 FROM roles WHERE code = 'program_manager'",
+        [workerId, programId, actorId],
+      ),
+      /unique constraint/i,
+    );
+    await client.query(
+      "UPDATE user_role_grants SET revoked_at = now(), revoked_by = $2, revoke_reason = 'Access no longer required' WHERE id = $1",
+      [scopedGrant.rows[0].id, actorId],
+    );
+    const revokedPrincipal = await resolvePrincipal({
+      headers: { cookie: `__Host-userdie_session=${session.token}` },
+    });
+    assert.deepEqual(revokedPrincipal, {
+      id: workerId, accountStatus: "active", grants: [],
+    });
+    const grantEvents = await client.query(
+      "SELECT event_type, actor_id FROM user_role_grant_events WHERE grant_id = $1 ORDER BY id",
+      [scopedGrant.rows[0].id],
+    );
+    assert.deepEqual(grantEvents.rows.map((row) => [row.event_type, row.actor_id]), [
+      ["grant_created", actorId], ["grant_revoked", actorId],
+    ]);
+    await assert.rejects(
+      client.query("DELETE FROM user_role_grants WHERE id = $1", [scopedGrant.rows[0].id]),
+      /cannot be hard-deleted/i,
+    );
+    await assert.rejects(
+      client.query("UPDATE user_role_grant_events SET details = '{}'::jsonb WHERE grant_id = $1", [scopedGrant.rows[0].id]),
+      /append-only/i,
+    );
 
     await assert.rejects(
       client.query(
