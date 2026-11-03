@@ -979,3 +979,87 @@ body{background:var(--paper);color:var(--ink)}
  .preview-card,.button{transition:none!important}
  .preview-card:hover,.button:hover{transform:none}
 }
+
+
+/* Consistency and contrast correction — shared homepage component system */
+:root{
+ --text-primary:#20372d;
+ --text-secondary:#52665a;
+ --text-muted:#66776c;
+ --surface:#ffffff;
+ --surface-soft:#f1f3ec;
+ --surface-accent:#e8efe5;
+ --border-strong:rgba(32,55,45,.18);
+}
+body{color:var(--text-primary)}
+p{color:var(--text-secondary)}
+h1,h2,h3,h4,strong{color:var(--text-primary)}
+.eyebrow{color:#526b5b}
+.lead,.body-copy,.section-heading>p,.direction-card p,.preview-card>p,
+.platform-status-card>p:not(.eyebrow),.governance-note p,
+.preview-disclaimer,.card-status,.platform-status-label{color:var(--text-secondary)}
+/* One icon container language across direction, preview and status cards. */
+.direction-emblem,.card-icon,.preview-symbol,.platform-status-mark,
+.empty-icon,.module-icon{
+ display:inline-grid;place-items:center;flex:0 0 56px;
+ width:56px;height:56px;min-width:56px;min-height:56px;
+ margin:18px 0 18px;padding:11px;
+ border:1px solid rgba(185,154,88,.58);
+ border-radius:50%;
+ background:#f4f6ef;color:#24543b;
+ font-family:Manrope,"DM Sans",Arial,sans-serif;
+ font-size:23px;font-weight:700;line-height:1;
+}
+.direction-emblem svg{display:block;width:100%;height:100%;max-width:34px;max-height:34px;stroke:#24543b}
+.card-icon{font-size:22px}
+.preview-symbol{position:static;align-self:flex-start;font-size:22px}
+.platform-status-mark{margin:0 0 18px;font-size:20px}
+.platform-status-mark.status-ready{background:#e8f1e8;color:#1d6841;border-color:#a8c7ad}
+.platform-status-mark.status-demo{background:#f4f0e4;color:#80672e;border-color:#d8c99d}
+.platform-status-mark.status-build{background:#f0eee9;color:#5d665f;border-color:#c8cec7}
+.direction-card,.preview-card,.platform-status-card,.module-card{
+ color:var(--text-primary);border-color:var(--border-strong)
+}
+.direction-card h3,.preview-card h3,.platform-status-card h3,.module-card h3{
+ color:#1c4632
+}
+.direction-card p,.preview-card>p,.platform-status-card>p:not(.eyebrow),
+.module-card>p:not(.module-kicker){color:#52665a}
+.direction-card.card-featured,.preview-card-accent{
+ background:#e8efe5;color:#20372d
+}
+.direction-card.card-featured h3,.preview-card-accent h3,
+.direction-card.card-featured p,.preview-card-accent>p{color:#20372d}
+.card-number,.preview-index,.module-index{color:#53685b}
+.preview-link,.preview-card .preview-link{color:#24543b;font-weight:700}
+.preview-card .preview-link span{color:#8b713c}
+.robot-panel,.help-panel,.platform-next{color:#fff}
+.robot-panel h3,.robot-panel strong,.help-panel h2,.platform-next h2{color:#fff}
+.robot-panel p,.help-panel p:not(.eyebrow),.platform-next p:not(.eyebrow),
+.robot-disclaimer{color:#e0e9e1}
+.robot-item{color:#fff}
+.robot-item p{color:#dce6dd}
+.help-panel .eyebrow,.platform-next .eyebrow{color:#e1d3a8}
+.help-panel h2 em,.platform-next h2 em{color:#e5d7ad}
+.footer,.footer p,.footer a,.footer .brand strong,.footer .brand small{color:#edf2ec}
+.footer .brand small{opacity:.86}
+.header nav a{color:#344f40}
+.header nav a:hover,.header nav a:focus-visible{color:#8b713c}
+.button-dark{color:#fff}
+.button-light{color:#20372d}
+.stamp{color:#806a3c}
+.stamp strong{color:#24543b}
+/* Keep every status and disclaimer readable on both desktop and mobile. */
+.preview-disclaimer{background:rgba(255,255,255,.62);padding:12px 14px;border-left:2px solid #b99a58}
+.robot-disclaimer{background:rgba(255,255,255,.06);padding:12px 14px;border-left:2px solid #c6ad72}
+@media(max-width:680px){
+ .direction-emblem,.card-icon,.preview-symbol,.platform-status-mark,.empty-icon,.module-icon{
+  flex-basis:52px;width:52px;height:52px;min-width:52px;min-height:52px;
+ }
+ .header-inner nav,.header nav{
+  display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px 16px;
+ }
+ .header-inner nav a{font-size:11px;line-height:1.5}
+ .hero-copy .lead,.direction-card p,.preview-card>p,
+ .platform-status-card>p:not(.eyebrow){font-size:14px;line-height:1.7}
+}
