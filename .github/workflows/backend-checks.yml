@@ -22,6 +22,20 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: userdie_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d userdie_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     defaults:
       run:
         working-directory: backend
@@ -39,4 +53,6 @@ jobs:
       - name: Check JavaScript syntax
         run: npm run check
       - name: Run automated tests
+        env:
+          PG_INTEGRATION_URL: postgresql://postgres:postgres@localhost:5432/userdie_test
         run: npm test
