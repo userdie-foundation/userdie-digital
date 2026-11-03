@@ -16,7 +16,7 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Application workflow migration 005 adds task ownership, priorities, due dates, escalation levels, and append-only workflow events linked to the parent application and program.
 - A read-only internal workflow endpoint exposes task status, overdue flags, escalation metadata, and the latest 100 workflow events only to the assigned case worker or the program manager for that exact program.
 - Migration 007 adds one-way scoped-grant revocation, active-only uniqueness, hard-delete protection, and append-only grant/revocation audit events. No public grant-management endpoint is exposed.
-- Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint.
+- Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint. PostgreSQL integration coverage exercises migrations 001–007, synthetic session resolution, scoped-grant creation and revocation, immediate permission removal, hard-delete prevention, and append-only grant audit events.
 
 ## Local development
 
