@@ -115,8 +115,9 @@ function createApplicationWorkflowRepository(pool) {
  * and grants from trusted storage. Never trust role/user/scope claims supplied
  * by request headers, query parameters, or request bodies.
  *
- * The production entry point currently omits this resolver; protected routes
- * therefore remain unavailable (401) until authentication is implemented.
+ * The production entry point injects the database-backed session resolver.
+ * Protected routes remain unavailable (401) until a valid session has been
+ * issued through a separately reviewed authentication process.
  */
 export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository, programRepository, applicationWorkflowRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
