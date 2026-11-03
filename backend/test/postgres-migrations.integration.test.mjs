@@ -39,6 +39,18 @@ test("PostgreSQL applies migrations 001-005 and enforces workflow invariants", {
       "INSERT INTO programs (name, status) VALUES ('Integration program', 'open'), ('Other program', 'draft') RETURNING id",
     );
     const [programId, otherProgramId] = programs.rows.map((row) => row.id);
+    const scopedGrant = await client.query(
+      "INSERT INTO user_role_grants (user_id, role_id, scope_type, scope_id, granted_by) SELECT $1, id, 'program', $2, $3 FROM roles WHERE code = 'program_manager' RETURNING id",
+      [workerId, programId, actorId],
+    );
+    assert.equal(scopedGrant.rowCount, 1);
+    await assert.rejects(
+      client.query(
+        "INSERT INTO user_role_grants (user_id, role_id, scope_type, scope_id) SELECT $1, id, 'invalid_scope', 'x' FROM roles WHERE code = 'program_manager'",
+        [workerId],
+      ),
+      /check constraint/i,
+    );
     const app = await client.query(
       "INSERT INTO applications (applicant_id, program_id, subject, description, assigned_to) VALUES ($1, $2, 'Synthetic case', 'Integration fixture', $3) RETURNING id",
       [actorId, programId, workerId],
@@ -129,7 +141,12 @@ test("PostgreSQL applies migrations 001-005 and enforces workflow invariants", {
     assert.equal(completed.rows[0].status, "completed");
     assert.ok(completed.rows[0].completed_at);
   } finally {
-    client.release();
-    await pool.end();
+    try {
+      await client.query("RESET search_path");
+      await client.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);
+    } finally {
+      client.release();
+      await pool.end();
+    }
   }
 });
