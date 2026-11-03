@@ -1063,3 +1063,17 @@ h1,h2,h3,h4,strong{color:var(--text-primary)}
  .hero-copy .lead,.direction-card p,.preview-card>p,
  .platform-status-card>p:not(.eyebrow){font-size:14px;line-height:1.7}
 }
+
+
+/* Единая SVG-система пиктограмм главной страницы */
+.preview-symbol svg,.platform-status-mark svg{
+ display:block;width:24px;height:24px;max-width:none;max-height:none;
+ flex:none;stroke:currentColor;fill:none;
+}
+.direction-emblem svg{
+ display:block;width:34px;height:34px;max-width:34px;max-height:34px;
+ stroke:currentColor;fill:none;
+}
+@media(max-width:680px){
+ .preview-symbol svg,.platform-status-mark svg{width:22px;height:22px}
+}
