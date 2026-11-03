@@ -21,6 +21,7 @@ test("principal resolver hashes the opaque cookie token and loads trusted global
         assert.match(sql, /s\.revoked_at IS NULL/);
         assert.match(sql, /s\.expires_at > now\(\)/);
         assert.match(sql, /u\.account_status = 'active'/);
+        assert.match(sql, /g\.revoked_at IS NULL/);
         queryArgs = args;
         return { rows: [
           { id: "user-1", account_status: "active", role_code: "case_worker", scope_type: "global", scope_id: null },
