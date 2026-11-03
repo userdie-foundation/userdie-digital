@@ -1,9 +1,9 @@
 /**
  * Fail-closed authorization policy primitives.
  *
- * The policy is enforced by the read-only application detail and program
- * detail routes when a trusted server-side principal resolver is injected.
- * Production session verification is not wired; all writes remain disabled.
+ * The policy is enforced by read-only application, workflow, and program
+ * routes using the trusted database-backed session principal resolver.
+ * All write routes remain disabled pending a separately reviewed workflow.
  * The client must never supply trusted roles or scopes.
  */
 const ACTIVE_ACCOUNT_STATES = new Set(["active"]);
