@@ -1,6 +1,7 @@
 import { createServer as createHttpServer } from "node:http";
 import { Pool } from "pg";
 import { createServer } from "./server.mjs";
+import { createPrincipalResolver } from "./security/principal.mjs";
 import { readConfig } from "./config.mjs";
 
 const config = readConfig();
@@ -21,6 +22,7 @@ pool.on("error", () => {
 const server = createHttpServer(createServer({
   pool,
   allowedOrigin: config.allowedOrigin,
+  resolvePrincipal: createPrincipalResolver({ pool }),
 }));
 
 server.listen(config.port, "0.0.0.0", () => {
