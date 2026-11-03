@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Run team of bounded repository robots
         id: team
         run: node .github/scripts/run-robot-team.mjs
