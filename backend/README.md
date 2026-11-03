@@ -11,11 +11,11 @@ This directory is the initial backend service scaffold. It is separate from the 
 - A migration that records application creation and status changes in the status-history table.
 - A session-storage migration designed to store only hashes of opaque random session tokens, with expiry and revocation support. Login and session issuance are not implemented.
 - Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions, authenticate users, or enable login.
-- A production-wired principal resolver validates the opaque session cookie against active, unexpired, non-revoked database sessions and loads global and scoped role grants from trusted storage. No login/session issuance endpoint exists yet.
+- A production-wired principal resolver validates the opaque session cookie against active, unexpired, non-revoked database sessions and loads global and active scoped role grants from trusted storage. Revoked scoped grants are excluded immediately. No login/session issuance endpoint exists yet.
 - Program detail reads include approved program fields and milestone timelines; program managers are restricted to their exact program scope.
 - Application workflow migration 005 adds task ownership, priorities, due dates, escalation levels, and append-only workflow events linked to the parent application and program.
 - A read-only internal workflow endpoint exposes task status, overdue flags, escalation metadata, and the latest 100 workflow events only to the assigned case worker or the program manager for that exact program.
-- Synthetic HTTP and principal-resolution tests cover program access, cross-program denial, missing records, fail-closed authentication, and database-backed grant loading.
+- Migration 007 adds one-way scoped-grant revocation, active-only uniqueness, hard-delete protection, and append-only grant/revocation audit events. No public grant-management endpoint is exposed.
 - Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint.
 
 ## Local development
@@ -29,9 +29,10 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 5. Review and apply `migrations/004_program_portfolio_lifecycle.sql` after migration 001 to add program governance and milestone structures. Applying it does not create or approve real programs.
 6. Review and apply `migrations/005_application_workflow_tasks_sla.sql` after migrations 001-004 to add task and workflow-event structures. Applying it does not create tasks or enable scheduled escalation.
 7. Review and apply `migrations/006_scoped_role_grants.sql` after migration 001 to add explicit program, organization, and contour-scoped grants.
-8. Install dependencies with `npm install`.
-9. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
-10. Run `npm test`, `npm run check`, then `npm start`.
+8. Review and apply `migrations/007_scoped_role_grant_lifecycle.sql` after migration 006 to add auditable one-way revocation and append-only grant events.
+9. Install dependencies with `npm install`.
+10. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
+11. Run `npm test`, `npm run check`, then `npm start`.
 
 Migrations are reviewed SQL files, not an automated migration runner. Apply them through a controlled deployment process and verify backups first. Do not run migrations against production until a backup and restore procedure has been verified.
 
