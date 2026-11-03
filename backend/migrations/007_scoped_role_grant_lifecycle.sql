@@ -43,23 +43,22 @@ BEGIN
     RAISE EXCEPTION 'scoped role grants cannot be hard-deleted; revoke the grant';
   END IF;
 
-  IF TG_OP = 'UPDATE' THEN
-    IF OLD.revoked_at IS NOT NULL
-       OR NEW.revoked_at IS NULL
-       OR NEW.user_id IS DISTINCT FROM OLD.user_id
-       OR NEW.role_id IS DISTINCT FROM OLD.role_id
-       OR NEW.scope_type IS DISTINCT FROM OLD.scope_type
-       OR NEW.scope_id IS DISTINCT FROM OLD.scope_id
-       OR NEW.granted_by IS DISTINCT FROM OLD.granted_by
-       OR NEW.granted_at IS DISTINCT FROM OLD.granted_at
-       OR NEW.revoked_by IS NULL
-       OR NEW.revoke_reason IS NULL
-       OR NEW.revoked_at < OLD.granted_at THEN
-      RAISE EXCEPTION 'scoped role grants may only be revoked once without changing grant attributes';
-    END IF;
+  IF OLD.revoked_at IS NOT NULL
+     OR NEW.revoked_at IS NULL
+     OR NEW.user_id IS DISTINCT FROM OLD.user_id
+     OR NEW.role_id IS DISTINCT FROM OLD.role_id
+     OR NEW.scope_type IS DISTINCT FROM OLD.scope_type
+     OR NEW.scope_id IS DISTINCT FROM OLD.scope_id
+     OR NEW.granted_at IS DISTINCT FROM OLD.granted_at
+     OR (NEW.granted_by IS DISTINCT FROM OLD.granted_by AND NEW.granted_by IS NOT NULL)
+     OR (NEW.revoked_by IS DISTINCT FROM OLD.revoked_by AND NEW.revoked_by IS NOT NULL)
+     OR NEW.revoked_by IS NULL
+     OR NEW.revoke_reason IS NULL
+     OR NEW.revoked_at < OLD.granted_at THEN
+    RAISE EXCEPTION 'scoped role grants may only be revoked once without changing grant attributes';
   END IF;
 
-  RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
+  RETURN NEW;
 END;
 $$;
 
