@@ -52,7 +52,7 @@ test("PostgreSQL applies migrations 001-005 and enforces workflow invariants", {
       "INSERT INTO auth_sessions (user_id, token_hash, expires_at) VALUES ($1, $2, now() + interval '1 hour')",
       [workerId, session.tokenHash],
     );
-    const resolvePrincipal = createPrincipalResolver({ pool });
+    const resolvePrincipal = createPrincipalResolver({ pool: client });
     const principal = await resolvePrincipal({
       headers: { cookie: `__Host-userdie_session=${session.token}` },
     });
