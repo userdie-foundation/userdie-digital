@@ -46,6 +46,6 @@ test("principal resolver hashes the opaque cookie token and loads trusted global
 
 test("principal resolver fails closed when the session is absent, expired, revoked, or account inactive", async () => {
   const { token } = createSessionToken();
-  const resolve = createPrincipalResolver({ pool: { async query() { return { rows: []; } } } });
+  const resolve = createPrincipalResolver({ pool: { async query() { return { rows: [] }; } } });
   assert.equal(await resolve({ headers: { cookie: `__Host-userdie_session=${token}` } }), null);
 });
