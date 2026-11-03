@@ -147,3 +147,24 @@ h1,h2,h3{letter-spacing:-.025em}
 footer,.footer{background:#102d25}
 img{max-width:100%;height:auto}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+
+
+/* Final responsive containment and footer alignment */
+*,*::before,*::after{box-sizing:border-box}
+html{max-width:100%;overflow-x:clip}
+body{max-width:100%;overflow-x:clip}
+img,svg,video,canvas{max-width:100%}
+.container,.footer-inner,.header-inner,.hero-layout,.section-heading,
+.module-grid,.direction-grid,.preview-grid,.cabinet-layout{min-width:0;max-width:100%}
+.footer-inner{display:flex;flex-wrap:wrap;align-items:center}
+.footer-inner>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.footer-inner p{flex:1 1 260px}
+.decorative-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;flex:none}
+.module-icon .decorative-icon,.card-icon .decorative-icon{width:24px;height:24px;vertical-align:middle}
+@media(max-width:680px){
+ .footer-inner{align-items:flex-start;flex-direction:column;gap:14px}
+ .footer-inner>*{width:auto;max-width:100%}
+ .footer-inner p{flex:0 1 auto}
+ .hero-footer{flex-wrap:wrap;overflow-wrap:anywhere}
+ .module-card,.module-tile,.direction-card,.preview-card,.cabinet-card{min-width:0}
+}
