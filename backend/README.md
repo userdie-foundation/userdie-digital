@@ -10,7 +10,7 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Program portfolio lifecycle fields, organizational contours, accountable owners, approval metadata, milestone gates, and append-only program status history (migration 004).
 - A migration that records application creation and status changes in the status-history table.
 - A session-storage migration designed to store only hashes of opaque random session tokens, with expiry and revocation support. Login and session issuance are not implemented.
-- Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions, authenticate users, or enable login.
+- Tested security primitives for generating 256-bit opaque session tokens, hashing them for database lookup, parsing a unique session cookie, and serializing host-only `HttpOnly; Secure; SameSite=Lax` cookies. These primitives do not create sessions or enable login.\n- A versioned password-verifier primitive using Node.js `scrypt` with per-password random salts, bounded parameters, constant-time digest comparison, and tests. This is a building block only; it is not wired to a login endpoint and does not by itself make account authentication production-ready.
 - A production-wired principal resolver validates the opaque session cookie against active, unexpired, non-revoked database sessions and loads global and active scoped role grants from trusted storage. Revoked scoped grants are excluded immediately. No login/session issuance endpoint exists yet.
 - Program detail reads include approved program fields and milestone timelines; program managers are restricted to their exact program scope.
 - Application workflow migration 005 adds task ownership, priorities, due dates, escalation levels, and append-only workflow events linked to the parent application and program.
@@ -51,8 +51,8 @@ All other unknown routes return 404; non-GET/HEAD methods return 405. The applic
 
 The session table is only a storage foundation. Before enabling authentication, implement and test all of the following:
 
-- Password hashing with a maintained password-hashing algorithm and safe parameters; never store plaintext passwords.
-- Wire the tested session-token primitives into a reviewed login/session lifecycle with database persistence, expiry checks, rotation, revocation, CSRF protection, and MFA. The current helpers alone do not authenticate requests.
+- Password hashing with a maintained password-hashing algorithm and safe parameters; the current `scrypt` verifier is a tested building block but is not yet wired into login; never store plaintext passwords.
+- Wire the tested password and session-token primitives into a reviewed login/session lifecycle with database persistence, expiry checks, rotation, revocation, CSRF protection, distributed rate limiting, account recovery, and MFA. The current helpers alone do not authenticate requests.
 - High-entropy random session tokens; persist only their cryptographic hashes, never raw tokens.
 - Cookies with `HttpOnly`, `Secure` in production, and an appropriate `SameSite` policy; protect state-changing requests against CSRF.
 - Session expiry, rotation after authentication or privilege changes, logout/revocation, and invalidation for suspended/closed accounts.
