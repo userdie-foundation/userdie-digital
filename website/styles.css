@@ -1105,3 +1105,25 @@ h1,h2,h3,h4,strong{color:var(--text-primary)}
     outline:2px solid Highlight;
   }
 }
+
+
+/* Final responsive containment and footer alignment */
+*,*::before,*::after{box-sizing:border-box}
+html{max-width:100%;overflow-x:clip}
+body{max-width:100%;overflow-x:clip}
+img,svg,video,canvas{max-width:100%}
+.container,.footer-inner,.header-inner,.hero-layout,.section-heading,
+.foundation-pillars,.platform-status-grid,.direction-grid,.preview-grid{min-width:0;max-width:100%}
+.footer-inner{flex-wrap:wrap;align-items:center}
+.footer-inner>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.footer-inner p{flex:1 1 260px}
+.footer-inner>a{flex:0 1 auto}
+.decorative-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;flex:none}
+.preview-symbol .decorative-icon,.card-icon .decorative-icon,.module-icon .decorative-icon{width:24px;height:24px;vertical-align:middle}
+@media(max-width:680px){
+ .footer-inner{align-items:flex-start;flex-direction:column;gap:14px}
+ .footer-inner>*{width:auto;max-width:100%}
+ .footer-inner p{order:3;flex:0 1 auto}
+ .hero-footer{flex-wrap:wrap;overflow-wrap:anywhere}
+ .foundation-pillars article,.direction-card,.preview-card,.platform-status-card{min-width:0}
+}
