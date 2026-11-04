@@ -158,6 +158,60 @@ function createApprovalRepository(pool) {
         submittedAt: row.submitted_at,
       }));
     },
+    async getById(principal, approvalId) {
+      const hasGlobalReviewerGrant = principal.grants.some((grant) =>
+        grant?.roleCode === "independent_approver" && grant.scopeType === "global"
+      );
+      const programIds = [...new Set(principal.grants
+        .filter((grant) => grant?.roleCode === "independent_approver" &&
+          grant.scopeType === "program" && typeof grant.scopeId === "string")
+        .map((grant) => grant.scopeId))];
+
+      const result = await pool.query(
+        `SELECT
+           id, object_type, object_id, program_id, title, summary,
+           submitted_by, reviewer_id, status, materials_version, submitted_at, decided_at
+         FROM approval_requests
+         WHERE id = $1::uuid
+           AND reviewer_id = $2::uuid
+           AND submitted_by <> $2::uuid
+           AND ($3::boolean OR program_id::text = ANY($4::text[]))
+         LIMIT 1`,
+        [approvalId, principal.id, hasGlobalReviewerGrant, programIds],
+      );
+      const row = result.rows?.[0];
+      if (!row) return null;
+
+      const eventsResult = await pool.query(
+        `SELECT id, actor_id, event_type, rationale, materials_version, created_at
+         FROM approval_events
+         WHERE approval_id = $1::uuid
+         ORDER BY created_at ASC, id ASC`,
+        [row.id],
+      );
+      return {
+        id: row.id,
+        objectType: row.object_type,
+        objectId: row.object_id,
+        programId: row.program_id,
+        title: row.title,
+        summary: row.summary,
+        submittedBy: row.submitted_by,
+        reviewerId: row.reviewer_id,
+        status: row.status,
+        materialsVersion: row.materials_version,
+        submittedAt: row.submitted_at,
+        decidedAt: row.decided_at,
+        events: (eventsResult.rows ?? []).map((event) => ({
+          id: event.id,
+          actorId: event.actor_id,
+          type: event.event_type,
+          rationale: event.rationale,
+          materialsVersion: event.materials_version,
+          createdAt: event.created_at,
+        })),
+      };
+    },
   };
 }
 
@@ -435,6 +489,39 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       } catch {
         return sendJson(res, 503, { error: "approvals_unavailable" }, req.method);
       }
+    }
+
+    const approvalMatch = url.pathname.match(/^\\/api\\/v1\\/approvals\\/([^/]+)$/);
+    if (approvalMatch) {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isAuthorized({ principal, permission: "approvals:detail:read" })) {
+        return sendJson(res, 403, { error: "approval_detail_access_denied" }, req.method);
+      }
+      let approvalId;
+      try { approvalId = decodeURIComponent(approvalMatch[1]); } catch {
+        return sendJson(res, 400, { error: "invalid_approval_id" }, req.method);
+      }
+      let approval;
+      try { approval = await approvals.getById(principal, approvalId); } catch {
+        return sendJson(res, 503, { error: "approval_unavailable" }, req.method);
+      }
+      if (!approval || !isAuthorized({
+        principal,
+        permission: "approvals:detail:read",
+        resource: approval,
+      })) {
+        return sendJson(res, 404, { error: "not_found" }, req.method);
+      }
+      return sendJson(res, 200, { approval }, req.method);
     }
 
     if (url.pathname === "/api/v1/workspace/tasks") {
