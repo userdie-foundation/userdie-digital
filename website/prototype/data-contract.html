@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f4ee">
+  <meta name="description" content="Технический контракт USERDIE DIGITAL: модель данных, разграничение доступа, API, аудит и требования к защите информации.">
+  <title>Технический контракт | USERDIE DIGITAL</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .contract-hero{padding:clamp(3rem,7vw,6rem) 0 2.2rem;background:radial-gradient(ellipse at 82% 18%,rgba(222,230,192,.62),transparent 42%)}
+    .contract-hero h1{max-width:900px}.contract-hero .lead{max-width:850px}
+    .contract-section{padding:2.5rem 0}
+    .contract-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+    .contract-card{padding:1.3rem;background:rgba(255,255,255,.65);border:1px solid var(--line);border-radius:16px}
+    .contract-card h3{margin:.2rem 0 .55rem}.contract-card p,.contract-card li{line-height:1.65}
+    .contract-card ul{padding-left:1.15rem;margin:.55rem 0 0}
+    .contract-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.68)}
+    .contract-table{width:100%;min-width:760px;border-collapse:collapse}
+    .contract-table th,.contract-table td{padding:.85rem 1rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.55}
+    .contract-table th{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:rgba(230,234,221,.45)}
+    .contract-table tr:last-child td{border-bottom:0}
+    .contract-note{padding:1rem 1.2rem;border-left:3px solid #477653;background:rgba(71,118,83,.08);border-radius:0 12px 12px 0;line-height:1.7}
+    .contract-code{display:block;overflow-x:auto;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:12px;background:#25392e;color:#f5f4eb;font: .88rem/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+    .contract-kicker{font-size:.75rem;letter-spacing:.08em;color:#627568;font-weight:700}
+    .contract-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;counter-reset:gate}
+    .contract-gate{padding:1rem;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.6);counter-increment:gate}
+    .contract-gate:before{content:"0" counter(gate);display:block;margin-bottom:.45rem;color:#477653;font-weight:800}
+    .contract-gate h3{font-size:1rem;margin:0 0 .4rem}.contract-gate p{font-size:.9rem;line-height:1.55;margin:0}
+    @media(max-width:760px){.contract-grid,.contract-list{grid-template-columns:1fr}}
+  </style>
+</head>
+<body class="platform-page">
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html" aria-label="Усердие — на главную">
+        <span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span>
+        <span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span>
+      </a>
+      <nav aria-label="Главная навигация">
+        <a href="../index.html">Главная</a>
+        <a href="platform.html">Карта платформы</a>
+        <a href="operating-model.html">Операционная модель</a>
+        <a href="#data">Модель данных</a>
+        <a href="#security">Безопасность</a>
+      </nav>
+      <a class="button button-dark header-cta" href="office.html">Операционный офис ↗</a>
+    </div>
+  </header>
+  <main id="main">
+    <section class="contract-hero">
+      <div class="container">
+        <p class="eyebrow"><span></span> USERDIE DIGITAL · АРХИТЕКТУРА И ИНЖИНИРИНГ</p>
+        <h1>Технический контракт.<br><em>Данные, права и контроль.</em></h1>
+        <p class="lead">Базовые правила будущей серверной системы фонда: какие сущности существуют, как разделяются контуры, кто вправе выполнять операции и какие события должны оставлять проверяемый след.</p>
+        <div class="platform-meta"><span class="status-dot"></span> Проект архитектурных требований <span class="meta-divider"></span> Не является действующей базой данных или API</div>
+      </div>
+    </section>
+    <section class="contract-section" id="principles">
+      <div class="container">
+        <div class="section-heading">
+          <div><p class="eyebrow">01 / НЕИЗМЕНЯЕМЫЕ ГРАНИЦЫ</p><h2>Сначала — <em>безопасная архитектура.</em></h2></div>
+          <p>Контракт задаёт ограничения для проектирования backend, интерфейсов, интеграций и автоматизированных помощников.</p>
+        </div>
+        <div class="contract-grid">
+          <article class="contract-card"><p class="contract-kicker">ОРГАНИЗАЦИОННАЯ МОДЕЛЬ</p><h3>Три функциональных контура</h3><ul><li>Фонд «УСЕРДИЕ» — основная организация и владелец процессов.</li><li>Центр оценки активов — экспертная функция оценки и доказательной базы.</li><li>Аналитический центр — аналитика, мониторинг и управленческие выводы.</li></ul><p>Центры не считаются отдельными юридическими лицами без документального подтверждения.</p></article>
+          <article class="contract-card"><p class="contract-kicker">РАЗДЕЛЕНИЕ ЦИФРОВЫХ СИСТЕМ</p><h3>Три независимых контура</h3><ul><li>USERDIE Digital — процессы фонда и операционные данные.</li><li>BFU — отдельный финансово-токенизированный контур.</li><li>ZHAKIN Points — отдельный контур баллов и учёта.</li></ul><p>Запрещено объединять их балансы, реестры и права доступа по умолчанию.</p></article>
+          <article class="contract-card"><p class="contract-kicker">ПЕРСОНАЛЬНЫЕ ДАННЫЕ</p><h3>Минимизация и изоляция</h3><ul><li>Собирать только сведения, необходимые для конкретной цели.</li><li>Разделять идентифицирующие сведения и рабочие данные кейса.</li><li>Не хранить документы, персональные данные, ключи и секреты в публичном GitHub.</li></ul></article>
+          <article class="contract-card"><p class="contract-kicker">ЧЕЛОВЕК В КОНТУРЕ</p><h3>Решения остаются за уполномоченными лицами</h3><ul><li>ИИ может классифицировать, проверять комплектность и готовить проекты.</li><li>Юридические, финансовые и социальные решения утверждает человек.</li><li>Переводы, начисления и изменение прав требуют отдельного подтверждения.</li></ul></article>
+        </div>
+      </div>
+    </section>
+    <section class="contract-section" id="data">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">02 / ДОМЕННАЯ МОДЕЛЬ</p><h2>Сущности и <em>ответственность за данные.</em></h2></div><p>Это логическая модель для последующей реализации. Физические таблицы, СУБД и реальные записи пока не заявляются.</p></div>
+        <div class="contract-table-wrap"><table class="contract-table">
+          <thead><tr><th>Сущность</th><th>Назначение</th><th>Ключевые связи</th><th>Ограничение</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Person / BeneficiaryProfile</strong></td><td>Минимальный профиль заявителя или подопечного</td><td>Request, Consent, DocumentMetadata</td><td>Идентификаторы и чувствительные поля — в защищённом хранилище с отдельными правами</td></tr>
+            <tr><td><strong>Request / Case</strong></td><td>Обращение и сопровождаемое дело</td><td>Person, Program, Assignment, CaseStatusHistory</td><td>Рабочий идентификатор вместо ФИО в аналитических представлениях</td></tr>
+            <tr><td><strong>CaseStatusHistory</strong></td><td>История переходов и причин изменения статуса</td><td>Case, User, AuditEvent</td><td>Добавочная история; исправления оформляются новым событием, а не бесследной перезаписью</td></tr>
+            <tr><td><strong>Assignment</strong></td><td>Назначение ответственного, срока и подразделения</td><td>Case, User, Role</td><td>Назначение и переназначение фиксируются в аудите</td></tr>
+            <tr><td><strong>Consent / LegalBasis</strong></td><td>Согласие или иное правовое основание обработки</td><td>Person, Case, DocumentMetadata</td><td>Цель, версия текста, дата, источник и статус отзыва должны быть проверяемы</td></tr>
+            <tr><td><strong>DocumentMetadata</strong></td><td>Метаданные документа: тип, дата, владелец, контрольная сумма</td><td>Case, Person, Consent</td><td>Сами документы — только в отдельном защищённом хранилище; в Git — никогда</td></tr>
+            <tr><td><strong>Program / Project</strong></td><td>Направления помощи и проекты фонда</td><td>Case, Partner, Assignment</td><td>Публичное описание отделено от внутренней операционной информации</td></tr>
+            <tr><td><strong>Partner / PartnerAccessGrant</strong></td><td>Партнёрская организация и ограниченный доступ к конкретной задаче</td><td>Project, Case, User, Role</td><td>Партнёр не получает общий доступ к реестру подопечных</td></tr>
+            <tr><td><strong>Asset / Valuation / ValuationEvidence</strong></td><td>Актив, оценка, источники и подтверждающие материалы</td><td>ValuationReview, User, AuditEvent</td><td>Предварительная оценка маркируется отдельно от утверждённой; методика и дата обязательны</td></tr>
+            <tr><td><strong>User / Role / Permission / RoleAssignment</strong></td><td>Учётные записи, роли, разрешения и область действия</td><td>Assignment, AuditEvent, PartnerAccessGrant</td><td>Минимально необходимые права; временный доступ имеет срок действия</td></tr>
+            <tr><td><strong>AuditEvent</strong></td><td>Кто, когда, над каким объектом и какое действие выполнил</td><td>User, Case, Asset, RoleAssignment</td><td>Защита от незаметного изменения; доступ к журналу ограничен и сам журнал контролируется</td></tr>
+            <tr><td><strong>AITask / AIProposal</strong></td><td>Задача помощника, черновик результата и решение проверяющего</td><td>Case или Asset, User, AuditEvent</td><td>Хранить версию модели, входной контекст, результат и факт человеческого утверждения; не давать автономное право исполнения</td></tr>
+          </tbody>
+        </table></div>
+        <p class="contract-note" style="margin-top:1rem">Персональные данные и документы не включаются в демонстрационные страницы, тестовые фикстуры или публичные отчёты. Для аналитики используются агрегаты и псевдонимизированные идентификаторы, если это допускается целью и правовым основанием.</p>
+      </div>
+    </section>
+    <section class="contract-section" id="access">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">03 / RBAC И ОБЛАСТЬ ДОСТУПА</p><h2>Роли не означают <em>доступ ко всему.</em></h2></div><p>Доступ определяется одновременно ролью, назначением, организационным контуром и конкретным объектом.</p></div>
+        <div class="contract-table-wrap"><table class="contract-table">
+          <thead><tr><th>Роль</th><th>Допустимые действия</th><th>Не предоставляется автоматически</th></tr></thead>
+          <tbody>
+            <tr><td>Руководство фонда</td><td>Утверждение решений в пределах полномочий, обзор показателей, назначение ответственных</td><td>Технические секреты, закрытые ключи, неограниченный экспорт данных</td></tr>
+            <tr><td>Координатор</td><td>Маршрутизация, контроль сроков, назначение исполнителей</td><td>Изменение правовых оснований и финансовые операции</td></tr>
+            <tr><td>Специалист по сопровождению</td><td>Работа с назначенными обращениями и необходимыми документами</td><td>Доступ к чужим кейсам без назначения</td></tr>
+            <tr><td>Эксперт по активам</td><td>Подготовка оценки и доказательной базы по назначенным активам</td><td>Утверждение собственной оценки без независимой проверки</td></tr>
+            <tr><td>Аналитик</td><td>Агрегированные показатели, отчёты и разрешённые выборки</td><td>Прямой доступ к идентифицирующим данным без обоснованной необходимости</td></tr>
+            <tr><td>Партнёр</td><td>Только явно предоставленные материалы и задачи</td><td>Общий поиск по делам, выгрузка базы заявителей</td></tr>
+            <tr><td>Технический администратор</td><td>Настройка инфраструктуры, доступов и журналов по регламенту</td><td>Содержательный доступ к кейсам по умолчанию</td></tr>
+            <tr><td>ИИ-помощник</td><td>Ограниченная задача: проверка, классификация, поиск несоответствий, черновик</td><td>Самостоятельное утверждение, выдача прав, отправка денег или изменение реестра</td></tr>
+          </tbody>
+        </table></div>
+        <p class="contract-note" style="margin-top:1rem">Любое разрешение должно иметь владельца, основание, область действия и срок пересмотра. Привилегированные операции требуют усиленной аутентификации и отдельного подтверждения.</p>
+      </div>
+    </section>
+    <section class="contract-section" id="api">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">04 / API И СЕРВЕРНЫЕ ГРАНИЦЫ</p><h2>Единый шлюз. <em>Проверяемые операции.</em></h2></div><p>Интерфейс не обращается напрямую к базе и не содержит секретов. Каждая операция проходит серверную проверку полномочий.</p></div>
+        <div class="contract-grid">
+          <article class="contract-card"><h3>Базовые доменные API</h3><ul><li><code>/api/v1/requests</code> — обращения и дела.</li><li><code>/api/v1/programs</code> — программы и проекты.</li><li><code>/api/v1/partners</code> — партнёры и гранты доступа.</li><li><code>/api/v1/assets</code> — активы, оценки и рецензии.</li><li><code>/api/v1/access</code> — роли и назначения.</li><li><code>/api/v1/audit</code> — контролируемый просмотр событий.</li></ul></article>
+          <article class="contract-card"><h3>Обязательные свойства запросов</h3><ul><li>Аутентификация и проверка полномочий на сервере.</li><li>Валидация схемы и допустимых переходов статуса.</li><li>Идемпотентность для повторяемых команд и интеграций.</li><li>Ограничение частоты, размера и объёма выгрузок.</li><li>Корреляционный ID и журнал результата операции.</li><li>Единая обработка ошибок без раскрытия внутренних деталей.</li></ul></article>
+        </div>
+        <pre class="contract-code">Команда → API Gateway → Authentication
+                    → Authorization (RBAC + scope)
+                    → Domain Service → Data Store
+                                  ↘ Audit Event
+                                  ↘ Human Approval
+                                  ↘ Monitoring / Alerts</pre>
+        <p class="contract-note" style="margin-top:1rem">Перечень маршрутов — проектный контракт, а не действующие endpoint. Реализация требует отдельного backend, схем OpenAPI, тестов доступа и согласованной модели размещения данных.</p>
+      </div>
+    </section>
+    <section class="contract-section" id="security">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">05 / SECURITY & PRIVACY BY DESIGN</p><h2>Контроль до <em>первой реальной записи.</em></h2></div><p>Безопасность — критерий допуска к запуску, а не дополнительная функция после внедрения.</p></div>
+        <div class="contract-list">
+          <article class="contract-gate"><h3>Правовое основание</h3><p>Определить цели, категории данных, сроки хранения, основания обработки, порядок доступа и удаления.</p></article>
+          <article class="contract-gate"><h3>Защита доступа</h3><p>SSO или надёжная аутентификация, MFA для привилегированных ролей, RBAC, секреты вне репозитория.</p></article>
+          <article class="contract-gate"><h3>Шифрование</h3><p>Защищённый транспорт, шифрование хранилищ и резервных копий, управление ключами и ротация.</p></article>
+          <article class="contract-gate"><h3>Журналирование</h3><p>Аудит чтения и изменения чувствительных объектов, административных действий и экспорта.</p></article>
+          <article class="contract-gate"><h3>Устойчивость</h3><p>Резервное копирование, проверяемое восстановление, мониторинг, план реагирования на инциденты.</p></article>
+          <article class="contract-gate"><h3>Проверка перед пилотом</h3><p>Тесты изоляции ролей, негативные сценарии, анализ уязвимостей и ограниченный пилот без избыточных данных.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="contract-section" id="acceptance">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">06 / КРИТЕРИИ ПРИЁМКИ</p><h2>Что должно быть доказано.</h2></div><p>Этап можно считать выполненным только при наличии проверяемых артефактов и результатов испытаний.</p></div>
+        <div class="contract-table-wrap"><table class="contract-table">
+          <thead><tr><th>Контрольная точка</th><th>Доказательство готовности</th><th>Статус в рамках этого документа</th></tr></thead>
+          <tbody>
+            <tr><td>Согласована доменная модель</td><td>Утверждённые сущности, словарь данных и владельцы</td><td>Описана проектная основа</td></tr>
+            <tr><td>Реализованы роли и ограничения</td><td>Матрица разрешений, автоматические тесты позитивных и негативных сценариев</td><td>Требование сформулировано</td></tr>
+            <tr><td>Работает серверная часть</td><td>Развёрнутый backend, спецификация API, тесты и мониторинг</td><td>Не подтверждено</td></tr>
+            <tr><td>Защищены персональные данные</td><td>Правовое заключение, настройки хранения, доступа и удаления, результаты аудита</td><td>Не подтверждено</td></tr>
+            <tr><td>Проверено восстановление</td><td>Протокол успешного restore из резервной копии</td><td>Не подтверждено</td></tr>
+            <tr><td>Допущен ограниченный пилот</td><td>Решение ответственного руководителя и закрытый протокол приёмки</td><td>Не допущен этим документом</td></tr>
+          </tbody>
+        </table></div>
+        <p class="contract-note" style="margin-top:1rem"><strong>Статус документа:</strong> архитектурный проект для согласования и последующей разработки. Создание этой страницы не означает, что база данных, backend, авторизация, API или защищённое хранилище уже развернуты.</p>
+        <div class="office-actions" style="margin-top:1.5rem"><a class="button button-dark" href="operating-model.html">Операционная модель ↗</a><a class="button" href="platform.html">Карта платформы ↗</a><a class="button" href="office.html">Операционный офис ↗</a></div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer"><div class="container"><p>Благотворительный фонд «УСЕРДИЕ» · USERDIE DIGITAL</p><p>Технический контракт · Проект архитектурных требований</p></div></footer>
+</body>
+</html>
