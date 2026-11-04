@@ -314,6 +314,28 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       }, req.method);
     }
 
+    if (url.pathname === "/api/v1/workspace/summary") {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isAuthorized({ principal, permission: "workspace:summary:read" })) {
+        return sendJson(res, 403, { error: "workspace_access_denied" }, req.method);
+      }
+      try {
+        const summary = await workspace.getSummary(principal);
+        return sendJson(res, 200, { summary }, req.method);
+      } catch {
+        return sendJson(res, 503, { error: "workspace_unavailable" }, req.method);
+      }
+    }
+
     const applicationMatch = url.pathname.match(/^\/api\/v1\/applications\/([^/]+)$/);
     if (applicationMatch) {
       if (typeof resolvePrincipal !== "function") {
