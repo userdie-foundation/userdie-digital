@@ -97,6 +97,16 @@ export function isAuthorized({ principal, permission, resource = {} } = {}) {
         hasProgramGrant(principal, "program_manager", resource.programId)
       );
 
+    case "approvals:detail:read":
+      return (
+        resource.reviewerId === principal.id &&
+        resource.submittedBy !== principal.id &&
+        (
+          hasGrant(principal, "independent_approver", "global") ||
+          hasProgramGrant(principal, "independent_approver", resource.programId)
+        )
+      );
+
     case "approvals:inbox:read":
       return (
         hasGrant(principal, "independent_approver", "global") ||
