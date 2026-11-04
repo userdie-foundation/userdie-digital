@@ -208,7 +208,7 @@ CREATE TABLE core.approvals (
     decision text NOT NULL CHECK (decision IN ('approved', 'rejected', 'returned_for_revision')),
     decided_by uuid NOT NULL REFERENCES identity.app_users(id) ON DELETE RESTRICT,
     decided_at timestamptz NOT NULL DEFAULT now(),
-    rationale_code text NOT NULL,
+    rationale_code text NOT NULL
 );
 COMMENT ON TABLE core.approvals IS
 'Approval record design. Application/service layer must enforce independent reviewer and separation of duties before production.';
