@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f4ee">
+  <meta name="description" content="Операционная модель USERDIE DIGITAL: роли, процессы, контроль доступа, границы автоматизации и этапы безопасного запуска.">
+  <title>Операционная модель | USERDIE DIGITAL</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .model-intro{padding:clamp(3rem,7vw,6rem) 0 2rem}
+    .model-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+    .model-card{background:rgba(255,255,255,.62);border:1px solid rgba(35,67,48,.13);border-radius:18px;padding:1.35rem}
+    .model-card h3{margin:.35rem 0 .6rem}
+    .model-card p,.model-card li{line-height:1.65}
+    .model-card ul{padding-left:1.15rem;margin:.6rem 0 0}
+    .model-table-wrap{overflow-x:auto;border:1px solid rgba(35,67,48,.16);border-radius:16px;background:rgba(255,255,255,.65)}
+    .model-table{width:100%;border-collapse:collapse;min-width:720px}
+    .model-table th,.model-table td{padding:.9rem 1rem;text-align:left;vertical-align:top;border-bottom:1px solid rgba(35,67,48,.12);line-height:1.55}
+    .model-table th{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:#526557}
+    .model-table tr:last-child td{border-bottom:0}
+    .model-note{padding:1rem 1.2rem;border-left:3px solid #477653;background:rgba(71,118,83,.08);border-radius:0 12px 12px 0;line-height:1.65}
+    .model-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.65rem;counter-reset:step}
+    .model-flow article{position:relative;padding:1rem;border:1px solid rgba(35,67,48,.14);border-radius:14px;background:rgba(255,255,255,.6);counter-increment:step}
+    .model-flow article:before{content:"0" counter(step);display:block;color:#477653;font-weight:700;margin-bottom:.5rem}
+    .model-flow h3{font-size:1rem;margin:0 0 .45rem}
+    .model-flow p{font-size:.9rem;line-height:1.5;margin:0}
+    .model-kicker{font-size:.75rem;letter-spacing:.08em;color:#627568;font-weight:700}
+    .model-section{padding:2.5rem 0}
+    @media(max-width:760px){.model-grid{grid-template-columns:1fr}.model-flow{grid-template-columns:1fr 1fr}}
+    @media(max-width:460px){.model-flow{grid-template-columns:1fr}}
+  </style>
+</head>
+<body class="platform-page">
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html" aria-label="Усердие — на главную">
+        <span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span>
+        <span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span>
+      </a>
+      <nav aria-label="Навигация по странице">
+        <a href="../index.html">Главная</a>
+        <a href="platform.html">Карта платформы</a>
+        <a href="office.html">Операционный офис</a>
+        <a href="#roles">Роли</a>
+        <a href="#controls">Контроль</a>
+      </nav>
+      <span class="prototype-pill">АРХИТЕКТУРНАЯ МОДЕЛЬ</span>
+    </div>
+  </header>
+  <main id="main">
+    <section class="model-intro">
+      <div class="container">
+        <p class="eyebrow"><span></span> USERDIE DIGITAL · ОПЕРАЦИОННАЯ АРХИТЕКТУРА</p>
+        <h1>Единая система.<br><em>Разделённая ответственность.</em></h1>
+        <p class="lead">Рабочая модель управления фондом, экспертными контурами, обращениями, партнёрствами и цифровыми ресурсами. Этот документ фиксирует целевую архитектуру и правила допуска к реализации — не заявляет о наличии неподключённых функций.</p>
+        <div class="demo-warning" role="note"><strong>Статус документа: проект архитектуры.</strong> Роли, маршруты и контрольные процедуры требуют утверждения руководством фонда и юридической проверки до запуска обработки реальных данных.</div>
+      </div>
+    </section>
+
+    <section class="model-section">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">01 / ОРГАНИЗАЦИОННЫЕ КОНТУРЫ</p><h2>Три направления.<br><em>Одна управленческая среда.</em></h2></div><p>Функциональное разделение платформы не создаёт автоматически новых юридических лиц и не меняет полномочия органов фонда.</p></div>
+        <div class="model-grid">
+          <article class="model-card"><p class="model-kicker">ОСНОВНОЙ КОНТУР</p><h3>Фонд «УСЕРДИЕ»</h3><p>Владелец процессов помощи и основной заказчик платформы. Утверждает программы, назначает ответственных, принимает управленческие решения и определяет основания обработки данных.</p><ul><li>обращения и сопровождение дел;</li><li>программы и проекты фонда;</li><li>партнёры, документы и отчётность;</li><li>контроль исполнения и согласования.</li></ul></article>
+          <article class="model-card"><p class="model-kicker">ЭКСПЕРТНЫЙ КОНТУР</p><h3>Центр оценки активов</h3><p>Функция экспертной оценки и ведения доказательной базы. Не распоряжается активами и не подменяет решения уполномоченных органов.</p><ul><li>методика, дата и источник оценки;</li><li>финансовые и нефинансовые активы;</li><li>интеллектуальные ресурсы и права;</li><li>допущения, ограничения и история пересмотра.</li></ul></article>
+          <article class="model-card"><p class="model-kicker">АНАЛИТИЧЕСКИЙ КОНТУР</p><h3>Аналитический центр</h3><p>Готовит исследования и управленческую аналитику, связывает показатели с источниками и отмечает качество данных.</p><ul><li>мониторинг программ и процессов;</li><li>аналитические записки и сценарии;</li><li>банки интеллектуальных ресурсов;</li><li>панели показателей и прогнозные допущения.</li></ul></article>
+          <article class="model-card"><p class="model-kicker">ОБЩИЕ СЕРВИСЫ</p><h3>Цифровая инфраструктура</h3><p>Технические сервисы обеспечивают работу контуров по единым стандартам, не смешивая их данные и полномочия.</p><ul><li>идентификация и управление доступом;</li><li>журнал событий и контроль изменений;</li><li>уведомления, документы и отчёты;</li><li>резервирование, мониторинг и безопасность.</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="model-section" id="roles">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">02 / РОЛЕВАЯ МОДЕЛЬ</p><h2>Доступ — по задаче,<br><em>а не по должности «вообще».</em></h2></div><p>Матрица ниже — проект минимальных полномочий. Конкретные сотрудники, замещения и лимиты утверждаются отдельным приказом или регламентом.</p></div>
+        <div class="model-table-wrap"><table class="model-table">
+          <thead><tr><th>Роль</th><th>Разрешённые действия</th><th>Ограничения</th><th>Контроль</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Руководство фонда</strong></td><td>Утверждение программ, ключевых решений, бюджетных и публичных материалов в пределах полномочий.</td><td>Не должно использовать общую учётную запись; критические действия — с усиленным подтверждением.</td><td>Протокол решения, дата, основание и журнал действий.</td></tr>
+            <tr><td><strong>Координатор / оператор</strong></td><td>Регистрация, маршрутизация, назначение исполнителя, контроль срока и полноты карточки.</td><td>Не утверждает помощь и не меняет решение экспертной комиссии.</td><td>История статусов, назначений и просрочек.</td></tr>
+            <tr><td><strong>Специалист по сопровождению</strong></td><td>Работа с назначенными обращениями и документами в объёме своей задачи.</td><td>Доступ только к делам по назначению; выгрузка и массовый просмотр ограничены.</td><td>Аудит просмотра, изменения и передачи материалов.</td></tr>
+            <tr><td><strong>Эксперт по активам</strong></td><td>Внесение методики, источников, расчётов и заключения по объекту оценки.</td><td>Не проводит операции с активами и не утверждает собственное заключение единолично.</td><td>Вторичная проверка, версия расчёта, раскрытие конфликта интересов.</td></tr>
+            <tr><td><strong>Аналитик</strong></td><td>Работа с агрегированными и разрешёнными данными, подготовка отчётов и сценариев.</td><td>Не получает идентифицирующие сведения заявителей без отдельной необходимости и разрешения.</td><td>Источники показателей, дата среза и метод расчёта.</td></tr>
+            <tr><td><strong>Партнёр</strong></td><td>Просмотр согласованных материалов и статуса собственных совместных задач.</td><td>Нет доступа к обращениям, внутренним документам и данным других партнёров.</td><td>Срок доступа, владелец материала и журнал скачиваний.</td></tr>
+            <tr><td><strong>Технический администратор</strong></td><td>Настройка платформы, ролей, инфраструктуры и мониторинга.</td><td>Техническая роль не даёт автоматического права читать содержимое дел; аварийный доступ — временный и фиксируемый.</td><td>Многофакторная защита, журнал привилегированных действий, периодический пересмотр.</td></tr>
+            <tr><td><strong>Автоматизированные помощники</strong></td><td>Проверки, классификация по утверждённым правилам, подготовка черновиков и уведомлений.</td><td>Не принимают окончательные решения о помощи, оценке, платежах, юридической позиции или публикации.</td><td>Владелец процесса, версия правила/модели, входные данные и подтверждение человеком.</td></tr>
+          </tbody>
+        </table></div>
+        <p class="model-note" style="margin-top:1rem"><strong>Принцип:</strong> запрет по умолчанию, минимально необходимые права, раздельные учётные записи, регулярный пересмотр доступа и немедленное закрытие доступа при изменении роли.</p>
+      </div>
+    </section>
+
+    <section class="model-section">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">03 / СКВОЗНОЙ ПРОЦЕСС</p><h2>От обращения<br><em>до проверяемого результата.</em></h2></div><p>Каждый переход имеет владельца, статус, временную отметку и основание. Автоматизация помогает вести процесс, но не подменяет решение фонда.</p></div>
+        <div class="model-flow">
+          <article><h3>Приём</h3><p>Получение по утверждённому каналу, информирование о правилах и согласиях.</p></article>
+          <article><h3>Проверка</h3><p>Полнота, правовое основание, отсутствие дублей и ограничение доступа.</p></article>
+          <article><h3>Маршрутизация</h3><p>Назначение ответственного, категории и срока рассмотрения.</p></article>
+          <article><h3>Рассмотрение</h3><p>Экспертная оценка, запрос уточнений и проект решения.</p></article>
+          <article><h3>Решение и контроль</h3><p>Уполномоченное подтверждение, исполнение и закрытие с отчётным следом.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="model-section" id="controls">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">04 / НЕПЕРЕСЕКАЮЩИЕСЯ КОНТУРЫ</p><h2>BFU — отдельно.<br><em>Помощь фонда — отдельно.</em></h2></div><p>Цифровые активы не должны смешиваться с бухгалтерским учётом фонда, реестром благополучателей или бюджетами программ.</p></div>
+        <div class="model-grid">
+          <article class="model-card"><p class="model-kicker">USERDIE DIGITAL</p><h3>Операционная платформа фонда</h3><p>Обращения, программы, партнёрства, документы, роли, аналитика и контроль исполнения. Доступ к персональным данным — только при наличии правового основания и утверждённых мер защиты.</p></article>
+          <article class="model-card"><p class="model-kicker">BFU</p><h3>Отдельный цифровой актив</h3><p>Отдельные реестры и правила. Treasury — только с мультиподписью и раздельными полномочиями; Wallet — без хранения приватных ключей платформой; любые тесты — в тестовой среде. Не связывать начисления с помощью без утверждённого правового и финансового регламента.</p></article>
+          <article class="model-card"><p class="model-kicker">ZHAKIN POINTS</p><h3>Самостоятельный контур</h3><p>Не объединять баллы, токены BFU и обязательства фонда в единую сущность. Экономическая модель, эмитент, права держателя и правила использования требуют самостоятельного описания.</p></article>
+          <article class="model-card"><p class="model-kicker">АУДИТ И БЕЗОПАСНОСТЬ</p><h3>Контрольные барьеры</h3><p>Разделение обязанностей, двойное подтверждение критических операций, неизменяемая история действий, резервное восстановление, управление секретами вне репозитория и план реагирования на инциденты.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="model-section">
+      <div class="container">
+        <div class="section-heading"><div><p class="eyebrow">05 / УСЛОВИЯ ПЕРЕХОДА К РЕАЛИЗАЦИИ</p><h2>Никаких реальных данных<br><em>до прохождения допуска.</em></h2></div></div>
+        <div class="model-table-wrap"><table class="model-table">
+          <thead><tr><th>Этап</th><th>Обязательный результат</th><th>Критерий допуска</th></tr></thead>
+          <tbody>
+            <tr><td>1. Утверждение процессов</td><td>Владелец каждого процесса, полномочия, сроки, основания и порядок обжалования/эскалации.</td><td>Документы фонда утверждены уполномоченными лицами.</td></tr>
+            <tr><td>2. Правовая и privacy-проверка</td><td>Карта данных, цели и основания обработки, сроки хранения, права субъектов, договоры с обработчиками.</td><td>Заключение ответственного юриста и утверждённые документы.</td></tr>
+            <tr><td>3. Техническая реализация</td><td>Backend, авторизация, MFA для привилегированных ролей, RBAC, журналирование, шифрование и управление секретами.</td><td>Проверки доступа и безопасности пройдены на тестовых данных.</td></tr>
+            <tr><td>4. Испытания и восстановление</td><td>Тесты сценариев, уязвимостей, ошибок, резервного копирования и восстановления.</td><td>Протокол испытаний и успешное контрольное восстановление.</td></tr>
+            <tr><td>5. Ограниченный пилот</td><td>Ограниченный круг пользователей, инструкция, канал инцидентов, назначенные ответственные.</td><td>Письменный допуск руководства; мониторинг и план отката.</td></tr>
+          </tbody>
+        </table></div>
+        <p class="model-note" style="margin-top:1rem"><strong>Текущий статус:</strong> этот экран фиксирует целевую модель. Реальная авторизация, серверное хранение, обработка обращений, интеграции и финансовые операции не считаются реализованными до отдельного технического подтверждения.</p>
+        <div class="actions" style="margin-top:1.5rem"><a class="button button-dark" href="implementation-plan.html">Открыть план реализации ↗</a><a class="quiet-link" href="office.html">Операционный офис ↗</a><a class="quiet-link" href="platform.html">Вернуться к карте платформы ↗</a></div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer"><div class="container"><span>УСЕРДИЕ · USERDIE DIGITAL</span><span>Операционная модель · проект документа</span></div></footer>
+</body>
+</html>
