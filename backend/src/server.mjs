@@ -510,6 +510,9 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       try { approvalId = decodeURIComponent(approvalMatch[1]); } catch {
         return sendJson(res, 400, { error: "invalid_approval_id" }, req.method);
       }
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(approvalId)) {
+        return sendJson(res, 400, { error: "invalid_approval_id" }, req.method);
+      }
       let approval;
       try { approval = await approvals.getById(principal, approvalId); } catch {
         return sendJson(res, 503, { error: "approval_unavailable" }, req.method);
