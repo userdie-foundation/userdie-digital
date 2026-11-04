@@ -503,7 +503,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       if (!isValidPrincipal(principal)) {
         return sendJson(res, 401, { error: "authentication_required" }, req.method);
       }
-      if (!isAuthorized({ principal, permission: "approvals:detail:read" })) {
+      if (!isAuthorized({ principal, permission: "approvals:inbox:read" })) {
         return sendJson(res, 403, { error: "approval_detail_access_denied" }, req.method);
       }
       let approvalId;
