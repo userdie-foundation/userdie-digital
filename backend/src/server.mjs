@@ -491,7 +491,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       }
     }
 
-    const approvalMatch = url.pathname.match(/^\\/api\\/v1\\/approvals\\/([^/]+)$/);
+    const approvalMatch = url.pathname.match(/^\/api\/v1\/approvals\/([^/]+)$/);
     if (approvalMatch) {
       if (typeof resolvePrincipal !== "function") {
         return sendJson(res, 401, { error: "authentication_required" }, req.method);
