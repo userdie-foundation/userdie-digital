@@ -273,7 +273,8 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
   const applications = applicationRepository ?? createApplicationRepository(pool);
   const applicationWorkflows = applicationWorkflowRepository ?? createApplicationWorkflowRepository(pool);
   const programs = programRepository ?? createProgramRepository(pool);
-  const workspace = workspaceRepository ?? createWorkspaceRepository(pool);\n  const approvals = approvalRepository ?? createApprovalRepository(pool);
+  const workspace = workspaceRepository ?? createWorkspaceRepository(pool);
+  const approvals = approvalRepository ?? createApprovalRepository(pool);
 
   return async function handleRequest(req, res) {
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
