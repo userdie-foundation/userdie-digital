@@ -57,7 +57,7 @@ test("password verifier hashes and verifies without storing plaintext", async ()
   const candidate = "Synthetic-Password-2026!";
   const verifier = await hashPassword(candidate);
 
-  assert.notEqual(verifier, password);
+  assert.notEqual(verifier, candidate);
   assert.match(verifier, /^scrypt\$32768\$8\$1\$/);
   assert.equal(await verifyPassword(candidate, verifier), true);
   assert.equal(await verifyPassword("Different-Password-2026!", verifier), false);
