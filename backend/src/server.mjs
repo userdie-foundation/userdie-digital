@@ -314,6 +314,48 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
       }, req.method);
     }
 
+    if (url.pathname === "/api/v1/workspace/tasks") {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isAuthorized({ principal, permission: "workspace:tasks:read" })) {
+        return sendJson(res, 403, { error: "workspace_access_denied" }, req.method);
+      }
+
+      const status = url.searchParams.get("status");
+      const allowedStatuses = new Set(["open", "in_progress", "blocked", "completed", "cancelled"]);
+      if (status !== null && !allowedStatuses.has(status)) {
+        return sendJson(res, 400, { error: "invalid_status_filter" }, req.method);
+      }
+      const overdueValue = url.searchParams.get("overdue");
+      if (overdueValue !== null && overdueValue !== "true" && overdueValue !== "false") {
+        return sendJson(res, 400, { error: "invalid_overdue_filter" }, req.method);
+      }
+      const limitValue = url.searchParams.get("limit");
+      const limit = limitValue === null ? 25 : Number(limitValue);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+        return sendJson(res, 400, { error: "invalid_limit" }, req.method);
+      }
+
+      try {
+        const tasks = await workspace.getTasks(principal, {
+          status,
+          overdue: overdueValue === null ? null : overdueValue === "true",
+          limit,
+        });
+        return sendJson(res, 200, { tasks, count: tasks.length }, req.method);
+      } catch {
+        return sendJson(res, 503, { error: "workspace_unavailable" }, req.method);
+      }
+    }
+
     if (url.pathname === "/api/v1/workspace/summary") {
       if (typeof resolvePrincipal !== "function") {
         return sendJson(res, 401, { error: "authentication_required" }, req.method);
