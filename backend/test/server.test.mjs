@@ -419,3 +419,51 @@ test("workspace summary hides repository failures and does not expose internal d
     workspaceRepository: { async getSummary() { throw new Error("private database details"); } },
   });
 });
+
+
+test("workspace summary SQL binds the authenticated principal and exact program scopes", async () => {
+  const cases = [
+    {
+      principal: identity("worker-uuid", "case_worker"),
+      expected: ["worker-uuid", true, []],
+    },
+    {
+      principal: {
+        id: "manager-uuid",
+        accountStatus: "active",
+        grants: [
+          grant("program_manager", "program", "program-a"),
+          grant("program_manager", "program", "program-b"),
+        ],
+      },
+      expected: ["manager-uuid", false, ["program-a", "program-b"]],
+    },
+  ];
+
+  for (const item of cases) {
+    let captured;
+    await withServer({
+      async query(sql, params) {
+        captured = { sql, params };
+        return { rows: [{
+          cases_total: 2, cases_active: 1, cases_overdue: 0,
+          tasks_active: 3, tasks_overdue: 1,
+        }] };
+      },
+    }, async (base) => {
+      const response = await fetch(`${base}/api/v1/workspace/summary`);
+      assert.equal(response.status, 200);
+      assert.deepEqual(await response.json(), {
+        summary: {
+          casesTotal: 2, casesActive: 1, casesOverdue: 0,
+          tasksActive: 3, tasksOverdue: 1,
+        },
+      });
+    }, { resolvePrincipal: async () => item.principal });
+
+    assert.deepEqual(captured.params, item.expected);
+    assert.match(captured.sql, /assigned_to = \$1::uuid/);
+    assert.match(captured.sql, /program_id::text = ANY\(\$3::text\[\]\)/);
+    assert.doesNotMatch(captured.sql, /applicant_id|subject|description|email/i);
+  }
+});
