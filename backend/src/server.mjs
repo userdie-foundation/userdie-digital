@@ -122,6 +122,60 @@ function createApplicationWorkflowRepository(pool) {
 
 function createWorkspaceRepository(pool) {
   return {
+    async getTasks(principal, filters) {
+      const canReadAssignedTasks = principal.grants.some((grant) =>
+        grant?.roleCode === "case_worker" && grant.scopeType === "global"
+      );
+      const programIds = [...new Set(principal.grants
+        .filter((grant) => grant?.roleCode === "program_manager" &&
+          grant.scopeType === "program" && typeof grant.scopeId === "string")
+        .map((grant) => grant.scopeId))];
+
+      const result = await pool.query(
+        `SELECT
+           t.id, t.application_id, t.program_id, t.title, t.status,
+           t.priority, t.due_at, t.escalation_level, t.escalated_at,
+           t.completed_at, t.created_at
+         FROM application_tasks t
+         JOIN applications a ON a.id = t.application_id
+         WHERE (($2::boolean AND t.assigned_to = $1::uuid)
+           OR a.program_id::text = ANY($3::text[]))
+           AND ($4::text IS NULL OR t.status = $4)
+           AND (
+             $5::boolean IS NULL
+             OR ($5::boolean = true
+               AND t.due_at < now()
+               AND t.status IN ('open', 'in_progress', 'blocked'))
+             OR ($5::boolean = false
+               AND (t.due_at IS NULL OR t.due_at >= now()
+                 OR t.status NOT IN ('open', 'in_progress', 'blocked')))
+           )
+         ORDER BY
+           CASE t.priority WHEN 'critical' THEN 0 WHEN 'high' THEN 1
+             WHEN 'normal' THEN 2 ELSE 3 END,
+           t.due_at ASC NULLS LAST,
+           t.created_at ASC
+         LIMIT $6`,
+        [principal.id, canReadAssignedTasks, programIds,
+          filters.status, filters.overdue, filters.limit],
+      );
+      const now = Date.now();
+      return (result.rows ?? []).map((row) => ({
+        id: row.id,
+        applicationId: row.application_id,
+        programId: row.program_id,
+        title: row.title,
+        status: row.status,
+        priority: row.priority,
+        dueAt: row.due_at,
+        overdue: Boolean(row.due_at && new Date(row.due_at).getTime() < now &&
+          ["open", "in_progress", "blocked"].includes(row.status)),
+        escalationLevel: row.escalation_level,
+        escalatedAt: row.escalated_at,
+        completedAt: row.completed_at,
+        createdAt: row.created_at,
+      }));
+    },
     async getSummary(principal) {
       const canReadAssignedCases = principal.grants.some((grant) =>
         grant?.roleCode === "case_worker" && grant.scopeType === "global"
