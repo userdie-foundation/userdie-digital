@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f4ee">
+<meta name="description" content="План тестирования ролевой модели и безопасности USERDIE Digital: доступ, изоляция данных, аудит, API и человеческое подтверждение.">
+<title>Контроль доступа и тесты безопасности | USERDIE DIGITAL</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.test-hero{padding:clamp(3rem,7vw,6rem) 0 2rem;background:radial-gradient(ellipse at 82% 18%,rgba(222,230,192,.62),transparent 42%)}
+.test-hero h1{max-width:900px}.test-hero .lead{max-width:850px}
+.test-section{padding:2.4rem 0}
+.test-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.test-card{padding:1.25rem;background:rgba(255,255,255,.65);border:1px solid var(--line);border-radius:15px}
+.test-card h3{margin:.2rem 0 .5rem}.test-card p,.test-card li{line-height:1.65}
+.test-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.68)}
+.test-table{width:100%;min-width:820px;border-collapse:collapse}
+.test-table th,.test-table td{padding:.85rem 1rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.55}
+.test-table th{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:rgba(230,234,221,.45)}
+.test-table tr:last-child td{border-bottom:0}
+.test-note{padding:1rem 1.2rem;border-left:3px solid #477653;background:rgba(71,118,83,.08);border-radius:0 12px 12px 0;line-height:1.7}
+.test-kicker{font-size:.75rem;letter-spacing:.08em;color:#627568;font-weight:700}
+.test-badge{display:inline-block;padding:.2rem .5rem;border-radius:4px;background:#e8eddf;color:#3c6045;font-size:.72rem;font-weight:800}
+@media(max-width:760px){.test-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="platform-page">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<header class="header"><div class="container header-inner">
+<a class="brand" href="../index.html" aria-label="Усердие — на главную"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<nav aria-label="Главная навигация"><a href="../index.html">Главная</a><a href="platform.html">Карта платформы</a><a href="data-contract.html">Технический контракт</a><a href="#tests">Тесты</a></nav>
+<a class="button button-dark header-cta" href="office.html">Операционный офис ↗</a>
+</div></header>
+<main id="main">
+<section class="test-hero"><div class="container">
+<p class="eyebrow"><span></span> USERDIE DIGITAL · SECURITY QA</p>
+<h1>Проверка полномочий.<br><em>Ни одного лишнего доступа.</em></h1>
+<p class="lead">Набор обязательных сценариев для проверки будущей серверной системы. Каждый сценарий должен завершаться воспроизводимым результатом, записью аудита и подтверждением отсутствия обходного пути.</p>
+<div class="platform-meta"><span class="status-dot"></span> План тестирования <span class="meta-divider"></span> Не является отчётом о пройденных тестах</div>
+</div></section>
+<section class="test-section" id="principles"><div class="container">
+<div class="section-heading"><div><p class="eyebrow">01 / МЕТОДИКА</p><h2>Тестируем не только успех, <em>но и отказ.</em></h2></div><p>Критические проверки выполняются для каждого endpoint и каждой роли, а не только на уровне скрытия кнопок в интерфейсе.</p></div>
+<div class="test-grid">
+<article class="test-card"><p class="test-kicker">POSITIVE TESTING</p><h3>Разрешённое действие</h3><p>Пользователь с действующим назначением выполняет только ту операцию, которая предусмотрена его ролью и областью доступа.</p></article>
+<article class="test-card"><p class="test-kicker">NEGATIVE TESTING</p><h3>Запрещённое действие</h3><p>Пользователь не получает данные и не выполняет команду через прямой API-запрос, подмену ID, повтор запроса или обход интерфейса.</p></article>
+<article class="test-card"><p class="test-kicker">OBJECT-LEVEL SECURITY</p><h3>Проверка каждого объекта</h3><p>Доступ к одному делу не даёт доступа к соседнему делу, другому проекту, другому партнёру или чужому активу.</p></article>
+<article class="test-card"><p class="test-kicker">AUDITABILITY</p><h3>Проверяемый след</h3><p>Успешные, отклонённые и административные операции фиксируются с субъектом, временем, объектом, результатом и correlation ID.</p></article>
+</div></div></section>
+<section class="test-section" id="tests"><div class="container">
+<div class="section-heading"><div><p class="eyebrow">02 / КАТАЛОГ ПРОВЕРОК</p><h2>Обязательные <em>сценарии приёмки.</em></h2></div><p>Приоритет P0 означает блокирующее условие: пилот не допускается, пока сценарий не пройден.</p></div>
+<div class="test-table-wrap"><table class="test-table">
+<thead><tr><th>ID / приоритет</th><th>Сценарий</th><th>Ожидаемый результат</th><th>Доказательство</th></tr></thead>
+<tbody>
+<tr><td><strong>SEC-001</strong><br><span class="test-badge">P0</span></td><td>Анонимный запрос к закрытому endpoint</td><td>401; данные не раскрываются; событие отказа зарегистрировано безопасно</td><td>API test + audit record</td></tr>
+<tr><td><strong>SEC-002</strong><br><span class="test-badge">P0</span></td><td>Специалист запрашивает дело без назначения</td><td>403 либо нейтральный 404; содержимое и факт существования чужого дела не раскрываются</td><td>Object-level authorization test</td></tr>
+<tr><td><strong>SEC-003</strong><br><span class="test-badge">P0</span></td><td>Партнёр меняет ID разрешённого кейса на чужой</td><td>Доступ запрещён; проверка выполняется на сервере для каждого объекта</td><td>IDOR/BOLA regression test</td></tr>
+<tr><td><strong>SEC-004</strong><br><span class="test-badge">P0</span></td><td>Аналитик пытается получить ФИО и контактные данные</td><td>Возвращается только разрешённый агрегат или псевдонимизированный набор</td><td>Field-level authorization test</td></tr>
+<tr><td><strong>SEC-005</strong><br><span class="test-badge">P0</span></td><td>Пользователь пытается повысить собственную роль</td><td>Операция запрещена; изменение роли доступно только уполномоченному субъекту и аудируется</td><td>Privilege escalation test</td></tr>
+<tr><td><strong>SEC-006</strong><br><span class="test-badge">P0</span></td><td>ИИ-помощник пытается закрыть дело или утвердить решение</td><td>Команда не исполняется; ИИ может только создать предложение на рассмотрение</td><td>AI capability boundary test</td></tr>
+<tr><td><strong>SEC-007</strong><br><span class="test-badge">P0</span></td><td>Автор оценки пытается сам утвердить собственную оценку</td><td>Самоутверждение блокируется; требуется независимый проверяющий</td><td>Segregation-of-duties test</td></tr>
+<tr><td><strong>SEC-008</strong><br><span class="test-badge">P0</span></td><td>Повтор POST-запроса с тем же Idempotency-Key</td><td>Не создаётся дублирующее обращение или финансово значимая операция</td><td>Idempotency integration test</td></tr>
+<tr><td><strong>SEC-009</strong><br><span class="test-badge">P0</span></td><td>Пользователь обращается к API BFU или ZHAKIN Points через роль фонда</td><td>Межконтурный доступ отсутствует без отдельного согласованного разрешения и интеграционного контракта</td><td>Bounded-context isolation test</td></tr>
+<tr><td><strong>SEC-010</strong><br><span class="test-badge">P0</span></td><td>Отзыв согласия или прекращение правового основания</td><td>Новые операции обработки блокируются по установленному регламенту; событие и дальнейшие действия документируются</td><td>Consent lifecycle test</td></tr>
+<tr><td><strong>SEC-011</strong><br><span class="test-badge">P1</span></td><td>Попытка выгрузить большой объём данных</td><td>Срабатывают лимиты, постраничная выдача и контроль экспорта; событие отражено в аудите</td><td>Rate limit/export test</td></tr>
+<tr><td><strong>SEC-012</strong><br><span class="test-badge">P1</span></td><td>Проверка резервной копии и восстановления</td><td>Восстановление проходит по утверждённой процедуре, результат и время восстановления измерены</td><td>Restore drill report</td></tr>
+<tr><td><strong>SEC-013</strong><br><span class="test-badge">P1</span></td><td>Попытка передать секрет или персональные данные в логи</td><td>Секреты и чувствительные поля маскируются; доступ к логам ограничен</td><td>Log redaction test</td></tr>
+<tr><td><strong>SEC-014</strong><br><span class="test-badge">P1</span></td><td>Проверка истечения временного доступа</td><td>После срока действия разрешение автоматически перестаёт работать</td><td>Access expiry test</td></tr>
+</tbody></table></div>
+<p class="test-note" style="margin-top:1rem"><strong>Критерий допуска:</strong> все P0 сценарии пройдены на тестовом контуре; нет открытых критических и высоких уязвимостей; результаты подтверждены ответственными специалистами. P1 сценарии закрываются до расширения пилота в соответствии с утверждённой моделью риска.</p>
+</div></section>
+<section class="test-section"><div class="container">
+<div class="section-heading"><div><p class="eyebrow">03 / ПРОТОКОЛ РЕЗУЛЬТАТОВ</p><h2>От теста — к <em>доказательству.</em></h2></div><p>У каждого запуска должны быть версия приложения, commit SHA, среда, тестовые данные без реальных персональных сведений, исполнитель и итог.</p></div>
+<div class="contract-table-wrap"><table class="test-table">
+<thead><tr><th>Поле протокола</th><th>Что фиксировать</th></tr></thead>
+<tbody>
+<tr><td>Test Run ID</td><td>Уникальный идентификатор запуска</td></tr>
+<tr><td>Build / Commit</td><td>Точный SHA сборки и версия спецификации</td></tr>
+<tr><td>Environment</td><td>Изолированный тестовый контур, конфигурация без секретов</td></tr>
+<tr><td>Result</td><td>PASS / FAIL / BLOCKED, фактический и ожидаемый результат</td></tr>
+<tr><td>Evidence</td><td>Ссылка на обезличенный лог, отчёт или скриншот теста</td></tr>
+<tr><td>Approval</td><td>Ответственный проверяющий и дата решения о допуске</td></tr>
+</tbody></table></div>
+<p class="test-note" style="margin-top:1rem"><strong>Текущий статус:</strong> сценарии описаны как требования. Это не означает, что тесты уже запускались или пройдены: backend и тестовый контур в рамках этой работы не подтверждены.</p>
+<div class="office-actions" style="margin-top:1.5rem"><a class="button button-dark" href="data-contract.html">Технический контракт ↗</a><a class="button" href="specs/openapi.yaml">OpenAPI YAML ↗</a><a class="button" href="operating-model.html">Операционная модель ↗</a></div>
+</div></section>
+</main>
+<footer class="footer"><div class="container"><p>Благотворительный фонд «УСЕРДИЕ» · USERDIE DIGITAL</p><p>План контроля доступа и тестирования безопасности · Проект требований</p></div></footer>
+</body></html>
