@@ -698,6 +698,8 @@ test("approval inbox SQL enforces assigned reviewer, maker-checker separation, a
 
 
 
+
+
 test("approval detail is visible only to the assigned independent reviewer and returns an audit timeline", async () => {
   let captured;
   await withServer({
@@ -719,7 +721,7 @@ test("approval detail is visible only to the assigned independent reviewer and r
       }] };
     },
   }, async (base) => {
-    const response = await fetch(`${base}/api/v1/approvals/approval-a`);
+    const response = await fetch(base + "/api/v1/approvals/approval-a");
     assert.equal(response.status, 200);
     const body = await response.json();
     assert.equal(body.approval.id, "approval-a");
@@ -744,7 +746,7 @@ test("approval detail hides unassigned, out-of-scope and self-authored records",
     identity("worker-uuid", "case_worker"),
   ]) {
     await withServer(noDb, async (base) => {
-      const response = await fetch(`${base}/api/v1/approvals/approval-a`);
+      const response = await fetch(base + "/api/v1/approvals/approval-a");
       assert.equal(response.status, principal.grants[0].roleCode === "case_worker" ? 403 : 404);
     }, {
       resolvePrincipal: async () => principal,
@@ -768,9 +770,9 @@ test("approval detail hides unassigned, out-of-scope and self-authored records",
 test("approval detail fails closed without authentication and never accepts write methods", async () => {
   let lookups = 0;
   await withServer(noDb, async (base) => {
-    const anonymous = await fetch(`${base}/api/v1/approvals/approval-a`);
+    const anonymous = await fetch(base + "/api/v1/approvals/approval-a");
     assert.equal(anonymous.status, 401);
-    const write = await fetch(`${base}/api/v1/approvals/approval-a`, { method: "POST" });
+    const write = await fetch(base + "/api/v1/approvals/approval-a", { method: "POST" });
     assert.equal(write.status, 405);
   }, {
     approvalRepository: { async getById() { lookups += 1; return null; } },
