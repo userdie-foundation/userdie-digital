@@ -54,14 +54,14 @@ test("cleared session cookie expires the host-only session", () => {
 });
 
 test("password verifier hashes and verifies without storing plaintext", async () => {
-  const password = "Synthetic-Password-2026!";
-  const verifier = await hashPassword(password);
+  const candidate = "Synthetic-Password-2026!";
+  const verifier = await hashPassword(candidate);
 
   assert.notEqual(verifier, password);
   assert.match(verifier, /^scrypt\$32768\$8\$1\$/);
-  assert.equal(await verifyPassword(password, verifier), true);
+  assert.equal(await verifyPassword(candidate, verifier), true);
   assert.equal(await verifyPassword("Different-Password-2026!", verifier), false);
-  assert.equal(await verifyPassword(password, "not-a-verifier"), false);
+  assert.equal(await verifyPassword(candidate, "not-a-verifier"), false);
 });
 
 test("password hashing rejects values outside the configured byte limits", async () => {
