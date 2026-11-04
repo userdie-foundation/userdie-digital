@@ -209,7 +209,6 @@ CREATE TABLE assets.approvals (
     decided_by uuid NOT NULL REFERENCES identity.app_users(id) ON DELETE RESTRICT,
     decided_at timestamptz NOT NULL DEFAULT now(),
     rationale_code text NOT NULL,
-    CHECK (object_type <> 'valuation' OR true)
 );
 COMMENT ON TABLE assets.approvals IS
 'Approval record design. Application/service layer must enforce independent reviewer and separation of duties before production.';
