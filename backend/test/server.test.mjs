@@ -694,3 +694,84 @@ test("approval inbox SQL enforces assigned reviewer, maker-checker separation, a
   assert.match(captured.sql, /LIMIT \$4/);
   assert.doesNotMatch(captured.sql, /applicant_id|email|password_hash|storage_key/i);
 });
+
+
+test("approval detail is visible only to the assigned independent reviewer and returns an audit timeline", async () => {
+  let captured;
+  await withServer({
+    async query(sql, params) {
+      if (/SELECT\\s+id, object_type, object_id, program_id, title, summary/.test(sql)) {
+        captured = { sql, params };
+        return { rows: [{
+          id: "approval-a", object_type: "asset_valuation", object_id: "valuation-a",
+          program_id: "program-a", title: "Review asset valuation",
+          summary: "Synthetic summary", submitted_by: "author-uuid",
+          reviewer_id: "reviewer-uuid", status: "pending", materials_version: "v3",
+          submitted_at: "2026-11-05T10:00:00.000Z", decided_at: null,
+        }] };
+      }
+      return { rows: [{
+        id: 1, actor_id: "author-uuid", event_type: "submitted",
+        rationale: "Submitted for independent review", materials_version: "v3",
+        created_at: "2026-11-05T10:00:00.000Z",
+      }] };
+    },
+  }, async (base) => {
+    const response = await fetch(`${base}/api/v1/approvals/approval-a`);
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.approval.id, "approval-a");
+    assert.equal(body.approval.events.length, 1);
+    assert.equal(body.approval.events[0].type, "submitted");
+    assert.equal("applicantId" in body.approval, false);
+    assert.equal("email" in body.approval, false);
+  }, {
+    resolvePrincipal: async () => identity("reviewer-uuid", "independent_approver", "program", "program-a"),
+  });
+  assert.deepEqual(captured.params, ["approval-a", "reviewer-uuid", false, ["program-a"]]);
+  assert.match(captured.sql, /reviewer_id = \\$2::uuid/);
+  assert.match(captured.sql, /submitted_by <> \\$2::uuid/);
+  assert.match(captured.sql, /program_id::text = ANY\\(\\$4::text\\[\\]\\)/);
+});
+
+test("approval detail hides unassigned, out-of-scope and self-authored records", async () => {
+  let lookups = 0;
+  for (const principal of [
+    identity("reviewer-uuid", "independent_approver", "program", "program-b"),
+    identity("author-uuid", "independent_approver", "global"),
+    identity("worker-uuid", "case_worker"),
+  ]) {
+    await withServer(noDb, async (base) => {
+      const response = await fetch(`${base}/api/v1/approvals/approval-a`);
+      assert.equal(response.status, principal.grants[0].roleCode === "case_worker" ? 403 : 404);
+    }, {
+      resolvePrincipal: async () => principal,
+      approvalRepository: {
+        async getById() {
+          lookups += 1;
+          if (principal.id === "reviewer-uuid") return {
+            id: "approval-a", reviewerId: "reviewer-uuid", submittedBy: "author-uuid", programId: "program-a",
+          };
+          if (principal.id === "author-uuid") return {
+            id: "approval-a", reviewerId: "author-uuid", submittedBy: "author-uuid", programId: "program-a",
+          };
+          return null;
+        },
+      },
+    });
+  }
+  assert.equal(lookups, 2);
+});
+
+test("approval detail fails closed without authentication and never accepts write methods", async () => {
+  let lookups = 0;
+  await withServer(noDb, async (base) => {
+    const anonymous = await fetch(`${base}/api/v1/approvals/approval-a`);
+    assert.equal(anonymous.status, 401);
+    const write = await fetch(`${base}/api/v1/approvals/approval-a`, { method: "POST" });
+    assert.equal(write.status, 405);
+  }, {
+    approvalRepository: { async getById() { lookups += 1; return null; } },
+  });
+  assert.equal(lookups, 0);
+});
