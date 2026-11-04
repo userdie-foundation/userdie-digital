@@ -348,3 +348,74 @@ test("program manager can read workflow only inside exact program scope", async 
     applicationWorkflowRepository: syntheticWorkflowRepository,
   });
 });
+
+
+const syntheticWorkspaceSummary = {
+  casesTotal: 4,
+  casesActive: 3,
+  casesOverdue: 1,
+  tasksActive: 6,
+  tasksOverdue: 2,
+};
+
+test("workspace summary requires a trusted authenticated staff principal", async () => {
+  let summaryLookups = 0;
+  await withServer(noDb, async (base) => {
+    const response = await fetch(`${base}/api/v1/workspace/summary`, {
+      headers: { "x-user-id": "worker-1", "x-role": "case_worker" },
+    });
+    assert.equal(response.status, 401);
+    assert.deepEqual(await response.json(), { error: "authentication_required" });
+    assert.equal(summaryLookups, 0);
+  }, {
+    workspaceRepository: { async getSummary() { summaryLookups += 1; return syntheticWorkspaceSummary; } },
+  });
+});
+
+test("workspace summary is limited to case workers and scoped program managers", async () => {
+  const allowedPrincipals = [
+    identity("worker-1", "case_worker"),
+    identity("manager-1", "program_manager", "program", "program-a"),
+  ];
+  for (const principal of allowedPrincipals) {
+    await withServer(noDb, async (base) => {
+      const response = await fetch(`${base}/api/v1/workspace/summary`);
+      assert.equal(response.status, 200);
+      assert.deepEqual(await response.json(), { summary: syntheticWorkspaceSummary });
+    }, {
+      resolvePrincipal: async () => principal,
+      workspaceRepository: { async getSummary() { return syntheticWorkspaceSummary; } },
+    });
+  }
+
+  for (const principal of [
+    identity("applicant-1", "applicant"),
+    identity("auditor-1", "auditor"),
+    identity("admin-1", "administrator"),
+    identity("unscoped-manager", "program_manager"),
+  ]) {
+    let summaryLookups = 0;
+    await withServer(noDb, async (base) => {
+      const response = await fetch(`${base}/api/v1/workspace/summary`);
+      assert.equal(response.status, 403);
+      assert.deepEqual(await response.json(), { error: "workspace_access_denied" });
+      assert.equal(summaryLookups, 0);
+    }, {
+      resolvePrincipal: async () => principal,
+      workspaceRepository: { async getSummary() { summaryLookups += 1; return syntheticWorkspaceSummary; } },
+    });
+  }
+});
+
+test("workspace summary hides repository failures and does not expose internal details", async () => {
+  await withServer(noDb, async (base) => {
+    const response = await fetch(`${base}/api/v1/workspace/summary`);
+    assert.equal(response.status, 503);
+    const body = await response.text();
+    assert.deepEqual(JSON.parse(body), { error: "workspace_unavailable" });
+    assert.equal(body.includes("private"), false);
+  }, {
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+    workspaceRepository: { async getSummary() { throw new Error("private database details"); } },
+  });
+});
