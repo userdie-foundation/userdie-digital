@@ -467,3 +467,110 @@ test("workspace summary SQL binds the authenticated principal and exact program 
     assert.doesNotMatch(captured.sql, /applicant_id|subject|description|email/i);
   }
 });
+
+
+test("workspace task queue requires authentication and an authorized staff role", async () => {
+  let taskLookups = 0;
+  await withServer(noDb, async (base) => {
+    const anonymous = await fetch(`${base}/api/v1/workspace/tasks`);
+    assert.equal(anonymous.status, 401);
+    assert.deepEqual(await anonymous.json(), { error: "authentication_required" });
+  }, {
+    workspaceRepository: { async getTasks() { taskLookups += 1; return []; } },
+  });
+  for (const principal of [
+    identity("applicant-1", "applicant"),
+    identity("auditor-1", "auditor"),
+    identity("admin-1", "administrator"),
+  ]) {
+    await withServer(noDb, async (base) => {
+      const response = await fetch(`${base}/api/v1/workspace/tasks`);
+      assert.equal(response.status, 403);
+      assert.deepEqual(await response.json(), { error: "workspace_access_denied" });
+    }, {
+      resolvePrincipal: async () => principal,
+      workspaceRepository: { async getTasks() { taskLookups += 1; return []; } },
+    });
+  }
+  assert.equal(taskLookups, 0);
+});
+
+test("workspace task queue validates filters and bounds page size before querying", async () => {
+  let taskLookups = 0;
+  await withServer(noDb, async (base) => {
+    for (const query of [
+      "?status=unknown",
+      "?overdue=yes",
+      "?limit=0",
+      "?limit=51",
+      "?limit=1.5",
+    ]) {
+      const response = await fetch(`${base}/api/v1/workspace/tasks${query}`);
+      assert.equal(response.status, 400);
+    }
+  }, {
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+    workspaceRepository: { async getTasks() { taskLookups += 1; return []; } },
+  });
+  assert.equal(taskLookups, 0);
+});
+
+test("case worker task queue is restricted to tasks assigned to that principal", async () => {
+  let captured;
+  const past = new Date(Date.now() - 60_000).toISOString();
+  await withServer({
+    async query(sql, params) {
+      captured = { sql, params };
+      return { rows: [{
+        id: "task-a", application_id: "case-a", program_id: "program-a",
+        title: "Prepare supporting documents", status: "open", priority: "high",
+        due_at: past, escalation_level: 1, escalated_at: past,
+        completed_at: null, created_at: past,
+      }] };
+    },
+  }, async (base) => {
+    const response = await fetch(`${base}/api/v1/workspace/tasks?status=open&overdue=true&limit=10`);
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.count, 1);
+    assert.equal(body.tasks[0].id, "task-a");
+    assert.equal(body.tasks[0].overdue, true);
+    assert.equal(body.tasks[0].applicationId, "case-a");
+    assert.equal("applicantId" in body.tasks[0], false);
+    assert.equal("email" in body.tasks[0], false);
+  }, {
+    resolvePrincipal: async () => identity("worker-uuid", "case_worker"),
+  });
+
+  assert.deepEqual(captured.params, ["worker-uuid", true, [], "open", true, 10]);
+  assert.match(captured.sql, /t\.assigned_to = \$1::uuid/);
+  assert.match(captured.sql, /a\.program_id::text = ANY\(\$3::text\[\]\)/);
+  assert.match(captured.sql, /LIMIT \$6/);
+  assert.doesNotMatch(captured.sql, /applicant_id|email|phone|subject/i);
+});
+
+test("program manager task queue is limited to explicitly granted program scopes", async () => {
+  let captured;
+  await withServer({
+    async query(sql, params) {
+      captured = { sql, params };
+      return { rows: [] };
+    },
+  }, async (base) => {
+    const response = await fetch(`${base}/api/v1/workspace/tasks?overdue=false&limit=50`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { tasks: [], count: 0 });
+  }, {
+    resolvePrincipal: async () => ({
+      id: "manager-uuid",
+      accountStatus: "active",
+      grants: [
+        grant("program_manager", "program", "program-a"),
+        grant("program_manager", "program", "program-b"),
+      ],
+    }),
+  });
+
+  assert.deepEqual(captured.params, ["manager-uuid", false, ["program-a", "program-b"], null, false, 50]);
+  assert.match(captured.sql, /a\.program_id::text = ANY\(\$3::text\[\]\)/);
+});
