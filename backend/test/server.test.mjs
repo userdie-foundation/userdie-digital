@@ -581,19 +581,21 @@ test("approval inbox requires an independent approver grant", async () => {
   await withServer(noDb, async (base) => {
     const anonymous = await fetch(`${base}/api/v1/approvals/inbox`);
     assert.equal(anonymous.status, 401);
-    for (const principal of [
-      identity("worker-1", "case_worker"),
-      identity("manager-1", "program_manager", "program", "program-a"),
-      identity("auditor-1", "auditor"),
-    ]) {
+  });
+  for (const principal of [
+    identity("worker-1", "case_worker"),
+    identity("manager-1", "program_manager", "program", "program-a"),
+    identity("auditor-1", "auditor"),
+  ]) {
+    await withServer(noDb, async (base) => {
       const response = await fetch(`${base}/api/v1/approvals/inbox`);
       assert.equal(response.status, 403);
       assert.deepEqual(await response.json(), { error: "approval_inbox_access_denied" });
-    }
-  }, {
-    resolvePrincipal: async () => identity("not-reviewer", "case_worker"),
-    approvalRepository: { async getInbox() { lookups += 1; return []; } },
-  });
+    }, {
+      resolvePrincipal: async () => principal,
+      approvalRepository: { async getInbox() { lookups += 1; return []; } },
+    });
+  }
   assert.equal(lookups, 0);
 });
 
