@@ -574,3 +574,89 @@ test("program manager task queue is limited to explicitly granted program scopes
   assert.deepEqual(captured.params, ["manager-uuid", false, ["program-a", "program-b"], null, false, 50]);
   assert.match(captured.sql, /a\.program_id::text = ANY\(\$3::text\[\]\)/);
 });
+
+
+test("approval inbox requires an independent approver grant", async () => {
+  let lookups = 0;
+  await withServer(noDb, async (base) => {
+    const anonymous = await fetch(`${base}/api/v1/approvals/inbox`);
+    assert.equal(anonymous.status, 401);
+    for (const principal of [
+      identity("worker-1", "case_worker"),
+      identity("manager-1", "program_manager", "program", "program-a"),
+      identity("auditor-1", "auditor"),
+    ]) {
+      const response = await fetch(`${base}/api/v1/approvals/inbox`);
+      assert.equal(response.status, 403);
+      assert.deepEqual(await response.json(), { error: "approval_inbox_access_denied" });
+    }
+  }, {
+    resolvePrincipal: async () => identity("not-reviewer", "case_worker"),
+    approvalRepository: { async getInbox() { lookups += 1; return []; } },
+  });
+  assert.equal(lookups, 0);
+});
+
+test("approval inbox returns only assigned items in granted program scope", async () => {
+  let captured;
+  await withServer(noDb, async (base) => {
+    const response = await fetch(`${base}/api/v1/approvals/inbox?limit=10`);
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.count, 1);
+    assert.deepEqual(body.approvals[0], {
+      id: "approval-a",
+      objectType: "asset_valuation",
+      objectId: "valuation-a",
+      programId: "program-a",
+      title: "Review asset valuation",
+      summary: "Synthetic approval summary",
+      submittedBy: "author-uuid",
+      reviewerId: "reviewer-uuid",
+      status: "pending",
+      materialsVersion: "v3",
+      submittedAt: "2026-11-05T10:00:00.000Z",
+    });
+    assert.equal("email" in body.approvals[0], false);
+    assert.equal("applicantId" in body.approvals[0], false);
+  }, {
+    resolvePrincipal: async () => ({
+      id: "reviewer-uuid",
+      accountStatus: "active",
+      grants: [grant("independent_approver", "program", "program-a")],
+    }),
+    approvalRepository: {
+      async getInbox(principal, limit) {
+        captured = { principal, limit };
+        return [{
+          id: "approval-a", objectType: "asset_valuation", objectId: "valuation-a",
+          programId: "program-a", title: "Review asset valuation",
+          summary: "Synthetic approval summary", submittedBy: "author-uuid",
+          reviewerId: "reviewer-uuid", status: "pending", materialsVersion: "v3",
+          submittedAt: "2026-11-05T10:00:00.000Z",
+        }];
+      },
+    },
+  });
+  assert.equal(captured.principal.id, "reviewer-uuid");
+  assert.equal(captured.limit, 10);
+});
+
+test("approval inbox rejects invalid limits and never offers decision writes", async () => {
+  let lookups = 0;
+  await withServer(noDb, async (base) => {
+    for (const query of ["?limit=0", "?limit=51", "?limit=2.5"]) {
+      const response = await fetch(`${base}/api/v1/approvals/inbox${query}`);
+      assert.equal(response.status, 400);
+    }
+    const write = await fetch(`${base}/api/v1/approvals/inbox`, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ decision: "approved" }),
+    });
+    assert.equal(write.status, 405);
+  }, {
+    resolvePrincipal: async () => identity("reviewer-uuid", "independent_approver"),
+    approvalRepository: { async getInbox() { lookups += 1; return []; } },
+  });
+  assert.equal(lookups, 0);
+});
