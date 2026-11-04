@@ -119,13 +119,66 @@ function createApplicationWorkflowRepository(pool) {
  * Protected routes remain unavailable (401) until a valid session has been
  * issued through a separately reviewed authentication process.
  */
-export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository, programRepository, applicationWorkflowRepository } = {}) {
+
+function createWorkspaceRepository(pool) {
+  return {
+    async getSummary(principal) {
+      const canReadAssignedCases = principal.grants.some((grant) =>
+        grant?.roleCode === "case_worker" && grant.scopeType === "global"
+      );
+      const programIds = [...new Set(principal.grants
+        .filter((grant) => grant?.roleCode === "program_manager" &&
+          grant.scopeType === "program" && typeof grant.scopeId === "string")
+        .map((grant) => grant.scopeId))];
+
+      const result = await pool.query(
+        `WITH visible_applications AS (
+           SELECT id, status, due_at, program_id
+           FROM applications
+           WHERE ($2::boolean AND assigned_to = $1::uuid)
+              OR program_id::text = ANY($3::text[])
+         ),
+         visible_tasks AS (
+           SELECT t.id, t.status, t.due_at
+           FROM application_tasks t
+           JOIN visible_applications a ON a.id = t.application_id
+         )
+         SELECT
+           (SELECT count(*)::integer FROM visible_applications) AS cases_total,
+           (SELECT count(*)::integer FROM visible_applications
+             WHERE status NOT IN ('approved', 'rejected', 'withdrawn', 'completed')) AS cases_active,
+           (SELECT count(*)::integer FROM visible_applications
+             WHERE due_at < now()
+               AND status NOT IN ('approved', 'rejected', 'withdrawn', 'completed')) AS cases_overdue,
+           (SELECT count(*)::integer FROM visible_tasks
+             WHERE status IN ('open', 'in_progress', 'blocked')) AS tasks_active,
+           (SELECT count(*)::integer FROM visible_tasks
+             WHERE due_at < now()
+               AND status IN ('open', 'in_progress', 'blocked')) AS tasks_overdue`,
+        [principal.id, canReadAssignedCases, programIds],
+      );
+      const row = result.rows?.[0] ?? {};
+      const count = (value) => Number.isSafeInteger(Number(value)) && Number(value) >= 0
+        ? Number(value) : 0;
+      return {
+        casesTotal: count(row.cases_total),
+        casesActive: count(row.cases_active),
+        casesOverdue: count(row.cases_overdue),
+        tasksActive: count(row.tasks_active),
+        tasksOverdue: count(row.tasks_overdue),
+      };
+    },
+  };
+}
+
+export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
   const applications = applicationRepository ?? createApplicationRepository(pool);
   const applicationWorkflows = applicationWorkflowRepository ?? createApplicationWorkflowRepository(pool);
   const programs = programRepository ?? createProgramRepository(pool);
+  const workspace = workspaceRepository ?? createWorkspaceRepository(pool);
 
   return async function handleRequest(req, res) {
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
