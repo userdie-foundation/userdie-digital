@@ -662,3 +662,35 @@ test("approval inbox rejects invalid limits and never offers decision writes", a
   });
   assert.equal(lookups, 0);
 });
+
+
+test("approval inbox SQL enforces assigned reviewer, maker-checker separation, and program scope", async () => {
+  let captured;
+  await withServer({
+    async query(sql, params) {
+      captured = { sql, params };
+      return { rows: [] };
+    },
+  }, async (base) => {
+    const response = await fetch(`${base}/api/v1/approvals/inbox?limit=17`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { approvals: [], count: 0 });
+  }, {
+    resolvePrincipal: async () => ({
+      id: "reviewer-uuid",
+      accountStatus: "active",
+      grants: [
+        grant("independent_approver", "program", "program-a"),
+        grant("independent_approver", "program", "program-b"),
+      ],
+    }),
+  });
+
+  assert.deepEqual(captured.params, ["reviewer-uuid", false, ["program-a", "program-b"], 17]);
+  assert.match(captured.sql, /reviewer_id = \$1::uuid/);
+  assert.match(captured.sql, /submitted_by <> \$1::uuid/);
+  assert.match(captured.sql, /program_id::text = ANY\(\$3::text\[\]\)/);
+  assert.match(captured.sql, /status IN \('pending', 'in_review'\)/);
+  assert.match(captured.sql, /LIMIT \$4/);
+  assert.doesNotMatch(captured.sql, /applicant_id|email|password_hash|storage_key/i);
+});
