@@ -97,6 +97,16 @@ export function isAuthorized({ principal, permission, resource = {} } = {}) {
         hasProgramGrant(principal, "program_manager", resource.programId)
       );
 
+    case "workspace:tasks:read":
+      return (
+        hasGrant(principal, "case_worker", "global") ||
+        principal.grants.some((grant) =>
+          grant?.roleCode === "program_manager" &&
+          grant.scopeType === "program" &&
+          typeof grant.scopeId === "string"
+        )
+      );
+
     case "workspace:summary:read":
       return (
         hasGrant(principal, "case_worker", "global") ||
