@@ -168,3 +168,10 @@ img,svg,video,canvas{max-width:100%}
  .hero-footer{flex-wrap:wrap;overflow-wrap:anywhere}
  .module-card,.module-tile,.direction-card,.preview-card,.cabinet-card{min-width:0}
 }
+
+
+/* Mobile header navigation: prevent long link sets from overflowing the viewport. */
+@media(max-width:680px){
+  .header nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;justify-content:stretch;gap:6px;width:100%;}
+  .header nav a{display:flex;align-items:center;justify-content:center;min-width:0;min-height:40px;padding:6px 4px;text-align:center;white-space:normal;overflow-wrap:anywhere;line-height:1.3;}
+}
