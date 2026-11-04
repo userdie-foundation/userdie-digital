@@ -25,7 +25,7 @@ test("PostgreSQL applies migrations 001-007 and enforces workflow and authorizat
       "004_program_portfolio_lifecycle.sql",
       "005_application_workflow_tasks_sla.sql",
       "006_scoped_role_grants.sql",
-      "007_scoped_role_grant_lifecycle.sql",
+      "007_scoped_role_grant_lifecycle.sql",\n      "008_independent_approvals.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -112,6 +112,38 @@ test("PostgreSQL applies migrations 001-007 and enforces workflow and authorizat
       [actorId, otherProgramId],
     );
     const otherApplicationId = otherApp.rows[0].id;
+
+    const approval = await client.query(
+      `INSERT INTO approval_requests
+        (object_type, object_id, program_id, title, summary, submitted_by,
+         reviewer_id, materials_version)
+       VALUES ('application', $1, $2, 'Independent review', 'Synthetic approval',
+         $3, $4, 'v1')
+       RETURNING id`,
+      [applicationId, programId, actorId, workerId],
+    );
+    const approvalId = approval.rows[0].id;
+    await assert.rejects(
+      client.query(
+        `INSERT INTO approval_requests
+          (object_type, object_id, program_id, title, submitted_by, reviewer_id, materials_version)
+         VALUES ('application', $1, $2, 'Self approval must fail', $3, $3, 'v1')`,
+        [applicationId, programId, actorId],
+      ),
+      /check constraint/i,
+    );
+    await client.query(
+      "INSERT INTO approval_events (approval_id, actor_id, event_type, rationale, materials_version) VALUES ($1, $2, 'submitted', 'Independent review requested', 'v1')",
+      [approvalId, actorId],
+    );
+    await assert.rejects(
+      client.query("UPDATE approval_events SET rationale = 'tampered' WHERE approval_id = $1", [approvalId]),
+      /append-only/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM approval_events WHERE approval_id = $1", [approvalId]),
+      /append-only/i,
+    );
 
     const history = await client.query(
       "SELECT new_status, changed_by, reason FROM application_status_history WHERE application_id = $1",
