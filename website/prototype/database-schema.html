@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f4ee">
+<meta name="description" content="Проект схемы PostgreSQL USERDIE Digital: сущности, изоляция персональных данных, роли, кейсы, активы, оценки и аудит.">
+<title>Схема базы данных | USERDIE DIGITAL</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.db-hero{padding:clamp(3rem,7vw,6rem) 0 2rem;background:radial-gradient(ellipse at 82% 18%,rgba(222,230,192,.62),transparent 42%)}
+.db-hero h1{max-width:920px}.db-hero .lead{max-width:850px}
+.db-section{padding:2.3rem 0}
+.db-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.db-card{padding:1.25rem;background:rgba(255,255,255,.65);border:1px solid var(--line);border-radius:15px}
+.db-card h3{margin:.2rem 0 .5rem}.db-card p,.db-card li{line-height:1.65}
+.db-card ul{padding-left:1.1rem;margin:.5rem 0 0}
+.db-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.68)}
+.db-table{width:100%;min-width:760px;border-collapse:collapse}
+.db-table th,.db-table td{padding:.85rem 1rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.55}
+.db-table th{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:rgba(230,234,221,.45)}
+.db-table tr:last-child td{border-bottom:0}
+.db-note{padding:1rem 1.2rem;border-left:3px solid #477653;background:rgba(71,118,83,.08);border-radius:0 12px 12px 0;line-height:1.7}
+.db-code{display:block;overflow-x:auto;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:12px;background:#25392e;color:#f5f4eb;font:.88rem/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+.db-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.db-actions a{display:inline-flex;align-items:center;min-height:44px;padding:10px 15px;border:1px solid var(--line);border-radius:5px;font-size:12px;font-weight:700}
+.db-actions a.primary{background:#243d2d;color:white;border-color:#243d2d}
+@media(max-width:760px){.db-grid{grid-template-columns:1fr}.db-hero{padding-top:42px}.db-hero h1{font-size:clamp(36px,10vw,52px);line-height:1.05;letter-spacing:-.04em}}
+</style>
+</head>
+<body class="platform-page">
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<header class="header"><div class="container header-inner">
+<a class="brand" href="../index.html" aria-label="Усердие — на главную"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<nav aria-label="Главная навигация"><a href="../index.html">Главная</a><a href="platform.html">Карта платформы</a><a href="data-contract.html">Технический контракт</a><a href="#domains">Домены данных</a><a href="access-control-tests.html">Тесты безопасности</a></nav>
+<a class="button button-dark header-cta" href="office.html">Операционный офис ↗</a>
+</div></header>
+<main id="main">
+<section class="db-hero"><div class="container">
+<p class="eyebrow"><span></span> USERDIE DIGITAL · DATA ENGINEERING</p>
+<h1>Схема данных.<br><em>Фундамент серверной системы.</em></h1>
+<p class="lead">Проект начальной структуры PostgreSQL: организационные единицы, программы, роли, обращения, активы, оценки, согласования и аудит. Схема подготовлена как инженерный артефакт для последующей проверки backend-командой.</p>
+<div class="platform-meta"><span class="status-dot"></span> Проект миграции · PostgreSQL 15+ <span class="meta-divider"></span> Не развёрнута и не подключена к действующей базе</div>
+<div class="db-actions"><a class="primary" href="specs/001_initial_schema.sql">Открыть SQL-схему ↗</a><a href="data-contract.html">Технический контракт ↗</a><a href="access-control-tests.html">План проверок ↗</a></div>
+</div></section>
+<section class="db-section" id="domains"><div class="container">
+<div class="section-heading"><div><p class="eyebrow">01 / ДОМЕНЫ ДАННЫХ</p><h2>Каждому типу данных — <em>своя зона ответственности.</em></h2></div><p>Схема разделена по предметным областям PostgreSQL, а не по интерфейсным страницам.</p></div>
+<div class="db-grid">
+<article class="db-card"><p class="eyebrow">CORE</p><h3>Организация и программы</h3><p>Фонд — основная организация. Центр оценки активов и Аналитический центр представлены функциональными подразделениями.</p></article>
+<article class="db-card"><p class="eyebrow">IDENTITY</p><h3>Пользователи и полномочия</h3><p>Пользователи, роли, разрешения и назначения с ограничением по подразделению и сроку действия.</p></article>
+<article class="db-card"><p class="eyebrow">CASES</p><h3>Обращения и документы</h3><p>Обращение, ответственные, история статусов, правовое основание обработки и метаданные закрытых документов.</p></article>
+<article class="db-card"><p class="eyebrow">ASSETS</p><h3>Активы и оценка</h3><p>Реестр активов, методика и дата оценки, доказательная база, независимое согласование.</p></article>
+<article class="db-card"><p class="eyebrow">AUDIT</p><h3>Аудиторский след</h3><p>Кто, когда и какое действие совершил, к какому объекту оно относилось и чем завершилось.</p></article>
+<article class="db-card"><p class="eyebrow">AUTOMATION</p><h3>Предложения ИИ</h3><p>Версия модели, происхождение рекомендации, статус рассмотрения и человек, принявший решение.</p></article>
+</div></div></section>
+<section class="db-section"><div class="container">
+<div class="section-heading"><div><p class="eyebrow">02 / КОНТРОЛЬНЫЕ ГРАНИЦЫ</p><h2>Что схема <em>не должна допустить.</em></h2></div></div>
+<div class="db-table-wrap"><table class="db-table"><thead><tr><th>Риск</th><th>Архитектурное ограничение</th><th>Условие допуска</th></tr></thead><tbody>
+<tr><td>Утечка персональных данных</td><td>В таблицах кейсов только непрозрачный subject_ref; идентификация вынесена в отдельное защищённое хранилище.</td><td>Отдельная модель доступа, правовое основание, сроки хранения и тесты.</td></tr>
+<tr><td>Доступ к чужому делу</td><td>Назначения и область подразделения учитываются на сервере для каждого объекта.</td><td>Проверки IDOR/BOLA и row-level security до пилота.</td></tr>
+<tr><td>Самоутверждение оценки</td><td>Автор и утверждающий должны быть разными уполномоченными лицами.</td><td>Проверка segregation of duties в backend и тестах.</td></tr>
+<tr><td>Автономное решение ИИ</td><td>ИИ создаёт предложение; утверждение остаётся за человеком.</td><td>Запрет исполнительных полномочий у AI service account.</td></tr>
+<tr><td>Смешение финансовых контуров</td><td>BFU и ZHAKIN Points не включены в эту схему как общие кошельки или балансы.</td><td>Отдельные системы, реестры, права и юридическая проверка интеграций.</td></tr>
+</tbody></table></div>
+<p class="db-note">Важно: SQL-файл — проект начальной миграции, а не действующая база. До эксплуатации необходимы review специалиста по PostgreSQL, настройка RLS и серверной авторизации, проверка юридических оснований, резервного копирования, восстановления и журналирования.</p>
+</div></section>
+<section class="db-section"><div class="container">
+<div class="section-heading"><div><p class="eyebrow">03 / ПОСЛЕДОВАТЕЛЬНОСТЬ</p><h2>Путь от проекта схемы <em>к безопасному пилоту.</em></h2></div></div>
+<div class="db-grid">
+<article class="db-card"><h3>01. Архитектурное ревью</h3><p>Сверить сущности с бизнес-процессами фонда, юридическими основаниями и матрицей ролей.</p></article>
+<article class="db-card"><h3>02. Защита и миграции</h3><p>Добавить политики RLS, триггеры аудита, ограничения согласования, миграции и откат.</p></article>
+<article class="db-card"><h3>03. Тестовый контур</h3><p>Развернуть отдельную среду на синтетических данных и выполнить сценарии SEC-001—SEC-014.</p></article>
+</div>
+</div></section>
+</main>
+<footer class="footer"><div class="container footer-inner"><a class="brand brand-footer" href="../index.html"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a><p>Архитектурный документ · версия 0.1 · 2026</p><a href="data-contract.html">Технический контракт ↗</a></div></footer>
+</body></html>
