@@ -120,6 +120,47 @@ function createApplicationWorkflowRepository(pool) {
  * issued through a separately reviewed authentication process.
  */
 
+function createApprovalRepository(pool) {
+  return {
+    async getInbox(principal, limit) {
+      const hasGlobalReviewerGrant = principal.grants.some((grant) =>
+        grant?.roleCode === "independent_approver" && grant.scopeType === "global"
+      );
+      const programIds = [...new Set(principal.grants
+        .filter((grant) => grant?.roleCode === "independent_approver" &&
+          grant.scopeType === "program" && typeof grant.scopeId === "string")
+        .map((grant) => grant.scopeId))];
+
+      const result = await pool.query(
+        `SELECT
+           id, object_type, object_id, program_id, title, summary,
+           submitted_by, reviewer_id, status, materials_version, submitted_at
+         FROM approval_requests
+         WHERE reviewer_id = $1::uuid
+           AND submitted_by <> $1::uuid
+           AND status IN ('pending', 'in_review')
+           AND ($2::boolean OR program_id::text = ANY($3::text[]))
+         ORDER BY submitted_at ASC, id ASC
+         LIMIT $4`,
+        [principal.id, hasGlobalReviewerGrant, programIds, limit],
+      );
+      return (result.rows ?? []).map((row) => ({
+        id: row.id,
+        objectType: row.object_type,
+        objectId: row.object_id,
+        programId: row.program_id,
+        title: row.title,
+        summary: row.summary,
+        submittedBy: row.submitted_by,
+        reviewerId: row.reviewer_id,
+        status: row.status,
+        materialsVersion: row.materials_version,
+        submittedAt: row.submitted_at,
+      }));
+    },
+  };
+}
+
 function createWorkspaceRepository(pool) {
   return {
     async getTasks(principal, filters) {
@@ -225,14 +266,14 @@ function createWorkspaceRepository(pool) {
   };
 }
 
-export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository } = {}) {
+export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
   const applications = applicationRepository ?? createApplicationRepository(pool);
   const applicationWorkflows = applicationWorkflowRepository ?? createApplicationWorkflowRepository(pool);
   const programs = programRepository ?? createProgramRepository(pool);
-  const workspace = workspaceRepository ?? createWorkspaceRepository(pool);
+  const workspace = workspaceRepository ?? createWorkspaceRepository(pool);\n  const approvals = approvalRepository ?? createApprovalRepository(pool);
 
   return async function handleRequest(req, res) {
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
@@ -366,6 +407,33 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
           createdAt: event.createdAt,
         })),
       }, req.method);
+    }
+
+    if (url.pathname === "/api/v1/approvals/inbox") {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isAuthorized({ principal, permission: "approvals:inbox:read" })) {
+        return sendJson(res, 403, { error: "approval_inbox_access_denied" }, req.method);
+      }
+      const limitValue = url.searchParams.get("limit");
+      const limit = limitValue === null ? 25 : Number(limitValue);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+        return sendJson(res, 400, { error: "invalid_limit" }, req.method);
+      }
+      try {
+        const approvalsInbox = await approvals.getInbox(principal, limit);
+        return sendJson(res, 200, { approvals: approvalsInbox, count: approvalsInbox.length }, req.method);
+      } catch {
+        return sendJson(res, 503, { error: "approvals_unavailable" }, req.method);
+      }
     }
 
     if (url.pathname === "/api/v1/workspace/tasks") {
