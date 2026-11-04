@@ -201,7 +201,7 @@ CREATE TABLE assets.valuation_evidence (
     note_redacted text
 );
 
-CREATE TABLE assets.approvals (
+CREATE TABLE core.approvals (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     object_type text NOT NULL CHECK (object_type IN ('valuation', 'asset_record', 'case_decision', 'financial_instruction')),
     object_id uuid NOT NULL,
@@ -210,7 +210,7 @@ CREATE TABLE assets.approvals (
     decided_at timestamptz NOT NULL DEFAULT now(),
     rationale_code text NOT NULL,
 );
-COMMENT ON TABLE assets.approvals IS
+COMMENT ON TABLE core.approvals IS
 'Approval record design. Application/service layer must enforce independent reviewer and separation of duties before production.';
 
 CREATE TABLE automation.ai_proposals (
