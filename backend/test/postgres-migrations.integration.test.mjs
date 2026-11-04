@@ -25,7 +25,8 @@ test("PostgreSQL applies migrations 001-007 and enforces workflow and authorizat
       "004_program_portfolio_lifecycle.sql",
       "005_application_workflow_tasks_sla.sql",
       "006_scoped_role_grants.sql",
-      "007_scoped_role_grant_lifecycle.sql",\n      "008_independent_approvals.sql",
+      "007_scoped_role_grant_lifecycle.sql",
+      "008_independent_approvals.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
