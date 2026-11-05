@@ -71,6 +71,10 @@ test("PostgreSQL applies migrations 001-009 and enforces workflow, authorization
     await client.query(
       "UPDATE auth_rate_limit_buckets SET window_started_at = now() - interval '16 minutes' WHERE bucket_type = 'network'",
     );
+    assert.equal(await limiter.isBlocked({ email: loginEmail, clientAddress: peerAddress }), true);
+    await client.query(
+      "UPDATE auth_rate_limit_buckets SET blocked_until = now() - interval '1 second' WHERE bucket_type = 'network'",
+    );
     const afterWindow = await limiter.recordFailure({ email: loginEmail, clientAddress: peerAddress });
     assert.equal(afterWindow.blocked, false);
     const resetNetworkBucket = await client.query(
