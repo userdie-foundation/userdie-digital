@@ -194,7 +194,10 @@ async function invokeRotate({ origin = "https://foundation.example", cookie, act
     },
     release() { calls.push({ released: true }); },
   };
-  const pool = { async connect() { calls.push({ connected: true }); return client; } };
+  const pool = {
+    async query() { throw new Error("Unexpected pool-level query"); },
+    async connect() { calls.push({ connected: true }); return client; },
+  };
   const handler = createServer({ pool, allowedOrigin: "https://foundation.example" });
   const req = {
     method: "POST",
@@ -246,7 +249,7 @@ test("session rotation clears an expired or revoked cookie and does not issue a 
   assert.equal(res.status, 401);
   assert.match(res.headers["Set-Cookie"], /; Max-Age=0/);
   assert.equal(calls.some((call) => call.sql?.includes("INSERT INTO auth_sessions")), false);
-  assert.equal(calls.at(-1).sql, "ROLLBACK");
+  assert.equal(calls.at(-2).sql, "ROLLBACK");
 });
 
 test("session rotation fails closed when its audit event cannot be persisted", async () => {
