@@ -71,11 +71,9 @@ test("unknown, inactive and incorrect-password accounts receive the same public 
     assert.equal(f.queries.length, 0);
     assert.equal(f.events.some(([type]) => type === "failure"), true);
     assert.equal(f.verifications.length, 1);
-    if (!f.events.some(([type]) => type === "lookup")) {
-      assert.match(f.verifications[0].encoded, /^scrypt\\$32768\\$8\\$1\\$/);
-    }
     assert.equal(f.released, false);
   }
+  assert.match(cases[0].verifications[0].encoded, /^scrypt\\$32768\\$8\\$1\\$/);
 });
 
 test("blocked account is rejected before password lookup", async () => {
