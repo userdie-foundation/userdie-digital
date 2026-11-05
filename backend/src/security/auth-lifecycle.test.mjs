@@ -174,3 +174,88 @@ test("login returns service unavailable without leaking authentication errors", 
   assert.equal(res.status, 503);
   assert.equal(res.body.includes("credentials must not leak"), false);
 });
+
+
+async function invokeRotate({ origin = "https://foundation.example", cookie, active = true, failAudit = false } = {}) {
+  const calls = [];
+  const client = {
+    async query(sql, values = []) {
+      calls.push({ sql, values });
+      if (sql === "BEGIN" || sql === "COMMIT" || sql === "ROLLBACK") return { rows: [] };
+      if (sql.includes("UPDATE auth_sessions")) return { rows: active ? [{ user_id: "user-uuid" }] : [] };
+      if (sql.includes("INSERT INTO auth_sessions")) {
+        return { rows: [{ id: "session-2", expires_at: "2030-01-01T00:00:00.000Z" }] };
+      }
+      if (sql.includes("INSERT INTO audit_events")) {
+        if (failAudit) throw new Error("audit unavailable");
+        return { rows: [] };
+      }
+      throw new Error("Unexpected SQL");
+    },
+    release() { calls.push({ released: true }); },
+  };
+  const pool = { async connect() { calls.push({ connected: true }); return client; } };
+  const handler = createServer({ pool, allowedOrigin: "https://foundation.example" });
+  const req = {
+    method: "POST",
+    url: "/api/v1/auth/rotate",
+    headers: { ...(origin === null ? {} : { origin }), ...(cookie ? { cookie } : {}) },
+  };
+  const res = responseRecorder();
+  await handler(req, res);
+  return { calls, res };
+}
+
+test("session rotation replaces the cookie and returns no bearer token in JSON", async () => {
+  const { token } = createSessionToken();
+  const { calls, res } = await invokeRotate({
+    cookie: serializeSessionCookie(token, { maxAgeSeconds: 3600 }),
+  });
+  assert.equal(res.status, 200);
+  assert.match(res.headers["Set-Cookie"], /; HttpOnly/);
+  assert.match(res.headers["Set-Cookie"], /; Secure/);
+  assert.match(res.headers["Set-Cookie"], /; SameSite=Lax/);
+  assert.notEqual(res.headers["Set-Cookie"].split(";")[0].split("=")[1], token);
+  assert.equal(res.body.includes(token), false);
+  assert.deepEqual(JSON.parse(res.body), {
+    authenticated: true, expiresAt: "2030-01-01T00:00:00.000Z",
+  });
+  assert.deepEqual(calls[2].values[0], hashSessionToken(token));
+  assert.equal(calls.at(-2).sql, "COMMIT");
+  assert.deepEqual(calls.at(-1), { released: true });
+});
+
+test("session rotation rejects foreign origins and missing cookies without database access", async () => {
+  const { token } = createSessionToken();
+  for (const options of [
+    { origin: "https://attacker.example", cookie: serializeSessionCookie(token, { maxAgeSeconds: 3600 }) },
+    { cookie: undefined },
+  ]) {
+    const { calls, res } = await invokeRotate(options);
+    assert.equal(res.status, options.origin ? 403 : 401);
+    assert.equal(calls.length, 0);
+  }
+});
+
+test("session rotation clears an expired or revoked cookie and does not issue a replacement", async () => {
+  const { token } = createSessionToken();
+  const { calls, res } = await invokeRotate({
+    active: false,
+    cookie: serializeSessionCookie(token, { maxAgeSeconds: 3600 }),
+  });
+  assert.equal(res.status, 401);
+  assert.match(res.headers["Set-Cookie"], /; Max-Age=0/);
+  assert.equal(calls.some((call) => call.sql?.includes("INSERT INTO auth_sessions")), false);
+  assert.equal(calls.at(-1).sql, "ROLLBACK");
+});
+
+test("session rotation fails closed when its audit event cannot be persisted", async () => {
+  const { token } = createSessionToken();
+  const { calls, res } = await invokeRotate({
+    failAudit: true,
+    cookie: serializeSessionCookie(token, { maxAgeSeconds: 3600 }),
+  });
+  assert.equal(res.status, 503);
+  assert.equal(res.headers["Set-Cookie"], undefined);
+  assert.equal(calls.at(-2).sql, "ROLLBACK");
+});
