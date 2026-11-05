@@ -52,6 +52,23 @@ test("recovery request stores only a digest and sends raw token only to the deli
   assert.equal(JSON.stringify(result).includes(f.delivered[0].token), false);
 });
 
+test("valid recovery email is trimmed, lowercased, and queried without rejecting its dot separator", async () => {
+  const f = fixture({ user: { id: "user-uuid", email: "person.name+tag@example.org", account_status: "active" } });
+  await f.service.request({ email: "  PERSON.NAME+TAG@EXAMPLE.ORG  " });
+  const lookup = f.calls.find((call) => call.sql.includes("SELECT id, email FROM app_users"));
+  assert.deepEqual(lookup.values, ["person.name+tag@example.org"]);
+  assert.equal(f.delivered.length, 1);
+});
+
+test("malformed recovery email is rejected before database access", async () => {
+  for (const email of ["plain-address", "missing-domain@", "missing-dot@example", "has space@example.org"]) {
+    const f = fixture();
+    assert.deepEqual(await f.service.request({ email }), { accepted: true });
+    assert.equal(f.calls.length, 0, `database should not be queried for ${email}`);
+    assert.equal(f.delivered.length, 0);
+  }
+});
+
 test("invalid or weak reset input fails before database access", async () => {
   const f = fixture();
   assert.deepEqual(await f.service.consume({ token: "invalid", newPassword: "short" }), { reset: false });
