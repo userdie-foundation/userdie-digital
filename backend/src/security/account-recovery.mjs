@@ -87,9 +87,10 @@ export function createAccountRecoveryService({
     async consume({ token, newPassword } = {}) {
       const digest = tokenDigest(token);
       if (!digest || typeof newPassword !== "string") return { reset: false };
-      // Derive once before opening a transaction; malformed/weak values fail closed.
-      let passwordHash;
-      try { passwordHash = await hashPassword(newPassword); } catch { return { reset: false }; }
+      // Reject obviously weak/oversized values before opening a transaction.
+      if (Buffer.byteLength(newPassword, "utf8") < 12 || Buffer.byteLength(newPassword, "utf8") > 1024) {
+        return { reset: false };
+      }
       const client = await pool.connect();
       let open = false;
       try {
@@ -105,6 +106,8 @@ export function createAccountRecoveryService({
           open = false;
           return { reset: false };
         }
+        // Spend scrypt work only after a valid, unexpired token is locked.
+        const passwordHash = await hashPassword(newPassword);
         await client.query(
           "UPDATE app_users SET password_hash = $1, updated_at = now() WHERE id = $2 AND account_status = 'active'",
           [passwordHash, recovery.user_id],
