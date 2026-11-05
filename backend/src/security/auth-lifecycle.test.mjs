@@ -18,7 +18,9 @@ function responseRecorder() {
   };
 }
 
-async function invokeLogout({ origin = "https://foundation.example", cookie, queryError } = {}) {
+async function invokeLogout(options = {}) {
+  const origin = Object.hasOwn(options, "origin") ? options.origin : "https://foundation.example";
+  const { cookie, queryError } = options;
   const calls = [];
   const pool = {
     async query(sql, values) {
@@ -31,7 +33,7 @@ async function invokeLogout({ origin = "https://foundation.example", cookie, que
   const req = {
     method: "POST",
     url: "/api/v1/auth/logout",
-    headers: { origin, ...(cookie ? { cookie } : {}) },
+    headers: { ...(origin === null ? {} : { origin }), ...(cookie ? { cookie } : {}) },
   };
   const res = responseRecorder();
   await handler(req, res);
