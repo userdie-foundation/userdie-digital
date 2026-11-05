@@ -15,7 +15,7 @@ This directory is the initial backend service scaffold. It is separate from the 
 - A production-wired principal resolver validates the opaque session cookie against active, unexpired, non-revoked database sessions and loads global and active scoped role grants from trusted storage. Revoked scoped grants are excluded immediately. No login/session issuance endpoint exists yet.
 - Program detail reads include approved program fields and milestone timelines; program managers are restricted to their exact program scope.
 - Application workflow migration 005 adds task ownership, priorities, due dates, escalation levels, and append-only workflow events linked to the parent application and program.
-- A read-only internal workflow endpoint exposes task status, overdue flags, escalation metadata, and the latest 100 workflow events only to the assigned case worker or the program manager for that exact program.
+- A read-only internal workflow endpoint exposes task status, overdue flags, escalation metadata, and the latest 100 workflow events only to the assigned case worker or the program manager for that exact program.\n- Migration 009 adds PostgreSQL-backed account and network throttling buckets keyed by HMAC digests; the tested limiter primitive does not enable login or trust forwarded client-address headers.
 - Migration 007 adds one-way scoped-grant revocation, active-only uniqueness, hard-delete protection, and append-only grant/revocation audit events. No public grant-management endpoint is exposed.
 - Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint. PostgreSQL integration coverage exercises migrations 001–007, synthetic session resolution, scoped-grant creation and revocation, immediate permission removal, hard-delete prevention, and append-only grant audit events.
 
@@ -57,13 +57,13 @@ The session table is only a storage foundation. Before enabling authentication, 
 - High-entropy random session tokens; persist only their cryptographic hashes, never raw tokens.
 - Cookies with `HttpOnly`, `Secure` in production, and an appropriate `SameSite` policy; protect state-changing requests against CSRF.
 - Session expiry, rotation after authentication or privilege changes, logout/revocation, and invalidation for suspended/closed accounts.
-- Rate limiting and generic error messages for login attempts; do not reveal whether an email address exists.
+- Wire the tested PostgreSQL-backed login limiter into login before password verification; configure a strong HMAC key in the deployment secret manager, pass only the verified socket peer address (never an untrusted forwarded header), and use generic error messages that do not reveal whether an email address exists.
 - Server-side role checks and per-record authorization for every read and write, with audit events for sensitive actions.
 - A reviewed account recovery process and MFA policy before real beneficiary accounts are enabled.
 
 ## Production blockers — do not accept real applications yet
 
-- Login, session issuance/rotation/revocation endpoints, account recovery, MFA, and CSRF-protected state-changing flows are not implemented. The read-only routes resolve existing sessions and trusted database-backed grants; without an issued valid session they remain inaccessible.
+- Login, session issuance/rotation endpoints, account recovery, MFA, and CSRF-protected state-changing flows are not implemented. The HMAC-backed rate-limit primitive and migration 009 are preparatory only and are not wired to an authentication endpoint. The read-only routes resolve existing sessions and trusted database-backed grants; without an issued valid session they remain inaccessible.
 - Application and program write/lifecycle routes remain disabled. All future routes must use trusted database-loaded grants and per-record checks.
 - Application CRUD, task creation/update, file upload/download, malware scanning, notifications, and reporting are not implemented.
 - SLA overdue state is computed on read; no background scheduler, automatic escalation worker, notification channel, or task write endpoint is deployed. Escalation levels are data fields awaiting a governed write workflow.
