@@ -3,6 +3,7 @@ import {
   hashSessionToken,
   readSessionCookie,
   serializeClearedSessionCookie,
+  serializeSessionCookie,
 } from "./security/session.mjs";
 
 const SECURITY_HEADERS = {
@@ -19,6 +20,34 @@ function sendJson(res, status, body, method = "GET") {
     "Content-Type": "application/json; charset=utf-8",
   });
   res.end(method === "HEAD" ? undefined : JSON.stringify(body));
+}
+
+async function readJsonBody(req, maxBytes = 16384) {
+  const contentType = req.headers?.["content-type"] ?? "";
+  if (!/^application\\/json(?:\\s*;|$)/i.test(contentType)) {
+    return { error: "unsupported_media_type" };
+  }
+  let body = "";
+  let size = 0;
+  try {
+    for await (const chunk of req) {
+      const part = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      size += part.length;
+      if (size > maxBytes) return { error: "payload_too_large" };
+      body += part.toString("utf8");
+    }
+  } catch {
+    return { error: "invalid_request_body" };
+  }
+  try {
+    const value = JSON.parse(body);
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      return { error: "invalid_request_body" };
+    }
+    return { value };
+  } catch {
+    return { error: "invalid_request_body" };
+  }
 }
 
 function createProgramRepository(pool) {
@@ -325,7 +354,7 @@ function createWorkspaceRepository(pool) {
   };
 }
 
-export function createServer({ pool, allowedOrigin, resolvePrincipal, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository } = {}) {
+export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
@@ -346,6 +375,55 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
     }
 
     const url = new URL(req.url ?? "/", "http://localhost");
+
+    if (url.pathname === "/api/v1/auth/login") {
+      if (req.method !== "POST") {
+        res.setHeader("Allow", "POST");
+        return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
+      }
+      if (!allowedOrigin || req.headers.origin !== allowedOrigin) {
+        return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
+      }
+      if (!authenticationService || typeof authenticationService.authenticate !== "function") {
+        return sendJson(res, 503, { error: "authentication_unavailable" }, req.method);
+      }
+
+      const parsed = await readJsonBody(req);
+      if (parsed.error) {
+        const status = parsed.error === "payload_too_large" ? 413
+          : parsed.error === "unsupported_media_type" ? 415 : 400;
+        return sendJson(res, status, { error: parsed.error }, req.method);
+      }
+      const { email, password } = parsed.value;
+      if (Object.keys(parsed.value).some((key) => !["email", "password"].includes(key)) ||
+          typeof email !== "string" || typeof password !== "string") {
+        return sendJson(res, 400, { error: "invalid_request_body" }, req.method);
+      }
+
+      let result;
+      try {
+        result = await authenticationService.authenticate({
+          email,
+          password,
+          clientAddress: req.socket?.remoteAddress,
+        });
+      } catch {
+        return sendJson(res, 503, { error: "authentication_unavailable" }, req.method);
+      }
+      if (!result?.ok) {
+        if (result?.reason === "temporarily_blocked") {
+          return sendJson(res, 429, { error: "temporarily_blocked" }, req.method);
+        }
+        return sendJson(res, 401, { error: "invalid_credentials" }, req.method);
+      }
+
+      res.writeHead(200, {
+        ...SECURITY_HEADERS,
+        "Content-Type": "application/json; charset=utf-8",
+        "Set-Cookie": serializeSessionCookie(result.token, { maxAgeSeconds: 28800 }),
+      });
+      return res.end(JSON.stringify({ authenticated: true, expiresAt: result.expiresAt }));
+    }
 
     // Logout is the only state-changing route enabled in this phase.
     // It requires an exact same-origin POST and revokes the server-side session
