@@ -4,6 +4,8 @@ import test from "node:test";
 import { createAuthenticationService } from "./authentication.mjs";
 import { hashSessionToken } from "./session.mjs";
 
+const TEST_PASSWORD_HASH = "scrypt$32768$8$1$ih3pg5cXAgRg1Zzyto3dsQ$KZywyEx1FZserQknQ0eHzt82tkGSs3NbhLUfr28Lomsxgrqma0K0j0F7T8JX3XeWK_LIcaADVgolnPEx7Aqmjg";
+
 function makeFixture({ user, blocked = false, failedBlocked = false, dbFailure = false } = {}) {
   const events = [];
   const queries = [];
@@ -35,13 +37,13 @@ function makeFixture({ user, blocked = false, failedBlocked = false, dbFailure =
   return { service: createAuthenticationService({
     pool, rateLimiter, verify: async (password, encoded) => {
       verifications.push({ password, encoded });
-      return password === "CorrectHorseBatteryStaple!" && encoded === "test-hash";
+      return password === "CorrectHorseBatteryStaple!" && encoded === TEST_PASSWORD_HASH;
     },
   }), events, queries, verifications, get released() { return released; } };
 }
 
 test("successful login issues one opaque session and audits it transactionally", async () => {
-  const f = makeFixture({ user: { id: "user-uuid", password_hash: "test-hash", account_status: "active" } });
+  const f = makeFixture({ user: { id: "user-uuid", password_hash: TEST_PASSWORD_HASH, account_status: "active" } });
   const result = await f.service.authenticate({
     email: " PERSON@example.org ", password: ["CorrectHorse", "BatteryStaple!"].join(""), clientAddress: "203.0.113.10",
   });
@@ -60,8 +62,8 @@ test("successful login issues one opaque session and audits it transactionally",
 test("unknown, inactive and incorrect-password accounts receive the same public result", async () => {
   const cases = [
     makeFixture({ user: null }),
-    makeFixture({ user: { id: "user-uuid", password_hash: "test-hash", account_status: "pending" } }),
-    makeFixture({ user: { id: "user-uuid", password_hash: "test-hash", account_status: "active" } }),
+    makeFixture({ user: { id: "user-uuid", password_hash: TEST_PASSWORD_HASH, account_status: "pending" } }),
+    makeFixture({ user: { id: "user-uuid", password_hash: TEST_PASSWORD_HASH, account_status: "active" } }),
   ];
   for (const f of cases) {
     const result = await f.service.authenticate({
@@ -77,7 +79,7 @@ test("unknown, inactive and incorrect-password accounts receive the same public 
 });
 
 test("blocked account is rejected before password lookup", async () => {
-  const f = makeFixture({ blocked: true, user: { id: "u", password_hash: "test-hash", account_status: "active" } });
+  const f = makeFixture({ blocked: true, user: { id: "u", password_hash: TEST_PASSWORD_HASH, account_status: "active" } });
   const result = await f.service.authenticate({
     email: "person@example.org", password: ["CorrectHorse", "BatteryStaple!"].join(""), clientAddress: "203.0.113.10",
   });
@@ -87,7 +89,7 @@ test("blocked account is rejected before password lookup", async () => {
 
 test("session is rolled back if the audit record cannot be written", async () => {
   const f = makeFixture({
-    user: { id: "user-uuid", password_hash: "test-hash", account_status: "active" },
+    user: { id: "user-uuid", password_hash: TEST_PASSWORD_HASH, account_status: "active" },
     dbFailure: true,
   });
   await assert.rejects(() => f.service.authenticate({
