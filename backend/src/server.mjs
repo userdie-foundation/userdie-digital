@@ -24,7 +24,7 @@ function sendJson(res, status, body, method = "GET") {
 
 async function readJsonBody(req, maxBytes = 16384) {
   const contentType = req.headers?.["content-type"] ?? "";
-  if (!/^application\\/json(?:\\s*;|$)/i.test(contentType)) {
+  if (!/^application\/json(?:\s*;|$)/i.test(contentType)) {
     return { error: "unsupported_media_type" };
   }
   let body = "";
