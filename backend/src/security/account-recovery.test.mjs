@@ -39,7 +39,7 @@ test("recovery request returns the same generic result for unknown accounts", as
 });
 
 test("recovery request stores only a digest and sends raw token only to the delivery adapter", async () => {
-  const f = fixture({ user: { id: "user-uuid", email: "person@example.org" } });
+  const f = fixture({ user: { id: "user-uuid", email: "person@example.org", account_status: "active" } });
   const result = await f.service.request({ email: "PERSON@example.org" });
   assert.deepEqual(result, { accepted: true });
   assert.equal(f.delivered.length, 1);
