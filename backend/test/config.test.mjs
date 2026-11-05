@@ -11,6 +11,7 @@ test("configuration applies safe defaults and parses the PostgreSQL URL", () => 
     dbPoolMax: 10,
     databaseSsl: false,
     allowedOrigin: undefined,
+    loginRateLimitHmacKey: undefined,
   });
 });
 
@@ -71,4 +72,17 @@ test("configuration rejects ALLOWED_ORIGIN values that are not exact web origins
       /ALLOWED_ORIGIN must be an exact HTTP or HTTPS origin/,
     );
   }
+});
+
+
+test("configuration accepts a sufficiently long login rate-limit HMAC key", () => {
+  const key = "0123456789abcdef0123456789abcdef";
+  assert.equal(readConfig({ DATABASE_URL: databaseUrl, LOGIN_RATE_LIMIT_HMAC_KEY: key }).loginRateLimitHmacKey, key);
+});
+
+test("configuration rejects a short login rate-limit HMAC key", () => {
+  assert.throws(
+    () => readConfig({ DATABASE_URL: databaseUrl, LOGIN_RATE_LIMIT_HMAC_KEY: "too-short" }),
+    /LOGIN_RATE_LIMIT_HMAC_KEY must contain at least 32 bytes/,
+  );
 });
