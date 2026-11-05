@@ -71,13 +71,13 @@ test("successful authentication can clear only the account bucket", async () => 
   assert.equal(calls[0].values[0].length, 32);
 });
 
-test("limiter rejects weak keys, invalid addresses and unsafe limits", () => {
+test("limiter rejects weak keys, invalid addresses and unsafe limits", async () => {
   const pool = { async query() { return { rows: [] }; } };
   assert.throws(() => createLoginRateLimiter({ pool, hmacKey: "too-short" }), /32 bytes/);
   assert.throws(() => createLoginRateLimiter({ pool, hmacKey: KEY, maxAttempts: 1 }), /maxAttempts/);
 
   const limiter = createLoginRateLimiter({ pool, hmacKey: KEY });
-  assert.rejects(
+  await assert.rejects(
     () => limiter.isBlocked({ email: "person@example.org", clientAddress: "not-an-ip" }),
     /network address/,
   );
