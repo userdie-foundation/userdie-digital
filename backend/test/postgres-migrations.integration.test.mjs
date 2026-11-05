@@ -9,7 +9,7 @@ import { createLoginRateLimiter } from "../src/security/login-rate-limit.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-009 and enforces workflow, authorization, and login-throttling invariants", {
+test("PostgreSQL applies migrations 001-010 and enforces workflow, authorization, recovery-token, and login-throttling invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -29,6 +29,7 @@ test("PostgreSQL applies migrations 001-009 and enforces workflow, authorization
       "007_scoped_role_grant_lifecycle.sql",
       "008_independent_approvals.sql",
       "009_auth_rate_limit_buckets.sql",
+      "010_auth_recovery_tokens.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -83,6 +84,18 @@ test("PostgreSQL applies migrations 001-009 and enforces workflow, authorization
     assert.equal(resetNetworkBucket.rows[0].attempt_count, 1);
     assert.equal(resetNetworkBucket.rows[0].blocked_until, null);
 
+
+    const recoveryToken = await client.query(
+      "INSERT INTO auth_recovery_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, now() + interval '30 minutes') RETURNING id",
+      [actorId, Buffer.alloc(32, 9)],
+    );
+    assert.equal(recoveryToken.rowCount, 1);
+    const recoveryStored = await client.query(
+      "SELECT octet_length(token_hash) AS digest_bytes, consumed_at FROM auth_recovery_tokens WHERE id = $1",
+      [recoveryToken.rows[0].id],
+    );
+    assert.equal(recoveryStored.rows[0].digest_bytes, 32);
+    assert.equal(recoveryStored.rows[0].consumed_at, null);
 
     const programs = await client.query(
       "INSERT INTO programs (name, status) VALUES ('Integration program', 'open'), ('Other program', 'draft') RETURNING id",
