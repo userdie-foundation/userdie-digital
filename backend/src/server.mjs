@@ -1,4 +1,9 @@
 import { isAuthorized, isValidPrincipal } from "./security/authorization.mjs";
+import {
+  hashSessionToken,
+  readSessionCookie,
+  serializeClearedSessionCookie,
+} from "./security/session.mjs";
 
 const SECURITY_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -341,6 +346,37 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, applicatio
     }
 
     const url = new URL(req.url ?? "/", "http://localhost");
+
+    // Logout is the only state-changing route enabled in this phase.
+    // It requires an exact same-origin POST and revokes the server-side session
+    // before clearing the browser cookie. No request body is accepted.
+    if (url.pathname === "/api/v1/auth/logout") {
+      if (req.method !== "POST") {
+        res.setHeader("Allow", "POST");
+        return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
+      }
+      if (!allowedOrigin || req.headers.origin !== allowedOrigin) {
+        return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
+      }
+
+      const token = readSessionCookie(req.headers.cookie);
+      if (token) {
+        try {
+          await pool.query(
+            "UPDATE auth_sessions SET revoked_at = now(), revoke_reason = 'user_logout' WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > now()",
+            [hashSessionToken(token)],
+          );
+        } catch {
+          return sendJson(res, 503, { error: "session_service_unavailable" }, req.method);
+        }
+      }
+
+      res.writeHead(204, {
+        ...SECURITY_HEADERS,
+        "Set-Cookie": serializeClearedSessionCookie(),
+      });
+      return res.end();
+    }
 
     if (req.method !== "GET" && req.method !== "HEAD") {
       return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
