@@ -54,11 +54,16 @@ function parseAllowedOrigin(raw) {
 }
 
 export function readConfig(env = process.env) {
+  const loginRateLimitHmacKey = env.LOGIN_RATE_LIMIT_HMAC_KEY;
+  if (loginRateLimitHmacKey !== undefined && Buffer.byteLength(loginRateLimitHmacKey, "utf8") < 32) {
+    throw new Error("LOGIN_RATE_LIMIT_HMAC_KEY must contain at least 32 bytes");
+  }
   return {
     port: parseInteger("PORT", env.PORT, 8080, 1, 65535),
     databaseUrl: parseDatabaseUrl(env.DATABASE_URL),
     dbPoolMax: parseInteger("DB_POOL_MAX", env.DB_POOL_MAX, 10, 1, 50),
     databaseSsl: parseBoolean("DATABASE_SSL", env.DATABASE_SSL),
     allowedOrigin: parseAllowedOrigin(env.ALLOWED_ORIGIN),
+    loginRateLimitHmacKey,
   };
 }
