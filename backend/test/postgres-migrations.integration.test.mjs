@@ -9,7 +9,7 @@ import { createLoginRateLimiter } from "../src/security/login-rate-limit.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-007 and enforces workflow and authorization invariants", {
+test("PostgreSQL applies migrations 001-009 and enforces workflow, authorization, and login-throttling invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -68,6 +68,16 @@ test("PostgreSQL applies migrations 001-007 and enforces workflow and authorizat
       "SELECT bucket_type FROM auth_rate_limit_buckets ORDER BY bucket_type",
     );
     assert.deepEqual(remainingBuckets.rows.map((row) => row.bucket_type), ["network"]);
+    await client.query(
+      "UPDATE auth_rate_limit_buckets SET window_started_at = now() - interval '16 minutes' WHERE bucket_type = 'network'",
+    );
+    const afterWindow = await limiter.recordFailure({ email: loginEmail, clientAddress: peerAddress });
+    assert.equal(afterWindow.blocked, false);
+    const resetNetworkBucket = await client.query(
+      "SELECT attempt_count, blocked_until FROM auth_rate_limit_buckets WHERE bucket_type = 'network'",
+    );
+    assert.equal(resetNetworkBucket.rows[0].attempt_count, 1);
+    assert.equal(resetNetworkBucket.rows[0].blocked_until, null);
 
 
     const programs = await client.query(
