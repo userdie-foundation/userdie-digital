@@ -168,3 +168,87 @@ img,svg,video,canvas{max-width:100%}
  .hero-footer{flex-wrap:wrap;overflow-wrap:anywhere}
  .module-card,.module-tile,.direction-card,.preview-card,.cabinet-card{min-width:0}
 }
+
+
+/* USERDIE Digital: mobile dashboard-first navigation correction.
+   The module rail must not expand into a large tile grid above the overview. */
+@media (max-width: 720px) {
+  body.workspace .app-sidebar {
+    padding: 8px 14px 10px !important;
+    background: #f8f7f1 !important;
+  }
+  body.workspace .app-sidebar .sidebar-caption,
+  body.workspace .app-sidebar .sidebar-status,
+  body.workspace .app-sidebar .app-nav-group-label {
+    display: none !important;
+  }
+  body.workspace .app-sidebar .app-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 7px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 2px 1px 7px !important;
+    margin: 0 !important;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.workspace .app-sidebar .app-nav button {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+    width: auto !important;
+    min-width: max-content !important;
+    min-height: 38px !important;
+    padding: 6px 11px !important;
+    border: 1px solid #dce1d6 !important;
+    border-radius: 999px !important;
+    background: #fffefa !important;
+    color: #526457 !important;
+    font: 600 11px 'DM Sans', sans-serif !important;
+    line-height: 1.2 !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+  }
+  body.workspace .app-sidebar .app-nav button[aria-current="page"] {
+    border-color: #9fb48e !important;
+    background: #e8efdf !important;
+    color: #264d38 !important;
+    box-shadow: inset 0 -2px #78945f !important;
+  }
+  body.workspace .app-sidebar .app-nav .nav-ico {
+    width: 22px !important;
+    height: 22px !important;
+    flex: 0 0 22px !important;
+    font-size: 12px !important;
+  }
+  body.workspace .app-main {
+    padding: 20px 16px 38px !important;
+  }
+  body.workspace .welcome-row {
+    display: flex !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-bottom: 18px !important;
+  }
+  body.workspace .welcome-row .app-button {
+    width: 100% !important;
+    margin-top: 4px !important;
+  }
+}
+@media (max-width: 390px) {
+  body.workspace .app-sidebar .app-nav {
+    gap: 6px !important;
+  }
+  body.workspace .app-sidebar .app-nav button {
+    min-height: 36px !important;
+    padding: 5px 9px !important;
+    font-size: 10px !important;
+  }
+}
