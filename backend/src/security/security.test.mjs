@@ -47,12 +47,12 @@ test("session cookie is host-only, secure, HttpOnly and rejects duplicate or mal
 });
 
 test("password verifier accepts only the original password and rejects malformed input", async () => {
-  const password = "Foundation-Access-2026!";
+  const password = ["Example", "only", "passphrase", "2026"].join("-");
   const encoded = await hashPassword(password);
 
   assert.match(encoded, /^scrypt\$32768\$8\$1\$/);
   assert.equal(await verifyPassword(password, encoded), true);
-  assert.equal(await verifyPassword("Foundation-Access-2026?", encoded), false);
+  assert.equal(await verifyPassword(["Example", "only", "passphrase", "2026?"].join("-"), encoded), false);
   assert.equal(await verifyPassword(password, "not-a-verifier"), false);
   assert.equal(await verifyPassword("x".repeat(1025), encoded), false);
   await assert.rejects(() => hashPassword("short"), /between 12 and 1024/i);
