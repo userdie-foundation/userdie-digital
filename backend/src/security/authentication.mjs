@@ -6,7 +6,7 @@ const DEFAULT_SESSION_SECONDS = 8 * 60 * 60;
 // accounts. Its random salt and derived key are public and cannot authenticate.
 const DUMMY_PASSWORD_HASH = "scrypt$32768$8$1$ih3pg5cXAgRg1Zzyto3dsQ$KZywyEx1FZserQknQ0eHzt82tkGSs3NbhLUfr28Lomsxgrqma0K0j0F7T8JX3XeWK_LIcaADVgolnPEx7Aqmjg";
 const isUsablePasswordHash = (value) => typeof value === "string" &&
-  /^scrypt\\$32768\\$8\\$1\\$[A-Za-z0-9_-]{22}\\$[A-Za-z0-9_-]{86}$/.test(value);
+  /^scrypt\$32768\$8\$1\$[A-Za-z0-9_-]{22}\$[A-Za-z0-9_-]{86}$/.test(value);
 
 function normalizeEmail(value) {
   if (typeof value !== "string") return null;
