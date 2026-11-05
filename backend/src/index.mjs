@@ -2,6 +2,8 @@ import { createServer as createHttpServer } from "node:http";
 import { Pool } from "pg";
 import { createServer } from "./server.mjs";
 import { createPrincipalResolver } from "./security/principal.mjs";
+import { createLoginRateLimiter } from "./security/login-rate-limit.mjs";
+import { createAuthenticationService } from "./security/authentication.mjs";
 import { readConfig } from "./config.mjs";
 
 const config = readConfig();
@@ -19,10 +21,18 @@ pool.on("error", () => {
   process.stderr.write("Database pool reported an idle client error.\n");
 });
 
+const authenticationService = config.loginRateLimitHmacKey
+  ? createAuthenticationService({
+    pool,
+    rateLimiter: createLoginRateLimiter({ pool, hmacKey: config.loginRateLimitHmacKey }),
+  })
+  : undefined;
+
 const server = createHttpServer(createServer({
   pool,
   allowedOrigin: config.allowedOrigin,
   resolvePrincipal: createPrincipalResolver({ pool }),
+  authenticationService,
 }));
 
 server.listen(config.port, "0.0.0.0", () => {
