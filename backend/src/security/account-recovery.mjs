@@ -87,16 +87,16 @@ export function createAccountRecoveryService({
     async consume({ token, newPassword } = {}) {
       const digest = tokenDigest(token);
       if (!digest || typeof newPassword !== "string") return { reset: false };
-      // Reject weak passwords before opening a transaction.
-      try { await hashPassword(newPassword); } catch { return { reset: false }; }
-      const passwordHash = await hashPassword(newPassword);
+      // Derive once before opening a transaction; malformed/weak values fail closed.
+      let passwordHash;
+      try { passwordHash = await hashPassword(newPassword); } catch { return { reset: false }; }
       const client = await pool.connect();
       let open = false;
       try {
         await client.query("BEGIN");
         open = true;
         const selected = await client.query(
-          "SELECT id, user_id FROM auth_recovery_tokens WHERE token_hash = $1 AND consumed_at IS NULL AND expires_at > now() FOR UPDATE",
+          "SELECT recovery.id, recovery.user_id FROM auth_recovery_tokens recovery JOIN app_users users ON users.id = recovery.user_id AND users.account_status = 'active' WHERE recovery.token_hash = $1 AND recovery.consumed_at IS NULL AND recovery.expires_at > now() FOR UPDATE OF recovery",
           [digest],
         );
         const recovery = selected.rows?.[0];
