@@ -8,7 +8,7 @@ function normalizeEmail(value) {
   if (typeof value !== "string") return null;
   const email = value.trim().toLowerCase();
   return email.length >= 3 && email.length <= 320 &&
-    /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) ? email : null;
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
 }
 
 function tokenDigest(token) {
