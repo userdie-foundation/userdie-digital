@@ -190,7 +190,118 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 
 .app-nav-group-label{margin:14px 12px 5px;color:#879187;font-size:9px;font-weight:800;letter-spacing:1.35px;line-height:1.5}
 @media(max-width:900px){.app-nav-group-label{grid-column:1/-1;margin:8px 2px 0}}
-.program-gates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:4px 0 18px}.program-gates .module-tile{min-height:158px}@media(max-width:620px){.program-gates{grid-template-columns:1fr}}</style>
+.program-gates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:4px 0 18px}.program-gates .module-tile{min-height:158px}@media(max-width:620px){.program-gates{grid-template-columns:1fr}}
+/* MOBILE OVERFLOW + HEADER CONTRAST FIX
+   Keep the workspace header opaque, make the module rail compact, and
+   constrain every module card to the actual phone viewport. */
+.header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background: #fbfaf6 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.header-inner { min-width: 0 !important; }
+body.workspace, body.workspace .app-shell, body.workspace .app-main,
+body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%; }
+@media (max-width: 720px) {
+  body.workspace .app-sidebar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 8px 14px !important;
+    background: #f8f7f1 !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid #dce1d6 !important;
+  }
+  body.workspace .sidebar-caption,
+  body.workspace .sidebar-status,
+  body.workspace .app-nav-group-label { display: none !important; }
+  body.workspace .app-nav {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    gap: 7px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    margin: 0 !important;
+    padding: 1px 1px 6px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.workspace .app-nav::-webkit-scrollbar { display: none; }
+  body.workspace .app-nav button {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+    width: auto !important;
+    min-width: max-content !important;
+    min-height: 38px !important;
+    padding: 6px 11px !important;
+    border: 1px solid #dce1d6 !important;
+    border-radius: 999px !important;
+    background: #fffefa !important;
+    color: #526457 !important;
+    font: 600 11px/1.2 'DM Sans', sans-serif !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+  }
+  body.workspace .app-nav button[aria-current="page"] {
+    border-color: #9fb48e !important;
+    background: #e8efdf !important;
+    color: #264d38 !important;
+    box-shadow: inset 0 -2px #78945f !important;
+  }
+  body.workspace .app-main { padding: 18px 14px 34px !important; }
+  body.workspace .module-list {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 10px !important;
+  }
+  body.workspace .module-list > .module-tile,
+  body.workspace .module-list > a.module-tile,
+  body.workspace .module-list > button.module-tile {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    padding: 15px !important;
+    overflow: hidden !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+  }
+  body.workspace .module-list .module-tile strong,
+  body.workspace .module-list .module-tile small,
+  body.workspace .module-list .module-tile .tile-state {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+  body.workspace .module-list .module-tile-link,
+  body.workspace .module-list .module-tile-link:visited,
+  body.workspace .module-list .module-tile-link strong {
+    color: #294b39 !important;
+    text-decoration: none !important;
+  }
+}
+@media (max-width: 390px) {
+  body.workspace .header-inner { gap: 8px !important; }
+  body.workspace .app-main { padding-inline: 12px !important; }
+}
+
+</style>
 </head>
 <body class="workspace">
 <a class="skip-link" href="#app-content">Перейти к содержанию</a>
