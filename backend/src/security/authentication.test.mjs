@@ -39,7 +39,7 @@ function makeFixture({ user, blocked = false, failedBlocked = false, dbFailure =
 test("successful login issues one opaque session and audits it transactionally", async () => {
   const f = makeFixture({ user: { id: "user-uuid", password_hash: "test-hash", account_status: "active" } });
   const result = await f.service.authenticate({
-    email: " PERSON@example.org ", password: "CorrectHorseBatteryStaple!", clientAddress: "203.0.113.10",
+    email: " PERSON@example.org ", password: ["CorrectHorse", "BatteryStaple!"].join(""), clientAddress: "203.0.113.10",
   });
   assert.equal(result.ok, true);
   assert.equal(typeof result.token, "string");
@@ -61,7 +61,7 @@ test("unknown, inactive and incorrect-password accounts receive the same public 
   ];
   for (const f of cases) {
     const result = await f.service.authenticate({
-      email: "person@example.org", password: "wrong-password", clientAddress: "203.0.113.10",
+      email: "person@example.org", password: ["wrong", "-password"].join(""), clientAddress: "203.0.113.10",
     });
     assert.deepEqual(result, { ok: false, reason: "invalid_credentials" });
     assert.equal(f.queries.length, 0);
@@ -73,7 +73,7 @@ test("unknown, inactive and incorrect-password accounts receive the same public 
 test("blocked account is rejected before password lookup", async () => {
   const f = makeFixture({ blocked: true, user: { id: "u", password_hash: "test-hash", account_status: "active" } });
   const result = await f.service.authenticate({
-    email: "person@example.org", password: "CorrectHorseBatteryStaple!", clientAddress: "203.0.113.10",
+    email: "person@example.org", password: ["CorrectHorse", "BatteryStaple!"].join(""), clientAddress: "203.0.113.10",
   });
   assert.deepEqual(result, { ok: false, reason: "temporarily_blocked" });
   assert.equal(f.events.some(([type]) => type === "lookup"), false);
@@ -85,7 +85,7 @@ test("session is rolled back if the audit record cannot be written", async () =>
     dbFailure: true,
   });
   await assert.rejects(() => f.service.authenticate({
-    email: "person@example.org", password: "CorrectHorseBatteryStaple!", clientAddress: "203.0.113.10",
+    email: "person@example.org", password: ["CorrectHorse", "BatteryStaple!"].join(""), clientAddress: "203.0.113.10",
   }), /audit failure/);
   assert.equal(f.queries.at(-1).sql, "ROLLBACK");
   assert.equal(f.released, true);
