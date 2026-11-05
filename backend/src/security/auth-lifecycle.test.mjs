@@ -100,3 +100,77 @@ test("logout endpoint rejects other methods", async () => {
   assert.equal(res.status, 405);
   assert.equal(res.headers.Allow, "POST");
 });
+
+
+async function invokeLogin({ origin = "https://foundation.example", contentType = "application/json", body, authResult, serviceError } = {}) {
+  const calls = [];
+  const pool = { async query(sql, values) { calls.push({ sql, values }); return { rows: [] }; } };
+  const authenticationService = {
+    async authenticate(input) {
+      calls.push({ authentication: input });
+      if (serviceError) throw serviceError;
+      return authResult;
+    },
+  };
+  const handler = createServer({ pool, allowedOrigin: "https://foundation.example", authenticationService });
+  const req = {
+    method: "POST",
+    url: "/api/v1/auth/login",
+    headers: { ...(origin === null ? {} : { origin }), "content-type": contentType },
+    socket: { remoteAddress: "203.0.113.10" },
+    async *[Symbol.asyncIterator]() { yield Buffer.from(body ?? JSON.stringify({
+      email: "person@example.org", password: "CorrectHorseBatteryStaple!",
+    })); },
+  };
+  const res = responseRecorder();
+  await handler(req, res);
+  return { calls, res };
+}
+
+test("login requires exact same origin and never calls authentication for a foreign origin", async () => {
+  const { calls, res } = await invokeLogin({ origin: "https://attacker.example" });
+  assert.equal(res.status, 403);
+  assert.equal(calls.length, 0);
+});
+
+test("login issues secure HttpOnly cookie and returns no bearer token in JSON", async () => {
+  const { token } = createSessionToken();
+  const { calls, res } = await invokeLogin({
+    authResult: { ok: true, token, expiresAt: "2030-01-01T00:00:00.000Z" },
+  });
+  assert.equal(res.status, 200);
+  assert.equal(calls[0].authentication.clientAddress, "203.0.113.10");
+  assert.match(res.headers["Set-Cookie"], /; HttpOnly/);
+  assert.match(res.headers["Set-Cookie"], /; Secure/);
+  assert.match(res.headers["Set-Cookie"], /; SameSite=Lax/);
+  assert.equal(res.body.includes(token), false);
+  assert.deepEqual(JSON.parse(res.body), {
+    authenticated: true, expiresAt: "2030-01-01T00:00:00.000Z",
+  });
+});
+
+test("login uses a generic credentials response and throttling status", async () => {
+  const invalid = await invokeLogin({ authResult: { ok: false, reason: "invalid_credentials" } });
+  assert.equal(invalid.res.status, 401);
+  assert.deepEqual(JSON.parse(invalid.res.body), { error: "invalid_credentials" });
+  const blocked = await invokeLogin({ authResult: { ok: false, reason: "temporarily_blocked" } });
+  assert.equal(blocked.res.status, 429);
+});
+
+test("login rejects unsupported media type, malformed body and extra fields", async () => {
+  const unsupported = await invokeLogin({ contentType: "text/plain" });
+  assert.equal(unsupported.res.status, 415);
+  const malformed = await invokeLogin({ body: "not-json" });
+  assert.equal(malformed.res.status, 400);
+  const extra = await invokeLogin({ body: JSON.stringify({
+    email: "person@example.org", password: "pass", role: "administrator",
+  }) });
+  assert.equal(extra.res.status, 400);
+  assert.equal(extra.calls.length, 0);
+});
+
+test("login returns service unavailable without leaking authentication errors", async () => {
+  const { res } = await invokeLogin({ serviceError: new Error("database credentials must not leak") });
+  assert.equal(res.status, 503);
+  assert.equal(res.body.includes("credentials must not leak"), false);
+});
