@@ -5,6 +5,7 @@ import {
   serializeClearedSessionCookie,
   serializeSessionCookie,
 } from "./security/session.mjs";
+import { rotateSession } from "./security/session-lifecycle.mjs";
 
 const SECURITY_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -425,8 +426,42 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       return res.end(JSON.stringify({ authenticated: true, expiresAt: result.expiresAt }));
     }
 
-    // Logout is the only state-changing route enabled in this phase.
-    // It requires an exact same-origin POST and revokes the server-side session
+    if (url.pathname === "/api/v1/auth/rotate") {
+      if (req.method !== "POST") {
+        res.setHeader("Allow", "POST");
+        return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
+      }
+      if (!allowedOrigin || req.headers.origin !== allowedOrigin) {
+        return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
+      }
+      const token = readSessionCookie(req.headers.cookie);
+      if (!token) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+
+      let rotated;
+      try {
+        rotated = await rotateSession({ pool, token, maxAgeSeconds: 28800 });
+      } catch {
+        return sendJson(res, 503, { error: "session_service_unavailable" }, req.method);
+      }
+      if (!rotated) {
+        res.writeHead(401, {
+          ...SECURITY_HEADERS,
+          "Set-Cookie": serializeClearedSessionCookie(),
+          "Content-Type": "application/json; charset=utf-8",
+        });
+        return res.end(JSON.stringify({ error: "authentication_required" }));
+      }
+      res.writeHead(200, {
+        ...SECURITY_HEADERS,
+        "Content-Type": "application/json; charset=utf-8",
+        "Set-Cookie": serializeSessionCookie(rotated.token, { maxAgeSeconds: 28800 }),
+      });
+      return res.end(JSON.stringify({ authenticated: true, expiresAt: rotated.expiresAt }));
+    }
+
+    // Logout requires an exact same-origin POST and revokes the server-side session
     // before clearing the browser cookie. No request body is accepted.
     if (url.pathname === "/api/v1/auth/logout") {
       if (req.method !== "POST") {
