@@ -2,6 +2,11 @@ import { verifyPassword } from "./password.mjs";
 import { createSessionToken } from "./session.mjs";
 
 const DEFAULT_SESSION_SECONDS = 8 * 60 * 60;
+// Valid, non-user verifier used to equalize scrypt work for unknown/inactive
+// accounts. Its random salt and derived key are public and cannot authenticate.
+const DUMMY_PASSWORD_HASH = "scrypt$32768$8$1$ih3pg5cXAgRg1Zzyto3dsQ$KZywyEx1FZserQknQ0eHzt82tkGSs3NbhLUfr28Lomsxgrqma0K0j0F7T8JX3XeWK_LIcaADVgolnPEx7Aqmjg";
+const isUsablePasswordHash = (value) => typeof value === "string" &&
+  /^scrypt\\$32768\\$8\\$1\\$[A-Za-z0-9_-]{22}\\$[A-Za-z0-9_-]{86}$/.test(value);
 
 function normalizeEmail(value) {
   if (typeof value !== "string") return null;
@@ -54,9 +59,13 @@ export function createAuthenticationService({
         [email],
       );
       const user = result.rows?.[0];
-      const validPassword = user && typeof user.password_hash === "string"
-        ? await verify(password, user.password_hash)
-        : false;
+      // Always perform one scrypt verification, including unknown, inactive,
+      // and malformed-password-hash accounts, to reduce account enumeration
+      // through response-time differences.
+      const passwordHash = isUsablePasswordHash(user?.password_hash)
+        ? user.password_hash
+        : DUMMY_PASSWORD_HASH;
+      const validPassword = await verify(password, passwordHash);
 
       if (!user || user.account_status !== "active" || !validPassword) {
         const failure = await rateLimiter.recordFailure({ email, clientAddress });
