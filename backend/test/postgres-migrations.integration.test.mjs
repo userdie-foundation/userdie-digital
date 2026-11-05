@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import { createPrincipalResolver } from "../src/security/principal.mjs";
 import { createSessionToken } from "../src/security/session.mjs";
+import { createLoginRateLimiter } from "../src/security/login-rate-limit.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
@@ -27,6 +28,7 @@ test("PostgreSQL applies migrations 001-007 and enforces workflow and authorizat
       "006_scoped_role_grants.sql",
       "007_scoped_role_grant_lifecycle.sql",
       "008_independent_approvals.sql",
+      "009_auth_rate_limit_buckets.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -38,6 +40,35 @@ test("PostgreSQL applies migrations 001-007 and enforces workflow and authorizat
     );
     const [actorId, workerId, otherWorkerId] = users.rows.map((row) => row.id);
     await client.query("SELECT set_config('app.actor_id', $1, false)", [actorId]);
+
+    const limiter = createLoginRateLimiter({
+      pool: client,
+      hmacKey: Buffer.alloc(32, 7),
+      maxAttempts: 5,
+      windowSeconds: 900,
+      blockSeconds: 900,
+    });
+    const loginEmail = `throttle-${schema}@example.test`;
+    const peerAddress = "203.0.113.17";
+    assert.equal(await limiter.isBlocked({ email: loginEmail, clientAddress: peerAddress }), false);
+    for (let attempt = 1; attempt <= 5; attempt += 1) {
+      const result = await limiter.recordFailure({ email: loginEmail, clientAddress: peerAddress });
+      assert.equal(result.blocked, attempt === 5);
+    }
+    assert.equal(await limiter.isBlocked({ email: loginEmail, clientAddress: peerAddress }), true);
+    const buckets = await client.query(
+      "SELECT bucket_type, octet_length(key_hash) AS digest_bytes FROM auth_rate_limit_buckets ORDER BY bucket_type",
+    );
+    assert.deepEqual(buckets.rows.map((row) => [row.bucket_type, row.digest_bytes]), [
+      ["account", 32], ["network", 32],
+    ]);
+    await limiter.clearAccountFailures({ email: loginEmail });
+    assert.equal(await limiter.isBlocked({ email: loginEmail, clientAddress: peerAddress }), true);
+    const remainingBuckets = await client.query(
+      "SELECT bucket_type FROM auth_rate_limit_buckets ORDER BY bucket_type",
+    );
+    assert.deepEqual(remainingBuckets.rows.map((row) => row.bucket_type), ["network"]);
+
 
     const programs = await client.query(
       "INSERT INTO programs (name, status) VALUES ('Integration program', 'open'), ('Other program', 'draft') RETURNING id",
