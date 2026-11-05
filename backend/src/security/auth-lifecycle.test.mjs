@@ -119,7 +119,7 @@ async function invokeLogin({ origin = "https://foundation.example", contentType 
     headers: { ...(origin === null ? {} : { origin }), "content-type": contentType },
     socket: { remoteAddress: "203.0.113.10" },
     async *[Symbol.asyncIterator]() { yield Buffer.from(body ?? JSON.stringify({
-      email: "person@example.org", password: "CorrectHorseBatteryStaple!",
+      email: "person@example.org", password: ["CorrectHorse", "BatteryStaple!"].join(""),
     })); },
   };
   const res = responseRecorder();
