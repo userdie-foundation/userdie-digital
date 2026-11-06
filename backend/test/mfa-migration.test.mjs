@@ -13,6 +13,7 @@ test("MFA migration stores encrypted factor material and one-way challenge/recov
   assert.match(sql, /secret_nonce bytea NOT NULL CHECK \(octet_length\(secret_nonce\) = 12\)/);
   assert.match(sql, /secret_auth_tag bytea NOT NULL CHECK \(octet_length\(secret_auth_tag\) = 16\)/);
   assert.match(sql, /encryption_key_id text NOT NULL/);
+  assert.match(sql, /UNIQUE \(encryption_key_id, secret_nonce\)/);
   assert.match(sql, /last_accepted_step bigint/);
   assert.match(sql, /CREATE TABLE auth_mfa_challenges/);
   assert.match(sql, /challenge_hash bytea NOT NULL UNIQUE CHECK \(octet_length\(challenge_hash\) = 32\)/);
