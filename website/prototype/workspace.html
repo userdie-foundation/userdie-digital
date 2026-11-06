@@ -333,18 +333,33 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
     height: 21px !important;
   }
 }
+/* Navigation usability: searchable module directory and consistent fund identity */
+.workspace .brand-emblem{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px}
+.workspace .brand-emblem img{display:block;width:100%;height:100%;object-fit:contain}
+.app-nav-search-label{display:block;margin:2px 12px 7px;color:#7b877c;font-size:9px;font-weight:800;letter-spacing:1.1px}
+.app-nav-search{box-sizing:border-box;display:block;width:calc(100% - 12px);min-height:42px;margin:0 6px 8px;padding:0 12px;border:1px solid #d5ddcf;border-radius:8px;background:#fffefa;color:var(--app-text);font:12px 'DM Sans',sans-serif}
+.app-nav-search::placeholder{color:#899489}
+.app-nav-search:focus-visible{outline:3px solid #8ca778;outline-offset:2px}
+.app-nav-search-status{margin:0 12px 12px;color:#7a867b;font-size:10px;line-height:1.5}
+.app-nav [hidden],.app-nav-group-label[hidden]{display:none!important}
+@media(max-width:720px){
+ .app-nav-search-label{margin:2px 2px 6px}
+ .app-nav-search{width:100%;min-height:44px;margin:0 0 6px;font-size:13px}
+ .app-nav-search-status{margin:0 2px 8px}
+}
 </style>
 </head>
 <body class="workspace">
 <a class="skip-link" href="#app-content">Перейти к содержанию</a>
 <header class="header"><div class="container header-inner">
-<a class="brand" href="../index.html" aria-label="Усердие — на главную"><span class="brand-symbol" aria-hidden="true">у.</span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<a class="brand" href="../index.html" aria-label="Усердие — на главную"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
 <nav aria-label="Внешняя навигация"><a href="../index.html">Главная</a><a href="platform.html">Архитектура</a><a href="implementation-plan.html">План реализации</a></nav>
 <span class="prototype-pill">РАБОЧИЙ МАКЕТ</span>
 </div></header>
 <div class="app-shell">
 <aside class="app-sidebar" aria-label="Навигация рабочего пространства">
 <p class="sidebar-caption">РАБОЧЕЕ ПРОСТРАНСТВО</p>
+<label class="app-nav-search-label" for="app-nav-search">БЫСТРЫЙ ПОИСК ПО РАЗДЕЛАМ</label><input id="app-nav-search" class="app-nav-search" type="search" placeholder="Например: обращения, активы…" autocomplete="off" aria-describedby="app-nav-search-status"><p id="app-nav-search-status" class="app-nav-search-status" aria-live="polite">Все разделы доступны ниже.</p>
 <nav class="app-nav" aria-label="Модули платформы">
 <button type="button" data-view="overview" aria-controls="view-overview" aria-current="page"><span class="nav-ico">⌂</span>Обзор</button>
 <button type="button" data-view="tasks" aria-controls="view-tasks"><span class="nav-ico">✓</span>Задачи</button>
@@ -619,6 +634,28 @@ function renderObjects(){const root=document.getElementById("object-list");if(!r
 document.getElementById("object-form").addEventListener("submit",event=>{event.preventDefault();const title=document.getElementById("object-title").value.trim();if(!title){showToast("Укажите название объекта.");return;}const next=objects.reduce((max,o)=>Math.max(max,Number(o.id.replace("DEMO-",""))||0),0)+1;objects.unshift({id:"DEMO-"+String(next).padStart(3,"0"),type:document.getElementById("object-type").value,contour:document.getElementById("object-contour").value,title,goal:document.getElementById("object-goal").value.trim(),owner:document.getElementById("object-owner").value.trim(),status:document.getElementById("object-status").value,deadline:document.getElementById("object-deadline").value,links:(document.getElementById("object-link-target").value&&document.getElementById("object-link-target").value!=="DEMO-"+String(next).padStart(3,"0"))?("rel:"+document.getElementById("object-link-kind").value+":"+document.getElementById("object-link-target").value):"",source:document.getElementById("object-source").value.trim(),created:new Date().toISOString().slice(0,10),confirmed:"Не подтверждено"});objects=objects.slice(0,100);const saved=saveObjects();event.target.reset();renderObjects();showToast(saved?"Демо-карточка добавлена и сохранена только в этом браузере; на сервер не отправлена.":"Демо-карточка добавлена только в памяти вкладки; браузер не разрешил локальное сохранение.");});
 document.getElementById("object-search").addEventListener("input",renderObjects);document.getElementById("object-filter-type").addEventListener("change",renderObjects);document.getElementById("object-link-target").addEventListener("change",()=>{const id=document.getElementById("object-link-target").value;const target=objects.find(o=>o.id===id);document.getElementById("object-link-hint").textContent=target?"Будет создана связь «"+relationLabel(document.getElementById("object-link-kind").value)+"» с "+target.id+" — "+target.title+". Это только локальная демо-связь.":"Связь не выбрана. Связь не предоставляет доступ к данным."});document.getElementById("object-link-kind").addEventListener("change",()=>document.getElementById("object-link-target").dispatchEvent(new Event("change")));
 
+// Searchable navigation: filters only visible links; it never changes access or data.
+const navSearch=document.getElementById("app-nav-search");
+const navRoot=document.querySelector(".app-nav");
+const navStatus=document.getElementById("app-nav-search-status");
+if(navSearch&&navRoot&&navStatus){
+ const navEntries=[...navRoot.children].filter(el=>el.matches("button,a.app-nav-link"));
+ const navGroups=[...navRoot.querySelectorAll(".app-nav-group-label")];
+ navSearch.addEventListener("input",()=>{
+  const query=navSearch.value.trim().toLocaleLowerCase("ru");
+  let visible=0;
+  navEntries.forEach(item=>{
+   const match=!query||item.textContent.toLocaleLowerCase("ru").includes(query);
+   item.hidden=!match;
+   if(match)visible++;
+  });
+  navGroups.forEach(group=>{group.hidden=Boolean(query);});
+  navStatus.textContent=query?(visible?("Найдено разделов: "+visible):"Ничего не найдено. Измените запрос или очистите поиск."):"Все разделы доступны ниже.";
+ });
+ navSearch.addEventListener("keydown",event=>{
+  if(event.key==="Escape"&&navSearch.value){navSearch.value="";navSearch.dispatchEvent(new Event("input"));navSearch.blur();}
+ });
+}
 restoreDemoTasks();restoreObjects();updateMetrics();renderOverviewTasks();renderTasks();renderObjects();
 })();
 </script>
