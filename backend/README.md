@@ -74,7 +74,7 @@ Before enabling real user accounts, complete and test:
 
 ## Production blockers — do not accept real applications yet
 
-- The login/logout code and account-recovery core exist, but production activation is not confirmed. Recovery routes and delivery are not wired; MFA and CSRF-protected state-changing application flows remain incomplete.
+- A central exact-Origin guard now rejects every state-changing HTTP method (POST, PUT, PATCH, DELETE) when Origin is absent, null, or does not match the configured application origin; safe reads and OPTIONS preflight are excluded. Route-specific Origin checks remain on authentication endpoints. This is a CSRF control, not a substitute for production review of proxy/origin configuration, browser behavior, and future cross-origin requirements. Production activation is not confirmed; recovery routes and trusted delivery are not wired, and MFA remains incomplete.
 - Application and program write/lifecycle routes remain disabled. All future routes must use trusted database-loaded grants and per-record checks.
 - Application CRUD, task creation/update, file upload/download, malware scanning, notifications, and reporting are not implemented.
 - SLA overdue state is computed on read; no background scheduler, automatic escalation worker, notification channel, or task write endpoint is deployed. Escalation levels are data fields awaiting a governed write workflow.
