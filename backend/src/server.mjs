@@ -514,13 +514,43 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
 
       const token = readSessionCookie(req.headers.cookie);
       if (token) {
+        let client;
+        let transactionOpen = false;
         try {
-          await pool.query(
-            "UPDATE auth_sessions SET revoked_at = now(), revoke_reason = 'user_logout' WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > now()",
+          if (typeof pool.connect !== "function") {
+            throw new TypeError("A database pool with connect() is required for audited logout");
+          }
+          client = await pool.connect();
+          await client.query("BEGIN");
+          transactionOpen = true;
+          const revoked = await client.query(
+            `UPDATE auth_sessions
+             SET revoked_at = now(), revoke_reason = 'user_logout'
+             WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > now()
+             RETURNING id, user_id`,
             [hashSessionToken(token)],
           );
+          const session = revoked.rows?.[0];
+          if (session) {
+            await client.query(
+              `INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata)
+               VALUES ($1, 'auth.session_revoked', 'auth_session', $2, $3::jsonb)`,
+              [session.user_id, String(session.id), JSON.stringify({ reason: "user_logout" })],
+            );
+          }
+          await client.query("COMMIT");
+          transactionOpen = false;
         } catch {
+          if (transactionOpen && client) {
+            try {
+              await client.query("ROLLBACK");
+            } catch {
+              // Preserve the generic service error; release the connection below.
+            }
+          }
           return sendJson(res, 503, { error: "session_service_unavailable" }, req.method);
+        } finally {
+          client?.release();
         }
       }
 
