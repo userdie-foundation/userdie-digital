@@ -87,16 +87,29 @@ paths:
   /programs:
     get:
       tags: [Programs]
-      summary: List approved program directory entries
+      summary: List programs visible to the authenticated principal
+      description: Implemented as a read-only backend route. Applicants and partners see open programs only; program managers see exact granted program scopes; administrators, auditors and case workers see the governed portfolio. The API applies a bounded limit and rechecks each returned record against the authorization policy.
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 25 }
       responses:
         '200':
-          description: Programs visible to principal
+          description: Bounded directory of authorized program summaries
           content:
             application/json:
               schema:
-                type: array
-                items: { $ref: '#/components/schemas/Program' }
+                type: object
+                additionalProperties: false
+                required: [programs, count]
+                properties:
+                  programs:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProgramDirectoryEntry' }
+                  count: { type: integer, minimum: 0, maximum: 50 }
+        '400': { description: Invalid limit }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { description: Program repository unavailable }
   /programs/{program_id}:
     get:
       tags: [Programs]
@@ -244,6 +257,22 @@ components:
           type: object
           description: Strict allowlist per event_type; do not place personal data or free-text beneficiary details here.
           additionalProperties: false
+    ProgramDirectoryEntry:
+      type: object
+      additionalProperties: false
+      required: [id, name, status, organizationalContour]
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: [string, 'null'], maxLength: 40 }
+        name: { type: string, maxLength: 200 }
+        description: { type: string }
+        status: { type: string, enum: [draft, open, paused, closed] }
+        organizationalContour: { type: string, enum: [foundation, asset_valuation, analytics] }
+        objective: { type: string }
+        targetGroups: { type: array, items: { type: string, maxLength: 80 } }
+        geography: { type: string, maxLength: 200 }
+        startsAt: { type: [string, 'null'], format: date-time }
+        endsAt: { type: [string, 'null'], format: date-time }
     Program:
       type: object
       additionalProperties: false
