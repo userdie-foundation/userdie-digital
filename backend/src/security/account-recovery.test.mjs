@@ -74,3 +74,78 @@ test("invalid or weak reset input fails before database access", async () => {
   assert.deepEqual(await f.service.consume({ token: "invalid", newPassword: "short" }), { reset: false });
   assert.equal(f.calls.length, 0);
 });
+
+
+function consumeFixture({ recovery = { id: "42", user_id: "user-uuid" }, failAt = null } = {}) {
+  const calls = [];
+  const client = {
+    async query(sql, values = []) {
+      calls.push({ sql, values });
+      if (sql === "BEGIN" || sql === "COMMIT" || sql === "ROLLBACK") return { rows: [] };
+      if (sql.includes("SELECT recovery.id")) return { rows: recovery ? [recovery] : [] };
+      if (failAt && sql.includes(failAt)) throw new Error("synthetic database failure");
+      return { rows: [], rowCount: 1 };
+    },
+    release() { calls.push({ sql: "RELEASE" }); },
+  };
+  const pool = {
+    async query() { return { rows: [] }; },
+    async connect() { return client; },
+  };
+  return {
+    calls,
+    service: createAccountRecoveryService({
+      pool,
+      sendRecoveryMessage: async () => {},
+    }),
+  };
+}
+
+test("valid recovery token resets password, consumes token, revokes sessions and audits atomically", async () => {
+  const f = consumeFixture();
+  const rawToken = "A".repeat(43);
+  const newPassword = "correct horse battery staple";
+  assert.deepEqual(
+    await f.service.consume({ token: rawToken, newPassword }),
+    { reset: true },
+  );
+
+  const passwordUpdate = f.calls.find((call) => call.sql.includes("UPDATE app_users SET password_hash"));
+  assert.ok(passwordUpdate);
+  assert.match(passwordUpdate.values[0], /^scrypt\$32768\$8\$1\$/);
+  assert.notEqual(passwordUpdate.values[0], newPassword);
+  assert.equal(passwordUpdate.values[1], "user-uuid");
+  assert.equal(f.calls.some((call) => call.sql.includes("UPDATE auth_recovery_tokens SET consumed_at")), true);
+  assert.equal(f.calls.some((call) => call.sql.includes("UPDATE auth_sessions") && call.values[0] === "user-uuid"), true);
+  assert.equal(f.calls.some((call) => call.sql.includes("auth.password_reset_completed")), true);
+  assert.equal(f.calls.at(-2).sql, "COMMIT");
+  assert.equal(f.calls.at(-1).sql, "RELEASE");
+  assert.equal(JSON.stringify(f.calls).includes(rawToken), false);
+  assert.equal(JSON.stringify(f.calls).includes(newPassword), false);
+});
+
+test("expired, consumed, replayed or unknown recovery tokens fail without changing credentials", async () => {
+  const f = consumeFixture({ recovery: null });
+  const result = await f.service.consume({
+    token: "B".repeat(43),
+    newPassword: "correct horse battery staple",
+  });
+  assert.deepEqual(result, { reset: false });
+  assert.equal(f.calls.some((call) => call.sql.includes("UPDATE app_users SET password_hash")), false);
+  assert.equal(f.calls.some((call) => call.sql.includes("UPDATE auth_sessions")), false);
+  assert.equal(f.calls.at(-2).sql, "ROLLBACK");
+  assert.equal(f.calls.at(-1).sql, "RELEASE");
+});
+
+test("database failure during password reset rolls back and releases the connection", async () => {
+  const f = consumeFixture({ failAt: "UPDATE auth_sessions" });
+  await assert.rejects(
+    f.service.consume({
+      token: "C".repeat(43),
+      newPassword: "correct horse battery staple",
+    }),
+    /synthetic database failure/,
+  );
+  assert.equal(f.calls.at(-2).sql, "ROLLBACK");
+  assert.equal(f.calls.at(-1).sql, "RELEASE");
+});
