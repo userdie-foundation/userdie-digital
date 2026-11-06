@@ -129,6 +129,15 @@ test("PostgreSQL applies migrations 001-012 and enforces workflow, authorization
     await assert.rejects(
       client.query(
         `INSERT INTO auth_mfa_factors
+          (user_id, factor_type, secret_ciphertext, secret_nonce, secret_auth_tag, encryption_key_id)
+         VALUES ($1, 'totp', $2, $3, $4, 'integration-key-v1')`,
+        [workerId, Buffer.alloc(32, 10), Buffer.alloc(12, 4), Buffer.alloc(16, 11)],
+      ),
+      /unique constraint/i,
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO auth_mfa_factors
           (user_id, factor_type, secret_ciphertext, secret_nonce, secret_auth_tag, encryption_key_id, status, confirmed_at)
          VALUES ($1, 'totp', $2, $3, $4, 'integration-key-v1', 'active', now())`,
         [actorId, Buffer.alloc(32, 3), Buffer.alloc(11, 4), Buffer.alloc(16, 5)],
