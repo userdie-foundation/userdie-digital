@@ -32,7 +32,7 @@ The recovery service is not connected to HTTP request/reset routes or a producti
 
 ## MFA status
 
-MFA is not implemented or enforced. Before activation, implement secure enrollment and secret protection, challenge verification, recovery codes stored as one-way verifiers, disable/re-enrollment controls, audit events, and brute-force protections. Define whether MFA is mandatory for administrators and other privileged roles.
+MFA is not implemented or enforced. The current password login issues a normal session immediately after password verification. A detailed design checkpoint is recorded in [MFA_IMPLEMENTATION_DESIGN.md](MFA_IMPLEMENTATION_DESIGN.md). It specifies a pending-challenge state machine (no normal session before factor verification), managed-KMS envelope encryption for TOTP seeds, replay prevention, one-time recovery-code verifiers, privileged-role policy, audited reset controls, and fail-closed behavior. This is design only: no MFA schema, enrollment, challenge route, recovery codes, KMS integration, or enforcement has been implemented. Do not treat accounts as MFA-protected.
 
 ## Pre-activation checklist
 
@@ -41,7 +41,7 @@ MFA is not implemented or enforced. Before activation, implement secure enrollme
 3. Confirm HTTPS is active because the session cookie is Secure and uses the `__Host-` prefix.
 4. Verify login, logout, rate-limit, audit, session-expiry and session-rotation tests in CI.
 5. Complete and verify the recovery HTTP routes, trusted delivery adapter, one-time-token expiry/replay tests, and session revocation.
-6. Complete an MFA policy and implementation review, including recovery and privileged-role enforcement.
+6. Review and approve `MFA_IMPLEMENTATION_DESIGN.md`; implement and independently verify its privileged-role policy, factor lifecycle, recovery and enforcement requirements.
 7. Conduct a security review of proxy topology, CSRF protection, operational monitoring, and retention before enabling real user accounts.
 8. Keep protected cabinets unavailable until the full authorization and deployment review is signed off.
 
