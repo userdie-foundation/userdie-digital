@@ -1127,3 +1127,50 @@ img,svg,video,canvas{max-width:100%}
  .hero-footer{flex-wrap:wrap;overflow-wrap:anywhere}
  .foundation-pillars article,.direction-card,.preview-card,.platform-status-card{min-width:0}
 }
+
+/* 2026-11-06: predictable mobile header layout.
+   Keep all navigation links visible and tappable; avoid clipped horizontal menus. */
+@media (max-width:680px){
+  .header-inner{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    column-gap:12px;
+    row-gap:8px;
+    padding:12px 0 8px;
+  }
+  .header-inner>.brand{min-width:0}
+  .header-inner>.header-cta,
+  .header-inner>.prototype-pill{
+    justify-self:end;
+    margin:0;
+    max-width:46vw;
+  }
+  .header-inner>nav,
+  .header-inner nav{
+    grid-column:1/-1;
+    order:3;
+    display:flex;
+    flex:0 0 auto;
+    flex-wrap:wrap;
+    justify-content:flex-start;
+    align-items:center;
+    gap:4px 12px;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    overflow:visible;
+    white-space:normal;
+    padding:4px 0 8px;
+  }
+  .header-inner nav a{
+    flex:0 1 auto;
+    min-height:44px;
+    max-width:100%;
+    padding:8px 2px;
+    font-size:13px;
+    line-height:1.35;
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+}
