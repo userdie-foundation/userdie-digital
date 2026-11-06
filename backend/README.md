@@ -18,9 +18,10 @@ This directory is the initial backend service scaffold. It is separate from the 
 - A read-only internal workflow endpoint exposes task status, overdue flags, escalation metadata, and the latest 100 workflow events only to the assigned case worker or the program manager for that exact program.
 - Migration 009 adds PostgreSQL-backed account and network throttling buckets keyed by HMAC digests; the tested limiter primitive is not yet wired to a login endpoint.
 - Migration 010 adds short-lived, single-use password-recovery token storage. Only SHA-256 token digests are persisted.
+- Migration 011 blocks UPDATE, DELETE and TRUNCATE on `audit_events` with PostgreSQL triggers; database ownership and DDL permissions must still be restricted operationally.
 - The account-recovery service core validates and normalizes email, returns a generic request result, rotates outstanding recovery tokens, sends the raw token only to a caller-supplied delivery adapter, and on successful reset revokes active sessions and writes an audit event. The service is not wired to an HTTP route or production email provider.
 - Migration 007 adds one-way scoped-grant revocation, active-only uniqueness, hard-delete protection, and append-only grant/revocation audit events. No public grant-management endpoint is exposed.
-- Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint. PostgreSQL integration coverage exercises migrations 001–010, synthetic session resolution, scoped-grant creation and revocation, immediate permission removal, hard-delete prevention, append-only grant audit events, recovery-token storage, and account/network login-throttling behavior.
+- Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint. PostgreSQL integration coverage exercises migrations 001–011, synthetic session resolution, scoped-grant creation and revocation, immediate permission removal, hard-delete prevention, append-only grant audit events, recovery-token storage, and account/network login-throttling behavior.
 
 ## Local development
 
@@ -36,9 +37,10 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 8. Review and apply `migrations/007_scoped_role_grant_lifecycle.sql` after migration 006 to add auditable one-way revocation and append-only grant events.
 9. Review and apply `migrations/008_independent_approvals.sql` and `migrations/009_auth_rate_limit_buckets.sql` after reviewing their dependencies.
 10. Review and apply `migrations/010_auth_recovery_tokens.sql` after migration 001 to prepare one-time recovery-token storage.
-11. Install dependencies with `npm install`.
-12. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
-13. Run `npm test`, `npm run check`, then `npm start`.
+11. Review and apply `migrations/011_audit_events_append_only.sql` after migration 001 to block ordinary UPDATE, DELETE and TRUNCATE operations on the audit log.
+12. Install dependencies with `npm install`.
+13. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
+14. Run `npm test`, `npm run check`, then `npm start`.
 
 Migrations are reviewed SQL files, not an automated migration runner. Apply them through a controlled deployment process and verify backups first. Do not run migrations against production until a backup and restore procedure has been verified.
 
