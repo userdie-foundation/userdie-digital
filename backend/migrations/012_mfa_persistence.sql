@@ -11,6 +11,7 @@ CREATE TABLE auth_mfa_factors (
   secret_nonce bytea NOT NULL CHECK (octet_length(secret_nonce) = 12),
   secret_auth_tag bytea NOT NULL CHECK (octet_length(secret_auth_tag) = 16),
   encryption_key_id text NOT NULL CHECK (length(encryption_key_id) BETWEEN 1 AND 128),
+  UNIQUE (encryption_key_id, secret_nonce),
   encryption_algorithm text NOT NULL DEFAULT 'AES-256-GCM'
     CHECK (encryption_algorithm = 'AES-256-GCM'),
   totp_digits smallint NOT NULL DEFAULT 6 CHECK (totp_digits = 6),
