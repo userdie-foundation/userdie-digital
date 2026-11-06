@@ -41,8 +41,8 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 11. Review and apply `migrations/011_audit_events_append_only.sql` after migration 001 to block ordinary UPDATE, DELETE and TRUNCATE operations on the audit log.
 12. Review and apply `migrations/012_mfa_persistence.sql` after migrations 001 and 011 to prepare encrypted MFA-factor, pending-challenge, and one-time recovery-code storage. This migration alone does not enable MFA.
 13. Install dependencies with `npm install`.
-13. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
-14. Run `npm test`, `npm run check`, then `npm start`.
+14. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
+15. Run `npm test`, `npm run check`, then `npm start`.
 
 Migrations are reviewed SQL files, not an automated migration runner. Apply them through a controlled deployment process and verify backups first. Do not run migrations against production until a backup and restore procedure has been verified.
 
