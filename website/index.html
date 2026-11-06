@@ -71,6 +71,55 @@
       </div>
     </section>
 
+    <section class="quick-help section" id="help" aria-labelledby="quick-help-title">
+      <div class="container">
+        <div class="quick-help-heading">
+          <p class="eyebrow">С ЧЕГО НАЧАТЬ</p>
+          <h2 id="quick-help-title">Чем мы можем <em>вам помочь?</em></h2>
+          <p>Выберите подходящий пункт. Не нужно разбираться в устройстве платформы — мы покажем нужную информацию.</p>
+        </div>
+        <div class="quick-help-grid">
+          <a class="quick-help-card" href="prototype/applicant-cabinet.html#prepare">
+            <span class="quick-help-number">01</span>
+            <span class="quick-help-card-copy"><strong>Мне нужна помощь</strong><small>Узнать, с чего начать и как подготовиться к обращению</small></span>
+            <span class="quick-help-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="quick-help-card" href="prototype/applicant-cabinet.html#steps">
+            <span class="quick-help-number">02</span>
+            <span class="quick-help-card-copy"><strong>Как рассматривают обращение</strong><small>Посмотреть понятные этапы и возможные дальнейшие шаги</small></span>
+            <span class="quick-help-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="quick-help-card" href="prototype/partner-space.html">
+            <span class="quick-help-number">03</span>
+            <span class="quick-help-card-copy"><strong>Хочу стать партнёром</strong><small>Узнать о возможностях сотрудничества с фондом</small></span>
+            <span class="quick-help-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <p class="quick-help-note"><strong>Важно:</strong> сейчас это информационные демонстрационные страницы. Отправка обращений и проверка их статуса онлайн пока не подключены. Мы не просим передавать личные документы через эти макеты.</p>
+      </div>
+    </section>
+
+    <style>
+      .quick-help{padding:clamp(48px,6vw,76px) 0;background:#fff}
+      .quick-help-heading{max-width:720px;margin-bottom:28px}
+      .quick-help-heading h2{margin:10px 0 12px;font-size:clamp(30px,4vw,44px);line-height:1.12;letter-spacing:-.04em}
+      .quick-help-heading h2 em{color:#28624d}
+      .quick-help-heading>p:last-child{margin:0;color:#53645b;font-size:17px;line-height:1.65}
+      .quick-help-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+      .quick-help-card{display:flex;align-items:flex-start;gap:14px;min-height:150px;padding:22px;border:1px solid #dce5dd;border-radius:18px;background:#fbfaf6;color:#172b25;text-decoration:none;transition:background .18s ease,border-color .18s ease,transform .18s ease}
+      .quick-help-card:hover{background:#f1f6ef;border-color:#a9c3ad;transform:translateY(-2px)}
+      .quick-help-card:focus-visible{outline:3px solid #c4a35a;outline-offset:4px}
+      .quick-help-number{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:50%;background:#e7f0e8;color:#245b39;font-size:13px;font-weight:800}
+      .quick-help-card-copy{display:grid;gap:8px;min-width:0}
+      .quick-help-card-copy strong{font-size:18px;line-height:1.3}
+      .quick-help-card-copy small{font-size:14px;line-height:1.55;color:#53645b}
+      .quick-help-arrow{margin-left:auto;color:#28624d;font-size:23px;line-height:1}
+      .quick-help-note{margin:20px 0 0;padding:16px 18px;border-left:3px solid #c4a35a;background:#f7f5ed;color:#4f5e55;font-size:14px;line-height:1.6}
+      .quick-help-note strong{color:#172b25}
+      @media(max-width:760px){.quick-help-grid{grid-template-columns:1fr}.quick-help-card{min-height:unset;padding:18px}.quick-help-heading>p:last-child{font-size:16px}}
+      @media(prefers-reduced-motion:reduce){.quick-help-card{transition:none}}
+    </style>
+
     <section class="platform-status section" aria-labelledby="platform-status-title">
       <div class="container">
         <div class="platform-status-heading">
