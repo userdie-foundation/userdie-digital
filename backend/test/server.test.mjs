@@ -780,12 +780,23 @@ test("approval detail fails closed without authentication and never accepts writ
   assert.equal(lookups, 0);
 });
 
-test("program directory requires trusted authentication and bounds the result limit", async () => {
+test("program directory requires trusted authentication", async () => {
   let lookups = 0;
   await withServer(noDb, async (base) => {
     const anonymous = await fetch(base + "/api/v1/programs");
     assert.equal(anonymous.status, 401);
     assert.deepEqual(await anonymous.json(), { error: "authentication_required" });
+    assert.equal(lookups, 0);
+  }, {
+    programRepository: {
+      async listVisible() { lookups += 1; return []; },
+    },
+  });
+});
+
+test("program directory bounds the result limit and rejects write methods", async () => {
+  let lookups = 0;
+  await withServer(noDb, async (base) => {
     for (const value of ["0", "51", "2.5", "invalid"]) {
       const invalid = await fetch(base + "/api/v1/programs?limit=" + value);
       assert.equal(invalid.status, 400);
@@ -795,6 +806,7 @@ test("program directory requires trusted authentication and bounds the result li
     assert.equal(write.status, 405);
     assert.equal(lookups, 0);
   }, {
+    resolvePrincipal: async () => identity("staff-1", "case_worker"),
     programRepository: {
       async listVisible() { lookups += 1; return []; },
     },
