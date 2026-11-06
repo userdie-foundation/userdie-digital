@@ -301,6 +301,38 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
   body.workspace .app-main { padding-inline: 12px !important; }
 }
 
+
+/* Keep external module links in the same compact mobile navigation rail
+   as the interactive view buttons; the desktop 100% link width otherwise
+   creates oversized flex items and pushes the navigation out of view. */
+@media (max-width: 720px) {
+  body.workspace .app-nav > a.app-nav-link {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    gap: 7px !important;
+    width: auto !important;
+    min-width: max-content !important;
+    min-height: 38px !important;
+    box-sizing: border-box !important;
+    padding: 6px 11px !important;
+    border: 1px solid #dce1d6 !important;
+    border-radius: 999px !important;
+    background: #fffefa !important;
+    color: #526457 !important;
+    font: 600 11px/1.2 'DM Sans', sans-serif !important;
+    white-space: nowrap !important;
+  }
+  body.workspace .app-nav > a.app-nav-link:hover {
+    background: #e8efdf !important;
+    border-color: #9fb48e !important;
+  }
+  body.workspace .app-nav > a.app-nav-link .nav-ico {
+    flex: 0 0 21px !important;
+    width: 21px !important;
+    height: 21px !important;
+  }
+}
 </style>
 </head>
 <body class="workspace">
