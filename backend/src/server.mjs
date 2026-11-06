@@ -53,6 +53,46 @@ async function readJsonBody(req, maxBytes = 16384) {
 
 function createProgramRepository(pool) {
   return {
+    async listVisible(principal, limit) {
+      const grants = principal.grants ?? [];
+      const canReadAll = grants.some((grant) =>
+        grant?.scopeType === "global" &&
+        ["administrator", "auditor", "case_worker"].includes(grant.roleCode)
+      );
+      const canReadOpen = grants.some((grant) =>
+        grant?.scopeType === "global" &&
+        ["applicant", "partner"].includes(grant.roleCode)
+      );
+      const programIds = [...new Set(grants
+        .filter((grant) => grant?.roleCode === "program_manager" &&
+          grant.scopeType === "program" && typeof grant.scopeId === "string")
+        .map((grant) => grant.scopeId))];
+      const result = await pool.query(
+        `SELECT id, code, name, description, status, organizational_contour,
+                objective, target_groups, geography, starts_at, ends_at
+         FROM programs
+         WHERE ($1::boolean
+           OR id::text = ANY($2::text[])
+           OR ($3::boolean AND status = 'open'))
+         ORDER BY CASE status WHEN 'open' THEN 0 WHEN 'paused' THEN 1
+           WHEN 'draft' THEN 2 ELSE 3 END, name ASC
+         LIMIT $4`,
+        [canReadAll, programIds, canReadOpen, limit],
+      );
+      return (result.rows ?? []).map((row) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        description: row.description,
+        status: row.status,
+        organizationalContour: row.organizational_contour,
+        objective: row.objective,
+        targetGroups: row.target_groups,
+        geography: row.geography,
+        startsAt: row.starts_at,
+        endsAt: row.ends_at,
+      }));
+    },
     async getById(id) {
       const result = await pool.query(
         "SELECT id, code, name, description, status, organizational_contour, objective, target_groups, geography, starts_at, ends_at FROM programs WHERE id = $1 LIMIT 1",
@@ -505,6 +545,40 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
         return sendJson(res, 200, { status: "ready" }, req.method);
       } catch {
         return sendJson(res, 503, { status: "unavailable" }, req.method);
+      }
+    }
+
+    if (url.pathname === "/api/v1/programs") {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      const limitValue = url.searchParams.get("limit");
+      const limit = limitValue === null ? 25 : Number(limitValue);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+        return sendJson(res, 400, { error: "invalid_limit" }, req.method);
+      }
+      try {
+        const visiblePrograms = await programs.listVisible(principal, limit);
+        const allowedPrograms = visiblePrograms.filter((program) =>
+          isAuthorized({
+            principal,
+            permission: "programs:read",
+            resource: { programId: program.id, status: program.status },
+          })
+        );
+        return sendJson(res, 200, {
+          programs: allowedPrograms,
+          count: allowedPrograms.length,
+        }, req.method);
+      } catch {
+        return sendJson(res, 503, { error: "programs_unavailable" }, req.method);
       }
     }
 
