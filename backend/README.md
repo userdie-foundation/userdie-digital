@@ -50,6 +50,7 @@ Migrations are reviewed SQL files, not an automated migration runner. Apply them
 - `POST /api/v1/auth/logout` — revokes the current server-side session and clears its cookie.
 - `GET /api/v1/applications/:id` — read-only detail route; requires a valid server-side session and record-level authorization.
 - `GET /api/v1/applications` — returns `503 applications_module_unavailable`; collection access remains disabled.
+- `GET /api/v1/programs?limit=25` — read-only program directory (limit 1–50); applicants and partners see open programs, program managers see exact granted scopes, and administrators/auditors/case workers see the governed portfolio.
 - `GET /api/v1/programs/:id` — read-only program dossier and milestone timeline; requires a valid server-side session and `programs:read` authorization.
 - `GET /api/v1/applications/:id/workflow` — internal read-only task, SLA and event timeline; visible only to the assigned case worker or exact-scope program manager with a valid server-side session.
 
