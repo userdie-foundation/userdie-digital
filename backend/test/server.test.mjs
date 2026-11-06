@@ -63,6 +63,30 @@ test("ready endpoint checks database connectivity without leaking errors", async
   });
 });
 
+test("all state-changing methods require the exact configured Origin before routing", async () => {
+  await withServer(noDb, async (base) => {
+    for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
+      const missing = await fetch(base + "/api/v1/future-write", { method });
+      assert.equal(missing.status, 403, method + " without Origin must be rejected");
+      assert.deepEqual(await missing.json(), { error: "origin_not_allowed" });
+
+      const foreign = await fetch(base + "/api/v1/future-write", {
+        method, headers: { origin: "https://attacker.example" },
+      });
+      assert.equal(foreign.status, 403, method + " with foreign Origin must be rejected");
+    }
+
+    const sameOrigin = await fetch(base + "/api/v1/future-write", {
+      method: "POST", headers: { origin: "https://platform.example" },
+    });
+    assert.equal(sameOrigin.status, 404);
+    assert.deepEqual(await sameOrigin.json(), { error: "not_found" });
+
+    const readWithoutOrigin = await fetch(base + "/api/v1/health/live");
+    assert.equal(readWithoutOrigin.status, 200);
+  }, { allowedOrigin: "https://platform.example" });
+});
+
 test("CORS allows only the configured exact origin", async () => {
   await withServer(noDb, async (base) => {
     const allowed = await fetch(`${base}/api/v1/health/live`, { headers: { origin: "https://platform.example" } });
