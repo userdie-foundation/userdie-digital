@@ -779,3 +779,98 @@ test("approval detail fails closed without authentication and never accepts writ
   });
   assert.equal(lookups, 0);
 });
+
+test("program directory requires trusted authentication and bounds the result limit", async () => {
+  let lookups = 0;
+  await withServer(noDb, async (base) => {
+    const anonymous = await fetch(base + "/api/v1/programs");
+    assert.equal(anonymous.status, 401);
+    assert.deepEqual(await anonymous.json(), { error: "authentication_required" });
+    for (const value of ["0", "51", "2.5", "invalid"]) {
+      const invalid = await fetch(base + "/api/v1/programs?limit=" + value);
+      assert.equal(invalid.status, 400);
+      assert.deepEqual(await invalid.json(), { error: "invalid_limit" });
+    }
+    const write = await fetch(base + "/api/v1/programs", { method: "POST" });
+    assert.equal(write.status, 405);
+    assert.equal(lookups, 0);
+  }, {
+    programRepository: {
+      async listVisible() { lookups += 1; return []; },
+    },
+  });
+});
+
+test("program directory exposes only open programs to applicants", async () => {
+  let received;
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/programs?limit=10");
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      programs: [{
+        id: "program-a", name: "Открытый мир", status: "open",
+      }],
+      count: 1,
+    });
+  }, {
+    resolvePrincipal: async () => identity("applicant-1", "applicant"),
+    programRepository: {
+      async listVisible(principal, limit) {
+        received = { principal, limit };
+        return [
+          { id: "program-a", name: "Открытый мир", status: "open" },
+          { id: "program-b", name: "Помоги сам себе", status: "draft" },
+        ];
+      },
+    },
+  });
+  assert.equal(received.principal.id, "applicant-1");
+  assert.equal(received.limit, 10);
+});
+
+test("program directory SQL limits applicants to open records and binds scope filters", async () => {
+  let captured;
+  await withServer({
+    async query(sql, params) {
+      captured = { sql, params };
+      return { rows: [
+        { id: "program-a", name: "Открытый мир", status: "open" },
+        { id: "program-b", name: "Помоги сам себе", status: "draft" },
+      ] };
+    },
+  }, async (base) => {
+    const response = await fetch(base + "/api/v1/programs?limit=12");
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.deepEqual(body.programs.map((program) => program.id), ["program-a"]);
+    assert.equal(body.count, 1);
+  }, {
+    resolvePrincipal: async () => identity("applicant-1", "applicant"),
+  });
+  assert.deepEqual(captured.params, [false, [], true, 12]);
+  assert.match(captured.sql, /status = 'open'/);
+  assert.match(captured.sql, /id::text = ANY\(\$2::text\[\]\)/);
+  assert.match(captured.sql, /LIMIT \$4/);
+  assert.doesNotMatch(captured.sql, /applicant_id|email|password_hash|storage_key/i);
+});
+
+test("program directory returns only exact program scopes to a program manager", async () => {
+  let captured;
+  await withServer({
+    async query(sql, params) {
+      captured = { sql, params };
+      return { rows: [
+        { id: "program-a", name: "Открытый мир", status: "draft" },
+        { id: "program-b", name: "Помоги сам себе", status: "open" },
+      ] };
+    },
+  }, async (base) => {
+    const response = await fetch(base + "/api/v1/programs");
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.deepEqual(body.programs.map((program) => program.id), ["program-a"]);
+  }, {
+    resolvePrincipal: async () => identity("manager-1", "program_manager", "program", "program-a"),
+  });
+  assert.deepEqual(captured.params, [false, ["program-a"], false, 25]);
+});
