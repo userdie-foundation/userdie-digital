@@ -72,6 +72,78 @@ test("CORS allows only the configured exact origin", async () => {
   }, { allowedOrigin: "https://platform.example" });
 });
 
+test("logout revokes the server session and appends its audit event in one transaction", async () => {
+  const calls = [];
+  const pool = {
+    async connect() {
+      return {
+        async query(sql, params) {
+          calls.push({ sql, params });
+          if (sql.includes("UPDATE auth_sessions")) {
+            return { rows: [{ id: 42, user_id: "user-uuid" }] };
+          }
+          return { rows: [] };
+        },
+        release() { calls.push({ sql: "RELEASE" }); },
+      };
+    },
+  };
+  await withServer(pool, async (base) => {
+    const response = await fetch(base + "/api/v1/auth/logout", {
+      method: "POST",
+      headers: {
+        origin: "https://platform.example",
+        cookie: "__Host-userdie_session=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      },
+    });
+    assert.equal(response.status, 204);
+    assert.match(response.headers.get("set-cookie"), /Max-Age=0/);
+  }, { allowedOrigin: "https://platform.example" });
+
+  assert.equal(calls[0].sql, "BEGIN");
+  assert.match(calls[1].sql, /UPDATE auth_sessions[\s\S]*RETURNING id, user_id/);
+  assert.equal(calls[2].params[0], "user-uuid");
+  assert.equal(calls[2].params[1], "42");
+  assert.match(calls[2].sql, /auth\.session_revoked/);
+  assert.deepEqual(JSON.parse(calls[2].params[2]), { reason: "user_logout" });
+  assert.equal(calls[3].sql, "COMMIT");
+  assert.equal(calls[4].sql, "RELEASE");
+});
+
+test("logout rolls back session revocation when its audit event cannot be written", async () => {
+  const calls = [];
+  const pool = {
+    async connect() {
+      return {
+        async query(sql) {
+          calls.push(sql);
+          if (sql.includes("UPDATE auth_sessions")) {
+            return { rows: [{ id: 42, user_id: "user-uuid" }] };
+          }
+          if (sql.includes("INSERT INTO audit_events")) throw new Error("private database detail");
+          return { rows: [] };
+        },
+        release() { calls.push("RELEASE"); },
+      };
+    },
+  };
+  await withServer(pool, async (base) => {
+    const response = await fetch(base + "/api/v1/auth/logout", {
+      method: "POST",
+      headers: {
+        origin: "https://platform.example",
+        cookie: "__Host-userdie_session=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      },
+    });
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), { error: "session_service_unavailable" });
+  }, { allowedOrigin: "https://platform.example" });
+  assert.equal(calls.at(-2), "ROLLBACK");
+  assert.equal(calls.at(-1), "RELEASE");
+  assert.equal(calls.includes("COMMIT"), false);
+  assert.equal(calls.some((sql) => String(sql).includes("private database detail")), false);
+});
+
 test("protected application route ignores client-supplied identity and fails closed by default", async () => {
   let repositoryCalls = 0;
   await withServer(noDb, async (base) => {
