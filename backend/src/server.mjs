@@ -417,6 +417,14 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
 
     const url = new URL(req.url ?? "/", "http://localhost");
 
+    // Enforce same-origin CSRF protection centrally for every state-changing
+    // method, including routes added in the future. Safe reads and CORS
+    // preflight are handled separately; missing, null, or foreign Origin fails closed.
+    if (!["GET", "HEAD", "OPTIONS"].includes(req.method) &&
+        (!allowedOrigin || req.headers.origin !== allowedOrigin)) {
+      return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
+    }
+
     if (url.pathname === "/api/v1/auth/login") {
       if (req.method !== "POST") {
         res.setHeader("Allow", "POST");
