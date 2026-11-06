@@ -9,7 +9,7 @@ import { createLoginRateLimiter } from "../src/security/login-rate-limit.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-010 and enforces workflow, authorization, recovery-token, and login-throttling invariants", {
+test("PostgreSQL applies migrations 001-011 and enforces workflow, authorization, recovery-token, audit immutability, and login-throttling invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -30,6 +30,7 @@ test("PostgreSQL applies migrations 001-010 and enforces workflow, authorization
       "008_independent_approvals.sql",
       "009_auth_rate_limit_buckets.sql",
       "010_auth_recovery_tokens.sql",
+      "011_audit_events_append_only.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -41,6 +42,24 @@ test("PostgreSQL applies migrations 001-010 and enforces workflow, authorization
     );
     const [actorId, workerId, otherWorkerId] = users.rows.map((row) => row.id);
     await client.query("SELECT set_config('app.actor_id', $1, false)", [actorId]);
+
+    const auditFixture = await client.query(
+      "INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata) VALUES ($1, 'integration.audit_fixture', 'test', 'append-only', '{}'::jsonb) RETURNING id",
+      [actorId],
+    );
+    const auditId = auditFixture.rows[0].id;
+    await assert.rejects(
+      client.query("UPDATE audit_events SET action = 'tampered' WHERE id = $1", [auditId]),
+      /audit_events is append-only/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM audit_events WHERE id = $1", [auditId]),
+      /audit_events is append-only/i,
+    );
+    await assert.rejects(
+      client.query("TRUNCATE audit_events"),
+      /audit_events is append-only/i,
+    );
 
     const limiter = createLoginRateLimiter({
       pool: client,
