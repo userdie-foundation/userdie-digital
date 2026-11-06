@@ -70,6 +70,7 @@ Before enabling real user accounts, complete and test:
 - A complete recovery flow: HTTP routes, trusted mail delivery, one-time token expiry/replay tests, session revocation, audit coverage, abuse throttling, and operational failure handling.
 - MFA policy and implementation, including secure enrollment, challenge verification, recovery codes, disable/re-enrollment controls, audit events, and brute-force protection.
 - Server-side role checks and per-record authorization for every read and write, with audit events for sensitive actions.
+- Logout revokes an active server-side session and appends `auth.session_revoked` in the same PostgreSQL transaction; if the audit insert fails, revocation is rolled back and the endpoint returns a generic service error.
 
 ## Production blockers — do not accept real applications yet
 
