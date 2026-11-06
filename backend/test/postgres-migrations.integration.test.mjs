@@ -9,7 +9,7 @@ import { createLoginRateLimiter } from "../src/security/login-rate-limit.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-011 and enforces workflow, authorization, recovery-token, audit immutability, and login-throttling invariants", {
+test("PostgreSQL applies migrations 001-012 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, and login-throttling invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -31,6 +31,7 @@ test("PostgreSQL applies migrations 001-011 and enforces workflow, authorization
       "009_auth_rate_limit_buckets.sql",
       "010_auth_recovery_tokens.sql",
       "011_audit_events_append_only.sql",
+      "012_mfa_persistence.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -115,6 +116,60 @@ test("PostgreSQL applies migrations 001-011 and enforces workflow, authorization
     );
     assert.equal(recoveryStored.rows[0].digest_bytes, 32);
     assert.equal(recoveryStored.rows[0].consumed_at, null);
+
+    const factor = await client.query(
+      `INSERT INTO auth_mfa_factors
+        (user_id, factor_type, secret_ciphertext, secret_nonce, secret_auth_tag, encryption_key_id)
+       VALUES ($1, 'totp', $2, $3, $4, 'integration-key-v1')
+       RETURNING id, status, last_accepted_step`,
+      [actorId, Buffer.alloc(32, 3), Buffer.alloc(12, 4), Buffer.alloc(16, 5)],
+    );
+    assert.equal(factor.rows[0].status, "pending");
+    assert.equal(factor.rows[0].last_accepted_step, null);
+    await assert.rejects(
+      client.query(
+        `INSERT INTO auth_mfa_factors
+          (user_id, factor_type, secret_ciphertext, secret_nonce, secret_auth_tag, encryption_key_id, status, confirmed_at)
+         VALUES ($1, 'totp', $2, $3, $4, 'integration-key-v1', 'active', now())`,
+        [actorId, Buffer.alloc(32, 3), Buffer.alloc(11, 4), Buffer.alloc(16, 5)],
+      ),
+      /check constraint/i,
+    );
+    const challenge = await client.query(
+      `INSERT INTO auth_mfa_challenges (user_id, challenge_hash, expires_at)
+       VALUES ($1, $2, now() + interval '5 minutes') RETURNING id, attempt_count`,
+      [actorId, Buffer.alloc(32, 6)],
+    );
+    assert.equal(challenge.rows[0].attempt_count, 0);
+    await assert.rejects(
+      client.query(
+        `INSERT INTO auth_mfa_challenges (user_id, challenge_hash, expires_at, attempt_count)
+         VALUES ($1, $2, now() + interval '5 minutes', 6)`,
+        [actorId, Buffer.alloc(32, 7)],
+      ),
+      /check constraint/i,
+    );
+    const recoveryCode = await client.query(
+      `INSERT INTO auth_mfa_recovery_codes (user_id, batch_id, verifier)
+       VALUES ($1, $2, $3) RETURNING id, consumed_at`,
+      [actorId, randomUUID(), Buffer.alloc(32, 8)],
+    );
+    assert.equal(recoveryCode.rows[0].consumed_at, null);
+    await client.query(
+      "UPDATE auth_mfa_factors SET status = 'active', confirmed_at = now(), last_accepted_step = 123456 WHERE id = $1",
+      [factor.rows[0].id],
+    );
+    const activeFactor = await client.query(
+      "SELECT status, last_accepted_step, octet_length(secret_nonce) AS nonce_bytes, octet_length(secret_auth_tag) AS tag_bytes FROM auth_mfa_factors WHERE id = $1",
+      [factor.rows[0].id],
+    );
+    assert.deepEqual(activeFactor.rows[0], {
+      status: "active", last_accepted_step: "123456", nonce_bytes: 12, tag_bytes: 16,
+    });
+    await client.query(
+      "UPDATE auth_mfa_recovery_codes SET consumed_at = now() WHERE id = $1",
+      [recoveryCode.rows[0].id],
+    );
 
     const programs = await client.query(
       "INSERT INTO programs (name, status) VALUES ('Integration program', 'open'), ('Other program', 'draft') RETURNING id",
