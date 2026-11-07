@@ -2,13 +2,16 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createAccountRecoveryService } from "./account-recovery.mjs";
 
-function fixture({ user = null } = {}) {
+function fixture({ user = null, lockedUser = true } = {}) {
   const calls = [];
   const delivered = [];
   const client = {
     async query(sql, values = []) {
       calls.push({ sql, values });
       if (sql === "BEGIN" || sql === "COMMIT" || sql === "ROLLBACK") return { rows: [] };
+      if (sql.includes("SELECT id FROM app_users") && sql.includes("FOR UPDATE")) {
+        return { rows: lockedUser ? [{ id: "user-uuid" }] : [] };
+      }
       if (sql.includes("INSERT INTO auth_recovery_tokens")) return { rows: [{ id: "42" }] };
       if (sql.includes("SELECT recovery.id")) return { rows: [{ id: "42", user_id: "user-uuid" }] };
       return { rows: [], rowCount: 1 };
@@ -36,6 +39,33 @@ test("recovery request returns the same generic result for unknown accounts", as
   assert.deepEqual(await f.service.request({ email: "missing@example.org" }), { accepted: true });
   assert.equal(f.delivered.length, 0);
   assert.equal(f.calls.some((call) => call.sql === "BEGIN"), false);
+});
+
+test("recovery request locks the active account before rotating tokens", async () => {
+  const f = fixture({ user: { id: "user-uuid", email: "person@example.org", account_status: "active" } });
+  await f.service.request({ email: "person@example.org" });
+  const lockIndex = f.calls.findIndex((call) =>
+    call.sql.includes("SELECT id FROM app_users") && call.sql.includes("FOR UPDATE")
+  );
+  const rotateIndex = f.calls.findIndex((call) =>
+    call.sql.includes("UPDATE auth_recovery_tokens SET consumed_at")
+  );
+  const insertIndex = f.calls.findIndex((call) =>
+    call.sql.includes("INSERT INTO auth_recovery_tokens")
+  );
+  assert.ok(lockIndex >= 0 && lockIndex < rotateIndex && rotateIndex < insertIndex);
+});
+
+test("recovery request does not issue a token if the account becomes inactive before locking", async () => {
+  const f = fixture({
+    user: { id: "user-uuid", email: "person@example.org", account_status: "active" },
+    lockedUser: false,
+  });
+  assert.deepEqual(await f.service.request({ email: "person@example.org" }), { accepted: true });
+  assert.equal(f.calls.some((call) => call.sql.includes("INSERT INTO auth_recovery_tokens")), false);
+  assert.equal(f.delivered.length, 0);
+  assert.equal(f.calls.at(-2).sql, "ROLLBACK");
+  assert.equal(f.calls.at(-1).sql, "RELEASE");
 });
 
 test("recovery request stores only a digest and sends raw token only to the delivery adapter", async () => {
