@@ -19,10 +19,11 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Migration 009 adds PostgreSQL-backed account and network throttling buckets keyed by HMAC digests; the tested limiter primitive is not yet wired to a login endpoint.
 - Migration 010 adds short-lived, single-use password-recovery token storage. Only SHA-256 token digests are persisted.
 - Migration 011 blocks UPDATE, DELETE and TRUNCATE on `audit_events` with PostgreSQL triggers; database ownership and DDL permissions must still be restricted operationally.
+- Migration 013 prepares separate PostgreSQL-backed account and network throttling buckets for password-recovery requests; raw email addresses and client IP addresses are not stored.
 - Migration 012 prepares MFA persistence: encrypted TOTP ciphertext/nonce/tag and key identifier, pending/active/disabled lifecycle, hashed short-lived login challenges, attempt ceilings, TOTP replay watermark, and one-way recovery-code verifiers. It does not implement KMS, enrollment, verification, challenge consumption, session gating, or MFA enforcement.
 - The account-recovery service core validates and normalizes email, returns a generic request result, rotates outstanding recovery tokens, sends the raw token only to a caller-supplied delivery adapter, and on successful reset revokes active sessions and writes an audit event. The service is not wired to an HTTP route or production email provider.
 - Migration 007 adds one-way scoped-grant revocation, active-only uniqueness, hard-delete protection, and append-only grant/revocation audit events. No public grant-management endpoint is exposed.
-- Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint. PostgreSQL integration coverage exercises migrations 001–012, synthetic session resolution, scoped-grant creation and revocation, immediate permission removal, hard-delete prevention, append-only grant audit events, recovery-token storage, and account/network login-throttling behavior.
+- Automated HTTP tests cover health checks, error handling, and the fail-closed application endpoint. PostgreSQL integration coverage exercises migrations 001–013, synthetic session resolution, scoped-grant creation and revocation, immediate permission removal, hard-delete prevention, append-only grant audit events, recovery-token storage, and account/network login-throttling behavior.
 
 ## Local development
 
@@ -40,6 +41,7 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 10. Review and apply `migrations/010_auth_recovery_tokens.sql` after migration 001 to prepare one-time recovery-token storage.
 11. Review and apply `migrations/011_audit_events_append_only.sql` after migration 001 to block ordinary UPDATE, DELETE and TRUNCATE operations on the audit log.
 12. Review and apply `migrations/012_mfa_persistence.sql` after migrations 001 and 011 to prepare encrypted MFA-factor, pending-challenge, and one-time recovery-code storage. This migration alone does not enable MFA.
+13. Review and apply `migrations/013_auth_recovery_rate_limits.sql` after migration 001 to prepare separate account- and network-scoped password-recovery throttling buckets. Only HMAC digests are stored.
 13. Install dependencies with `npm install`.
 14. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
 15. Run `npm test`, `npm run check`, then `npm start`.
