@@ -72,7 +72,7 @@ USERDIE Digital развивается как полноценная цифро�
 - HTTP-маршруты:
   - `POST /api/v1/auth/recovery/request`;
   - `POST /api/v1/auth/recovery/complete`.
-- Тестовый файл маршрутов `backend/test/recovery-routes.test.mjs` (его фактическое наличие и запуск проверять при следующей сверке).
+- Отдельный route-level test file по поиску в текущем `main` не обнаружен; unit-тесты ядра восстановления и ограничителя существуют. Интеграционное покрытие HTTP-маршрутов не подтверждено.
 - В конфигурации предусмотрен отдельный ключ `RECOVERY_RATE_LIMIT_HMAC_KEY` с проверкой минимальной длины 32 байта.
 - `backend/src/index.mjs` создаёт recovery rate limiter при наличии этого ключа и передаёт его в HTTP-сервер.
 
@@ -86,6 +86,20 @@ USERDIE Digital развивается как полноценная цифро�
 - Не подтверждена работа конфигурации секретов в production/staging.
 - Не подтверждён deploy backend в рабочую среду.
 - GitHub Actions для технического commit `50fc7b75e07dd7852b2f1f86f45e1f80c99f2131` впоследствии завершились успешно: Backend checks — `success`, Security Guard — `success`, Robot Team — `success`. Это подтверждает проверки именно данного commit, но не подтверждает применение миграций, production deployment или end-to-end восстановление. После добавления документации на commit `598ce95...` были запущены Robot Team, Security Guard и Public repository security check; на момент последней сверки они ещё выполнялись. Для нового верхнего commit `2525e30...` Security Guard ожидал запуска. Их итоговые статусы нужно перепроверить.
+
+### 4.3. Повторная сверка фактического кода на 2026-11-08
+
+Поиск и чтение файлов текущей ветки `main` подтвердили:
+
+- В `backend/src/server.mjs` оба HTTP-маршрута восстановления уже реализованы: `POST /api/v1/auth/recovery/request` и `POST /api/v1/auth/recovery/complete`.
+- Маршруты требуют `recoveryService` и `recoveryRateLimiter`; при отсутствии зависимостей возвращают fail-closed `503 recovery_unavailable`.
+- `backend/src/index.mjs` создаёт `recoveryRateLimiter`, но не импортирует `createAccountRecoveryService`, не создаёт `recoveryService` и не передаёт его в `createServer`. Следовательно, recovery endpoints не активированы текущим runtime entry point.
+- `backend/src/config.mjs` и `backend/.env.example` не содержат конфигурации почтового провайдера или delivery adapter. Ядро требует доверенный `sendRecoveryMessage`; провайдер и секреты не определены.
+- `backend/src/security/account-recovery.test.mjs` и `backend/src/security/recovery-rate-limit.test.mjs` существуют. Поиск отдельного route-level test file не выявил; HTTP-маршруты не следует считать интеграционно проверенными.
+- `backend/README.md` и `docs/AUTHENTICATION_OPERATIONS.md` ранее утверждали, что HTTP-маршруты отсутствуют. Это неточно: маршруты есть, но сервис и доставка не подключены.
+- Найден commit `730a63581ee7a6bfe79d86a8410665485b001e9b` («Include recovery rate limiter in backend syntax checks», 2026-11-07 21:04:02Z). Он добавляет файл лимитера в syntax check. Workflow-run lookup для этого SHA не вернул данных; CI status остаётся неподтверждённым.
+
+**Следующее техническое действие:** не переписывать маршруты и ядро; согласовать почтового провайдера/способ доставки и безопасную конфигурацию, затем точечно подключить сервис в `index.mjs` и добавить route-level tests. До этого восстановление доступа пользователям недоступно.
 
 ## 5. Следующие этапы — в установленном порядке
 
@@ -179,6 +193,7 @@ USERDIE Digital развивается как полноценная цифро�
 | Дата | Контрольная запись | Статус |
 |---|---|---|
 | 2026-11-08 | Создан единый Digital Continuity Record; зафиксированы архитектурные ориентиры, контрольная точка восстановления доступа, ограничения и последовательность дальнейшей работы | Документ создан; ссылка добавлена в корневой README; CI по техническому commit `50fc7b7...` — success для Backend checks, Security Guard и Robot Team; CI по документальным commit ещё требует итоговой сверки |
+| 2026-11-08 | Повторная сверка recovery: HTTP routes существуют, но `recoveryService` не подключён в runtime; email adapter и route-level tests не подтверждены | Зафиксировано в разделе 4.3; production recovery остаётся выключенным; commit `730a635...` найден, CI lookup не дал статусов |
 
 **Правило обновления журнала:** после каждого существенного этапа добавлять новую строку с датой, commit SHA и ссылкой на доказательство. Историю не стирать; исправления вносить новой записью.
 
