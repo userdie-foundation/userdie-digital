@@ -256,7 +256,7 @@ test("application collection stays disabled and all writes are rejected", async 
       assert.deepEqual(await response.json(), { error: "method_not_allowed" });
     }
     assert.equal(queries, 0);
-  });
+  }, { allowedOrigin: "https://platform.example" });
 });
 
 const programRecords = [
@@ -757,6 +757,7 @@ test("approval inbox rejects invalid limits and never offers decision writes", a
   }, {
     resolvePrincipal: async () => identity("reviewer-uuid", "independent_approver"),
     approvalRepository: { async getInbox() { lookups += 1; return []; } },
+    allowedOrigin: "https://platform.example",
   });
   assert.equal(lookups, 0);
 });
@@ -874,6 +875,7 @@ test("approval detail fails closed without authentication and never accepts writ
     assert.equal(write.status, 405);
   }, {
     approvalRepository: { async getById() { lookups += 1; return null; } },
+    allowedOrigin: "https://platform.example",
   });
   assert.equal(lookups, 0);
 });
@@ -889,6 +891,7 @@ test("program directory requires trusted authentication", async () => {
     programRepository: {
       async listVisible() { lookups += 1; return []; },
     },
+    allowedOrigin: "https://platform.example",
   });
 });
 
