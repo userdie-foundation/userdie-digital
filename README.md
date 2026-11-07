@@ -1,6 +1,10 @@
 # userdie-digital
 Digital platform of USERDIE Foundation
 
+## Project continuity
+
+- [Digital Continuity Record](docs/PROJECT_CONTINUITY.md) — single source of truth for the current checkpoint, decisions, evidence, open work, acceptance criteria and handover instructions.
+
 ## Platform architecture and governance
 
 - [Platform architecture](docs/PLATFORM_ARCHITECTURE.md) — organizational contours, functional domains, roles, AI controls, separation of USERDIE Digital / BFU / ZHAKIN Points, security boundaries and implementation stages.
