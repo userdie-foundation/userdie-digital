@@ -79,8 +79,8 @@ test("all state-changing methods require the exact configured Origin before rout
     const sameOrigin = await fetch(base + "/api/v1/future-write", {
       method: "POST", headers: { origin: "https://platform.example" },
     });
-    assert.equal(sameOrigin.status, 404);
-    assert.deepEqual(await sameOrigin.json(), { error: "not_found" });
+    assert.equal(sameOrigin.status, 405);
+    assert.deepEqual(await sameOrigin.json(), { error: "method_not_allowed" });
 
     const readWithoutOrigin = await fetch(base + "/api/v1/health/live");
     assert.equal(readWithoutOrigin.status, 200);
@@ -99,6 +99,7 @@ test("CORS allows only the configured exact origin", async () => {
 test("logout revokes the server session and appends its audit event in one transaction", async () => {
   const calls = [];
   const pool = {
+    async query() { return { rows: [] }; },
     async connect() {
       return {
         async query(sql, params) {
@@ -137,6 +138,7 @@ test("logout revokes the server session and appends its audit event in one trans
 test("logout rolls back session revocation when its audit event cannot be written", async () => {
   const calls = [];
   const pool = {
+    async query() { return { rows: [] }; },
     async connect() {
       return {
         async query(sql) {
@@ -248,7 +250,7 @@ test("application collection stays disabled and all writes are rejected", async 
     assert.deepEqual(await list.json(), { error: "applications_module_unavailable" });
     for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
       const response = await fetch(`${base}/api/v1/applications`, {
-        method, headers: { "content-type": "application/json" }, body: JSON.stringify({ subject: "synthetic" }),
+        method, headers: { origin: "https://platform.example", "content-type": "application/json" }, body: JSON.stringify({ subject: "synthetic" }),
       });
       assert.equal(response.status, 405);
       assert.deepEqual(await response.json(), { error: "method_not_allowed" });
@@ -748,7 +750,7 @@ test("approval inbox rejects invalid limits and never offers decision writes", a
       assert.equal(response.status, 400);
     }
     const write = await fetch(`${base}/api/v1/approvals/inbox`, {
-      method: "POST", headers: { "content-type": "application/json" },
+      method: "POST", headers: { origin: "https://platform.example", "content-type": "application/json" },
       body: JSON.stringify({ decision: "approved" }),
     });
     assert.equal(write.status, 405);
@@ -868,7 +870,7 @@ test("approval detail fails closed without authentication and never accepts writ
   await withServer(noDb, async (base) => {
     const anonymous = await fetch(base + "/api/v1/approvals/00000000-0000-4000-8000-000000000001");
     assert.equal(anonymous.status, 401);
-    const write = await fetch(base + "/api/v1/approvals/00000000-0000-4000-8000-000000000001", { method: "POST" });
+    const write = await fetch(base + "/api/v1/approvals/00000000-0000-4000-8000-000000000001", { method: "POST", headers: { origin: "https://platform.example" } });
     assert.equal(write.status, 405);
   }, {
     approvalRepository: { async getById() { lookups += 1; return null; } },
@@ -898,7 +900,7 @@ test("program directory bounds the result limit and rejects write methods", asyn
       assert.equal(invalid.status, 400);
       assert.deepEqual(await invalid.json(), { error: "invalid_limit" });
     }
-    const write = await fetch(base + "/api/v1/programs", { method: "POST" });
+    const write = await fetch(base + "/api/v1/programs", { method: "POST", headers: { origin: "https://platform.example" } });
     assert.equal(write.status, 405);
     assert.equal(lookups, 0);
   }, {
