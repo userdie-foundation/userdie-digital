@@ -26,7 +26,11 @@
         <span class="brand-emblem"><img src="assets/fund-emblem.svg" alt="" aria-hidden="true"></span>
         <span><strong>УСЕРДИЕ</strong><small>Благотворительный фонд</small></span>
       </a>
-      <nav aria-label="Главная навигация">
+      <button class="menu-toggle" type="button" aria-controls="primary-navigation" aria-expanded="false">
+        <span class="menu-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="menu-toggle-label">Меню</span>
+      </button>
+      <nav id="primary-navigation" class="primary-navigation" aria-label="Главная навигация">
         <a href="#about">О фонде</a>
         <a href="#directions">Направления помощи</a>
         <a href="#program-portfolio">Программы</a>
@@ -321,5 +325,45 @@
   </main>
 
   <footer class="footer"><div class="container footer-inner"><a class="brand brand-footer" href="#top"><span class="brand-emblem" aria-hidden="true"><img src="assets/fund-emblem.svg" alt="" loading="lazy" width="48" height="48"></span><span><strong>УСЕРДИЕ</strong><small>Благотворительный фонд</small></span></a><p>Информация о программах и сборах публикуется после подтверждения фондом</p><a href="prototype/platform.html">Карта платформы ↗</a><a href="#top">Наверх ↑</a></div></footer>
+  <script>
+    (() => {
+      const header = document.querySelector(".header");
+      const toggle = document.querySelector(".menu-toggle");
+      const navigation = document.querySelector("#primary-navigation");
+      if (!header || !toggle || !navigation) return;
+
+      header.classList.add("menu-enhanced");
+      const closeMenu = () => {
+        toggle.setAttribute("aria-expanded", "false");
+        navigation.hidden = true;
+      };
+      const openMenu = () => {
+        toggle.setAttribute("aria-expanded", "true");
+        navigation.hidden = false;
+      };
+
+      closeMenu();
+      toggle.addEventListener("click", () => {
+        toggle.getAttribute("aria-expanded") === "true" ? closeMenu() : openMenu();
+      });
+      navigation.addEventListener("click", (event) => {
+        if (event.target.closest("a")) closeMenu();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+          closeMenu();
+          toggle.focus();
+        }
+      });
+      window.addEventListener("resize", () => {
+        if (window.matchMedia("(min-width: 681px)").matches) {
+          navigation.hidden = false;
+          toggle.setAttribute("aria-expanded", "false");
+        } else if (toggle.getAttribute("aria-expanded") !== "true") {
+          navigation.hidden = true;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
