@@ -53,6 +53,17 @@ export function createAccountRecoveryService({
       try {
         await client.query("BEGIN");
         open = true;
+        // Serialize concurrent recovery requests for the same account. Without
+        // this row lock, two requests can both insert unconsumed tokens.
+        const lockedUser = await client.query(
+          "SELECT id FROM app_users WHERE id = $1 AND account_status = 'active' FOR UPDATE",
+          [user.id],
+        );
+        if (!lockedUser.rows?.[0]) {
+          await client.query("ROLLBACK");
+          open = false;
+          return GENERIC_RESULT;
+        }
         await client.query(
           "UPDATE auth_recovery_tokens SET consumed_at = now() WHERE user_id = $1 AND consumed_at IS NULL",
           [user.id],
