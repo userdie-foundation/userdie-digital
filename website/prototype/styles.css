@@ -341,3 +341,9 @@ body.workspace .leadership-priority li span { color: #78906b; font-size: 10px; f
  .prototype-menu-enhanced .prototype-menu-toggle{display:none}
  .prototype-menu-enhanced .primary-navigation[hidden]{display:flex!important}
 }
+
+
+/* Keep the official foundation tree emblem consistent across prototype headers and footers. */
+.brand-emblem{display:grid;place-items:center;flex-shrink:0;width:40px;height:40px}
+.brand-emblem img{display:block;width:100%;height:100%;object-fit:contain}
+.brand-footer .brand-emblem{width:34px;height:34px}
