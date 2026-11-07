@@ -276,8 +276,9 @@ body.applicant-page{background:#f7f8f3}
   const setActiveSection = id => {
     sectionLinks.forEach(link => {
       const active = link.getAttribute('href') === '#' + id;
+      link.classList.toggle('sidebar-active', active);
       if (active) link.setAttribute('aria-current', 'location');
-      else if (link.getAttribute('aria-current') === 'location') link.removeAttribute('aria-current');
+      else link.removeAttribute('aria-current');
     });
   };
   if ('IntersectionObserver' in window) {
