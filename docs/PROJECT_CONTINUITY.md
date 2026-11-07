@@ -72,7 +72,7 @@ USERDIE Digital развивается как полноценная цифро�
 - HTTP-маршруты:
   - `POST /api/v1/auth/recovery/request`;
   - `POST /api/v1/auth/recovery/complete`.
-- Отдельный route-level test file по поиску в текущем `main` не обнаружен; unit-тесты ядра восстановления и ограничителя существуют. Интеграционное покрытие HTTP-маршрутов не подтверждено.
+- Unit-тесты ядра восстановления и ограничителя существуют. Route-level проверки HTTP-маршрутов добавлены в `backend/test/server.test.mjs` commit `6d90d8916eeea44501611bef315db7065a8e106b`; их прохождение ожидает CI.
 - В конфигурации предусмотрен отдельный ключ `RECOVERY_RATE_LIMIT_HMAC_KEY` с проверкой минимальной длины 32 байта.
 - `backend/src/index.mjs` создаёт recovery rate limiter при наличии этого ключа и передаёт его в HTTP-сервер.
 
@@ -95,7 +95,7 @@ USERDIE Digital развивается как полноценная цифро�
 - Маршруты требуют `recoveryService` и `recoveryRateLimiter`; при отсутствии зависимостей возвращают fail-closed `503 recovery_unavailable`.
 - `backend/src/index.mjs` создаёт `recoveryRateLimiter`, но не импортирует `createAccountRecoveryService`, не создаёт `recoveryService` и не передаёт его в `createServer`. Следовательно, recovery endpoints не активированы текущим runtime entry point.
 - `backend/src/config.mjs` и `backend/.env.example` не содержат конфигурации почтового провайдера или delivery adapter. Ядро требует доверенный `sendRecoveryMessage`; провайдер и секреты не определены.
-- `backend/src/security/account-recovery.test.mjs` и `backend/src/security/recovery-rate-limit.test.mjs` существуют. Поиск отдельного route-level test file не выявил; HTTP-маршруты не следует считать интеграционно проверенными.
+- `backend/src/security/account-recovery.test.mjs` и `backend/src/security/recovery-rate-limit.test.mjs` существуют. В `backend/test/server.test.mjs` добавлены route-level проверки generic response, account/network throttling, fail-closed dependencies и результата завершения; локальный запуск здесь не выполнялся, требуется подтвердить CI.
 - `backend/README.md` и `docs/AUTHENTICATION_OPERATIONS.md` ранее утверждали, что HTTP-маршруты отсутствуют. Это неточно: маршруты есть, но сервис и доставка не подключены.
 - Найден commit `730a63581ee7a6bfe79d86a8410665485b001e9b` («Include recovery rate limiter in backend syntax checks», 2026-11-07 21:04:02Z). Он добавляет файл лимитера в syntax check. Workflow-run lookup для этого SHA не вернул данных; CI status остаётся неподтверждённым.
 
@@ -195,6 +195,7 @@ USERDIE Digital развивается как полноценная цифро�
 | 2026-11-08 | Создан единый Digital Continuity Record; зафиксированы архитектурные ориентиры, контрольная точка восстановления доступа, ограничения и последовательность дальнейшей работы | Документ создан; ссылка добавлена в корневой README; CI по техническому commit `50fc7b7...` — success для Backend checks, Security Guard и Robot Team; CI по документальным commit ещё требует итоговой сверки |
 | 2026-11-08 | Повторная сверка recovery: HTTP routes существуют, но `recoveryService` не подключён в runtime; email adapter и route-level tests не подтверждены | Зафиксировано в разделе 4.3; production recovery остаётся выключенным; commit `730a635...` найден, CI lookup не дал статусов |
 | 2026-11-08 | Исправлены противоречивые описания recovery в `docs/AUTHENTICATION_OPERATIONS.md` и `backend/README.md` | `6ace9c0ed5880d46e75c2317207350c67109e692`; `edc67ebcebdccb8ec54d5ef194b9e312bf64ba2b`; CI для этих commits отдельно не подтверждён |
+| 2026-11-08 | Добавлены HTTP route-level тесты восстановления в `backend/test/server.test.mjs` | Commit `6d90d8916eeea44501611bef315db7065a8e106b`; тесты внесены, но их фактическое прохождение ещё не подтверждено CI |
 
 **Правило обновления журнала:** после каждого существенного этапа добавлять новую строку с датой, commit SHA и ссылкой на доказательство. Историю не стирать; исправления вносить новой записью.
 
