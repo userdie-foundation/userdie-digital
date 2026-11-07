@@ -58,6 +58,10 @@ export function readConfig(env = process.env) {
   if (loginRateLimitHmacKey !== undefined && Buffer.byteLength(loginRateLimitHmacKey, "utf8") < 32) {
     throw new Error("LOGIN_RATE_LIMIT_HMAC_KEY must contain at least 32 bytes");
   }
+  const recoveryRateLimitHmacKey = env.RECOVERY_RATE_LIMIT_HMAC_KEY;
+  if (recoveryRateLimitHmacKey !== undefined && Buffer.byteLength(recoveryRateLimitHmacKey, "utf8") < 32) {
+    throw new Error("RECOVERY_RATE_LIMIT_HMAC_KEY must contain at least 32 bytes");
+  }
   return {
     port: parseInteger("PORT", env.PORT, 8080, 1, 65535),
     databaseUrl: parseDatabaseUrl(env.DATABASE_URL),
@@ -65,5 +69,6 @@ export function readConfig(env = process.env) {
     databaseSsl: parseBoolean("DATABASE_SSL", env.DATABASE_SSL),
     allowedOrigin: parseAllowedOrigin(env.ALLOWED_ORIGIN),
     loginRateLimitHmacKey,
+    recoveryRateLimitHmacKey,
   };
 }
