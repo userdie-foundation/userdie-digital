@@ -9,6 +9,48 @@
   <link rel="stylesheet" href="styles.css">
 <style>
 .brand-emblem{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px}.brand-emblem img{display:block;width:100%;height:100%;object-fit:contain}
+
+/* Applicant cabinet refinement: clear hierarchy, useful shortcuts and accessible focus. */
+.applicant-page .cabinet-hero{padding:64px 0 48px;background:radial-gradient(ellipse at 82% 18%,rgba(218,229,194,.72),transparent 42%),linear-gradient(180deg,#f7f6ef 0%,#f1f1e8 100%)}
+.applicant-page .cabinet-hero .lead{max-width:720px;font-size:16px;line-height:1.75}
+.applicant-page .cabinet-workspace{padding-top:34px;background:#eceee6}
+.applicant-page .cabinet-layout{grid-template-columns:232px minmax(0,1fr);gap:22px}
+.applicant-page .cabinet-sidebar{border-radius:12px;box-shadow:0 8px 28px rgba(34,53,40,.045)}
+.applicant-page .cabinet-sidebar>a{min-height:42px;border-radius:7px;text-decoration:none;transition:background .18s,color .18s}
+.applicant-page .cabinet-sidebar>a:hover{background:#edf1e7;color:#294d38}
+.applicant-page .cabinet-sidebar>a:focus-visible,.applicant-page .cabinet-quick-links a:focus-visible{outline:3px solid #557c52;outline-offset:3px}
+.applicant-page .cabinet-sidebar>a.sidebar-active{background:#e4ecd9}
+.applicant-page .cabinet-heading{padding:4px 2px 0}
+.applicant-page .cabinet-heading h2{letter-spacing:-1.1px}
+.applicant-page .cabinet-empty,.applicant-page .journey-list,.applicant-page .documents-panel{border-color:#dce2d6;border-radius:12px;box-shadow:0 8px 28px rgba(34,53,40,.035);overflow:hidden}
+.applicant-page .cabinet-empty{padding:38px 26px}
+.applicant-page .cabinet-empty h3{font-size:25px}
+.applicant-page .cabinet-quick-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px}
+.applicant-page .cabinet-quick-links a{position:relative;display:flex;min-width:0;min-height:126px;flex-direction:column;align-items:flex-start;padding:15px 14px 17px;border:1px solid #dce2d6;border-radius:10px;background:#fafbf7;color:#294735;text-decoration:none;transition:transform .18s,border-color .18s,box-shadow .18s}
+.applicant-page .cabinet-quick-links a:hover{transform:translateY(-2px);border-color:#a8b99c;box-shadow:0 8px 20px rgba(34,53,40,.07)}
+.applicant-page .quick-link-number{margin-bottom:13px;color:#82927b;font-size:9px;font-weight:800;letter-spacing:1px}
+.applicant-page .cabinet-quick-links strong{max-width:100%;padding-right:14px;font:700 12px/1.45 Manrope,sans-serif}
+.applicant-page .cabinet-quick-links small{margin-top:5px;color:#6d796e;font-size:10px;line-height:1.5}
+.applicant-page .quick-link-arrow{position:absolute;right:13px;top:12px;color:#66845c;font-size:13px}
+.applicant-page .journey-list li{padding-top:21px;padding-bottom:21px}
+.applicant-page .journey-list strong{font-size:14px}
+.applicant-page .documents-panel{margin-top:42px}
+@media(max-width:900px){.applicant-page .cabinet-layout{grid-template-columns:1fr}.applicant-page .cabinet-sidebar{position:static}}
+@media(max-width:680px){
+ .applicant-page .cabinet-hero{padding:42px 0 30px}
+ .applicant-page .cabinet-hero h1{font-size:clamp(38px,10vw,54px);line-height:1.04;letter-spacing:-1.5px}
+ .applicant-page .cabinet-hero .lead{font-size:14px}
+ .applicant-page .cabinet-workspace{padding-top:18px}
+ .applicant-page .cabinet-sidebar{padding:13px;border-radius:10px}
+ .applicant-page .cabinet-sidebar>a{padding:11px 10px}
+ .applicant-page .cabinet-quick-links{grid-template-columns:1fr;gap:8px}
+ .applicant-page .cabinet-quick-links a{min-height:0;padding:12px 14px 13px}
+ .applicant-page .quick-link-number{margin-bottom:6px}
+ .applicant-page .cabinet-empty{padding:30px 17px}
+ .applicant-page .cabinet-section{margin-top:36px}
+ .applicant-page .documents-panel{margin-top:32px}
+}
+@media(prefers-reduced-motion:reduce){.applicant-page .cabinet-quick-links a,.applicant-page .cabinet-sidebar>a{transition:none}.applicant-page .cabinet-quick-links a:hover{transform:none}}
 </style>
 </head>
 <body class="applicant-page">
@@ -44,7 +86,7 @@
       <div class="container cabinet-layout">
         <aside class="cabinet-sidebar" aria-label="Разделы кабинета">
           <div class="demo-profile"><span class="demo-avatar" aria-hidden="true">П</span><div><strong>Пример профиля</strong><small>Демонстрационный режим</small></div></div>
-          <a class="sidebar-active" href="#overview" aria-current="page">Главная часть <span>↗</span></a>
+          <a class="sidebar-active" href="#overview" aria-current="page">Обзор кабинета <span aria-hidden="true">↗</span></a>
           <a href="#steps">Как проходит рассмотрение</a>
           <a href="#prepare">Что подготовить</a>
           <a href="#documents">О документах и безопасности</a>
@@ -54,6 +96,12 @@
 
         <div class="cabinet-main" id="overview">
           <div class="cabinet-heading"><div><p class="eyebrow">ЛИЧНОЕ ПРОСТРАНСТВО</p><h2>Здравствуйте!</h2><p>Здесь будут отображаться статусы обращений и следующие шаги.</p></div><span class="demo-tag">ПРИМЕР ИНТЕРФЕЙСА</span></div>
+          <nav class="cabinet-quick-links" aria-label="Быстрые переходы по кабинету">
+            <a href="#steps"><span class="quick-link-number">01</span><strong>Порядок рассмотрения</strong><small>Четыре понятных этапа</small><span class="quick-link-arrow" aria-hidden="true">↗</span></a>
+            <a href="#prepare"><span class="quick-link-number">02</span><strong>Подготовка обращения</strong><small>Что важно учесть заранее</small><span class="quick-link-arrow" aria-hidden="true">↗</span></a>
+            <a href="#documents"><span class="quick-link-number">03</span><strong>Защита данных</strong><small>Документы и конфиденциальность</small><span class="quick-link-arrow" aria-hidden="true">↗</span></a>
+          </nav>
+
           <div class="cabinet-empty">
             <div class="empty-icon" aria-hidden="true">◇</div>
             <p class="empty-kicker">ОБРАЩЕНИЯ</p>
@@ -156,6 +204,23 @@
   });
   mobile.addEventListener('change', syncLayout);
   syncLayout();
+
+  const sectionLinks = [...document.querySelectorAll('.cabinet-sidebar a[href^="#"]')];
+  const sections = sectionLinks.map(link => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+  const setActiveSection = id => {
+    sectionLinks.forEach(link => {
+      const active = link.getAttribute('href') === '#' + id;
+      if (active) link.setAttribute('aria-current', 'location');
+      else if (link.getAttribute('aria-current') === 'location') link.removeAttribute('aria-current');
+    });
+  };
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting).sort((a,b) => b.intersectionRatio-a.intersectionRatio)[0];
+      if (visible) setActiveSection(visible.target.id);
+    }, {rootMargin: '-18% 0px -68% 0px', threshold: [0, .2, .5, .8]});
+    sections.forEach(section => observer.observe(section));
+  }
 })();
 </script>
 
