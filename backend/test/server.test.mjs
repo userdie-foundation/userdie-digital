@@ -988,3 +988,107 @@ test("program directory returns only exact program scopes to a program manager",
   });
   assert.deepEqual(captured.params, [false, ["program-a"], false, 25]);
 });
+
+test("recovery request route uses account and socket-network throttling and returns a generic accepted response", async () => {
+  const calls = [];
+  let requests = 0;
+  const recoveryRateLimiter = {
+    async isBlocked(input) { calls.push({ operation: "isBlocked", input }); return false; },
+    async recordAttempt(input) { calls.push({ operation: "recordAttempt", input }); return { blocked: false }; },
+  };
+  const recoveryService = {
+    async request(input) { requests += 1; calls.push({ operation: "request", input }); },
+  };
+
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/auth/recovery/request", {
+      method: "POST",
+      headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify({ email: "Person@Example.org" }),
+    });
+    assert.equal(response.status, 202);
+    assert.deepEqual(await response.json(), { accepted: true });
+  }, {
+    allowedOrigin: "https://platform.example",
+    recoveryService,
+    recoveryRateLimiter,
+  });
+
+  assert.equal(requests, 1);
+  assert.equal(calls[0].operation, "isBlocked");
+  assert.equal(calls[1].operation, "recordAttempt");
+  assert.equal(calls[2].operation, "request");
+  assert.equal(calls[0].input.email, "Person@Example.org");
+  assert.equal(calls[0].input.clientAddress, "127.0.0.1");
+  assert.deepEqual(calls[2].input, { email: "Person@Example.org" });
+});
+
+test("recovery request route keeps a generic response when the account or network is throttled", async () => {
+  let serviceCalls = 0;
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/auth/recovery/request", {
+      method: "POST",
+      headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify({ email: "unknown@example.org" }),
+    });
+    assert.equal(response.status, 202);
+    assert.deepEqual(await response.json(), { accepted: true });
+  }, {
+    allowedOrigin: "https://platform.example",
+    recoveryService: { async request() { serviceCalls += 1; } },
+    recoveryRateLimiter: {
+      async isBlocked() { return true; },
+      async recordAttempt() { throw new Error("must not record a blocked request"); },
+    },
+  });
+  assert.equal(serviceCalls, 0);
+});
+
+test("recovery request and completion routes fail closed when runtime dependencies are absent", async () => {
+  await withServer(noDb, async (base) => {
+    for (const [path, body] of [
+      ["/api/v1/auth/recovery/request", { email: "person@example.org" }],
+      ["/api/v1/auth/recovery/complete", { token: "A".repeat(43), newPassword: "a sufficiently long password" }],
+    ]) {
+      const response = await fetch(base + path, {
+        method: "POST",
+        headers: { origin: "https://platform.example", "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      assert.equal(response.status, 503);
+      assert.deepEqual(await response.json(), { error: "recovery_unavailable" });
+    }
+  }, { allowedOrigin: "https://platform.example" });
+});
+
+test("recovery completion route returns only the reset result and hides service errors", async () => {
+  const consumed = [];
+  await withServer(noDb, async (base) => {
+    const success = await fetch(base + "/api/v1/auth/recovery/complete", {
+      method: "POST",
+      headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify({ token: "A".repeat(43), newPassword: "a sufficiently long password" }),
+    });
+    assert.equal(success.status, 200);
+    assert.deepEqual(await success.json(), { reset: true });
+
+    const invalid = await fetch(base + "/api/v1/auth/recovery/complete", {
+      method: "POST",
+      headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify({ token: "B".repeat(43), newPassword: "a sufficiently long password" }),
+    });
+    assert.equal(invalid.status, 400);
+    assert.deepEqual(await invalid.json(), { error: "invalid_or_expired_token" });
+  }, {
+    allowedOrigin: "https://platform.example",
+    recoveryService: {
+      async consume(input) {
+        consumed.push(input);
+        return { reset: input.token.startsWith("A") };
+      },
+    },
+  });
+  assert.equal(consumed.length, 2);
+  assert.equal(consumed[0].token, "A".repeat(43));
+  assert.equal(consumed[0].newPassword, "a sufficiently long password");
+});
