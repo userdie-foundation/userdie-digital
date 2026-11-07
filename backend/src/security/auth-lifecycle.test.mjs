@@ -22,13 +22,18 @@ async function invokeLogout(options = {}) {
   const origin = Object.hasOwn(options, "origin") ? options.origin : "https://foundation.example";
   const { cookie, queryError } = options;
   const calls = [];
-  const pool = {
+  const client = {
     async query(sql, values) {
       calls.push({ sql, values });
       if (queryError) throw queryError;
-      return { rows: [], rowCount: 1 };
+      if (sql === "BEGIN" || sql === "COMMIT" || sql === "ROLLBACK") return { rows: [] };
+      if (sql.includes("UPDATE auth_sessions")) return { rows: [{ id: 42, user_id: "user-uuid" }] };
+      if (sql.includes("INSERT INTO audit_events")) return { rows: [] };
+      throw new Error("Unexpected SQL");
     },
+    release() { calls.push({ sql: "RELEASE" }); },
   };
+  const pool = { async connect() { return client; } };
   const handler = createServer({ pool, allowedOrigin: "https://foundation.example" });
   const req = {
     method: "POST",
@@ -47,10 +52,13 @@ test("logout revokes the hashed session before clearing the secure cookie", asyn
   });
 
   assert.equal(res.status, 204);
-  assert.equal(calls.length, 1);
-  assert.match(calls[0].sql, /UPDATE auth_sessions SET revoked_at = now\(\)/);
-  assert.match(calls[0].sql, /revoke_reason = 'user_logout'/);
-  assert.deepEqual(calls[0].values[0], hashSessionToken(token));
+  assert.deepEqual(calls.map((call) => call.sql), [
+    "BEGIN", calls[1].sql, calls[2].sql, "COMMIT", "RELEASE",
+  ]);
+  assert.match(calls[1].sql, /UPDATE auth_sessions[\s\S]*revoke_reason = 'user_logout'/);
+  assert.deepEqual(calls[1].values[0], hashSessionToken(token));
+  assert.match(calls[2].sql, /auth\.session_revoked/);
+  assert.deepEqual(JSON.parse(calls[2].values[2]), { reason: "user_logout" });
   assert.equal(res.headers["Set-Cookie"].startsWith(SESSION_COOKIE_NAME + "="), true);
   assert.match(res.headers["Set-Cookie"], /; Max-Age=0/);
   assert.match(res.headers["Set-Cookie"], /; HttpOnly/);
@@ -73,7 +81,9 @@ test("logout does not clear the cookie when server-side revocation fails", async
     queryError: new Error("database unavailable"),
   });
 
-  assert.equal(calls.length, 1);
+  assert.deepEqual(calls.map((call) => call.sql), [
+    "BEGIN", calls[1].sql, "ROLLBACK", "RELEASE",
+  ]);
   assert.equal(res.status, 503);
   assert.equal(res.headers["Set-Cookie"], undefined);
 });
