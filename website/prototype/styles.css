@@ -323,7 +323,7 @@ body.workspace .leadership-priority li span { color: #78906b; font-size: 10px; f
 
 
 /* Accessible collapsible navigation for prototype workspaces */
-.prototype-menu-toggle{display:none;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:0 13px;border:1px solid #cbd7c8;border-radius:12px;background:#fff;color:#244b38;font:700 13px inherit;cursor:pointer}
+.prototype-menu-toggle{display:none;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:0 13px;border:1px solid #cbd7c8;border-radius:12px;background:#fff;color:#244b38;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .prototype-menu-toggle:focus-visible{outline:3px solid #c4a35a;outline-offset:3px}
 .prototype-menu-icon{display:grid;gap:4px;width:18px}
 .prototype-menu-icon span{display:block;height:2px;border-radius:2px;background:currentColor}
