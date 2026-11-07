@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { createServer } from "./server.mjs";
 import { createPrincipalResolver } from "./security/principal.mjs";
 import { createLoginRateLimiter } from "./security/login-rate-limit.mjs";
+import { createRecoveryRateLimiter } from "./security/recovery-rate-limit.mjs";
 import { createAuthenticationService } from "./security/authentication.mjs";
 import { readConfig } from "./config.mjs";
 
@@ -28,11 +29,16 @@ const authenticationService = config.loginRateLimitHmacKey
   })
   : undefined;
 
+const recoveryRateLimiter = config.recoveryRateLimitHmacKey
+  ? createRecoveryRateLimiter({ pool, hmacKey: config.recoveryRateLimitHmacKey })
+  : undefined;
+
 const server = createHttpServer(createServer({
   pool,
   allowedOrigin: config.allowedOrigin,
   resolvePrincipal: createPrincipalResolver({ pool }),
   authenticationService,
+  recoveryRateLimiter,
 }));
 
 server.listen(config.port, "0.0.0.0", () => {
