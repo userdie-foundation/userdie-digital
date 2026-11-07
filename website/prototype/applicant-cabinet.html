@@ -10,6 +10,72 @@
 <style>
 .brand-emblem{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px}.brand-emblem img{display:block;width:100%;height:100%;object-fit:contain}
 
+/* Applicant cabinet — clearer hierarchy, calmer cards, and responsive reading flow. */
+body.applicant-page{background:#f7f8f3}
+.applicant-page .header{position:sticky;top:0;z-index:30;background:rgba(251,250,246,.97);backdrop-filter:blur(14px);border-bottom:1px solid rgba(30,48,40,.08)}
+.applicant-page .cabinet-hero{padding:clamp(48px,7vw,82px) 0 clamp(36px,5vw,58px);background:radial-gradient(ellipse at 82% 22%,rgba(222,230,192,.72),transparent 42%),linear-gradient(180deg,#fbfaf6 0%,#f2f5ed 100%)}
+.applicant-page .cabinet-hero .eyebrow{display:flex;align-items:center;gap:9px}
+.applicant-page .cabinet-hero .eyebrow span{width:7px;height:7px;border-radius:50%;background:#b99b5b}
+.applicant-page .cabinet-hero h1{max-width:780px;line-height:1.04;letter-spacing:-.045em}
+.applicant-page .cabinet-hero .lead{max-width:680px;font-size:clamp(15px,1.6vw,18px);line-height:1.75}
+.applicant-page .demo-warning{border:1px solid #e2d9c7;border-left:4px solid #b18a55;border-radius:0 12px 12px 0;background:#f5f1e8;box-shadow:0 8px 24px rgba(48,57,43,.035)}
+.applicant-page .cabinet-workspace{padding:clamp(28px,4vw,48px) 0 84px;background:#f1f3ed}
+.applicant-page .cabinet-layout{grid-template-columns:minmax(210px,245px) minmax(0,1fr);gap:clamp(16px,2.5vw,28px)}
+.applicant-page .cabinet-sidebar{top:100px;padding:18px;border:1px solid #e0e6dc;border-radius:16px;background:#fbfcf8;box-shadow:0 8px 26px rgba(27,52,37,.045)}
+.applicant-page .demo-profile{padding:4px 3px 18px;margin-bottom:12px;border-color:#e7ebe3}
+.applicant-page .demo-avatar{width:44px;height:44px;border:1px solid #d2dfc9;background:#e9f0e2}
+.applicant-page .cabinet-sidebar>a{min-height:42px;margin:3px 0;padding:10px 12px;border-radius:9px;font-size:11px;line-height:1.4;text-decoration:none}
+.applicant-page .cabinet-sidebar>a:hover{background:#f0f4eb;color:#244b38}
+.applicant-page .cabinet-sidebar>a.sidebar-active{background:#e8efdf;box-shadow:inset 3px 0 #78945f}
+.applicant-page .sidebar-note{border:1px solid #e5e9df;border-radius:10px;background:#f3f5ef}
+.applicant-page .cabinet-heading{align-items:flex-start;padding:3px 2px 0}
+.applicant-page .cabinet-heading h2{letter-spacing:-.035em}
+.applicant-page .demo-tag{border-radius:999px;background:#f8faf5}
+.applicant-page .cabinet-empty{padding:clamp(28px,4vw,48px);border:1px solid #e0e6dc;border-radius:18px;background:linear-gradient(145deg,#fffefa,#f9fbf6);box-shadow:0 12px 34px rgba(27,52,37,.045)}
+.applicant-page .empty-icon{width:64px;height:64px;border:1px solid #dce6d3;background:#edf3e7}
+.applicant-page .cabinet-empty h3{font-size:clamp(21px,2.4vw,27px);letter-spacing:-.03em}
+.applicant-page .disabled-action{border:1px solid #dfe4da;border-radius:8px;background:#f0f2ec;color:#68756a;line-height:1.4}
+.applicant-page .cabinet-section{margin-top:clamp(38px,5vw,54px)}
+.applicant-page .cabinet-section .section-heading{gap:24px}
+.applicant-page .journey-list{overflow:hidden;border:1px solid #e0e6dc;border-radius:16px;background:#fbfcf8;box-shadow:0 8px 26px rgba(27,52,37,.035)}
+.applicant-page .journey-list li{grid-template-columns:38px minmax(0,1fr) auto;padding:20px 22px;border-color:#e9ede6}
+.applicant-page .journey-number{display:grid;place-items:center;width:32px;height:32px;border:1px solid #dce6d3;border-radius:9px;background:#edf3e7;color:#49694b}
+.applicant-page .journey-list strong{font-size:14px}
+.applicant-page .journey-state{border:1px solid #e2e7dc;border-radius:999px;background:#f1f4ed;padding:6px 9px}
+.applicant-page .prototype-directory-grid>article{border-radius:14px;background:#fbfcf8;box-shadow:0 6px 20px rgba(27,52,37,.035)}
+.applicant-page .documents-panel{border:1px solid #e0e6dc;border-radius:16px;background:#fbfcf8;box-shadow:0 8px 26px rgba(27,52,37,.035)}
+.applicant-page .security-points p{font-size:11px;line-height:1.6}
+.applicant-page .platform-next{background:linear-gradient(115deg,#173f32,#214b38)}
+.applicant-page .prototype-directory-grid>a{border-radius:12px}
+.applicant-page a:focus-visible,.applicant-page button:focus-visible{outline:3px solid #b99b5b;outline-offset:3px}
+@media(max-width:900px){
+ .applicant-page .cabinet-layout{grid-template-columns:1fr}
+ .applicant-page .cabinet-sidebar{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ .applicant-page .demo-profile{grid-column:1/-1}
+ .applicant-page .sidebar-note{grid-column:1/-1}
+}
+@media(max-width:680px){
+ .applicant-page .header-inner{gap:10px}
+ .applicant-page .cabinet-hero{padding:42px 0 34px}
+ .applicant-page .cabinet-hero h1{font-size:clamp(38px,11vw,54px)}
+ .applicant-page .cabinet-hero .lead{font-size:15px}
+ .applicant-page .demo-warning{margin-top:22px;padding:14px 15px;font-size:11px}
+ .applicant-page .cabinet-workspace{padding:20px 0 54px}
+ .applicant-page .cabinet-sidebar{grid-template-columns:1fr;padding:13px;border-radius:13px}
+ .applicant-page .cabinet-sidebar>a{min-height:40px}
+ .applicant-page .cabinet-heading{gap:12px;margin-bottom:17px}
+ .applicant-page .cabinet-heading h2{font-size:31px}
+ .applicant-page .cabinet-empty{padding:30px 17px;border-radius:14px}
+ .applicant-page .journey-list li{grid-template-columns:30px minmax(0,1fr);gap:10px;padding:16px 14px}
+ .applicant-page .journey-number{width:28px;height:28px}
+ .applicant-page .journey-list strong{font-size:13px}
+ .applicant-page .journey-state{grid-column:2;justify-self:start}
+ .applicant-page .documents-panel{padding:19px;border-radius:14px}
+ .applicant-page .prototype-directory-grid>a{min-height:132px}
+}
+@media(prefers-reduced-motion:reduce){.applicant-page *{scroll-behavior:auto!important;transition:none!important}}
+
+
 /* Applicant cabinet refinement: clear hierarchy, useful shortcuts and accessible focus. */
 .applicant-page .cabinet-hero{padding:64px 0 48px;background:radial-gradient(ellipse at 82% 18%,rgba(218,229,194,.72),transparent 42%),linear-gradient(180deg,#f7f6ef 0%,#f1f1e8 100%)}
 .applicant-page .cabinet-hero .lead{max-width:720px;font-size:16px;line-height:1.75}
