@@ -12,6 +12,7 @@ test("configuration applies safe defaults and parses the PostgreSQL URL", () => 
     databaseSsl: false,
     allowedOrigin: undefined,
     loginRateLimitHmacKey: undefined,
+    recoveryRateLimitHmacKey: undefined,
   });
 });
 
@@ -84,5 +85,17 @@ test("configuration rejects a short login rate-limit HMAC key", () => {
   assert.throws(
     () => readConfig({ DATABASE_URL: databaseUrl, LOGIN_RATE_LIMIT_HMAC_KEY: "too-short" }),
     /LOGIN_RATE_LIMIT_HMAC_KEY must contain at least 32 bytes/,
+  );
+});
+
+test("configuration accepts and validates a dedicated recovery rate-limit HMAC key", () => {
+  const key = "fedcba9876543210fedcba9876543210";
+  assert.equal(
+    readConfig({ DATABASE_URL: databaseUrl, RECOVERY_RATE_LIMIT_HMAC_KEY: key }).recoveryRateLimitHmacKey,
+    key,
+  );
+  assert.throws(
+    () => readConfig({ DATABASE_URL: databaseUrl, RECOVERY_RATE_LIMIT_HMAC_KEY: "short" }),
+    /RECOVERY_RATE_LIMIT_HMAC_KEY must contain at least 32 bytes/,
   );
 });
