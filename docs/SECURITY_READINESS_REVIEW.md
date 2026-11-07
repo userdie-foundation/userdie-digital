@@ -3,14 +3,14 @@
 **Review date:** 2026-11-06  
 **Repository:** `userdie-foundation/userdie-digital`  
 **Branch:** `main`  
-**Reviewed revision:** `58a05a2c0f6a9624268504a0250f9e4a06cfa735`  
+**Reviewed revision:** `d0106ac33e305b9138fe88a7776b954cba7f5f28` (repository snapshot reviewed for this documentation refresh)  
 **Status:** repository and implementation review; not a penetration test, independent security audit, production deployment verification or certification.
 
 ## Executive finding
 
-The repository now contains more than a draft API contract. It includes a Node.js HTTP service, PostgreSQL schema migrations 001–010, password-login and logout handlers, database-backed session validation and rotation, account/network login throttling, scoped role grants, protected read routes and a password-recovery service core.
+The repository now contains more than a draft API contract. It includes a Node.js HTTP service, PostgreSQL schema migrations 001–012, password-login and logout handlers, database-backed session validation and rotation, account/network login throttling, scoped role grants, protected read routes and a password-recovery service core.
 
-These are meaningful implementation foundations, but they do not establish production readiness. The runtime still depends on deployment configuration and an actual database; production migrations and secrets are not confirmed as applied. Account-recovery HTTP routes and trusted email delivery are not connected. MFA is not implemented. Application intake and write operations remain deliberately disabled or unavailable. The public website and prototype workspaces remain demonstrational.
+These are meaningful implementation foundations, but they do not establish production readiness. The runtime still depends on deployment configuration and an actual database; production migrations and secrets are not confirmed as applied. Account-recovery HTTP routes and trusted email delivery are not connected. MFA persistence schema exists (migration 012), but enrollment, verification, KMS integration and enforcement are not implemented. Application intake and write operations remain deliberately disabled or unavailable. The public website and prototype workspaces remain demonstrational.
 
 Do not enter real beneficiary, donor, employee or partner personal data through static demo pages or an unapproved backend deployment.
 
@@ -22,7 +22,7 @@ Do not enter real beneficiary, donor, employee or partner personal data through 
 - `backend/src/security/login-rate-limit.mjs`: PostgreSQL account/network buckets use HMAC digests; the HTTP login path supplies the socket peer address rather than trusting forwarded headers.
 - `backend/src/security/principal.mjs` and authorization modules: validate server-side session state and load active grants from trusted storage.
 - `backend/src/security/account-recovery.mjs`: recovery service core stores token digests and revokes active sessions after a successful reset; HTTP routes and production delivery are not connected.
-- `backend/migrations/001_initial_schema.sql` through `010_auth_recovery_tokens.sql`: schema and security-control migrations are present in source.
+- `backend/migrations/001_initial_schema.sql` through `012_mfa_persistence.sql`: schema and security-control migrations are present in source. Migration 011 blocks ordinary UPDATE/DELETE/TRUNCATE operations on audit events; migration 012 adds MFA persistence structures only.
 - `backend/test/`: HTTP and PostgreSQL integration tests use synthetic identities and records. PostgreSQL integration execution depends on `PG_INTEGRATION_URL`.
 - `backend/README.md` and `docs/AUTHENTICATION_OPERATIONS.md`: document runtime requirements and activation gates.
 - `website/prototype/workspace.html`: public prototype workspace remains a demonstrator and must not collect real case data.
@@ -38,13 +38,16 @@ Do not enter real beneficiary, donor, employee or partner personal data through 
 6. Scoped role grants and auditable grant revocation.
 7. Read-only protected application, program, workflow and approval routes with server-side authorization.
 8. Account-recovery token storage and service logic, without user-facing HTTP routes or a production mail provider.
+9. A central exact-Origin guard rejects state-changing HTTP methods when Origin is missing, null or does not match the configured origin; proxy/TLS and CSRF threat-model review remain required.
+10. Database triggers block ordinary UPDATE, DELETE and TRUNCATE operations on audit events; privileged database ownership and DDL controls remain necessary.
+11. MFA schema groundwork for encrypted TOTP metadata, short-lived challenge digests and one-time recovery-code verifiers; no enrollment, verification, KMS integration or enforcement.
 
 ## Release blockers before real personal data is processed
 
 ### 1. Identity and authentication
 - Confirm production configuration for `DATABASE_URL`, `ALLOWED_ORIGIN`, `LOGIN_RATE_LIMIT_HMAC_KEY`, database TLS and the actual HTTPS proxy topology.
-- Apply and verify migrations 001–010 through a controlled process after backup verification.
-- Complete CSRF threat-model review and acceptance tests for browser-originated state changes, including session rotation and logout.
+- Apply and verify migrations 001–012 through a controlled process after backup verification; migration 012 does not activate MFA.
+- Complete CSRF threat-model review and acceptance tests for browser-originated state changes, including session rotation and logout; verify exact-Origin enforcement behind the actual TLS proxy.
 - Review password policy, administrator bootstrap, session lifetime, revocation and account suspension behavior.
 - Implement MFA enrollment, challenge verification, recovery codes, privileged-role enforcement and audit coverage.
 
@@ -99,9 +102,9 @@ Do not enter real beneficiary, donor, employee or partner personal data through 
 
 ## Immediate implementation sequence
 
-1. Complete the CSRF/proxy review and verify the authentication lifecycle in a controlled non-production environment.
+1. Complete the CSRF/proxy review and verify the authentication lifecycle in a controlled non-production environment, including the exact-Origin guard.
 2. Implement recovery HTTP routes and trusted email delivery; add expiry/replay and abuse tests.
-3. Implement MFA and privileged-role enforcement.
+3. Implement MFA enrollment, verification, managed key custody, recovery-code consumption and privileged-role enforcement; migration 012 is schema groundwork only.
 4. Complete the role/scope negative test matrix and privacy controls.
 5. Verify migration execution, secrets, monitoring, backups and restore.
 6. Only then authorize a limited pilot with synthetic-to-real data transition approval, documented owners and rollback criteria.
