@@ -32,6 +32,7 @@ test("PostgreSQL applies migrations 001-012 and enforces workflow, authorization
       "010_auth_recovery_tokens.sql",
       "011_audit_events_append_only.sql",
       "012_mfa_persistence.sql",
+      "013_auth_recovery_rate_limits.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
