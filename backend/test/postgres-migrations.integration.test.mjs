@@ -106,6 +106,27 @@ test("PostgreSQL applies migrations 001-012 and enforces workflow, authorization
     assert.equal(resetNetworkBucket.rows[0].blocked_until, null);
 
 
+    const recoveryBuckets = await client.query(
+      `INSERT INTO auth_recovery_rate_limit_buckets
+        (bucket_type, key_hash, window_started_at, attempt_count)
+       VALUES ('account', $1, now(), 1), ('network', $2, now(), 1)
+       RETURNING bucket_type, octet_length(key_hash) AS digest_bytes`,
+      [Buffer.alloc(32, 21), Buffer.alloc(32, 22)],
+    );
+    assert.deepEqual(
+      recoveryBuckets.rows.map((row) => [row.bucket_type, row.digest_bytes]),
+      [["account", 32], ["network", 32]],
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO auth_recovery_rate_limit_buckets
+          (bucket_type, key_hash, window_started_at, attempt_count)
+         VALUES ('account', $1, now(), 1)`,
+        [Buffer.alloc(31, 23)],
+      ),
+      /check constraint/i,
+    );
+
     const recoveryToken = await client.query(
       "INSERT INTO auth_recovery_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, now() + interval '30 minutes') RETURNING id",
       [actorId, Buffer.alloc(32, 9)],
