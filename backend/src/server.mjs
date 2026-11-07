@@ -395,7 +395,7 @@ function createWorkspaceRepository(pool) {
   };
 }
 
-export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository } = {}) {
+export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, recoveryService, recoveryRateLimiter, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
@@ -423,6 +423,82 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
     if (!["GET", "HEAD", "OPTIONS"].includes(req.method) &&
         (!allowedOrigin || req.headers.origin !== allowedOrigin)) {
       return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
+    }
+
+    if (url.pathname === "/api/v1/auth/recovery/request") {
+      if (req.method !== "POST") {
+        res.setHeader("Allow", "POST");
+        return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
+      }
+      if (!allowedOrigin || req.headers.origin !== allowedOrigin) {
+        return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
+      }
+      if (!recoveryService || typeof recoveryService.request !== "function" ||
+          !recoveryRateLimiter || typeof recoveryRateLimiter.isBlocked !== "function" ||
+          typeof recoveryRateLimiter.recordAttempt !== "function") {
+        return sendJson(res, 503, { error: "recovery_unavailable" }, req.method);
+      }
+
+      const parsed = await readJsonBody(req);
+      if (parsed.error) {
+        const status = parsed.error === "payload_too_large" ? 413
+          : parsed.error === "unsupported_media_type" ? 415 : 400;
+        return sendJson(res, status, { error: parsed.error }, req.method);
+      }
+      const { email } = parsed.value;
+      if (Object.keys(parsed.value).some((key) => key !== "email") || typeof email !== "string") {
+        return sendJson(res, 400, { error: "invalid_request_body" }, req.method);
+      }
+
+      // Use the socket peer address only. Forwarded headers are untrusted unless
+      // a separately configured trusted-proxy boundary is implemented.
+      const clientAddress = req.socket?.remoteAddress;
+      try {
+        const blocked = await recoveryRateLimiter.isBlocked({ email, clientAddress });
+        if (!blocked) {
+          const attempt = await recoveryRateLimiter.recordAttempt({ email, clientAddress });
+          if (!attempt?.blocked) await recoveryService.request({ email });
+        }
+      } catch {
+        return sendJson(res, 503, { error: "recovery_unavailable" }, req.method);
+      }
+      // Identical status and body for existing, unknown, malformed, and throttled
+      // account identifiers prevent account enumeration.
+      return sendJson(res, 202, { accepted: true }, req.method);
+    }
+
+    if (url.pathname === "/api/v1/auth/recovery/complete") {
+      if (req.method !== "POST") {
+        res.setHeader("Allow", "POST");
+        return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
+      }
+      if (!allowedOrigin || req.headers.origin !== allowedOrigin) {
+        return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
+      }
+      if (!recoveryService || typeof recoveryService.consume !== "function") {
+        return sendJson(res, 503, { error: "recovery_unavailable" }, req.method);
+      }
+
+      const parsed = await readJsonBody(req);
+      if (parsed.error) {
+        const status = parsed.error === "payload_too_large" ? 413
+          : parsed.error === "unsupported_media_type" ? 415 : 400;
+        return sendJson(res, status, { error: parsed.error }, req.method);
+      }
+      const { token, newPassword } = parsed.value;
+      if (Object.keys(parsed.value).some((key) => !["token", "newPassword"].includes(key)) ||
+          typeof token !== "string" || typeof newPassword !== "string") {
+        return sendJson(res, 400, { error: "invalid_request_body" }, req.method);
+      }
+
+      try {
+        const result = await recoveryService.consume({ token, newPassword });
+        return result?.reset
+          ? sendJson(res, 200, { reset: true }, req.method)
+          : sendJson(res, 400, { error: "invalid_or_expired_token" }, req.method);
+      } catch {
+        return sendJson(res, 503, { error: "recovery_unavailable" }, req.method);
+      }
     }
 
     if (url.pathname === "/api/v1/auth/login") {
