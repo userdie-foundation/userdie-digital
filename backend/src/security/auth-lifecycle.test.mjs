@@ -25,7 +25,7 @@ async function invokeLogout(options = {}) {
   const client = {
     async query(sql, values) {
       calls.push({ sql, values });
-      if (queryError) throw queryError;
+      if (queryError && sql.includes("UPDATE auth_sessions")) throw queryError;
       if (sql === "BEGIN" || sql === "COMMIT" || sql === "ROLLBACK") return { rows: [] };
       if (sql.includes("UPDATE auth_sessions")) return { rows: [{ id: 42, user_id: "user-uuid" }] };
       if (sql.includes("INSERT INTO audit_events")) return { rows: [] };
@@ -33,7 +33,7 @@ async function invokeLogout(options = {}) {
     },
     release() { calls.push({ sql: "RELEASE" }); },
   };
-  const pool = { async connect() { return client; } };
+  const pool = { async query() { return { rows: [] }; }, async connect() { return client; } };
   const handler = createServer({ pool, allowedOrigin: "https://foundation.example" });
   const req = {
     method: "POST",
