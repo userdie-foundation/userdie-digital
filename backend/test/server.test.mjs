@@ -911,6 +911,7 @@ test("program directory bounds the result limit and rejects write methods", asyn
     programRepository: {
       async listVisible() { lookups += 1; return []; },
     },
+    allowedOrigin: "https://platform.example",
   });
 });
 
