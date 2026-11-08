@@ -4,6 +4,7 @@ Digital platform of USERDIE Foundation
 ## Project continuity
 
 - [Digital Continuity Record](docs/PROJECT_CONTINUITY.md) — single source of truth for the current checkpoint, decisions, evidence, open work, acceptance criteria and handover instructions.
+- [Public prototype design audit](docs/PUBLIC_PROTOTYPE_DESIGN_AUDIT_2026-11-09.md) — current UI findings, visual direction and delivery order for the public prototype.
 
 ## Platform architecture and governance
 
