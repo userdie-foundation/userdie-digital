@@ -169,3 +169,11 @@
 - Коммит: `fa176ab6ffab8dccc1b8257fb0983421fb114908`.
 
 Ограничение: функциональный разбор исходного JavaScript не заменяет тестирование в реальном браузере и проверку клавиатурных сценариев на устройстве.
+
+
+### Подтверждение публикации рабочего пространства — 2026-11-09
+- Commit с исправлением reduced-motion: `fa176ab6ffab8dccc1b8257fb0983421fb114908`.
+- Website quality gate: run `42534865086`, success — https://github.com/userdie-foundation/userdie-digital/actions/runs/42534865086
+- Deploy public website: run `42534865176`, success — https://github.com/userdie-foundation/userdie-digital/actions/runs/42534865176
+- Оба workflow завершились успешно. Документационные коммиты после этого не меняли опубликованные HTML/CSS/JS.
+- Внешний браузерный screenshot пользовательского сайта по-прежнему не подтверждён; это не следует смешивать с успешным GitHub Pages deployment.
