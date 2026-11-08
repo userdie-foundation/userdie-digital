@@ -145,3 +145,11 @@
 - Партнёрское пространство: `1e9163c037c792d50c64da3d7785248a9d676c8a`.
 
 Ограничение: проверены исходники и каскад подключения stylesheet; браузерный screenshot / реальная визуальная регрессия и GitHub Pages deployment после этих изменений ещё не подтверждены. Не объявлять production-обновление завершённым до проверки workflow и живого сайта.
+
+
+### Дополнение — подтверждение публикации кабинетов, 2026-11-09
+- Workflow **Website quality gate** для commit `1e9163c037c792d50c64da3d7785248a9d676c8a` завершился `success`: https://github.com/userdie-foundation/userdie-digital/actions/runs/42534539460
+- Workflow **Deploy public website** для того же commit завершился `success`: https://github.com/userdie-foundation/userdie-digital/actions/runs/42534539446
+- В deployment успешно завершились build и deploy; в build прошли проверка внутренних ссылок, проверка inline JavaScript, проверка visual enhancement assets, загрузка Pages artifact и публикация GitHub Pages.
+- Commit `1e9163c...` содержит изменения общего stylesheet, кабинета заявителя и партнёрского пространства. Последующие изменения до этой проверки затрагивали только документацию.
+- Следовательно, обновлённые кабинеты опубликованы через GitHub Pages. При этом браузерный инструмент не смог открыть production URL, поэтому фактический пиксельный рендер на пользовательском устройстве отдельно не подтверждён.
