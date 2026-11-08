@@ -294,3 +294,11 @@ USERDIE Digital развивается как полноценная цифро�
 - Добавлено уважение к системной настройке `prefers-reduced-motion` при переходе между экранами (commit `fa176ab6ffab8dccc1b8257fb0983421fb114908`).
 - Отдельное браузерное тестирование и production screenshot не проводились.
 - Аудит дополнен commit `6c7d350818a206f0f17dc924adaf5cc328f4f74d`.
+
+
+### Подтверждение публикации рабочего пространства — 2026-11-09
+- Исправление reduced-motion в `workspace.html`: commit `fa176ab6ffab8dccc1b8257fb0983421fb114908`.
+- Website quality gate run `42534865086`: success.
+- Deploy public website run `42534865176`: success.
+- Обновлённый workspace опубликован через GitHub Pages. Внешний screenshot / проверка пиксельного рендера не выполнены.
+- Audit update commit `210625041986e837069fc21eed67bc9e24b838f3`.
