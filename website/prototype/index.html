@@ -86,6 +86,39 @@
     </section>
   </main>
 
+  <section class="section" id="digital-platform" aria-labelledby="digital-platform-title">
+    <div class="container">
+      <div class="section-heading">
+        <div><p class="eyebrow">05 / ЦИФРОВАЯ СРЕДА</p><h2 id="digital-platform-title">Рабочие пространства <em>фонда.</em></h2></div>
+        <p>Единая точка входа в демонстрационные сценарии USERDIE DIGITAL.</p>
+      </div>
+      <div class="portal-grid">
+        <a class="portal-card" href="analytics-dashboard.html"><span class="portal-kicker">РУКОВОДИТЕЛЮ</span><strong>Панель управления</strong><span>Показатели, контроль процессов и аналитическая картина.</span><span class="portal-link">Открыть панель <span aria-hidden="true">↗</span></span></a>
+        <a class="portal-card" href="workspace.html"><span class="portal-kicker">СОТРУДНИКУ</span><strong>Рабочее пространство</strong><span>Задачи, объекты работы, модули и организационные контуры.</span><span class="portal-link">Перейти к работе <span aria-hidden="true">↗</span></span></a>
+        <a class="portal-card" href="applicant-cabinet.html"><span class="portal-kicker">ЗАЯВИТЕЛЮ</span><strong>Кабинет заявителя</strong><span>Информация о предполагаемом пути обращения и получении помощи.</span><span class="portal-link">Посмотреть сценарий <span aria-hidden="true">↗</span></span></a>
+        <a class="portal-card" href="partner-space.html"><span class="portal-kicker">ПАРТНЁРУ</span><strong>Партнёрское пространство</strong><span>Формат взаимодействия, направления сотрудничества и этапы.</span><span class="portal-link">Открыть пространство <span aria-hidden="true">↗</span></span></a>
+        <a class="portal-card" href="asset-register.html"><span class="portal-kicker">ЦЕНТРУ ОЦЕНКИ АКТИВОВ</span><strong>Реестр активов</strong><span>Структура учёта объектов, подтверждающих материалов и оценок.</span><span class="portal-link">Открыть реестр <span aria-hidden="true">↗</span></span></a>
+        <a class="portal-card" href="case-management.html"><span class="portal-kicker">ОПЕРАЦИОННОМУ ОФИСУ</span><strong>Работа с обращениями</strong><span>Демонстрация модели маршрутизации и контроля рассмотрения.</span><span class="portal-link">Посмотреть процесс <span aria-hidden="true">↗</span></span></a>
+      </div>
+      <p class="portal-disclaimer"><strong>Важно:</strong> это демонстрационные интерфейсы. Реальная отправка обращений, хранение персональных данных, серверные операции и полноценный учёт активов не подключены. Не вводите реальные персональные, финансовые или конфиденциальные сведения.</p>
+    </div>
+  </section>
+  <style>
+    .portal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:30px}
+    .portal-card{display:flex;flex-direction:column;align-items:flex-start;min-height:220px;padding:25px;border:1px solid #dce2d8;border-radius:8px;background:#fbfaf6;color:#263d30;text-decoration:none;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+    .portal-card:hover{border-color:#a9b99e;transform:translateY(-2px);box-shadow:0 12px 30px rgba(36,58,43,.07)}
+    .portal-card:focus-visible{outline:3px solid #6b8c54;outline-offset:3px}
+    .portal-kicker{margin-bottom:18px;color:#7d8b77;font-size:10px;font-weight:800;letter-spacing:1.2px}
+    .portal-card strong{margin-bottom:10px;font-size:20px;line-height:1.2}
+    .portal-card>span:not(.portal-kicker):not(.portal-link){color:#69766b;font-size:14px;line-height:1.65}
+    .portal-link{margin-top:auto;padding-top:22px;color:#315a40;font-size:13px;font-weight:700}
+    .portal-disclaimer{max-width:920px;margin:24px 0 0;padding:16px 18px;border-left:3px solid #b99b5b;background:#f4f1e8;color:#687268;font-size:13px;line-height:1.65}
+    .portal-disclaimer strong{color:#33483a}
+    @media(max-width:900px){.portal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:560px){.portal-grid{grid-template-columns:1fr}.portal-card{min-height:190px;padding:21px}}
+    @media(prefers-reduced-motion:reduce){.portal-card{transition:none}.portal-card:hover{transform:none}}
+  </style>
+
   <footer class="footer"><div class="container footer-inner"><a class="brand brand-footer" href="#top"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>Благотворительный фонд</small></span></a><p>Экспериментальный макет · Не является подтверждением официальных программ или сборов</p><a href="platform.html">Карта платформы ↗</a><a href="../index.html">Текущая версия сайта ↗</a></div></footer>
 </body>
 </html>
