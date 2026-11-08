@@ -1,0 +1,352 @@
+/* USERDIE DIGITAL — homepage visual refinement, 2026-11-09
+   Scope: public homepage only. Preserve existing content, brand emblem and truthful status labels. */
+:root{
+  --home-ink:#1c392d;
+  --home-green:#174b37;
+  --home-gold:#b99a58;
+  --home-muted:#5c7064;
+  --home-paper:#f8f7f1;
+  --home-border:rgba(28,57,45,.14);
+}
+body:has(> .header .brand[href="#top"]){
+  background:var(--home-paper);
+  color:var(--home-ink);
+}
+body:has(> .header .brand[href="#top"]) .header{
+  border-bottom:1px solid var(--home-border);
+  box-shadow:0 8px 26px rgba(22,57,41,.045);
+}
+body:has(> .header .brand[href="#top"]) .hero{
+  padding-top:clamp(34px,5vw,66px);
+  background:
+    radial-gradient(ellipse at 79% 25%,rgba(185,154,88,.16),transparent 31%),
+    linear-gradient(180deg,#fbfaf5 0%,#f0f3eb 100%);
+}
+body:has(> .header .brand[href="#top"]) .hero-layout{
+  min-height:clamp(480px,48vw,610px);
+  gap:clamp(32px,5vw,76px);
+}
+body:has(> .header .brand[href="#top"]) .hero-copy h1{
+  max-width:690px;
+  color:#173c2d;
+  font-size:clamp(44px,5.4vw,76px);
+  line-height:1.035;
+  letter-spacing:-.055em;
+}
+body:has(> .header .brand[href="#top"]) .hero-copy h1 em{
+  color:#527a5d;
+  text-decoration:underline;
+  text-decoration-color:rgba(185,154,88,.72);
+  text-decoration-thickness:3px;
+  text-underline-offset:9px;
+}
+body:has(> .header .brand[href="#top"]) .hero-copy .lead{
+  max-width:570px;
+  color:#53675b;
+  font-size:clamp(16px,1.45vw,19px);
+  line-height:1.78;
+}
+body:has(> .header .brand[href="#top"]) .hero-copy .notice{
+  max-width:520px;
+  padding-top:17px;
+  border-top:1px solid var(--home-border);
+  color:#5c7064;
+  font-size:12px;
+  line-height:1.65;
+}
+body:has(> .header .brand[href="#top"]) .hero-visual.hero-emblem-visual{
+  min-height:clamp(380px,40vw,500px);
+  border:1px solid rgba(255,255,255,.9);
+  border-radius:46% 46% 8px 8px;
+  background:radial-gradient(circle at 50% 38%,#fffdf7 0,#f0f2e5 44%,#dce8d9 100%);
+  box-shadow:0 24px 64px rgba(22,57,41,.10);
+}
+body:has(> .header .brand[href="#top"]) .hero-emblem-image{
+  width:min(76%,390px);
+  filter:drop-shadow(0 18px 22px rgba(23,61,50,.15));
+}
+body:has(> .header .brand[href="#top"]) .hero-visual .ring-one{
+  width:84%;
+  border-color:rgba(23,75,55,.17);
+}
+body:has(> .header .brand[href="#top"]) .hero-visual .ring-two{
+  width:64%;
+  border-color:rgba(185,154,88,.5);
+}
+body:has(> .header .brand[href="#top"]) .emblem-caption{
+  color:var(--home-green);
+  font-size:12px;
+  letter-spacing:2.5px;
+}
+body:has(> .header .brand[href="#top"]) .hero-footer{
+  color:#66786c;
+  letter-spacing:1px;
+}
+body:has(> .header .brand[href="#top"]) .foundation-pillars{
+  gap:14px;
+  padding-bottom:clamp(28px,4vw,48px);
+}
+body:has(> .header .brand[href="#top"]) .foundation-pillars article{
+  min-height:82px;
+  padding:17px 19px;
+  border:1px solid var(--home-border);
+  border-radius:5px;
+  background:rgba(255,255,255,.82);
+  box-shadow:0 8px 24px rgba(22,57,41,.035);
+}
+body:has(> .header .brand[href="#top"]) .pillar-index{
+  border-color:rgba(185,154,88,.68);
+  color:#8c7138;
+}
+body:has(> .header .brand[href="#top"]) .foundation-pillars strong{
+  color:#244b37;
+  font-size:13px;
+}
+body:has(> .header .brand[href="#top"]) .foundation-pillars small{
+  color:#68786e;
+  font-size:11px;
+}
+
+/* First-choice pathways: simple, legible and honest about demo limitations. */
+.quick-help{
+  padding:clamp(54px,7vw,82px) 0;
+  background:#fff;
+  border-block:1px solid rgba(28,57,45,.07);
+}
+.quick-help-heading{max-width:760px;margin-bottom:30px}
+.quick-help-heading h2{
+  margin:10px 0 13px;
+  color:#1e3e30;
+  font:600 clamp(32px,4vw,48px)/1.1 Manrope,sans-serif;
+  letter-spacing:-.045em;
+}
+.quick-help-heading h2 em{color:#527a5d;font-family:Georgia,serif;font-weight:400}
+.quick-help-heading>p:last-child{
+  max-width:650px;
+  margin:0;
+  color:var(--home-muted);
+  font-size:15px;
+  line-height:1.75;
+}
+.quick-help-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:15px;
+}
+.quick-help-card{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) 18px;
+  align-items:start;
+  gap:14px;
+  min-height:154px;
+  padding:22px;
+  border:1px solid var(--home-border);
+  border-radius:5px;
+  background:linear-gradient(145deg,#fff 0%,#f7f8f2 100%);
+  color:var(--home-ink);
+  text-decoration:none;
+  box-shadow:0 8px 25px rgba(22,57,41,.035);
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.quick-help-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(185,154,88,.65);
+  box-shadow:0 16px 34px rgba(22,57,41,.075);
+}
+.quick-help-number{
+  display:grid;
+  place-items:center;
+  width:36px;height:36px;
+  border:1px solid rgba(185,154,88,.65);
+  border-radius:50%;
+  background:#fbfaf5;
+  color:#8c7138;
+  font:700 10px Manrope,sans-serif;
+}
+.quick-help-card-copy{display:grid;gap:8px;min-width:0}
+.quick-help-card-copy strong{color:#244b37;font:700 16px/1.35 Manrope,sans-serif}
+.quick-help-card-copy small{color:#5c7064;font-size:13px;line-height:1.65}
+.quick-help-arrow{margin-left:0;color:#8b713c;font-size:21px;line-height:1}
+.quick-help-note{
+  margin:19px 0 0;
+  padding:15px 18px;
+  border-left:3px solid var(--home-gold);
+  background:#f5f4ed;
+  color:#52665a;
+  font-size:12px;
+  line-height:1.7;
+}
+.quick-help-note strong{color:#20372d}
+
+/* Project portfolio is the public story before the technical product catalogue. */
+#program-portfolio{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(180deg,#f6f6ef 0%,#eef2e9 100%);
+}
+#program-portfolio:before{
+  position:absolute;top:0;right:0;width:min(34vw,420px);height:1px;
+  background:linear-gradient(90deg,transparent,rgba(185,154,88,.7));
+  content:"";
+}
+#program-portfolio>.container{position:relative}
+#program-portfolio .section-heading{align-items:end;gap:36px}
+#program-portfolio .section-heading h2{
+  max-width:700px;
+  color:#1e3e30;
+  font-size:clamp(34px,4.2vw,52px);
+  letter-spacing:-.05em;
+}
+#program-portfolio .section-heading h2 em{color:#527a5d}
+#program-portfolio .section-heading>p{
+  max-width:360px;
+  color:#596d61;
+  font-size:13px;
+  line-height:1.8;
+}
+#program-portfolio .direction-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+#program-portfolio .direction-card{
+  display:grid;
+  grid-template-columns:44px minmax(0,1fr);
+  grid-template-rows:auto auto 1fr auto;
+  column-gap:17px;
+  min-height:230px;
+  padding:25px 27px;
+  border:1px solid rgba(28,57,45,.13);
+  border-radius:5px;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 10px 28px rgba(22,57,41,.04);
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+#program-portfolio .direction-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(185,154,88,.65);
+  box-shadow:0 18px 38px rgba(22,57,41,.075);
+}
+#program-portfolio .direction-card.card-featured{
+  background:linear-gradient(145deg,#e9f0e5,#f5f4eb);
+  border-color:rgba(91,125,94,.22);
+}
+#program-portfolio .card-number{
+  grid-column:1;grid-row:1;
+  display:grid;place-items:center;
+  width:38px;height:38px;
+  border:1px solid rgba(185,154,88,.68);
+  border-radius:50%;
+  color:#8c7138;
+  font:700 10px Manrope,sans-serif;
+}
+#program-portfolio .card-icon,
+#program-portfolio .direction-emblem{
+  grid-column:1;grid-row:2;
+  display:grid;place-items:center;
+  width:44px;height:44px;min-width:44px;min-height:44px;
+  margin:15px 0 0;padding:9px;
+  border:1px solid rgba(185,154,88,.45);
+  border-radius:50%;
+  background:#f7f8f1;
+  color:#24543b;
+}
+#program-portfolio .direction-card h3{
+  grid-column:2;grid-row:1/3;
+  align-self:center;
+  margin:0;
+  color:#204633;
+  font:700 clamp(18px,2vw,22px)/1.3 Manrope,sans-serif;
+  letter-spacing:-.025em;
+}
+#program-portfolio .direction-card p{
+  grid-column:1/-1;grid-row:3;
+  min-height:0;
+  margin:19px 0 18px;
+  color:#586d60;
+  font-size:13px;
+  line-height:1.75;
+}
+#program-portfolio .card-status{
+  grid-column:1/-1;grid-row:4;
+  justify-self:start;
+  padding:7px 10px;
+  border:1px solid rgba(185,154,88,.4);
+  border-radius:2px;
+  background:#faf8f0;
+  color:#715d34;
+  font-size:10px;
+  font-weight:700;
+}
+#program-portfolio .preview-disclaimer{
+  margin-top:22px;
+  padding:14px 17px;
+  border-left:3px solid var(--home-gold);
+  background:rgba(255,255,255,.72);
+  color:#52665a;
+  font-size:12px;
+  line-height:1.7;
+}
+#program-portfolio .help-actions{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:16px 24px;
+  margin-top:25px;
+}
+#program-portfolio .help-actions .light-link{color:#315a43}
+
+/* Digital modules: consistent editorial cards, three across on wide screens. */
+.preview-section{background:#f8f7f1}
+.preview-section .section-heading h2{color:#1e3e30}
+.preview-section .section-heading h2 em{color:#527a5d}
+.preview-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+.preview-card{
+  min-height:290px;
+  padding:25px;
+  border:1px solid rgba(28,57,45,.13);
+  border-radius:5px;
+  background:linear-gradient(145deg,#fff 0%,#f6f7f1 100%);
+  box-shadow:0 8px 26px rgba(22,57,41,.035);
+}
+.preview-card-accent{background:linear-gradient(145deg,#e8efe5 0%,#f4f3e8 100%)}
+.preview-card h3{color:#234b37;line-height:1.25}
+.preview-card>p{color:#5c7064;line-height:1.75}
+.preview-card .preview-link{margin-top:auto}
+.preview-card:focus-visible,.quick-help-card:focus-visible{
+  outline:3px solid #9a702f;
+  outline-offset:4px;
+}
+
+/* Responsive layouts: no clipped nav, cards or forced horizontal scrolling. */
+@media(max-width:1000px){
+  .preview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #program-portfolio .section-heading{align-items:flex-start}
+}
+@media(max-width:760px){
+  body:has(> .header .brand[href="#top"]) .hero-layout{grid-template-columns:1fr;min-height:0;gap:22px}
+  body:has(> .header .brand[href="#top"]) .hero-copy{padding:10px 0 0}
+  body:has(> .header .brand[href="#top"]) .hero-visual.hero-emblem-visual{min-height:350px}
+  .quick-help-grid{grid-template-columns:1fr}
+  .quick-help-card{min-height:0;padding:18px}
+  #program-portfolio .section-heading{display:block}
+  #program-portfolio .section-heading>p{max-width:650px;margin-top:16px}
+  #program-portfolio .direction-card{min-height:205px;padding:21px}
+}
+@media(max-width:560px){
+  body:has(> .header .brand[href="#top"]) .hero-copy h1{font-size:clamp(39px,11vw,54px);letter-spacing:-.045em}
+  body:has(> .header .brand[href="#top"]) .hero-visual.hero-emblem-visual{min-height:310px}
+  body:has(> .header .brand[href="#top"]) .hero-emblem-image{width:min(70%,280px)}
+  .quick-help-heading h2{font-size:32px}
+  #program-portfolio .direction-grid,.preview-grid{grid-template-columns:1fr}
+  #program-portfolio .direction-card{min-height:0;padding:20px}
+  .preview-card{min-height:0;padding:22px}
+  #program-portfolio .help-actions{align-items:flex-start;flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+  .quick-help-card,#program-portfolio .direction-card{transition:none}
+  .quick-help-card:hover,#program-portfolio .direction-card:hover{transform:none}
+}
