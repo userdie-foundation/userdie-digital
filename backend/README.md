@@ -16,6 +16,7 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Program detail reads include approved program fields and milestone timelines; program managers are restricted to their exact program scope.
 - Application workflow migration 005 adds task ownership, priorities, due dates, escalation levels, and append-only workflow events linked to the parent application and program.
 - A read-only internal workflow endpoint exposes task status, overdue flags, escalation metadata, and the latest 100 workflow events only to the assigned case worker or the program manager for that exact program.
+- A scoped task-status transition endpoint (`PATCH /api/v1/workspace/tasks/:id/status`) permits only the assigned case worker or an exact-scope program manager to perform an allowlisted status transition. It uses a PostgreSQL transaction, compare-and-set against the previously read status, actor context for the workflow-event trigger, and rejects terminal-state changes. It does not create tasks or edit other task fields.
 - Migration 009 adds PostgreSQL-backed account and network throttling buckets keyed by HMAC digests; the tested limiter primitive is not yet wired to a login endpoint.
 - Migration 010 adds short-lived, single-use password-recovery token storage. Only SHA-256 token digests are persisted.
 - Migration 011 blocks UPDATE, DELETE and TRUNCATE on `audit_events` with PostgreSQL triggers; database ownership and DDL permissions must still be restricted operationally.
@@ -59,6 +60,7 @@ Migrations are reviewed SQL files, not an automated migration runner. Apply them
 - `GET /api/v1/programs?limit=25` — read-only program directory (limit 1–50); applicants and partners see open programs, program managers see exact granted scopes, and administrators/auditors/case workers see the governed portfolio.
 - `GET /api/v1/programs/:id` — read-only program dossier and milestone timeline; requires a valid server-side session and `programs:read` authorization.
 - `GET /api/v1/applications/:id/workflow` — internal read-only task, SLA and event timeline; visible only to the assigned case worker or exact-scope program manager with a valid server-side session.
+- `PATCH /api/v1/workspace/tasks/:id/status` — allowlisted task-status transition; requires a valid session, trusted scoped permission, exact Origin, and a valid transition. The route is implemented and CI-tested but is not connected to the public static-site UI or a confirmed production API deployment.
 
 Account-recovery HTTP request/reset routes exist but remain unavailable because the production entry point does not inject the recovery service; a production email-delivery adapter is also not configured. MFA enrollment, verification, recovery-code consumption, KMS integration, and enforcement are not implemented. Migration 012 is schema groundwork only; no normal session is gated on a second factor yet. All unknown routes return 404; non-GET/HEAD methods return 405 unless explicitly supported. The applications module deliberately fails closed: it does not read or write application records until identity, authorization, validation, and audit requirements are implemented and tested.
 
@@ -81,7 +83,7 @@ Before enabling real user accounts, complete and test:
 - A central exact-Origin guard now rejects every state-changing HTTP method (POST, PUT, PATCH, DELETE) when Origin is absent, null, or does not match the configured application origin; safe reads and OPTIONS preflight are excluded. Route-specific Origin checks remain on authentication endpoints. This is a CSRF control, not a substitute for production review of proxy/origin configuration, browser behavior, and future cross-origin requirements. Production activation is not confirmed; recovery routes and trusted delivery are not wired, and MFA remains incomplete.
 - Application and program write/lifecycle routes remain disabled. All future routes must use trusted database-loaded grants and per-record checks.
 - Application CRUD, task creation/update, file upload/download, malware scanning, notifications, and reporting are not implemented.
-- SLA overdue state is computed on read; no background scheduler, automatic escalation worker, notification channel, or task write endpoint is deployed. Escalation levels are data fields awaiting a governed write workflow.
+- SLA overdue state is computed on read; no background scheduler, automatic escalation worker, or notification channel is deployed. Only the narrow task-status transition route is implemented; task creation, assignment changes, due-date edits, and other task-field writes remain unavailable.
 - Secrets management, production hosting, TLS termination, migrations automation, monitoring, backups, and restore tests must be configured and verified separately.
 - Review applicable personal-data, consent, retention, and incident-response requirements before collecting real beneficiary data.
 
