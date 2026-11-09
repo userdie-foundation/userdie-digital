@@ -697,7 +697,11 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       return res.end();
     }
 
-    if (req.method !== "GET" && req.method !== "HEAD") {
+    // PATCH is enabled only for the explicitly implemented task-status route.
+    // All other non-read methods remain blocked by this central allowlist.
+    const isWorkspaceTaskStatusPatch = req.method === "PATCH" &&
+      /^\/api\/v1\/workspace\/tasks\/[^/]+\/status$/.test(url.pathname);
+    if (req.method !== "GET" && req.method !== "HEAD" && !isWorkspaceTaskStatusPatch) {
       return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
     }
 
