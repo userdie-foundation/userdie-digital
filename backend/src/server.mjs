@@ -346,6 +346,58 @@ function createWorkspaceRepository(pool) {
         createdAt: row.created_at,
       }));
     },
+    async getTaskForUpdate(id) {
+      const result = await pool.query(
+        `SELECT t.id, t.application_id, t.program_id, t.assigned_to, t.status
+         FROM application_tasks t
+         WHERE t.id = $1::uuid
+         LIMIT 1`,
+        [id],
+      );
+      const row = result.rows?.[0];
+      return row ? {
+        id: row.id, applicationId: row.application_id,
+        programId: row.program_id, assignedTo: row.assigned_to, status: row.status,
+      } : null;
+    },
+    async updateTaskStatus({ id, status, actorId }) {
+      if (typeof pool.connect !== "function") {
+        throw new TypeError("A transactional database pool is required");
+      }
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query("SELECT set_config('app.actor_id', $1, true)", [actorId]);
+        const result = await client.query(
+          `UPDATE application_tasks
+           SET status = $2,
+               completed_at = CASE WHEN $2 = 'completed' THEN now() ELSE NULL END
+           WHERE id = $1::uuid
+           RETURNING id, application_id, program_id, title, status, priority,
+                     assigned_to, due_at, escalation_level, escalated_at,
+                     completed_at, created_at`,
+          [id, status],
+        );
+        const row = result.rows?.[0];
+        if (!row) {
+          await client.query("ROLLBACK");
+          return null;
+        }
+        await client.query("COMMIT");
+        return {
+          id: row.id, applicationId: row.application_id, programId: row.program_id,
+          title: row.title, status: row.status, priority: row.priority,
+          assignedTo: row.assigned_to, dueAt: row.due_at,
+          escalationLevel: row.escalation_level, escalatedAt: row.escalated_at,
+          completedAt: row.completed_at, createdAt: row.created_at,
+        };
+      } catch (error) {
+        try { await client.query("ROLLBACK"); } catch {}
+        throw error;
+      } finally {
+        client.release();
+      }
+    },
     async getSummary(principal) {
       const canReadAssignedCases = principal.grants.some((grant) =>
         grant?.roleCode === "case_worker" && grant.scopeType === "global"
@@ -862,6 +914,70 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
         return sendJson(res, 404, { error: "not_found" }, req.method);
       }
       return sendJson(res, 200, { approval }, req.method);
+    }
+
+    const taskStatusMatch = url.pathname.match(/^\\/api\\/v1\\/workspace\\/tasks\\/([^/]+)\\/status$/);
+    if (taskStatusMatch) {
+      if (req.method !== "PATCH") {
+        res.setHeader("Allow", "PATCH");
+        return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
+      }
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let taskId;
+      try { taskId = decodeURIComponent(taskStatusMatch[1]); } catch {
+        return sendJson(res, 400, { error: "invalid_task_id" }, req.method);
+      }
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(taskId)) {
+        return sendJson(res, 400, { error: "invalid_task_id" }, req.method);
+      }
+      const parsed = await readJsonBody(req, 4096);
+      if (parsed.error) {
+        const status = parsed.error === "payload_too_large" ? 413
+          : parsed.error === "unsupported_media_type" ? 415 : 400;
+        return sendJson(res, status, { error: parsed.error }, req.method);
+      }
+      if (Object.keys(parsed.value).length !== 1 ||
+          !["open", "in_progress", "blocked", "completed", "cancelled"].includes(parsed.value.status)) {
+        return sendJson(res, 400, { error: "invalid_task_status" }, req.method);
+      }
+      let task;
+      try { task = await workspace.getTaskForUpdate(taskId); } catch {
+        return sendJson(res, 503, { error: "workspace_unavailable" }, req.method);
+      }
+      if (!task || !isAuthorized({
+        principal, permission: "applications:transition",
+        resource: { assignedTo: task.assignedTo, programId: task.programId },
+      })) {
+        return sendJson(res, 404, { error: "not_found" }, req.method);
+      }
+      const transitions = {
+        open: new Set(["in_progress", "blocked", "cancelled"]),
+        in_progress: new Set(["open", "blocked", "completed", "cancelled"]),
+        blocked: new Set(["open", "in_progress", "cancelled"]),
+        completed: new Set(),
+        cancelled: new Set(),
+      };
+      if (!transitions[task.status]?.has(parsed.value.status)) {
+        return sendJson(res, 409, { error: "task_status_transition_not_allowed" }, req.method);
+      }
+      try {
+        const updated = await workspace.updateTaskStatus({
+          id: taskId, status: parsed.value.status, actorId: principal.id,
+        });
+        if (!updated) return sendJson(res, 404, { error: "not_found" }, req.method);
+        return sendJson(res, 200, { task: updated }, req.method);
+      } catch {
+        return sendJson(res, 503, { error: "workspace_unavailable" }, req.method);
+      }
     }
 
     if (url.pathname === "/api/v1/workspace/tasks") {
