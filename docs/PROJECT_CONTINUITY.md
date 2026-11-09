@@ -387,3 +387,12 @@ USERDIE Digital развивается как полноценная цифро�
 - Визуальный workspace в `website/prototype/workspace.html` по-прежнему хранит демонстрационные задачи и карточки только в `localStorage`; их идентификаторы не являются UUID серверных задач. Нельзя напрямую подключать этот UI к PATCH route или выдавать локальные демонстрационные данные за реальные записи.
 - Backend остаётся отдельным сервисом, не входящим в GitHub Pages deployment workflow. В репозитории не подтверждены production hosting, API base URL, секреты/переменные среды, применённые production migrations и operational authentication. Поэтому реальное подключение интерфейса отложено до создания и проверки безопасного backend deployment.
 - Следующий технический этап: подготовить контролируемый план развертывания backend (hosting, PostgreSQL, migration/backup/restore, secrets, TLS, exact Origin, health checks, logging/monitoring), не включая сбор реальных данных фонда до проверки защиты и доступа.
+
+
+## 12. Zero-budget continuation and mobile workspace refinement — 2026-11-09
+
+- User confirmed the current infrastructure budget is **€0/month for now**, with possible reconsideration later. No paid hosting, database, subscription or DNS/mail changes are authorized.
+- The latest verified backend/security/robot checks for `c2c7bb8105aa7047196a8f48e044ab25319fee47` all completed successfully.
+- A targeted mobile navigation improvement was committed in `website/prototype/workspace.html` at `0a2f9815d3efd718d847f6f04b273610d37eb2a3`: when a user switches a workspace view on a phone (viewport up to 720px), the active navigation item is horizontally brought into view and centered in the scrollable module rail. The behavior respects `prefers-reduced-motion`.
+- This is a frontend usability refinement only. It does not connect the demo workspace to the backend or change the demo/local-storage data boundary.
+- Validation is pending on the new commit; do not describe the change as deployed until GitHub Pages deployment is separately confirmed.
