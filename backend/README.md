@@ -17,7 +17,7 @@ This directory is the initial backend service scaffold. It is separate from the 
 - Application workflow migration 005 adds task ownership, priorities, due dates, escalation levels, and append-only workflow events linked to the parent application and program.
 - A read-only internal workflow endpoint exposes task status, overdue flags, escalation metadata, and the latest 100 workflow events only to the assigned case worker or the program manager for that exact program.
 - A scoped task-status transition endpoint (`PATCH /api/v1/workspace/tasks/:id/status`) permits only the assigned case worker or an exact-scope program manager to perform an allowlisted status transition. It uses a PostgreSQL transaction, compare-and-set against the previously read status, actor context for the workflow-event trigger, and rejects terminal-state changes. It does not create tasks or edit other task fields.
-- Migration 009 adds PostgreSQL-backed account and network throttling buckets keyed by HMAC digests; the tested limiter primitive is not yet wired to a login endpoint.
+- Migration 009 adds PostgreSQL-backed account and network throttling buckets keyed by HMAC digests. The runtime entry point conditionally injects the authentication service, including this limiter, only when `LOGIN_RATE_LIMIT_HMAC_KEY` is configured; this is source wiring, not evidence of a deployed or production-approved login service.
 - Migration 010 adds short-lived, single-use password-recovery token storage. Only SHA-256 token digests are persisted.
 - Migration 011 blocks UPDATE, DELETE and TRUNCATE on `audit_events` with PostgreSQL triggers; database ownership and DDL permissions must still be restricted operationally.
 - Migration 013 prepares separate PostgreSQL-backed account and network throttling buckets for password-recovery requests; raw email addresses and client IP addresses are not stored.
@@ -42,10 +42,10 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 10. Review and apply `migrations/010_auth_recovery_tokens.sql` after migration 001 to prepare one-time recovery-token storage.
 11. Review and apply `migrations/011_audit_events_append_only.sql` after migration 001 to block ordinary UPDATE, DELETE and TRUNCATE operations on the audit log.
 12. Review and apply `migrations/012_mfa_persistence.sql` after migrations 001 and 011 to prepare encrypted MFA-factor, pending-challenge, and one-time recovery-code storage. This migration alone does not enable MFA.
-13. Review and apply `migrations/013_auth_recovery_rate_limits.sql` after migration 001 to prepare separate account- and network-scoped password-recovery throttling buckets. Only HMAC digests are stored.
-13. Install dependencies with `npm install`.
-14. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
-15. Run `npm test`, `npm run check`, then `npm start`.
+14. Review and apply `migrations/013_auth_recovery_rate_limits.sql` after migration 001 to prepare separate account- and network-scoped password-recovery throttling buckets. Only HMAC digests are stored.
+15. Install dependencies with `npm install`.
+16. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
+17. Run `npm test`, `npm run check`, then `npm start`.
 
 Migrations are reviewed SQL files, not an automated migration runner. Apply them through a controlled deployment process and verify backups first. Do not run migrations against production until a backup and restore procedure has been verified.
 
@@ -88,3 +88,10 @@ Before enabling real user accounts, complete and test:
 - Review applicable personal-data, consent, retention, and incident-response requirements before collecting real beneficiary data.
 
 Never put real applicant data, uploaded documents, database credentials, or access tokens in this repository or test fixtures.
+
+
+## Runtime wiring clarification — 2026-11-09
+
+- The entry point creates and injects the authentication service only when `LOGIN_RATE_LIMIT_HMAC_KEY` is configured. The login route then remains fail-closed if that service is absent.
+- The entry point creates and injects the recovery rate limiter when `RECOVERY_RATE_LIMIT_HMAC_KEY` is configured, but does not create or inject `recoveryService`. Recovery request/reset handlers therefore return `503 recovery_unavailable` and are not operational.
+- No backend hosting, staging database, deployment workflow or provider configuration is confirmed. See `docs/BACKEND_STAGING_DEPLOYMENT_RUNBOOK.md` before any provisioning.
