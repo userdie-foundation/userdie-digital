@@ -377,3 +377,13 @@ USERDIE Digital развивается как полноценная цифро�
 - Коммит исправления: `34e109cf2c75dcd7ff20c7a6c5f0049a382d3b56`.
 - Повторный Backend checks run: `42623405068`; Security Guard: `42623405260`; Robot Team: `42623405145`. На момент записи все три проверки были in_progress; итог не подтверждён.
 - Следующий шаг: дождаться итогов проверок для `34e109c`. Не подключать frontend к неразвёрнутому API и не считать UI связанным с PostgreSQL до подтверждения адреса/развёртывания backend и схемы аутентификации.
+
+## 11. Подтверждение CI и уточнение документации API (9 ноября 2026)
+
+- После исправления общего method gate в коммите `34e109cf2c75dcd7ff20c7a6c5f0049a382d3b56` Backend CI выявил единственный оставшийся дефект: тест ожидал объект без поля `expectedStatus`, хотя compare-and-set контракт передаёт исходный статус.
+- Исправлена тестовая проверка: `backend/test/server.test.mjs` теперь явно ожидает `expectedStatus: "open"`. Коммит: `c04b55dd5b42ae68dfc8cfb0ff8c1753bcd11976`.
+- Повторный Backend checks run `42623744340` завершился `success`; шаги JavaScript syntax и automated tests — success. Robot Team run `42623744421` также завершился `success`.
+- Документация `backend/README.md` обновлена: описан PATCH endpoint, его scope/transition/transaction/CAS ограничения и явно указано, что он не подключён к статическому сайту и production API deployment не подтверждён. Уточнено, что создание задач и изменение прочих полей пока не реализованы. Коммит: `d9df0c7fefc007dea3eaeadb6295c927c01fdd76`.
+- Визуальный workspace в `website/prototype/workspace.html` по-прежнему хранит демонстрационные задачи и карточки только в `localStorage`; их идентификаторы не являются UUID серверных задач. Нельзя напрямую подключать этот UI к PATCH route или выдавать локальные демонстрационные данные за реальные записи.
+- Backend остаётся отдельным сервисом, не входящим в GitHub Pages deployment workflow. В репозитории не подтверждены production hosting, API base URL, секреты/переменные среды, применённые production migrations и operational authentication. Поэтому реальное подключение интерфейса отложено до создания и проверки безопасного backend deployment.
+- Следующий технический этап: подготовить контролируемый план развертывания backend (hosting, PostgreSQL, migration/backup/restore, secrets, TLS, exact Origin, health checks, logging/monitoring), не включая сбор реальных данных фонда до проверки защиты и доступа.
