@@ -1092,3 +1092,90 @@ test("recovery completion route returns only the reset result and hides service 
   assert.equal(consumed[0].token, "A".repeat(43));
   assert.equal(consumed[0].newPassword, "a sufficiently long password");
 });
+
+
+test("workspace task status updates require trusted scope and persist through the repository", async () => {
+  const writes = [];
+  const task = {
+    id: "11111111-1111-4111-8111-111111111111",
+    applicationId: "22222222-2222-4222-8222-222222222222",
+    programId: "program-a",
+    assignedTo: "worker-1",
+    status: "open",
+  };
+  const workspaceRepository = {
+    async getTaskForUpdate(id) { return id === task.id ? { ...task } : null; },
+    async updateTaskStatus(input) {
+      writes.push(input);
+      task.status = input.status;
+      return { id: task.id, status: task.status };
+    },
+  };
+
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/workspace/tasks/" + task.id + "/status", {
+      method: "PATCH",
+      headers: {
+        origin: "https://platform.example",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ status: "in_progress" }),
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      task: { id: task.id, status: "in_progress" },
+    });
+    assert.deepEqual(writes, [{
+      id: task.id, status: "in_progress", actorId: "worker-1",
+    }]);
+  }, {
+    allowedOrigin: "https://platform.example",
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+    workspaceRepository,
+  });
+
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/workspace/tasks/" + task.id + "/status", {
+      method: "PATCH",
+      headers: {
+        origin: "https://platform.example",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ status: "completed" }),
+    });
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), { error: "not_found" });
+    assert.equal(writes.length, 1);
+  }, {
+    allowedOrigin: "https://platform.example",
+    resolvePrincipal: async () => identity("worker-2", "case_worker"),
+    workspaceRepository,
+  });
+});
+
+test("workspace task status updates reject invalid and terminal transitions", async () => {
+  const taskId = "11111111-1111-4111-8111-111111111111";
+  const workspaceRepository = {
+    async getTaskForUpdate() { return { id: taskId, assignedTo: "worker-1", programId: "program-a", status: "completed" }; },
+    async updateTaskStatus() { assert.fail("terminal task must not be written"); },
+  };
+  await withServer(noDb, async (base) => {
+    const invalid = await fetch(base + "/api/v1/workspace/tasks/" + taskId + "/status", {
+      method: "PATCH",
+      headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify({ status: "unknown" }),
+    });
+    assert.equal(invalid.status, 400);
+    const terminal = await fetch(base + "/api/v1/workspace/tasks/" + taskId + "/status", {
+      method: "PATCH",
+      headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify({ status: "open" }),
+    });
+    assert.equal(terminal.status, 409);
+    assert.deepEqual(await terminal.json(), { error: "task_status_transition_not_allowed" });
+  }, {
+    allowedOrigin: "https://platform.example",
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+    workspaceRepository,
+  });
+});
