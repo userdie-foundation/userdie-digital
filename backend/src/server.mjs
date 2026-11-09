@@ -360,7 +360,7 @@ function createWorkspaceRepository(pool) {
         programId: row.program_id, assignedTo: row.assigned_to, status: row.status,
       } : null;
     },
-    async updateTaskStatus({ id, status, actorId }) {
+    async updateTaskStatus({ id, status, expectedStatus, actorId }) {
       if (typeof pool.connect !== "function") {
         throw new TypeError("A transactional database pool is required");
       }
@@ -372,11 +372,11 @@ function createWorkspaceRepository(pool) {
           `UPDATE application_tasks
            SET status = $2,
                completed_at = CASE WHEN $2 = 'completed' THEN now() ELSE NULL END
-           WHERE id = $1::uuid
+           WHERE id = $1::uuid AND status = $3
            RETURNING id, application_id, program_id, title, status, priority,
                      assigned_to, due_at, escalation_level, escalated_at,
                      completed_at, created_at`,
-          [id, status],
+          [id, status, expectedStatus],
         );
         const row = result.rows?.[0];
         if (!row) {
@@ -971,7 +971,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       }
       try {
         const updated = await workspace.updateTaskStatus({
-          id: taskId, status: parsed.value.status, actorId: principal.id,
+          id: taskId, status: parsed.value.status, expectedStatus: task.status, actorId: principal.id,
         });
         if (!updated) return sendJson(res, 404, { error: "not_found" }, req.method);
         return sendJson(res, 200, { task: updated }, req.method);
