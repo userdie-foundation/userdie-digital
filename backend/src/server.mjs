@@ -916,7 +916,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       return sendJson(res, 200, { approval }, req.method);
     }
 
-    const taskStatusMatch = url.pathname.match(/^\\/api\\/v1\\/workspace\\/tasks\\/([^/]+)\\/status$/);
+    const taskStatusMatch = url.pathname.match(/^\/api\/v1\/workspace\/tasks\/([^/]+)\/status$/);
     if (taskStatusMatch) {
       if (req.method !== "PATCH") {
         res.setHeader("Allow", "PATCH");
