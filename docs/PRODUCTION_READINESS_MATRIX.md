@@ -15,9 +15,9 @@ This matrix distinguishes repository implementation, automated test evidence, pu
 | Applicant / partner / staff workspaces | HTML demonstrators and prototype screens exist. | These are not production intake or document-exchange services. Do not enter real beneficiary, donor, employee, or partner data. |
 | API process | Node.js HTTP service, PostgreSQL pool, liveness/readiness routes, graceful shutdown and configuration validation exist in source. | API hosting, network boundaries, TLS termination, runtime configuration and operational ownership are not evidenced as deployed. |
 | PostgreSQL | Migrations 001–010 cover core records, history, sessions, program lifecycle, workflow/SLA, scoped grants, approvals, login throttling and recovery-token storage. Integration tests apply the migrations in an isolated schema when `PG_INTEGRATION_URL` is configured. | Production migration execution and database backup/restore are not confirmed. |
-| Login and logout | HTTP login/logout handlers and a database-backed opaque-session lifecycle exist. Login uses the PostgreSQL-backed account/network limiter when the required HMAC secret is configured. | Source implementation is not proof that production secrets, migrations, HTTPS proxy settings or user accounts are enabled. |
+| Login and logout | HTTP login/logout handlers and a database-backed opaque-session lifecycle exist. The runtime entry point conditionally injects the authentication service only when `LOGIN_RATE_LIMIT_HMAC_KEY` is configured; the service uses the PostgreSQL-backed account/network limiter. | This is conditional source wiring, not a deployed or accepted identity service. Production secrets, migrations, HTTPS/proxy settings, account bootstrap, CSRF review and MFA policy still require verification. |
 | Session and authorization | Server-side session validation, principal loading from trusted storage, scoped role grants, revocation and read-only protected routes exist. Session rotation is implemented. | Access-control acceptance and deployment review remain required. No client-supplied role or owner value may be trusted. |
-| Account recovery | Token-storage migration and service core exist; token digests are stored and active sessions are revoked on successful reset. | Recovery HTTP routes and a trusted production email-delivery adapter are not connected. Recovery is not operational for users. |
+| Account recovery | Token-storage and recovery-throttling migrations, service core, request/reset route handlers and a PostgreSQL-backed recovery rate-limiter hook exist. | The runtime entry point injects the rate limiter but does **not** inject `recoveryService`; no trusted email-delivery adapter is configured. The routes fail closed with `503 recovery_unavailable`. Recovery is not operational for users. |
 | MFA | Requirements are documented. | Enrollment, challenge verification, recovery codes and enforcement are not implemented. |
 | Applications / cases | Read-only detail access is guarded by server-side authorization; the collection route deliberately fails closed. | No production application intake, case create/update, task-write, attachment or notification workflow. |
 | Programs | Read-only program dossier and milestone route with scoped authorization exists. | Governed program creation, approval, publication and lifecycle write APIs are not complete. |
@@ -100,3 +100,13 @@ A module is **production-ready** only when implementation, automated tests, depl
 - USERDIE Digital robot team for the same commit completed successfully.
 - The only new workflow write capability is a scoped status transition for an existing task. It uses trusted server-side scope, an allowlisted transition map, transaction handling and compare-and-set against the expected prior status.
 - The workspace page still uses browser `localStorage` demo records; it is not connected to this API route. Backend hosting, production database/migrations, secrets, TLS/origin configuration, monitoring and restore evidence remain unverified. No real beneficiary data should be entered.
+
+
+## Verified infrastructure preparation — 2026-11-09
+
+- Rechecked the latest `main` revision: `4c74a235a30006bbb07bbd89710576f3a5ffd2e9`.
+- USERDIE Security Guard, Public Repository Security Check and USERDIE Digital Robot Team all completed with `success` for that revision.
+- Added `docs/BACKEND_STAGING_DEPLOYMENT_RUNBOOK.md` as a provider-neutral preparation document. It does not provision infrastructure or claim that a staging service exists.
+- Repository inspection confirms there is no backend Dockerfile, Compose file, provider manifest or backend deployment workflow. Node.js 22+, PostgreSQL, runtime variables and health endpoints are present in source.
+- The public website and backend remain separate deployment surfaces. No DNS, MX, hosting resource, database or secret was changed or provisioned.
+- The workspace UI remains a local-storage demonstrator; no frontend/API integration was attempted.
