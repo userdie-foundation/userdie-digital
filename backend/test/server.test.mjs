@@ -1126,7 +1126,7 @@ test("workspace task status updates require trusted scope and persist through th
       task: { id: task.id, status: "in_progress" },
     });
     assert.deepEqual(writes, [{
-      id: task.id, status: "in_progress", actorId: "worker-1",
+      id: task.id, status: "in_progress", expectedStatus: "open", actorId: "worker-1",
     }]);
   }, {
     allowedOrigin: "https://platform.example",
