@@ -202,6 +202,14 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+/* On phones the module rail becomes sticky; let the brand header scroll away
+   so the two sticky layers cannot cover each other's navigation controls. */
+@media (max-width: 720px) {
+  body.workspace .header {
+    position: relative !important;
+    top: auto !important;
+  }
+}
 .header-inner { min-width: 0 !important; }
 body.workspace, body.workspace .app-shell, body.workspace .app-main,
 body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%; }
