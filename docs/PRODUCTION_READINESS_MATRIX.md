@@ -21,7 +21,7 @@ This matrix distinguishes repository implementation, automated test evidence, pu
 | MFA | Requirements are documented. | Enrollment, challenge verification, recovery codes and enforcement are not implemented. |
 | Applications / cases | Read-only detail access is guarded by server-side authorization; the collection route deliberately fails closed. | No production application intake, case create/update, task-write, attachment or notification workflow. |
 | Programs | Read-only program dossier and milestone route with scoped authorization exists. | Governed program creation, approval, publication and lifecycle write APIs are not complete. |
-| Workflow / SLA | Read-only task and event views and database event history exist. | Task-write APIs, scheduled escalation workers and notification delivery are not complete. |
+| Workflow / SLA | Read-only task and event views, database event history, and a narrowly scoped task-status transition route (`PATCH /api/v1/workspace/tasks/:id/status`) exist; the route has passing Backend CI tests on 9 Nov 2026. | The route is not deployed to a confirmed API host or connected to the public UI. Task creation, assignment changes, other task-field writes, scheduled escalation workers and notification delivery are not complete. |
 | Independent approvals | Approval schema, audit events and read paths are present in the backend. | End-to-end governed approval operations and production authorization sign-off remain outstanding. |
 | Finance, asset valuation and BFU | Specifications and demonstrator materials exist. | No production financial ledger, token custody, signing, transfer, exchange or minting operation is confirmed. Keep BFU and ZHAKIN Points separate from USERDIE Digital. |
 | Operations | CI, security scans and health-check workflows exist. | Production monitoring, alerting, backups, restore drills, incident response and operational ownership still need deployment evidence. |
@@ -93,3 +93,10 @@ This matrix distinguishes repository implementation, automated test evidence, pu
 ## Non-negotiable release rule
 
 A module is **production-ready** only when implementation, automated tests, deployment, operational controls and acceptance evidence all exist. A mockup, schema, source implementation or passing CI workflow alone does not satisfy this rule.
+
+## Verified update — 2026-11-09
+
+- Backend checks for commit `c04b55dd5b42ae68dfc8cfb0ff8c1753bcd11976` completed successfully: JavaScript syntax check and all 143 automated tests passed (0 failed).
+- USERDIE Digital robot team for the same commit completed successfully.
+- The only new workflow write capability is a scoped status transition for an existing task. It uses trusted server-side scope, an allowlisted transition map, transaction handling and compare-and-set against the expected prior status.
+- The workspace page still uses browser `localStorage` demo records; it is not connected to this API route. Backend hosting, production database/migrations, secrets, TLS/origin configuration, monitoring and restore evidence remain unverified. No real beneficiary data should be entered.
