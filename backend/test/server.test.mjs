@@ -87,12 +87,61 @@ test("all state-changing methods require the exact configured Origin before rout
   }, { allowedOrigin: "https://platform.example" });
 });
 
-test("CORS allows only the configured exact origin", async () => {
+test("CORS allows only the configured exact origin and credentials", async () => {
   await withServer(noDb, async (base) => {
     const allowed = await fetch(`${base}/api/v1/health/live`, { headers: { origin: "https://platform.example" } });
     assert.equal(allowed.headers.get("access-control-allow-origin"), "https://platform.example");
+    assert.equal(allowed.headers.get("access-control-allow-credentials"), "true");
     const rejected = await fetch(`${base}/api/v1/health/live`, { headers: { origin: "https://attacker.example" } });
     assert.equal(rejected.headers.get("access-control-allow-origin"), null);
+    assert.equal(rejected.headers.get("access-control-allow-credentials"), null);
+  }, { allowedOrigin: "https://platform.example" });
+});
+
+test("CORS preflight permits only exact-origin credentialed JSON API methods", async () => {
+  await withServer(noDb, async (base) => {
+    const allowed = await fetch(`${base}/api/v1/auth/login`, {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(allowed.status, 204);
+    assert.equal(allowed.headers.get("access-control-allow-origin"), "https://platform.example");
+    assert.equal(allowed.headers.get("access-control-allow-credentials"), "true");
+    assert.equal(allowed.headers.get("access-control-allow-methods"), "GET, HEAD, POST, PATCH");
+    assert.equal(allowed.headers.get("access-control-allow-headers"), "Content-Type");
+
+    const foreign = await fetch(`${base}/api/v1/auth/login`, {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://attacker.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(foreign.status, 403);
+
+    const disallowedMethod = await fetch(`${base}/api/v1/auth/login`, {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "DELETE",
+      },
+    });
+    assert.equal(disallowedMethod.status, 403);
+
+    const disallowedHeader = await fetch(`${base}/api/v1/auth/login`, {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "authorization",
+      },
+    });
+    assert.equal(disallowedHeader.status, 403);
   }, { allowedOrigin: "https://platform.example" });
 });
 
