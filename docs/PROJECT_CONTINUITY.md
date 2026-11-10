@@ -396,3 +396,32 @@ USERDIE Digital развивается как полноценная цифро�
 - A targeted mobile navigation improvement was committed in `website/prototype/workspace.html` at `0a2f9815d3efd718d847f6f04b273610d37eb2a3`: when a user switches a workspace view on a phone (viewport up to 720px), the active navigation item is horizontally brought into view and centered in the scrollable module rail. The behavior respects `prefers-reduced-motion`.
 - This is a frontend usability refinement only. It does not connect the demo workspace to the backend or change the demo/local-storage data boundary.
 - Validation is pending on the new commit; do not describe the change as deployed until GitHub Pages deployment is separately confirmed.
+
+## 13. Исправление навигации рабочего пространства — 2026-11-10
+
+Проведён аудит навигации `website/prototype/workspace.html`. Подтверждён дефект: при активном фильтре поиска пользователь мог открыть модуль через внутреннюю карточку/переход, но соответствующий пункт меню оставался скрытым фильтром. Это создавало несоответствие между активным разделом и видимой навигацией.
+
+Исправление:
+- В функции `go(view)` добавлена проверка целевого пункта меню.
+- Если пункт скрыт активным фильтром, поле поиска очищается и фильтр пересчитывается до перехода/прокрутки к модулю.
+- Изменён только `website/prototype/workspace.html`; демо-хранилище, backend, авторизация и границы персональных данных не менялись.
+
+GitHub:
+- PR #18: https://github.com/userdie-foundation/userdie-digital/pull/18
+- Исходный commit ветки: `3afa5e9cb637bfc3347edc6dbad69043d1ec93de`.
+- PR checks на исходном commit: Website quality gate — success; USERDIE security guard — success; Public repository security check — success.
+- PR слит в `main` 2026-11-10.
+- Merge commit: `78776b92c5408c6070d6a74ad03dac39c69d4496`.
+- Повторное чтение `website/prototype/workspace.html` из `main` подтвердило наличие исправления.
+
+После merge на merge commit автоматически созданы запуски:
+- Website quality gate: run `42831785246` — in progress при последней проверке.
+- Deploy public website: run `42831785226` — queued при последней проверке.
+- Public repository security check: run `42831785284` — in progress при последней проверке.
+- USERDIE security guard: run `42831785444` — queued при последней проверке.
+- USERDIE Digital robot team: run `42831785215` — in progress при последней проверке.
+
+**Статус публикации:** merge подтверждён; факт успешного deployment и внешняя проверка опубликованной страницы на момент записи ещё не подтверждены. Не объявлять сайт обновлённым до получения итогового `success` для deploy и отдельной проверки live-версии.
+
+Дополнительная архитектурная сверка подтвердила: `website/prototype/applicant-cabinet.html` и `case-management.html` остаются демонстрационными интерфейсами. Указанные в них ограничения реальны: нет действующей авторизации, серверной базы обращений, реальной отправки обращений и юридически значимого аудита. `backend-architecture.html` также помечен как draft / not deployed. Переход к рабочим кабинетам требует завершения backend, инфраструктуры и согласованных процессов; не подменять этот этап локальной демонстрацией.
+
