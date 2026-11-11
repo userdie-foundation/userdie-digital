@@ -393,3 +393,28 @@ body.workspace .leadership-priority li span { color: #78906b; font-size: 10px; f
 @media(prefers-reduced-motion:reduce){
   .prototype-menu-toggle,.prototype-menu-enhanced .primary-navigation a{transition:none}
 }
+
+
+/* USERDIE Digital foundation palette — shared prototype surfaces. */
+:root{
+  --ink:#29483b;
+  --muted:#66756b;
+  --paper:#f3f0e7;
+  --green:#173f32;
+  --lime:#e7dfc9;
+  --line:rgba(41,72,59,.16);
+}
+body{background:var(--paper);color:var(--ink)}
+.header{background:rgba(243,240,231,.96);border-bottom-color:rgba(209,179,107,.42)}
+.brand-symbol{border-color:#173f32;color:#173f32}
+.brand small{color:#66756b}
+nav{color:#29483b}
+nav a:hover,.quiet-link:hover,.text-link:hover{color:#9b7b37}
+h1 em,h2 em{color:#567a62}
+.button-dark{background:#173f32;color:#fff}
+.button-dark:hover{background:#245b45}
+.button-light{background:#e7dfc9;color:#29483b;border-color:#d1b36b}
+.direction-card,.module-card{background:#fbfaf6;border-color:rgba(209,179,107,.28)}
+.card-featured{background:#e7dfc9;border-color:#d1b36b}
+.directions,.platform-modules{background:#eae7dd}
+.help-panel{background:#173f32}
