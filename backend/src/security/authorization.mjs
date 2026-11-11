@@ -137,6 +137,33 @@ export function isAuthorized({ principal, permission, resource = {} } = {}) {
         )
       );
 
+    // Partnership records are private by default. Internal roles see only
+    // records assigned to them; partners require an exact organization grant.
+    case "partnerships:read":
+      return (
+        hasGrant(principal, "administrator", "global") ||
+        hasGrant(principal, "auditor", "global") ||
+        (hasGrant(principal, "case_worker", "global") && resource.assignedTo === principal.id) ||
+        (typeof resource.organizationId === "string" &&
+          hasGrant(principal, "partner", "organization", resource.organizationId))
+      );
+
+    // Evidence metadata is internal review material. Partner organization grants
+    // do not expose private evidence; a separate approved public projection is
+    // intentionally not part of this permission.
+    case "partnerships:evidence:read":
+      return (
+        hasGrant(principal, "administrator", "global") ||
+        hasGrant(principal, "auditor", "global") ||
+        (hasGrant(principal, "case_worker", "global") && resource.assignedTo === principal.id)
+      );
+
+    case "partnerships:create":
+    case "partnerships:update":
+    case "partnerships:confirm":
+    case "partnerships:evidence:write":
+      return false;
+
     case "audit:read":
       return hasGrant(principal, "auditor", "global");
 
