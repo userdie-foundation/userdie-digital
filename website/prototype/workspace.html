@@ -459,6 +459,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </section>
 <section class="page-view" id="view-tasks">
 <div class="view-intro"><p class="eyebrow">01 / УПРАВЛЕНИЕ РАБОТОЙ</p><h2>Задачи команды</h2><p>Интерактивный пример списка задач. Отметки и новые записи живут только в текущей вкладке браузера; серверного хранения и назначений исполнителям нет.</p></div>
+<div class="notice-box"><strong>Стандарт постановки задачи:</strong> формулировка действия → ожидаемый результат → один ответственный → срок → критерий приёмки → подтверждение. При риске срыва исполнитель фиксирует причину и новый прогноз; перенос срока подтверждает руководитель. Статусы: новая, в работе, на проверке, завершена, приостановлена, просрочена.</div>
 <div class="workflow-links" aria-label="Связи задач с другими модулями"><strong>Связать работу с объектом</strong><button type="button" data-go="programs">Программа или проект →</button><button type="button" data-go="assets">Объект оценки →</button><button type="button" data-go="knowledge">Методика или исследование →</button></div>
 <div class="panel"><div class="panel-head"><div><h2>Список задач</h2><p id="task-summary">4 демонстрационные задачи</p></div><button class="app-button" id="new-task-secondary">＋ Добавить</button></div>
 <div class="filter-row"><input class="search-box" id="task-search" type="search" placeholder="Поиск по задачам…" aria-label="Поиск по задачам"><select class="filter-select" id="task-filter" aria-label="Фильтр по статусу"><option value="all">Все статусы</option><option value="open">Активные</option><option value="done">Выполненные</option></select></div>
@@ -475,6 +476,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </section>
 <section class="page-view" id="view-programs">
 <div class="view-intro"><p class="eyebrow">02 / ПРОГРАММНАЯ ДЕЯТЕЛЬНОСТЬ</p><h2>Программы фонда</h2><p>Структура будущего модуля: описание программы, ответственный, этапы, подтверждающие документы и критерии результата. Ниже — только условные карточки, не действующие программы фонда.</p></div>
+<div class="notice-box"><strong>Паспорт каждой программы:</strong> общественная проблема и цель; целевые группы и критерии участия; география; мероприятия и календарный план; ответственный; партнёры; бюджет и источник финансирования; риски; показатели результата; документы и порядок отчётности. Запуск — только после утверждения уполномоченным органом фонда.</div>
 <div class="workflow-links" aria-label="Связи программ с другими модулями"><strong>Рабочий цикл программы</strong><button type="button" data-go="tasks">Задачи и контроль →</button><button type="button" data-go="partners">Партнёры →</button><button type="button" data-go="knowledge">Методики и материалы →</button></div>
 <div class="module-list">
 <article class="module-tile"><span class="tile-ico"><svg class="decorative-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8 14.5 9.5 21.2 12 14.5 14.5 12 21.2 9.5 14.5 2.8 12 9.5 9.5 12 2.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><strong>«Открытый мир»</strong><small>Структура карточки программы: целевые группы, география, партнёры и подтверждённые результаты.</small><span class="tile-state">Требует сверки</span></article>
@@ -497,6 +499,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </section>
 <section class="page-view" id="view-assets">
 <div class="view-intro"><p class="eyebrow">06 / ОЦЕНКА АКТИВОВ</p><h2>Активы и оценочная работа</h2><p>Демонстрационная структура для раздельного учёта объектов, источников сведений, методики, даты оценки, ответственного и истории согласования. Реальные активы и финансовые показатели не подключены.</p></div>
+<div class="notice-box"><strong>Минимальный стандарт карточки актива:</strong> уникальный ID; вид и правообладатель; правовое основание; подтверждающий документ; дата и источник исходных данных; метод оценки; расчёт и допущения; ограничения; независимая проверка при необходимости; согласовавшее лицо; дата следующего пересмотра. Не смешивать оценочную стоимость, балансовую стоимость и цену возможной сделки.</div>
 <div class="workflow-links" aria-label="Связи оценки активов с другими модулями"><strong>Проверяемый цикл оценки</strong><button type="button" data-go="tasks">Задачи и согласование →</button><button type="button" data-go="knowledge">Методика и интеллектуальный ресурс →</button><button type="button" data-go="documents">Подтверждающие документы →</button></div>
 <div class="module-list">
 <article class="module-tile"><span class="tile-ico">▤</span><strong>Акции и долевые инструменты</strong><small>Эмитент, класс инструмента, источник данных, дата актуальности и статус проверки.</small><span class="tile-state">Структура карточки · без реестра</span></article>
@@ -508,6 +511,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </section>
 <section class="page-view" id="view-knowledge">
 <div class="view-intro"><p class="eyebrow">07 / БАНКИ ИНТЕЛЛЕКТУАЛЬНЫХ РЕСУРСОВ</p><h2>Знания, исследования и методики</h2><p>Контур для систематизации интеллектуальных ресурсов фонда и аналитической работы. Карточки ниже описывают целевую модель, а не существующее хранилище документов.</p></div>
+<div class="notice-box"><strong>Жизненный цикл знания:</strong> регистрация источника и автора → проверка достоверности и прав использования → экспертная редактура → присвоение версии и даты → утверждение области применения → публикация для разрешённой аудитории → периодический пересмотр или архивирование. Выводы должны отделяться от фактов и сопровождаться ссылками на источники.</div>
 <div class="workflow-links" aria-label="Связи интеллектуальных ресурсов с другими модулями"><strong>Использование знания в работе</strong><button type="button" data-go="programs">Программа или проект →</button><button type="button" data-go="assets">Обоснование оценки →</button><button type="button" data-go="tasks">Задачи по внедрению →</button><button type="button" data-go="documents">Документы и версии →</button></div>
 <div class="module-list">
 <article class="module-tile"><span class="tile-ico">⌁</span><strong>Банк методик</strong><small>Методика, версия, область применения, авторство и порядок согласования.</small><span class="tile-state">Концепция</span></article>
@@ -519,6 +523,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </section>
 <section class="page-view" id="view-partners">
 <div class="view-intro"><p class="eyebrow">03 / ПАРТНЁРСКАЯ СРЕДА</p><h2>Партнёры и взаимодействие</h2><p>Будущий модуль может хранить этап сотрудничества, согласованные материалы, рабочие задачи и историю решений. Реальные организации и контакты здесь не используются.</p></div>
+<div class="notice-box"><strong>Порядок работы с партнёром:</strong> идентификация организации и полномочий представителя → проверка репутационных и правовых рисков → фиксация общей цели и вклада сторон → согласование соглашения и ответственных → план работ и контрольные точки → документирование результата → оценка сотрудничества. До проверки не передавать персональные данные и закрытые документы.</div>
 <div class="panel"><div class="panel-head"><div><h2>Примеры карточек взаимодействия</h2><p>Условные названия, не реальные контрагенты.</p></div></div>
 <div class="task-list">
 <div class="task-row"><span class="activity-mark">⌁</span><div><p class="task-title">Партнёрская инициатива «Север»</p><p class="task-meta">Этап: первичное согласование · Контакты отсутствуют</p></div><span class="task-state">Демо</span></div>
@@ -528,6 +533,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </section>
 <section class="page-view" id="view-documents">
 <div class="view-intro"><p class="eyebrow">04 / ДОКУМЕНТЫ И ПРОЗРАЧНОСТЬ</p><h2>Проверка перед публикацией</h2><p>Планируемый реестр документов с версией, ответственным, датой проверки и статусом согласования. Реальных документов или юридически значимых сведений в демонстрационном списке нет.</p></div>
+<div class="notice-box"><strong>Маршрут документа:</strong> проект → проверка фактов и источников → правовая и ответственная проверка → согласование владельцем процесса → утверждение уполномоченным лицом → публикация версии → контроль актуальности. Для каждой версии фиксируются автор, дата, основание изменения и статус; устаревшие версии не должны выглядеть действующими.</div>
 <div class="panel"><div class="panel-head"><div><h2>Контрольный список публикаций</h2><p>Пример внутреннего редакционного процесса.</p></div></div>
 <div class="task-list">
 <div class="task-row"><span class="activity-mark">▤</span><div><p class="task-title">Сведения о фонде и официальные реквизиты</p><p class="task-meta">Проверить по официальным документам до размещения.</p></div><span class="task-state">Требует проверки</span></div>
@@ -562,6 +568,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </section>
 <section class="page-view" id="view-security">
 <div class="view-intro"><p class="eyebrow">05 / ОСНОВА РАБОЧЕЙ СИСТЕМЫ</p><h2>Доступы и безопасность</h2><p>Этот экран фиксирует обязательные требования перед подключением реальных данных. Фактическая авторизация, хранение, журнал аудита и резервное копирование пока не реализованы.</p></div>
+<div class="notice-box"><strong>Условия допуска к реальному запуску:</strong> утверждённая модель угроз и ролей; серверная авторизация и MFA для привилегированных ролей; разграничение доступа по принципу минимальных полномочий; шифрование при передаче и хранении; журналирование и оповещения; регламент инцидентов; сроки хранения и удаления; проверенное восстановление из резервной копии; независимая проверка перед подключением данных благополучателей.</div>
 <div class="module-list">
 <article class="module-tile"><span class="tile-ico">◎</span><strong>Авторизация</strong><small>Идентификация пользователя, восстановление доступа и защита сессии.</small><span class="tile-state">Не реализовано</span></article>
 <article class="module-tile"><span class="tile-ico">⊙</span><strong>Матрица ролей</strong><small>Минимальные права заявителя, сотрудника, редактора и администратора.</small><span class="tile-state">Требует согласования</span></article>
