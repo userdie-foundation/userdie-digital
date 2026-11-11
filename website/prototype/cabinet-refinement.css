@@ -208,3 +208,24 @@ body.applicant-page,body.partner-page { color:var(--cab-ink); background:#f5f6f0
  .applicant-page *,.partner-page * { scroll-behavior:auto!important; animation:none!important; transition:none!important; }
  .applicant-page .cabinet-quick-links a:hover,.partner-page .module-card:hover { transform:none; }
 }
+
+
+/* Applicant and partner pages: align their later-loaded refinement layer. */
+.applicant-page,.partner-page{background:#f3f0e7;color:#29483b}
+.applicant-page .header,.partner-page .header{background:rgba(243,240,231,.97);border-bottom-color:rgba(209,179,107,.42)}
+.applicant-page .primary-navigation a,.partner-page .primary-navigation a{color:#29483b}
+.applicant-page .primary-navigation a:hover,.partner-page .primary-navigation a:hover{color:#9b7b37}
+.applicant-page .cabinet-sidebar,.applicant-page .cabinet-empty,.applicant-page .documents-panel,
+.applicant-page .journey-list,.applicant-page .prototype-directory-grid>article,
+.partner-page .module-card,.partner-page .prototype-directory-grid>a{
+  background:#fbfaf6;border-color:rgba(209,179,107,.34)
+}
+.applicant-page .cabinet-sidebar>a.sidebar-active{background:#e7dfc9;border-color:#d1b36b;color:#173f32;box-shadow:inset 0 -2px #b99b5c}
+.applicant-page .cabinet-quick-links a{background:#fbfaf6;border-color:rgba(209,179,107,.34);color:#29483b}
+.applicant-page .cabinet-quick-links a:hover,.partner-page .module-card:hover,.partner-page .prototype-directory-grid>a:hover{border-color:#d1b36b;background:#fffefa}
+.applicant-page .demo-warning{background:#f5efdf;border-color:#d1b36b;color:#62553f}
+.applicant-page .cabinet-section,.partner-page .platform-modules{background:#eae7dd}
+.applicant-page .platform-next,.partner-page .platform-next{background:linear-gradient(115deg,#173f32,#245b45)}
+.applicant-page .footer,.partner-page .footer{background:#173f32;color:#f3f0e7}
+.applicant-page .footer a,.partner-page .footer a,.applicant-page .footer .brand strong,.partner-page .footer .brand strong{color:#fbfaf6}
+.applicant-page .footer p,.partner-page .footer p,.applicant-page .footer .brand small,.partner-page .footer .brand small{color:#d7dfd7}
