@@ -1248,3 +1248,46 @@ img,svg,video,canvas{max-width:100%}
 @media(prefers-reduced-motion:reduce){
   .menu-toggle,.header.menu-enhanced .header-inner>.primary-navigation a{transition:none}
 }
+
+/* USERDIE — deterministic mobile header layout.
+   The mobile menu rules use grid coordinates, so the header must be a grid
+   container at the same breakpoint. Keep the no-JS fallback visible. */
+@media(max-width:680px){
+  .header-inner{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    column-gap:12px;
+    row-gap:10px;
+  }
+  .header-inner>.brand{
+    grid-column:1;
+    grid-row:1;
+    min-width:0;
+  }
+  .header-inner>.header-cta{
+    grid-column:2;
+    grid-row:1;
+    justify-self:end;
+    max-width:100%;
+    margin:0;
+  }
+  .header-inner>.primary-navigation{
+    grid-column:1/-1;
+    grid-row:2;
+    min-width:0;
+  }
+  .header.menu-enhanced .header-inner>.menu-toggle{
+    grid-column:2;
+    grid-row:1;
+  }
+  .header.menu-enhanced .header-inner>.header-cta{
+    grid-column:1/-1;
+    grid-row:2;
+    justify-self:start;
+  }
+  .header.menu-enhanced .header-inner>.primary-navigation{
+    grid-column:1/-1;
+    grid-row:3;
+  }
+}
