@@ -5,6 +5,7 @@ Digital platform of USERDIE Foundation
 
 - [Digital Continuity Record](docs/PROJECT_CONTINUITY.md) — single source of truth for the current checkpoint, decisions, evidence, open work, acceptance criteria and handover instructions.
 - [Public prototype design audit](docs/PUBLIC_PROTOTYPE_DESIGN_AUDIT_2026-11-09.md) — current UI findings, visual direction and delivery order for the public prototype.
+- [Public content register](docs/PUBLIC_CONTENT_REGISTER.md) — source-backed map of the foundation's charter, public aid directions, programme/project statuses and editorial boundaries.
 
 ## Platform architecture and governance
 
