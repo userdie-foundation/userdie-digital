@@ -95,3 +95,36 @@ test("internal workflow read is limited to assigned case workers and scoped prog
   assert.equal(isAuthorized({ principal: manager, permission: "applications:workflow:read", resource: caseA }), true);
   assert.equal(isAuthorized({ principal: applicant, permission: "applications:workflow:read", resource: caseA }), false);
 });
+
+test("partnership records require exact organization scope or assigned internal review", () => {
+  const partnerA = active("partner-a", [grant("partner", "organization", "org-a")]);
+  const partnerB = active("partner-b", [grant("partner", "organization", "org-b")]);
+  const worker = active("worker-1", [grant("case_worker")]);
+  const otherWorker = active("worker-2", [grant("case_worker")]);
+  const auditor = active("auditor-1", [grant("auditor")]);
+  const resource = { organizationId: "org-a", assignedTo: "worker-1" };
+
+  assert.equal(isAuthorized({ principal: partnerA, permission: "partnerships:read", resource }), true);
+  assert.equal(isAuthorized({ principal: partnerB, permission: "partnerships:read", resource }), false);
+  assert.equal(isAuthorized({ principal: worker, permission: "partnerships:read", resource }), true);
+  assert.equal(isAuthorized({ principal: otherWorker, permission: "partnerships:read", resource }), false);
+  assert.equal(isAuthorized({ principal: auditor, permission: "partnerships:read", resource }), true);
+});
+
+test("private partnership evidence is not exposed to partner accounts", () => {
+  const partner = active("partner-a", [grant("partner", "organization", "org-a")]);
+  const worker = active("worker-1", [grant("case_worker")]);
+  const evidence = { organizationId: "org-a", assignedTo: "worker-1", verificationStatus: "verified" };
+
+  assert.equal(isAuthorized({ principal: partner, permission: "partnerships:evidence:read", resource: evidence }), false);
+  assert.equal(isAuthorized({ principal: worker, permission: "partnerships:evidence:read", resource: evidence }), true);
+  assert.equal(isAuthorized({ principal: active("worker-2", [grant("case_worker")]), permission: "partnerships:evidence:read", resource: evidence }), false);
+});
+
+test("partnership write and confirmation permissions remain disabled", () => {
+  const administrator = active("admin-1", [grant("administrator")]);
+  const resource = { organizationId: "org-a" };
+  for (const permission of ["partnerships:create", "partnerships:update", "partnerships:confirm", "partnerships:evidence:write"]) {
+    assert.equal(isAuthorized({ principal: administrator, permission, resource }), false);
+  }
+});
