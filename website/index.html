@@ -46,6 +46,32 @@
 @media(max-width:760px){.welcome-route-steps{grid-template-columns:1fr}.welcome-route-steps a{min-height:0}.welcome-route-steps a>span:nth-last-child(2){max-width:unset}}
 @media(prefers-reduced-motion:reduce){.welcome-route-steps li{animation:none}.welcome-route-steps a{transition:none}.welcome-route-steps a:hover,.welcome-route-steps a:focus-visible{transform:none}}
 
+
+/* Hero emblem composition: keep the tree and its caption inside the circular field. */
+.hero-visual.hero-emblem-visual{position:relative;isolation:isolate;overflow:hidden;min-width:0}
+.hero-emblem-image{position:absolute;left:50%;top:5%;right:auto;bottom:auto;width:min(66%,330px);height:68%;margin:0;padding:0;transform:translateX(-50%);display:grid;place-items:center;z-index:2}
+.hero-emblem-image img{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center}
+.emblem-caption{position:absolute;left:50%;right:auto;bottom:7%;width:calc(100% - 36px);max-width:420px;transform:translateX(-50%);z-index:4;text-align:center;white-space:normal;overflow-wrap:anywhere;line-height:1.55}
+.emblem-caption span{display:block;margin-top:3px;font-size:clamp(7px,.72vw,9px);letter-spacing:clamp(1px,.15vw,1.6px)}
+.visual-label{z-index:3;max-width:26%;font-size:8px;line-height:1.4;letter-spacing:1.2px}
+.label-top{top:16%;left:6%}
+.label-bottom{right:6%;bottom:20%;text-align:right}
+@media(max-width:680px){
+ .hero-visual.hero-emblem-visual{height:340px;min-height:340px;max-height:340px;overflow:hidden}
+ .hero-emblem-image{top:4%;width:min(64%,250px);height:67%;max-width:none}
+ .emblem-caption{bottom:7%;width:calc(100% - 28px);font-size:10px;letter-spacing:1.8px}
+ .emblem-caption span{font-size:7px;letter-spacing:1px}
+ .visual-label{font-size:7px;letter-spacing:.8px}
+ .label-top{top:15%;left:5%}
+ .label-bottom{right:5%;bottom:21%}
+}
+@media(max-width:390px){
+ .hero-visual.hero-emblem-visual{height:310px;min-height:310px;max-height:310px}
+ .hero-emblem-image{width:min(62%,220px);height:65%}
+ .emblem-caption{bottom:6%;font-size:9px}
+ .emblem-caption span{font-size:6.5px;letter-spacing:.8px}
+}
+
 </style>
 </head>
 <body>
