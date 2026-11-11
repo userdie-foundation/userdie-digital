@@ -1202,3 +1202,49 @@ img,svg,video,canvas{max-width:100%}
   .menu-toggle{display:none!important}
   .primary-navigation[hidden]{display:flex!important}
 }
+
+
+/* USERDIE — mobile navigation finish: forest green, warm stone, muted gold. */
+.menu-toggle{
+  border-color:#d1b36b;
+  background:#173f32;
+  color:#fbfaf6;
+  box-shadow:0 5px 16px rgba(23,63,50,.14);
+}
+.menu-toggle:hover{background:#245b45;border-color:#d1b36b}
+.menu-toggle-icon span{background:#f3f0e7}
+@media(max-width:680px){
+  .header.menu-enhanced .header-inner>.primary-navigation:not([hidden]){
+    position:relative;
+    z-index:6;
+    gap:7px;
+    padding:12px;
+    border:1px solid #d1b36b;
+    border-radius:0 0 18px 18px;
+    background:#173f32;
+    box-shadow:0 18px 34px rgba(20,48,37,.18);
+  }
+  .header.menu-enhanced .header-inner>.primary-navigation a{
+    display:flex;
+    align-items:center;
+    min-height:47px;
+    padding:10px 14px;
+    border:1px solid rgba(209,179,107,.28);
+    border-radius:12px;
+    background:#f3f0e7;
+    color:#214735;
+    font-size:14px;
+    font-weight:700;
+    line-height:1.35;
+    transition:background-color .18s ease,border-color .18s ease,transform .18s ease;
+  }
+  .header.menu-enhanced .header-inner>.primary-navigation a:hover,
+  .header.menu-enhanced .header-inner>.primary-navigation a:focus-visible{
+    border-color:#d1b36b;
+    background:#e7dfc9;
+    color:#173f32;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .menu-toggle,.header.menu-enhanced .header-inner>.primary-navigation a{transition:none}
+}
