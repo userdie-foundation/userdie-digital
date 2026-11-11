@@ -347,3 +347,49 @@ body.workspace .leadership-priority li span { color: #78906b; font-size: 10px; f
 .brand-emblem{display:grid;place-items:center;flex-shrink:0;width:40px;height:40px}
 .brand-emblem img{display:block;width:100%;height:100%;object-fit:contain}
 .brand-footer .brand-emblem{width:34px;height:34px}
+
+
+/* USERDIE mobile menu palette — forest green, warm stone and muted gold. */
+.prototype-menu-toggle{
+  border-color:#cdbb88;
+  background:#173f32;
+  color:#fbfaf6;
+  box-shadow:0 5px 16px rgba(23,63,50,.14);
+}
+.prototype-menu-toggle:hover{background:#245b45;border-color:#d1b36b}
+.prototype-menu-icon span{background:#f3f0e7}
+@media(max-width:680px){
+  .prototype-menu-enhanced .primary-navigation{
+    position:relative;
+    z-index:6;
+    gap:7px;
+    padding:12px;
+    border:1px solid #d1b36b;
+    border-radius:0 0 18px 18px;
+    background:#173f32;
+    box-shadow:0 18px 34px rgba(20,48,37,.18);
+  }
+  .prototype-menu-enhanced .primary-navigation a{
+    display:flex;
+    align-items:center;
+    min-height:47px;
+    padding:10px 14px;
+    border:1px solid rgba(209,179,107,.28);
+    border-radius:12px;
+    background:#f3f0e7;
+    color:#214735;
+    font-size:14px;
+    font-weight:700;
+    line-height:1.35;
+    transition:background-color .18s ease,border-color .18s ease,transform .18s ease;
+  }
+  .prototype-menu-enhanced .primary-navigation a:hover,
+  .prototype-menu-enhanced .primary-navigation a:focus-visible{
+    border-color:#d1b36b;
+    background:#e7dfc9;
+    color:#173f32;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .prototype-menu-toggle,.prototype-menu-enhanced .primary-navigation a{transition:none}
+}
