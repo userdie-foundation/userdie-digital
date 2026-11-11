@@ -418,3 +418,34 @@ h1 em,h2 em{color:#567a62}
 .card-featured{background:#e7dfc9;border-color:#d1b36b}
 .directions,.platform-modules{background:#eae7dd}
 .help-panel{background:#173f32}
+
+
+/* Final shared surface pass: consistent foundation palette across prototype pages. */
+:root{
+  --forest-deep:#173f32;
+  --forest:#245b45;
+  --stone:#f3f0e7;
+  --stone-soft:#eae7dd;
+  --ivory:#fbfaf6;
+  --gold-muted:#d1b36b;
+  --text-main:#29483b;
+  --text-muted:#66756b;
+  --surface-line:rgba(41,72,59,.16);
+}
+body{background:var(--stone);color:var(--text-main)}
+.header{background:rgba(243,240,231,.97);border-bottom:1px solid rgba(209,179,107,.42)}
+.footer{background:#173f32;color:#f3f0e7}
+.footer a,.footer .brand strong{color:#fbfaf6}
+.footer p,.footer .brand small{color:#d7dfd7}
+.section-heading h2,.platform-hero h1,.cabinet-hero h1{color:#173f32}
+.section-heading h2 em,.platform-hero h1 em,.cabinet-hero h1 em{color:#567a62}
+.module-card,.direction-card,.cabinet-empty,.documents-panel,.journey-list{
+  background:var(--ivory);border-color:rgba(209,179,107,.32)
+}
+.module-card:hover,.direction-card:hover{border-color:var(--gold-muted)}
+.module-icon,.empty-icon{background:#e7dfc9;color:#173f32;border-color:#d1b36b}
+.prototype-pill,.demo-tag,.module-status{border-color:rgba(209,179,107,.48);background:#f5efdf;color:#715c2d}
+.platform-principles,.cabinet-section{background:#eae7dd}
+.principles-list>div,.journey-list li{border-color:var(--surface-line)}
+.text-link,.footer a:hover{color:#9b7b37}
+:focus-visible{outline-color:#b99b5c}
