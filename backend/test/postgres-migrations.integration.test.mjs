@@ -9,7 +9,7 @@ import { createLoginRateLimiter } from "../src/security/login-rate-limit.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-012 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, and login-throttling invariants", {
+test("PostgreSQL applies migrations 001-014 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, and partnership invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -33,6 +33,7 @@ test("PostgreSQL applies migrations 001-012 and enforces workflow, authorization
       "011_audit_events_append_only.sql",
       "012_mfa_persistence.sql",
       "013_auth_recovery_rate_limits.sql",
+      "014_partnership_workspace.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -387,6 +388,120 @@ test("PostgreSQL applies migrations 001-012 and enforces workflow, authorization
     );
     assert.equal(completed.rows[0].status, "completed");
     assert.ok(completed.rows[0].completed_at);
+
+    const partnerOrganization = await client.query(
+      "INSERT INTO organizations (name, organization_type, status) VALUES ('Historical partner fixture', 'partner', 'pending') RETURNING id",
+    );
+    const partnerOrganizationId = partnerOrganization.rows[0].id;
+    await client.query(
+      `INSERT INTO partner_profiles
+        (organization_id, historical_name, identity_status, source_reference, assigned_to)
+       VALUES ($1, 'Historical partner fixture', 'requires_identification',
+         'docs/HISTORICAL_PARTNERS_REGISTER.md', $2)`,
+      [partnerOrganizationId, workerId],
+    );
+    const partnership = await client.query(
+      `INSERT INTO partnerships
+        (organization_id, relationship_type, status, summary, created_by)
+       VALUES ($1, 'historical', 'historical_record', 'Unverified historical reference', $2)
+       RETURNING id`,
+      [partnerOrganizationId, actorId],
+    );
+    const partnershipId = partnership.rows[0].id;
+
+    const pendingPartnershipApproval = await client.query(
+      `INSERT INTO approval_requests
+        (object_type, object_id, title, summary, submitted_by, reviewer_id, materials_version)
+       VALUES ('partnership', $1, 'Confirm partnership', 'Independent verification',
+         $2, $3, 'v1')
+       RETURNING id`,
+      [partnershipId, actorId, workerId],
+    );
+    await assert.rejects(
+      client.query(
+        `UPDATE partnerships
+         SET status = 'active_confirmed', confirmation_submitted_by = $2,
+             confirmation_approval_id = $3, confirmed_by = $4, confirmed_at = now()
+         WHERE id = $1`,
+        [partnershipId, actorId, pendingPartnershipApproval.rows[0].id, workerId],
+      ),
+      /requires a matching independent approved decision/i,
+    );
+
+    await client.query(
+      "UPDATE approval_requests SET status = 'approved', decided_at = now() WHERE id = $1",
+      [pendingPartnershipApproval.rows[0].id],
+    );
+    await client.query(
+      `UPDATE partnerships
+       SET status = 'active_confirmed', confirmation_submitted_by = $2,
+           confirmation_approval_id = $3, confirmed_by = $4, confirmed_at = now(),
+           updated_by = $4
+       WHERE id = $1`,
+      [partnershipId, actorId, pendingPartnershipApproval.rows[0].id, workerId],
+    );
+    const confirmedPartnership = await client.query(
+      "SELECT status, confirmation_submitted_by, confirmed_by FROM partnerships WHERE id = $1",
+      [partnershipId],
+    );
+    assert.deepEqual(confirmedPartnership.rows[0], {
+      status: "active_confirmed",
+      confirmation_submitted_by: actorId,
+      confirmed_by: workerId,
+    });
+
+    const evidence = await client.query(
+      `INSERT INTO partnership_evidence
+        (partnership_id, evidence_type, title, storage_key, created_by)
+       VALUES ($1, 'archive_record', 'Archived source reference',
+         $2, $3)
+       RETURNING id, verification_status, access_level, publication_status`,
+      [partnershipId, `private/partnerships/${partnershipId}/evidence-1`, actorId],
+    );
+    assert.deepEqual(evidence.rows[0], {
+      id: evidence.rows[0].id,
+      verification_status: "pending",
+      access_level: "restricted",
+      publication_status: "not_publishable",
+    });
+    await assert.rejects(
+      client.query(
+        "UPDATE partnership_evidence SET publication_status = 'approved' WHERE id = $1",
+        [evidence.rows[0].id],
+      ),
+      /check constraint/i,
+    );
+    await client.query(
+      `UPDATE partnership_evidence
+       SET verification_status = 'verified', verified_by = $2, verified_at = now(),
+           publication_status = 'approved'
+       WHERE id = $1`,
+      [evidence.rows[0].id, workerId],
+    );
+
+    await client.query(
+      `INSERT INTO partnership_status_events
+        (partnership_id, previous_status, new_status, actor_id, rationale,
+         evidence_id, approval_id)
+       VALUES ($1, 'historical_record', 'active_confirmed', $2,
+         'Independent approval verified', $3, $4)`,
+      [partnershipId, workerId, evidence.rows[0].id, pendingPartnershipApproval.rows[0].id],
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE partnership_status_events SET rationale = 'tampered' WHERE partnership_id = $1",
+        [partnershipId],
+      ),
+      /partnership history is append-only/i,
+    );
+    await assert.rejects(
+      client.query(
+        "DELETE FROM partnership_status_events WHERE partnership_id = $1",
+        [partnershipId],
+      ),
+      /partnership history is append-only/i,
+    );
+
   } finally {
     try {
       await client.query("RESET search_path");
