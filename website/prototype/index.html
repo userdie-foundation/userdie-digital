@@ -8,6 +8,28 @@
   <title>УСЕРДИЕ — помощь, участие, доверие</title>
   <link rel="stylesheet" href="styles.css">
   <style>
+
+    .welcome-route{position:relative;overflow:hidden;padding:clamp(52px,7vw,88px) 0;background:linear-gradient(135deg,#203f31 0%,#285642 58%,#1d4635 100%);color:#f7f6ef}
+    .welcome-route:before{content:"";position:absolute;width:420px;height:420px;border:1px solid rgba(232,220,177,.17);border-radius:50%;right:-130px;top:-240px;box-shadow:0 0 0 34px rgba(232,220,177,.035),0 0 0 70px rgba(232,220,177,.025);pointer-events:none}
+    .welcome-route-inner{position:relative;z-index:1}
+    .welcome-route .eyebrow{color:#d9c99a}
+    .welcome-route-heading{max-width:760px;margin-bottom:34px}
+    .welcome-route-heading h2{max-width:700px;margin:10px 0 12px;color:#fff;font-family:Manrope,Arial,sans-serif;font-size:clamp(2rem,4.4vw,3.35rem);line-height:1.08;letter-spacing:-.045em}
+    .welcome-route-heading h2 em{color:#e1d2a5;font-style:normal}
+    .welcome-route-heading>p:last-child{max-width:650px;color:#e0e8df;font-size:1.05rem}
+    .welcome-route-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0;padding:0;list-style:none}
+    .welcome-route-steps li{min-width:0;animation:welcome-arrive .7s both}
+    .welcome-route-steps li:nth-child(2){animation-delay:.12s}.welcome-route-steps li:nth-child(3){animation-delay:.24s}
+    .welcome-route-steps a{position:relative;display:flex;min-height:208px;height:100%;flex-direction:column;gap:12px;padding:23px;border:1px solid rgba(239,235,213,.25);border-radius:18px;background:rgba(255,255,255,.07);color:#fff;text-decoration:none;transition:transform .25s ease,background .25s ease,border-color .25s ease}
+    .welcome-route-steps a:hover,.welcome-route-steps a:focus-visible{transform:translateY(-5px);background:rgba(255,255,255,.13);border-color:#d9c99a}
+    .welcome-step-number{color:#e1d2a5;font-size:.8rem;letter-spacing:.12em}
+    .welcome-route-steps strong{font-family:Manrope,Arial,sans-serif;font-size:1.28rem}
+    .welcome-route-steps a>span:nth-last-child(2){max-width:300px;color:#e0e8df;font-size:.94rem;line-height:1.5}
+    .welcome-step-arrow{margin-top:auto;align-self:flex-end;color:#e1d2a5;font-size:1.2rem}
+    .welcome-route-note{margin:18px 0 0;color:#d5dfd5;font-size:.86rem}
+    @keyframes welcome-arrive{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:760px){.welcome-route-steps{grid-template-columns:1fr}.welcome-route-steps a{min-height:0}.welcome-route-steps a>span:nth-last-child(2){max-width:unset}}
+    @media(prefers-reduced-motion:reduce){.welcome-route-steps li{animation:none}.welcome-route-steps a{transition:none}.welcome-route-steps a:hover,.welcome-route-steps a:focus-visible{transform:none}}
     .hero-emblem-visual{display:grid;place-items:center;background:radial-gradient(ellipse at 50% 42%,#eef0e3 0%,#e6e9d8 68%)}
     .hero-emblem-image{position:relative;z-index:1;display:grid;place-items:center;width:min(76%,360px);height:78%;padding:16px}
     .hero-emblem-image img{display:block;width:100%;height:100%;max-height:350px;object-fit:contain;filter:drop-shadow(0 12px 16px rgba(30,48,40,.10))}
@@ -63,6 +85,22 @@
       </div>
       <div class="container hero-footer">
         <span>Человечность — в действии</span><span class="footer-line"></span><span>Каждый вклад имеет значение</span>
+      </div>
+    </section>
+
+    <section class="welcome-route" aria-labelledby="welcome-route-title">
+      <div class="container welcome-route-inner">
+        <div class="welcome-route-heading">
+          <p class="eyebrow">НАВИГАЦИЯ ДЛЯ ГОСТЯ</p>
+          <h2 id="welcome-route-title">Вы на платформе фонда <em>«УСЕРДИЕ».</em></h2>
+          <p>Здесь можно познакомиться с нашей работой, понять принципы помощи и выбрать подходящий способ участия.</p>
+        </div>
+        <ol class="welcome-route-steps">
+          <li><a href="#about"><span class="welcome-step-number">01</span><strong>Познакомиться</strong><span>Кто мы, чем занимаемся и на каких принципах строим работу</span><span class="welcome-step-arrow" aria-hidden="true">↗</span></a></li>
+          <li><a href="#directions"><span class="welcome-step-number">02</span><strong>Разобраться</strong><span>Посмотреть направления деятельности и актуальную информацию</span><span class="welcome-step-arrow" aria-hidden="true">↗</span></a></li>
+          <li><a href="#help"><span class="welcome-step-number">03</span><strong>Выбрать путь</strong><span>Узнать, как поддержать фонд или перейти в цифровые пространства</span><span class="welcome-step-arrow" aria-hidden="true">↗</span></a></li>
+        </ol>
+        <p class="welcome-route-note">Навигация занимает меньше минуты. Вы можете сразу перейти к нужному разделу.</p>
       </div>
     </section>
 
