@@ -505,6 +505,31 @@ export function createPartnershipRepository(pool) {
       );
       return result.rows?.[0] ? mapPartnership(result.rows[0]) : null;
     },
+    async listEvidenceByPartnership(partnershipId) {
+      const result = await pool.query(
+        `SELECT id, partnership_id, evidence_type, title, document_date,
+                issuer, verification_status, verified_at, access_level,
+                publication_status, created_at, updated_at
+         FROM partnership_evidence
+         WHERE partnership_id = $1
+         ORDER BY created_at DESC, id`,
+        [partnershipId],
+      );
+      return (result.rows ?? []).map((row) => ({
+        id: row.id,
+        partnershipId: row.partnership_id,
+        evidenceType: row.evidence_type,
+        title: row.title,
+        documentDate: row.document_date,
+        issuer: row.issuer,
+        verificationStatus: row.verification_status,
+        verifiedAt: row.verified_at,
+        accessLevel: row.access_level,
+        publicationStatus: row.publication_status,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      }));
+    },
   };
 }
 
@@ -950,6 +975,41 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
         }, req.method);
       } catch {
         return sendJson(res, 503, { error: "partnerships_unavailable" }, req.method);
+      }
+    }
+
+    const partnershipEvidenceMatch = url.pathname.match(/^\/api\/v1\/partnerships\/([^/]+)\/evidence$/);
+    if (partnershipEvidenceMatch) {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let partnershipId;
+      try { partnershipId = decodeURIComponent(partnershipEvidenceMatch[1]); } catch {
+        return sendJson(res, 400, { error: "invalid_partnership_id" }, req.method);
+      }
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(partnershipId)) {
+        return sendJson(res, 400, { error: "invalid_partnership_id" }, req.method);
+      }
+      try {
+        const partnership = await partnerships.getById(partnershipId);
+        if (!partnership || !isAuthorized({
+          principal,
+          permission: "partnerships:evidence:read",
+          resource: partnership,
+        })) {
+          return sendJson(res, 404, { error: "not_found" }, req.method);
+        }
+        const evidence = await partnerships.listEvidenceByPartnership(partnershipId);
+        return sendJson(res, 200, { evidence, count: evidence.length }, req.method);
+      } catch {
+        return sendJson(res, 503, { error: "partnership_evidence_unavailable" }, req.method);
       }
     }
 
