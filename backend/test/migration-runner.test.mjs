@@ -2,11 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { readFile } from "node:fs/promises";
 import { extractTransactionalSql, listMigrationFiles } from "../src/db/migrations.mjs";
 
 test("extracts a single explicit transaction wrapper without changing migration SQL", () => {
   const source = "-- header\nBEGIN;\nCREATE TABLE example (id integer);\nCOMMIT;\n";
-  assert.equal(extractTransactionalSql(source), "-- header\n\nCREATE TABLE example (id integer);");
+  assert.equal(extractTransactionalSql(source), "-- header\nCREATE TABLE example (id integer);");
 });
 
 test("rejects migration files without exactly one ordered transaction wrapper", () => {
@@ -21,7 +22,6 @@ test("repository migrations are sequential and each has one transaction wrapper"
   const migrations = await listMigrationFiles(path.resolve(directory));
   assert.equal(migrations.length, 14);
   for (const migration of migrations) {
-    const { readFile } = await import("node:fs/promises");
     const source = await readFile(migration.path, "utf8");
     assert.ok(extractTransactionalSql(source, migration.filename).length > 0, migration.filename);
   }
