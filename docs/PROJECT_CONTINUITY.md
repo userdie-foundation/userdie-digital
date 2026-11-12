@@ -800,3 +800,13 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Docker image не публикуется в registry и не развёртывается. Нет выбранного хостинга, DB, secret manager, SMTP/KMS adapters, публичного API endpoint или разрешения на платные ресурсы. Не менять DNS/MX.
 - Не подключать публичный UI и не принимать реальные обращения: recovery не wired в runtime, MFA не реализована, intake/write flows отключены, privacy/legal acceptance и независимый security review не завершены.
 - Следующий технический шаг: получить фактические backend CI job results; затем расширить backend staging с отдельной non-owner application DB role, проверенным migration/rollback process, trusted email adapter, MFA/KMS integration and synthetic E2E tests. Внешний хостинг, секреты, mail/KMS provider и любые платные ресурсы требуют отдельного выбора/разрешения.
+
+
+## 9. Контрольная точка — 2026-11-12, исправление live canonical-проверки и container smoke test
+
+- Run `43196846943` подтвердил, что предыдущая ошибка Daily platform health check не была дефектом live canonical: шаблон grep в workflow содержал лишние backslash перед кавычками HTML. Поэтому корректные теги не совпадали с некорректным шаблоном.
+- Commit `6bb09b0dfd0a303b04872f6bc953fd66d00ff92d`: ожидаемые HTML-теги теперь собираются в shell-переменные с корректным quoting и затем сравниваются через here-string. Те же выражения локально проверены на точном HTML-примере.
+- Commit `cd71961cc5980951842ea86edb05420eda33173e`: Backend checks дополняются smoke test контейнера: запуск с синтетическим недоступным DB endpoint, проверка liveness 200, readiness 503, проверка non-root UID 1000. Это не требует внешней инфраструктуры.
+- Commit `0549f232a5631b4d4f40a40e5a8fa78abbb7153e`: staging runbook дополнен критерием прохождения container smoke test.
+- Новый health-check и backend CI после этих изменений должны быть запущены push-триггерами, но их результаты ещё не получены. Локальная проверка shell matching не заменяет GitHub Actions.
+- До подтверждения нового run не закрывать issue #11 и не объявлять SEO checks полностью зелёными.
