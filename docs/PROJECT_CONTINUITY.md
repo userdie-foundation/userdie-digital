@@ -819,3 +819,26 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - GitHub issue #11 was updated manually with the confirmed root cause, the corrective commit `6bb09b0...`, and the explicit rule not to close the issue until a successful full run is verified.
 - The latest issue body still references failed run `43196846943`; no subsequent Actions result has yet been returned through the available connector actions. Do not infer success from the presence of the commits.
 - Latest repository source contains the corrected canonical/OG match variables and the all-results reporting step. The backend workflow contains PostgreSQL integration tests, Docker build and container smoke-test steps; their newest execution is not yet independently confirmed.
+
+
+## 11. Контрольная точка — 2026-11-12, подтверждение CI и migration runner
+
+### Подтверждённые результаты
+- Daily platform health check run `43199245012` на commit `ef69cb2ec06f88c707452feb9097e7eec00a9f4c0`: **success**. Все шаги прошли, включая live discovery endpoints, robots.txt, sitemap (8 URL), файл подтверждения Яндекса, 8 публичных страниц, canonical и Open Graph.
+- Backend checks run `43199144378` на commit `cd71961cc5980951842ea86edb05420eda33173e`: **success**. Подтверждены syntax, automated tests, Docker production image build и container smoke test.
+- GitHub issue #11 закрыта как завершённая после успешного полного health-check; в описании зафиксированы ссылки на оба успешных запуска и границы их подтверждения.
+- HTTPS probe прошёл в health-check, но это не подтверждает поисковую индексацию или принятие сайта Google/Yandex.
+
+### Реализация миграций
+- Добавлен `backend/src/db/migrations.mjs`: строгая нумерация миграций, проверка одного BEGIN/COMMIT wrapper, SHA-256 checksum, PostgreSQL advisory lock, ledger `public.schema_migrations`, атомарное выполнение SQL + ledger row, rollback при ошибке, отказ при изменении уже применённой миграции.
+- Добавлен CLI `backend/src/db/migrate.mjs`. Он требует явное `MIGRATIONS_ALLOW_APPLY=true` и отдельный `MIGRATIONS_DATABASE_URL`; API runtime и Docker startup миграции автоматически не запускают.
+- Добавлен `backend/test/migration-runner.test.mjs`: проверка transaction wrapper, отказ на malformed SQL wrapper и последовательности 001–014.
+- `backend/package.json`: добавлены `npm run migrate` и syntax checks новых модулей.
+- README и staging runbook описывают отдельные credentials: schema-owner только для CLI; non-owner least-privilege role для API.
+- Важное ограничение: runner предназначен для новой пустой staging DB. База, где миграции ранее применялись вручную, требует отдельной baseline/reconciliation процедуры; автоматически к ней runner не применять.
+
+### Что ещё не подтверждено
+- Новые файлы migration runner добавлены после успешного backend CI run `43199144378`; их собственный CI ещё должен завершиться.
+- Staging PostgreSQL не создана, миграции в реальной базе не выполнялись, роли и grants не проверены на живом сервере.
+- Backend не развернут, registry не настроен; recovery mail adapter, MFA/KMS, application intake и partner HTTP routes не реализованы.
+- Не подключать реальные формы/персональные данные и не менять DNS/MX. Внешний hosting/database/secrets/mail/KMS и платные ресурсы требуют отдельного согласования.
