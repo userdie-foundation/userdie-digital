@@ -850,3 +850,23 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - CLI и SQL runner проверены тестами на разбор transaction wrappers, отказ при некорректных wrappers и последовательность миграций 001–014. Реальное применение к PostgreSQL ещё не выполнялось.
 - README и staging runbook приведены к одной инструкции: новая пустая staging DB; отдельный migration-owner `MIGRATIONS_DATABASE_URL`; явное подтверждение `MIGRATIONS_ALLOW_APPLY=true`; отдельная non-owner runtime `DATABASE_URL`; запрет на автоматический baseline ранее вручную мигрированной БД.
 - Последний документальный коммит runbook: `49144a44a5cd1cb2fa7e1637fb8e053fc6498722`; README: `bbfa1381bf47e4503d4d342305c51225918bdad8`.
+
+
+## 12. Технический прогон 12 ноября 2026 — расширение migration runner
+
+### Изменения
+- `backend/test/migration-runner.test.mjs` расширен: применить один migration; повторно пропустить его при совпадающем SHA-256; остановиться при несовпадении checksum; выполнить ROLLBACK и снять advisory lock при ошибке SQL.
+- `.env.example` документирует отдельные переменные `MIGRATIONS_DATABASE_URL`, `MIGRATIONS_ALLOW_APPLY=false`, `MIGRATIONS_DATABASE_SSL=false`. Это только пример; реальные credentials не добавлялись.
+- README и runbook описывают только новую пустую staging DB, отдельного schema-owner и отдельную runtime роль. Автоматического baseline для ранее вручную мигрированной БД нет.
+
+### CI
+- Backend checks run `43203465369`, run number 244, commit `27103e951574b6058de9c3a58f7cad02e1bc98c2`: **SUCCESS**.
+- Успешны: dependency install, JavaScript syntax, полный automated test suite, Docker production image build, container smoke test. Smoke-test проверяет non-root UID, liveness success и readiness fail-closed при недоступной БД.
+- Следующий run после изменения только `.env.example`: `43203495077`; отслеживается отдельно.
+
+### Не выполнено / внешний release gate
+- Реальная staging DB не существует в подтверждённой инфраструктуре; migration CLI не запускался на реальной БД.
+- Нет подтверждённого хостинга API, secret store, SMTP/email delivery, KMS/HSM, мониторинга, резервного копирования и restore rehearsal.
+- Не выполнено provisioning двух DB credentials и не проверены реальные grants. Нельзя выдавать широкие table-level DML права без отдельной матрицы доступа и проверок.
+- Не подключать публичный UI, приём заявок или реальные данные до security/privacy review и end-to-end staging acceptance.
+- Платные облачные ресурсы, DNS/MX, секреты, почтовый провайдер и KMS не создавались и требуют отдельного решения владельца проекта.
