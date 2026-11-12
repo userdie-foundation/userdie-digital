@@ -97,3 +97,18 @@ Never put real applicant data, uploaded documents, database credentials, or acce
 - The entry point creates and injects the authentication service only when `LOGIN_RATE_LIMIT_HMAC_KEY` is configured. The login route then remains fail-closed if that service is absent.
 - The entry point creates and injects the recovery rate limiter when `RECOVERY_RATE_LIMIT_HMAC_KEY` is configured, but does not create or inject `recoveryService`. Recovery request/reset handlers therefore return `503 recovery_unavailable` and are not operational.
 - No backend hosting, staging database, deployment workflow or provider configuration is confirmed. See `docs/BACKEND_STAGING_DEPLOYMENT_RUNBOOK.md` before any provisioning.
+
+
+## Container image
+
+A minimal production image is defined in `Dockerfile`:
+
+```sh
+docker build --pull -f Dockerfile -t userdie-digital-api:local .
+```
+
+The image uses Node.js 22, installs production dependencies only, excludes tests and local secrets, runs as the unprivileged `node` user, and provides a process-liveness health check at `/api/v1/health/live`.
+
+Run it only with an explicitly configured, isolated non-production PostgreSQL database and secrets supplied through the runtime environment. The container does not run schema migrations automatically. Do not mount a developer's `.env` file into a shared or production runtime, and do not publish the image or expose a public endpoint until the staging runbook acceptance checks are complete.
+
+The GitHub Actions backend workflow builds the image as a CI check. It does not push to a registry or deploy a hosted service.
