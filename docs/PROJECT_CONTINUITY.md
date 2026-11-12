@@ -810,3 +810,12 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Commit `0549f232a5631b4d4f40a40e5a8fa78abbb7153e`: staging runbook дополнен критерием прохождения container smoke test.
 - Новый health-check и backend CI после этих изменений должны быть запущены push-триггерами, но их результаты ещё не получены. Локальная проверка shell matching не заменяет GitHub Actions.
 - До подтверждения нового run не закрывать issue #11 и не объявлять SEO checks полностью зелёными.
+
+
+## 10. Контрольная точка — 2026-11-12, мониторинг результата health-check
+
+- Commit `9c69ed34d199874908b50be4f2441b90eb6a684d`: daily health-check now publishes both success and failure results to the existing office tracking issue.
+- Commit `ef69cb2ec06f88c707452feb909e7eec00a9f4c0`: fixed JavaScript syntax in the conditional report body. The extracted script passed `node --input-type=module --check` in a local syntax check.
+- GitHub issue #11 was updated manually with the confirmed root cause, the corrective commit `6bb09b0...`, and the explicit rule not to close the issue until a successful full run is verified.
+- The latest issue body still references failed run `43196846943`; no subsequent Actions result has yet been returned through the available connector actions. Do not infer success from the presence of the commits.
+- Latest repository source contains the corrected canonical/OG match variables and the all-results reporting step. The backend workflow contains PostgreSQL integration tests, Docker build and container smoke-test steps; their newest execution is not yet independently confirmed.
