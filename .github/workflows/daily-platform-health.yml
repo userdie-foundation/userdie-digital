@@ -1,5 +1,9 @@
 name: Daily platform health check
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/daily-platform-health.yml"
   schedule:
     - cron: "17 3 * * *"
   workflow_dispatch:
