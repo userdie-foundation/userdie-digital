@@ -949,7 +949,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       }
     }
 
-    const partnershipMatch = url.pathname.match(/^\\/api\\/v1\\/partnerships\\/([^/]+)$/);
+    const partnershipMatch = url.pathname.match(/^\/api\/v1\/partnerships\/([^/]+)$/);
     if (partnershipMatch) {
       if (typeof resolvePrincipal !== "function") {
         return sendJson(res, 401, { error: "authentication_required" }, req.method);
