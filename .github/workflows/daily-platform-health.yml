@@ -77,7 +77,7 @@ jobs:
           set -euo pipefail
           base="https://xn--d1abbl2ben.online"
           robots="$(curl --fail --location --silent --show-error --max-time 25 "$base/robots.txt")"
-          if ! printf '%s' "$robots" | grep -Fq "Sitemap: $base/sitemap.xml"; then
+          if ! grep -Fq -- "Sitemap: $base/sitemap.xml" <<< "$robots"; then
             echo "::error::robots.txt does not advertise the expected sitemap URL."
             exit 1
           fi
@@ -90,18 +90,18 @@ jobs:
           fi
           echo "Sitemap OK: $url_count URLs."
           verification="$(curl --fail --location --silent --show-error --max-time 25 "$base/yandex_85472297227dd2a2.html")"
-          if ! printf '%s' "$verification" | grep -Fq "Verification: 85472297227dd2a2"; then
+          if ! grep -Fq -- "Verification: 85472297227dd2a2" <<< "$verification"; then
             echo "::error::Yandex verification file is reachable but its expected token is missing."
             exit 1
           fi
           echo "Yandex verification file OK."
           while IFS='|' read -r path canonical; do
             html="$(curl --fail --location --silent --show-error --max-time 25 "$base$path")"
-            if ! printf '%s' "$html" | grep -Fq "<link rel=\\"canonical\\" href=\\"$base$canonical\\">"; then
+            if ! grep -Fq -- "<link rel=\\"canonical\\" href=\\"$base$canonical\\">" <<< "$html"; then
               echo "::error::Canonical URL mismatch on $path (expected $base$canonical)."
               exit 1
             fi
-            if ! printf '%s' "$html" | grep -Fq "<meta property=\\"og:url\\" content=\\"$base$canonical\\">"; then
+            if ! grep -Fq -- "<meta property=\\"og:url\\" content=\\"$base$canonical\\">" <<< "$html"; then
               echo "::error::Open Graph URL mismatch on $path (expected $base$canonical)."
               exit 1
             fi
