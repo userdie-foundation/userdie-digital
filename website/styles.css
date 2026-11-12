@@ -1291,3 +1291,11 @@ img,svg,video,canvas{max-width:100%}
     grid-row:3;
   }
 }
+
+
+/* Clear, accessible notice for external integrations that are not currently reachable. */
+.external-service-notice{margin:18px 0;padding:17px 19px;border:1px solid #d9c9a8;border-left:4px solid #a98a54;border-radius:4px;background:#f3efe5;color:#625943;font-size:12px;line-height:1.75}
+.external-service-notice strong{display:block;margin-bottom:5px;color:#3e493d;font:700 13px Manrope,'DM Sans',Arial,sans-serif}
+.external-service-notice p{margin:0}
+.external-service-notice a{color:#315b40;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:600px){.external-service-notice{padding:14px;font-size:11px}}
