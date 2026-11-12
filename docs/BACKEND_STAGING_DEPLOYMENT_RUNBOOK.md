@@ -2,7 +2,7 @@
 
 **Status:** preparation document only. No hosting provider, database instance, secret, DNS record, deployment or production service is created by this runbook.
 
-**Baseline reviewed:** `main` at `4c74a235a30006bbb07bbd89710576f3a5ffd2e9` (2026-11-09).
+**Baseline reviewed:** `main` at `a670f704326434ddd69c4de952732ec9ea40efc8` (2026-11-12); subsequent commits in this run update documentation only.
 
 ## 1. Deployment boundary
 
