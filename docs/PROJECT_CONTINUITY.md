@@ -870,3 +870,10 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Не выполнено provisioning двух DB credentials и не проверены реальные grants. Нельзя выдавать широкие table-level DML права без отдельной матрицы доступа и проверок.
 - Не подключать публичный UI, приём заявок или реальные данные до security/privacy review и end-to-end staging acceptance.
 - Платные облачные ресурсы, DNS/MX, секреты, почтовый провайдер и KMS не создавались и требуют отдельного решения владельца проекта.
+
+
+### 12.1. Итоговый CI после обновления sample env
+- Backend checks run `43203495077`, run number 245, commit `b92218e77d27fc58e9ad9569fd2e564f49f525a8`: **SUCCESS**.
+- Успешны все шаги: dependency install, JavaScript syntax, full automated tests, Docker image build, container smoke test, cleanup.
+- Release-gate issue создана: [#22 — staging infrastructure, secrets and security acceptance](https://github.com/userdie-foundation/userdie-digital/issues/22). Это не дефект кода, а перечень внешних предпосылок, без которых нельзя безопасно включить staging/production.
+- В текущем контуре завершена доступная сегодня работа над исходниками и CI. Реальный backend deployment и provisioning БД не заявляются.
