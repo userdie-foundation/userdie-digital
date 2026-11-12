@@ -1179,3 +1179,118 @@ test("workspace task status updates reject invalid and terminal transitions", as
     workspaceRepository,
   });
 });
+
+
+const partnershipIdA = "00000000-0000-4000-8000-000000000101";
+const partnershipIdB = "00000000-0000-4000-8000-000000000102";
+const partnershipRecords = [
+  {
+    id: partnershipIdA, organizationId: "org-a", organizationName: "Partner A",
+    relationshipType: "historical", status: "historical_record",
+    summary: "Historical record A", startedOn: null, endedOn: null,
+    createdAt: "2026-11-01T00:00:00.000Z", updatedAt: "2026-11-01T00:00:00.000Z",
+    assignedTo: "worker-1",
+  },
+  {
+    id: partnershipIdB, organizationId: "org-b", organizationName: "Partner B",
+    relationshipType: "prospective", status: "requires_identification",
+    summary: "Private record B", startedOn: null, endedOn: null,
+    createdAt: "2026-11-02T00:00:00.000Z", updatedAt: "2026-11-02T00:00:00.000Z",
+    assignedTo: "worker-2",
+  },
+];
+const syntheticPartnershipRepository = {
+  async listVisible(_principal, limit) { return partnershipRecords.slice(0, limit); },
+  async getById(id) { return partnershipRecords.find((item) => item.id === id) ?? null; },
+};
+
+test("partnership directory requires a trusted authenticated principal", async () => {
+  let lookups = 0;
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/partnerships");
+    assert.equal(response.status, 401);
+    assert.deepEqual(await response.json(), { error: "authentication_required" });
+    assert.equal(lookups, 0);
+  }, {
+    partnershipRepository: {
+      async listVisible() { lookups += 1; return []; },
+      async getById() { lookups += 1; return null; },
+    },
+  });
+});
+
+test("partner directory and detail are limited to the exact organization grant", async () => {
+  const partner = identity("partner-a-user", "partner", "organization", "org-a");
+  await withServer(noDb, async (base) => {
+    const list = await fetch(base + "/api/v1/partnerships");
+    assert.equal(list.status, 200);
+    const body = await list.json();
+    assert.deepEqual(body.partnerships.map((item) => item.id), [partnershipIdA]);
+    assert.equal("assignedTo" in body.partnerships[0], false);
+
+    const own = await fetch(base + "/api/v1/partnerships/" + partnershipIdA);
+    assert.equal(own.status, 200);
+    const ownBody = await own.json();
+    assert.equal(ownBody.partnership.organizationId, "org-a");
+    assert.equal("assignedTo" in ownBody.partnership, false);
+
+    const other = await fetch(base + "/api/v1/partnerships/" + partnershipIdB);
+    assert.equal(other.status, 404);
+    assert.deepEqual(await other.json(), { error: "not_found" });
+  }, {
+    resolvePrincipal: async () => partner,
+    partnershipRepository: syntheticPartnershipRepository,
+  });
+});
+
+test("case workers read only assigned partnership records; auditors can review the directory", async () => {
+  await withServer(noDb, async (base) => {
+    const own = await fetch(base + "/api/v1/partnerships/" + partnershipIdA);
+    const other = await fetch(base + "/api/v1/partnerships/" + partnershipIdB);
+    assert.equal(own.status, 200);
+    assert.equal(other.status, 404);
+  }, {
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+    partnershipRepository: syntheticPartnershipRepository,
+  });
+
+  await withServer(noDb, async (base) => {
+    const list = await fetch(base + "/api/v1/partnerships");
+    assert.equal(list.status, 200);
+    assert.equal((await list.json()).count, 2);
+  }, {
+    resolvePrincipal: async () => identity("auditor-1", "auditor"),
+    partnershipRepository: syntheticPartnershipRepository,
+  });
+});
+
+test("partnership directory validates limits and hides repository failures", async () => {
+  await withServer(noDb, async (base) => {
+    const invalid = await fetch(base + "/api/v1/partnerships?limit=51");
+    assert.equal(invalid.status, 400);
+    assert.deepEqual(await invalid.json(), { error: "invalid_limit" });
+  }, {
+    resolvePrincipal: async () => identity("auditor-1", "auditor"),
+    partnershipRepository: syntheticPartnershipRepository,
+  });
+
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/partnerships");
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), { error: "partnerships_unavailable" });
+  }, {
+    resolvePrincipal: async () => identity("auditor-1", "auditor"),
+    partnershipRepository: { async listVisible() { throw new Error("private database details"); } },
+  });
+});
+
+test("partnership API remains read-only", async () => {
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/partnerships", {
+      method: "POST",
+      headers: { origin: "https://platform.example" },
+    });
+    assert.equal(response.status, 405);
+    assert.deepEqual(await response.json(), { error: "method_not_allowed" });
+  }, { allowedOrigin: "https://platform.example" });
+});
