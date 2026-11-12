@@ -43,8 +43,8 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 10. Review and apply `migrations/010_auth_recovery_tokens.sql` after migration 001 to prepare one-time recovery-token storage.
 11. Review and apply `migrations/011_audit_events_append_only.sql` after migration 001 to block ordinary UPDATE, DELETE and TRUNCATE operations on the audit log.
 12. Review and apply `migrations/012_mfa_persistence.sql` after migrations 001 and 011 to prepare encrypted MFA-factor, pending-challenge, and one-time recovery-code storage. This migration alone does not enable MFA.
-14. Review and apply `migrations/013_auth_recovery_rate_limits.sql` after migration 001 to prepare separate account- and network-scoped password-recovery throttling buckets. Only HMAC digests are stored.
-15. Review and apply `migrations/014_partnership_workspace.sql` after migrations 001 and 008 to add partnership profiles, relationship lifecycle records, protected evidence metadata, and append-only status history. Confirm a verified backup and apply through the controlled migration process.
+13. Review and apply `migrations/013_auth_recovery_rate_limits.sql` after migration 001 to prepare separate account- and network-scoped password-recovery throttling buckets. Only HMAC digests are stored.
+14. Review and apply `migrations/014_partnership_workspace.sql` after migrations 001 and 008 to add partnership profiles, relationship lifecycle records, protected evidence metadata, and append-only status history. Confirm a verified backup and apply through the controlled migration process.
 15. Install dependencies with `npm install`.
 16. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
 17. Run `npm test`, `npm run check`, then `npm start`.
