@@ -1202,6 +1202,16 @@ const partnershipRecords = [
 const syntheticPartnershipRepository = {
   async listVisible(_principal, limit) { return partnershipRecords.slice(0, limit); },
   async getById(id) { return partnershipRecords.find((item) => item.id === id) ?? null; },
+  async listEvidenceByPartnership(id) {
+    return id === partnershipIdA ? [{
+      id: "evidence-a", partnershipId: id, evidenceType: "letter",
+      title: "Internal review letter", documentDate: "2026-10-01",
+      issuer: "Example issuer", verificationStatus: "pending",
+      verifiedAt: null, accessLevel: "restricted",
+      publicationStatus: "not_publishable", createdAt: "2026-11-01T00:00:00.000Z",
+      updatedAt: "2026-11-01T00:00:00.000Z",
+    }] : [];
+  },
 };
 
 test("partnership directory requires a trusted authenticated principal", async () => {
@@ -1281,6 +1291,40 @@ test("partnership directory validates limits and hides repository failures", asy
   }, {
     resolvePrincipal: async () => identity("auditor-1", "auditor"),
     partnershipRepository: { async listVisible() { throw new Error("private database details"); } },
+  });
+});
+
+test("partnership evidence metadata is internal and never exposes storage keys or file bytes", async () => {
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/partnerships/" + partnershipIdA + "/evidence");
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.count, 1);
+    assert.equal(body.evidence[0].title, "Internal review letter");
+    assert.equal("storageKey" in body.evidence[0], false);
+    assert.equal("storage_key" in body.evidence[0], false);
+    assert.equal("bytes" in body.evidence[0], false);
+  }, {
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+    partnershipRepository: syntheticPartnershipRepository,
+  });
+
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/partnerships/" + partnershipIdB + "/evidence");
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), { error: "not_found" });
+  }, {
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+    partnershipRepository: syntheticPartnershipRepository,
+  });
+
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/partnerships/" + partnershipIdA + "/evidence");
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), { error: "not_found" });
+  }, {
+    resolvePrincipal: async () => identity("partner-a-user", "partner", "organization", "org-a"),
+    partnershipRepository: syntheticPartnershipRepository,
   });
 });
 
