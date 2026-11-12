@@ -710,3 +710,45 @@ P2 backend: добавить fail-closed permissions для партнёрски
 
 ### Следующий шаг
 Получить итоговые CI и Pages deployment статусы. Затем провести браузерную проверку главной страницы и продолжить аудит кабинета заявителя и партнёра; не подменять функциональную разработку косметическими правками.
+
+
+---
+
+## 5. Контрольная точка на 2026-11-12 — кабинеты и SEO-контроль
+
+### 5.1. Изменения в текущей рабочей серии
+
+- `9c0fb77a7f552c0555a1b4bc0c83dc642046f4bc` — ежедневная проверка опубликованных восьми страниц расширена: проверяет точные canonical и Open Graph URL, а также robots.txt, sitemap и файл подтверждения Яндекса.
+- `3e0924ff8fcc92e0df57ebd560f1b988b4d79774` — главной странице добавлен отсутствовавший `og:url`, чтобы новая проверка соответствовала всем восьми страницам.
+- `016834c449a157e4849cd3d25b95e2f183a28e35` — создан `docs/CABINET_SECURITY_BLUEPRINT.md`: пользовательские сценарии заявителя и партнёра, проектная матрица ролей, границы данных, минимальная архитектура и критерии допуска к реальным данным.
+- `f1b4b2faf8e11d782ed66dcca3641fcfd1320353` — ссылка на blueprint добавлена в корневой README.
+- `86a39369be7b4b1bc1b98d8b41dab01d403297c1` — актуализирован `docs/SECURITY_READINESS_REVIEW.md`: уточнено, что recovery HTTP handlers уже существуют, но не подключены в runtime и fail-closed возвращают 503.
+
+### 5.2. Подтверждённое состояние кабинетов
+
+- `website/prototype/applicant-cabinet.html` и `website/prototype/partner-space.html` — демонстрационные статические страницы. В проверенном исходном коде не обнаружены формы отправки, submit handlers, browser storage или подключение API-клиента.
+- Кабинет заявителя явно сообщает, что отправка обращений отключена.
+- Партнёрская страница обозначена как концепция без авторизации и обмена данными.
+- Backend находится отдельно в `backend/`; GitHub Pages workflow публикует только `website/`. Публичные страницы не должны напрямую хранить секреты или персональные документы.
+- Backend source включает login/session lifecycle, principal resolution, scoped grants, protected read routes, узкую операцию перехода статуса задачи и миграцию 014 для партнёрской persistence. Это не подтверждает production deployment или применение миграций.
+- Recovery request/reset handlers присутствуют в `backend/src/server.mjs`, но `backend/src/index.mjs` не создаёт и не inject-ит recovery service. Они остаются fail-closed с 503. Почтовый провайдер не подключён.
+- MFA migration 012 — только схема; MFA enrollment/verification/enforcement отсутствуют.
+- Application intake остаётся выключенным; application collection endpoint возвращает 503. Partner HTTP routes и file upload/download отсутствуют.
+
+### 5.3. Последовательность дальнейшей работы
+
+1. Дождаться и проверить GitHub Actions по последним коммитам серии; отдельно проверить deployment, backend checks, Robot Team, Security Guard и daily health check. Отсутствие статуса не трактовать как success.
+2. Проверить live health-check после публикации: все 8 URL, canonical и og:url на каждой странице, sitemap (8 URL), robots и Yandex verification file.
+3. Сверить все миграции 001–014, backend integration tests и auth/session negative tests; не выполнять миграции в production.
+4. Завершить backend staging deployment plan, секреты, database/TLS/proxy, controlled migrations и restore rehearsal — только с synthetic data.
+5. Реализовать recovery service runtime injection только после подключения trusted mail delivery и проверки abuse/expiry/replay/session-revocation tests.
+6. Завершить MFA и cross-user / cross-program / cross-organization / cross-contour negative authorization matrix.
+7. Только после утверждения privacy basis, retention, file security, audit, incident response и всех acceptance gates подключать реальные формы и персональные данные.
+
+### 5.4. Ограничения отчётности
+
+- Изменение в GitHub не означает успешный CI или deploy.
+- Изменение workflow не подтверждает, что проверка уже выполнилась.
+- Наличие canonical в исходном HTML не доказывает, что поисковик принял или проиндексировал страницу.
+- Не заявлять, что кабинеты рабочие, backend развернут или персональные данные защищённо обрабатываются, пока это не проверено в отдельной staging/production среде.
+- Не просить пользователя вручную искать все дефекты; продолжать аудит по репозиторию и автоматическим проверкам.
