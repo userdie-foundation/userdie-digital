@@ -46,8 +46,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: npm
-          cache-dependency-path: backend/package.json
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Check JavaScript syntax
@@ -56,3 +54,5 @@ jobs:
         env:
           PG_INTEGRATION_URL: postgresql://postgres:postgres@localhost:5432/userdie_test
         run: npm test
+      - name: Build production container image
+        run: docker build --pull -f Dockerfile -t userdie-digital-api:ci .
