@@ -448,7 +448,7 @@ function createWorkspaceRepository(pool) {
 }
 
 
-function createPartnershipRepository(pool) {
+export function createPartnershipRepository(pool) {
   const mapPartnership = (row) => ({
     id: row.id,
     organizationId: row.organization_id,
