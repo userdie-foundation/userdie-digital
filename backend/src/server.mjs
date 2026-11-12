@@ -447,7 +447,68 @@ function createWorkspaceRepository(pool) {
   };
 }
 
-export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, recoveryService, recoveryRateLimiter, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository } = {}) {
+
+function createPartnershipRepository(pool) {
+  const mapPartnership = (row) => ({
+    id: row.id,
+    organizationId: row.organization_id,
+    organizationName: row.organization_name,
+    relationshipType: row.relationship_type,
+    status: row.status,
+    summary: row.summary,
+    startedOn: row.started_on,
+    endedOn: row.ended_on,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    assignedTo: row.assigned_to,
+  });
+  const selectPartnerships = `
+    SELECT partnerships.id, partnerships.organization_id, organizations.name AS organization_name,
+           partnerships.relationship_type, partnerships.status, partnerships.summary,
+           partnerships.started_on, partnerships.ended_on, partnerships.created_at,
+           partnerships.updated_at, partner_profiles.assigned_to
+    FROM partnerships
+    JOIN organizations ON organizations.id = partnerships.organization_id
+    LEFT JOIN partner_profiles ON partner_profiles.organization_id = organizations.id
+  `;
+  return {
+    async listVisible(principal, limit) {
+      const grants = principal.grants ?? [];
+      const privileged = grants.some((grant) =>
+        grant?.scopeType === "global" &&
+        ["administrator", "auditor"].includes(grant.roleCode)
+      );
+      const assignedReviewer = grants.some((grant) =>
+        grant?.scopeType === "global" && grant.roleCode === "case_worker"
+      );
+      const organizationIds = [...new Set(grants
+        .filter((grant) => grant?.roleCode === "partner" &&
+          grant.scopeType === "organization" && typeof grant.scopeId === "string")
+        .map((grant) => grant.scopeId))];
+      const result = await pool.query(
+        `${selectPartnerships}
+         WHERE ($1::boolean
+           OR ($2::boolean AND partner_profiles.assigned_to = $3)
+           OR partnerships.organization_id::text = ANY($4::text[]))
+         ORDER BY partnerships.updated_at DESC, partnerships.id
+         LIMIT $5`,
+        [privileged, assignedReviewer, principal.id, organizationIds, limit],
+      );
+      return (result.rows ?? []).map(mapPartnership);
+    },
+    async getById(id) {
+      const result = await pool.query(
+        `${selectPartnerships}
+         WHERE partnerships.id = $1
+         LIMIT 1`,
+        [id],
+      );
+      return result.rows?.[0] ? mapPartnership(result.rows[0]) : null;
+    },
+  };
+}
+
+export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, recoveryService, recoveryRateLimiter, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository, partnershipRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
@@ -456,6 +517,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
   const programs = programRepository ?? createProgramRepository(pool);
   const workspace = workspaceRepository ?? createWorkspaceRepository(pool);
   const approvals = approvalRepository ?? createApprovalRepository(pool);
+  const partnerships = partnershipRepository ?? createPartnershipRepository(pool);
 
   return async function handleRequest(req, res) {
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
@@ -855,6 +917,70 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
           createdAt: event.createdAt,
         })),
       }, req.method);
+    }
+
+
+    if (url.pathname === "/api/v1/partnerships") {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      const limitValue = url.searchParams.get("limit");
+      const limit = limitValue === null ? 25 : Number(limitValue);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+        return sendJson(res, 400, { error: "invalid_limit" }, req.method);
+      }
+      try {
+        const visible = await partnerships.listVisible(principal, limit);
+        const allowed = visible.filter((partnership) => isAuthorized({
+          principal,
+          permission: "partnerships:read",
+          resource: partnership,
+        }));
+        return sendJson(res, 200, { partnerships: allowed, count: allowed.length }, req.method);
+      } catch {
+        return sendJson(res, 503, { error: "partnerships_unavailable" }, req.method);
+      }
+    }
+
+    const partnershipMatch = url.pathname.match(/^\\/api\\/v1\\/partnerships\\/([^/]+)$/);
+    if (partnershipMatch) {
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let partnershipId;
+      try { partnershipId = decodeURIComponent(partnershipMatch[1]); } catch {
+        return sendJson(res, 400, { error: "invalid_partnership_id" }, req.method);
+      }
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(partnershipId)) {
+        return sendJson(res, 400, { error: "invalid_partnership_id" }, req.method);
+      }
+      let partnership;
+      try { partnership = await partnerships.getById(partnershipId); } catch {
+        return sendJson(res, 503, { error: "partnerships_unavailable" }, req.method);
+      }
+      if (!partnership || !isAuthorized({
+        principal,
+        permission: "partnerships:read",
+        resource: partnership,
+      })) {
+        return sendJson(res, 404, { error: "not_found" }, req.method);
+      }
+      const { assignedTo, ...publicFields } = partnership;
+      return sendJson(res, 200, { partnership: publicFields }, req.method);
     }
 
     if (url.pathname === "/api/v1/approvals/inbox") {
