@@ -24,7 +24,7 @@ A production-oriented `backend/Dockerfile` now builds a minimal Node.js 22 image
 - Liveness: `GET /api/v1/health/live`.
 - Database readiness: `GET /api/v1/health/ready`.
 - Graceful shutdown handles SIGTERM and SIGINT.
-- Migrations are reviewed SQL files; there is no automatic migration runner.
+- Database migrations use the explicit CLI `npm run migrate`; API startup never applies schema changes.
 
 ## 3. Required staging configuration
 
@@ -87,3 +87,12 @@ Do not connect the UI until the API host, TLS, exact origin, authentication life
 ## 7. Decision required before provisioning
 
 Choose a hosting region/provider and an acceptable monthly staging budget. Compare data-location terms, PostgreSQL backup/restore, TLS, secrets management, exportability and access controls before creating resources. No paid resource should be provisioned without explicit approval.
+
+
+## Migration runner controls — 2026-11-12
+
+- The explicit CLI is `backend/src/db/migrate.mjs`; transaction, checksum, ordering and advisory-lock logic is in `backend/src/db/migrations.mjs`.
+- The command requires both `MIGRATIONS_ALLOW_APPLY=true` and `MIGRATIONS_DATABASE_URL`. It is not called from API startup or the Docker image command.
+- Use the migration-owner credential only for the CLI. Use a separate non-owner credential for the API process.
+- Initial supported target is a new empty staging database. Existing databases with manually applied migrations require a reviewed baseline/reconciliation plan; do not run this CLI against them.
+- Unit tests validate migration wrapper parsing and all 14 filenames. PostgreSQL CI integration remains separate; no staging database has been provisioned or migrated.
