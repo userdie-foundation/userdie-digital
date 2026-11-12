@@ -542,6 +542,25 @@ test("PostgreSQL applies migrations 001-014 and enforces workflow, authorization
       access_level: "restricted",
       publication_status: "not_publishable",
     });
+
+    const evidenceMetadata = await partnershipRepository.listEvidenceByPartnership(partnershipId);
+    assert.equal(evidenceMetadata.length, 1);
+    assert.deepEqual(evidenceMetadata[0], {
+      id: evidence.rows[0].id,
+      partnershipId,
+      evidenceType: "archive_record",
+      title: "Archived source reference",
+      documentDate: null,
+      issuer: null,
+      verificationStatus: "pending",
+      verifiedAt: null,
+      accessLevel: "restricted",
+      publicationStatus: "not_publishable",
+      createdAt: evidenceMetadata[0].createdAt,
+      updatedAt: evidenceMetadata[0].updatedAt,
+    });
+    assert.equal("storageKey" in evidenceMetadata[0], false);
+    assert.equal("storage_key" in evidenceMetadata[0], false);
     await assert.rejects(
       client.query(
         "UPDATE partnership_evidence SET publication_status = 'approved' WHERE id = $1",
