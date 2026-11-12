@@ -752,3 +752,26 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Наличие canonical в исходном HTML не доказывает, что поисковик принял или проиндексировал страницу.
 - Не заявлять, что кабинеты рабочие, backend развернут или персональные данные защищённо обрабатываются, пока это не проверено в отдельной staging/production среде.
 - Не просить пользователя вручную искать все дефекты; продолжать аудит по репозиторию и автоматическим проверкам.
+
+## 6. Контрольная точка — 2026-11-12, продолжение технического аудита
+
+### 6.1. Документация backend и staging
+- `backend/README.md` исправлен: восстановлена последовательная нумерация шагов 12–17, добавлено применение migration 013, сохранён шаг migration 014.
+- `docs/BACKEND_STAGING_DEPLOYMENT_RUNBOOK.md` обновлён: учтены migrations 001–014, зависимости 013/014 и актуальная базовая ревизия исходного кода `a670f704326434ddd69c4de952732ec9ea40efc8`.
+- Последний документальный коммит runbook: `1d63c68e19b1ca8470e02dda17ea645ca0fbf27c`.
+- Provisioning не выполнялся: hosting provider, staging PostgreSQL, секреты, TLS и backend deployment не создавались. Для выбора региона/провайдера и бюджета требуется отдельное решение; платные ресурсы не создавать без согласования.
+
+### 6.2. Проверки GitHub Actions
+- Backend checks run `43196254445` на commit `eb4dbcd01dc6614f6701a6cf57e1088d64013307`: **success**; успешно завершены установка зависимостей, JavaScript syntax check и automated tests.
+- Robot Team run `43196364120` и Public repository security check run `43196363885` на commit `1d63c68e19b1ca8470e02dda17ea645ca0fbf27c`: **success**.
+- Security Guard run `43196460967` на commit `e54dd12d913084fac4695fae5d20aeecb08dbdea` на момент записи находится в очереди; не считать его завершённым.
+- Deploy public website run `43195533115` на commit `3e0924ff8fcc92e0df57ebd560f1b988b4d79774`: **success**.
+- Daily platform health check run `43195608545` завершился **failure** на шаге проверки публичных discovery endpoints. Предыдущие шаги — 404, ссылки/якоря, JS, visual assets, deployment и HTTPS — завершились успешно. Точный подэтап внутри discovery check через доступный отчёт не установлен.
+- В `.github/workflows/daily-platform-health.yml` добавлены диагностические сообщения для раздельного определения ошибки robots.txt, sitemap, Yandex verification, canonical или og:url. Новый диагностический код ещё не прошёл собственный запуск; не считать исправление проверки подтверждённым.
+
+### 6.3. Текущие ограничения и следующие шаги
+1. Получить следующий запуск Daily platform health check после изменения диагностического workflow и определить конкретный сбой live discovery endpoint.
+2. Повторно подтвердить, что deployment для текущего website HEAD успешен; документальные изменения не требуют публикации сайта.
+3. Продолжить staging-подготовку только на synthetic data. Не создавать облачную инфраструктуру, базу или секреты без отдельного утверждения региона/провайдера и допустимого бюджета.
+4. Backend остаётся отдельным сервисом; публичные кабинеты не подключены к нему. Recovery service injection, trusted mail delivery, MFA enforcement, application intake и partner HTTP routes остаются незавершёнными.
+5. Не заявлять о приёме реальных обращений, production API, индексации поисковиками или полном исправлении live health check без соответствующего подтверждения.
