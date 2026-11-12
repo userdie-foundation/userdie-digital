@@ -775,3 +775,14 @@ P2 backend: добавить fail-closed permissions для партнёрски
 3. Продолжить staging-подготовку только на synthetic data. Не создавать облачную инфраструктуру, базу или секреты без отдельного утверждения региона/провайдера и допустимого бюджета.
 4. Backend остаётся отдельным сервисом; публичные кабинеты не подключены к нему. Recovery service injection, trusted mail delivery, MFA enforcement, application intake и partner HTTP routes остаются незавершёнными.
 5. Не заявлять о приёме реальных обращений, production API, индексации поисковиками или полном исправлении live health check без соответствующего подтверждения.
+
+
+## 7. Контрольная точка — 2026-11-12, исправление диагностики публичных SEO-endpoints
+
+- Получен полный job log Daily platform health check run `43195608545` (commit `016834c449a157e4849cd3d25b95e2f183a28e35`). Проверки 404, внутренних ссылок/якорей, inline JS, visual assets, успешного Pages deployment и HTTPS завершились success.
+- Установлена точная причина failure на шаге discovery: shell pipeline использовал `printf ... | grep -Fq` при `set -o pipefail`; раннее закрытие pipe со стороны `grep -q` приводило к `printf: write error: Broken pipe`. Это дефект скрипта проверки, а не подтверждённый дефект sitemap или сайта.
+- Commit `70babd25e3079b5bbae05fae0d74bf75f8596efe`: проверки robots.txt, Yandex verification, canonical и og:url переведены на here-string без SIGPIPE-конвейера.
+- Commit `024c4692a39390381f55fa00c26410031350b9d0`: добавлен запуск Daily platform health check при изменении самого workflow, чтобы проверять изменение диагностического скрипта сразу.
+- Исходник workflow повторно прочитан из GitHub; обе группы изменений присутствуют. На момент записи combined status нового commit не возвращает статусов, поэтому запуск и прохождение новой проверки ещё не подтверждены.
+- Следующий шаг: получить свежий Daily platform health check run после commit `024c469...`, изучить job steps и подтвердить отдельный success для discovery endpoints. Не объявлять SEO health check исправленным до фактического успешного запуска.
+- Backend checks run `43196254445` на `eb4dbcd...` ранее завершился success; это не является подтверждением backend deployment или staging.
