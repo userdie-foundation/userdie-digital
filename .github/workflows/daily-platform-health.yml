@@ -85,12 +85,23 @@ jobs:
           fi
           verification="$(curl --fail --location --silent --show-error --max-time 25 "$base/yandex_85472297227dd2a2.html")"
           printf '%s' "$verification" | grep -Fq "Verification: 85472297227dd2a2"
-          for path in             "/"             "/prototype/aid-directions.html"             "/prototype/applicant-cabinet.html"             "/prototype/partner-space.html"             "/prototype/platform.html"             "/prototype/project-portfolio.html"             "/prototype/resource-base.html"             "/prototype/assets-and-intellectual-capital.html"; do
-            curl --fail --location --silent --show-error --max-time 25 "$base$path" --output /dev/null
-            echo "Public page OK: $path"
-          done
-          echo "status=PASS — robots.txt, sitemap (8 URL), Yandex verification and 8 public pages" >> "$GITHUB_OUTPUT"
-          echo "Public discovery endpoints and all 8 sitemap pages passed."
+          while IFS='|' read -r path canonical; do
+            html="$(curl --fail --location --silent --show-error --max-time 25 "$base$path")"
+            printf '%s' "$html" | grep -Fq "<link rel=\"canonical\" href=\"$base$canonical\">"
+            printf '%s' "$html" | grep -Fq "<meta property=\"og:url\" content=\"$base$canonical\">"
+            echo "Public page and canonical/OG URL OK: $path"
+          done <<'PUBLIC_PAGES'
+          /|/
+          /prototype/aid-directions.html|/prototype/aid-directions.html
+          /prototype/applicant-cabinet.html|/prototype/applicant-cabinet.html
+          /prototype/partner-space.html|/prototype/partner-space.html
+          /prototype/platform.html|/prototype/platform.html
+          /prototype/project-portfolio.html|/prototype/project-portfolio.html
+          /prototype/resource-base.html|/prototype/resource-base.html
+          /prototype/assets-and-intellectual-capital.html|/prototype/assets-and-intellectual-capital.html
+          PUBLIC_PAGES
+          echo "status=PASS — robots.txt, sitemap (8 URL), Yandex verification, 8 pages and canonical/OG URLs" >> "$GITHUB_OUTPUT"
+          echo "Public discovery endpoints, all 8 sitemap pages and canonical/OG URLs passed."
       - name: Publish readable health report
         id: report
         if: always()
@@ -124,7 +135,7 @@ jobs:
             echo "| Визуальные ресурсы | $CHECK_VISUAL |"
             echo "| Результат публикации | $CHECK_DEPLOY |"
             echo "| HTTPS пользовательского домена | $CHECK_DOMAIN |"
-            echo "| robots, sitemap, Яндекс и публичные страницы | $CHECK_DISCOVERY |"
+            echo "| robots, sitemap, Яндекс, публичные страницы и canonical/OG | $CHECK_DISCOVERY |"
             echo
             echo "Автопроверка не заменяет ручную проверку сайта в браузере. Предупреждение по домену не отменяет независимые проверки репозитория и публикации."
           } | tee platform-health-report.md >> "$GITHUB_STEP_SUMMARY"
@@ -168,7 +179,7 @@ jobs:
               `| Визуальные ресурсы | ${process.env.CHECK_VISUAL} |`,
               `| Публикация | ${process.env.CHECK_DEPLOY} |`,
               `| HTTPS домена | ${process.env.CHECK_DOMAIN} |`,
-              `| robots, sitemap, Яндекс и публичные страницы | ${process.env.CHECK_DISCOVERY} |`,
+              `| robots, sitemap, Яндекс, публичные страницы и canonical/OG | ${process.env.CHECK_DISCOVERY} |`,
               '',
               'Следующий шаг: изучить журнал запуска, воспроизвести проблему и исправить её отдельным проверяемым изменением.'
             ].join('\n');
