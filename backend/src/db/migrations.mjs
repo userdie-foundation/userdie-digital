@@ -53,7 +53,7 @@ export async function applyMigrations(client, directory) {
   const files = await listMigrationFiles(directory);
   const applied = [];
 
-  await client.query("SELECT pg_advisory_lock($1, $2)", [LOCK_NAMESPACE, LOCK_RESOURCE]);
+  await client.query("SELECT pg_advisory_lock($1::integer, $2::integer)", [LOCK_NAMESPACE, LOCK_RESOURCE]);
   try {
     await client.query(`
       CREATE TABLE IF NOT EXISTS public.schema_migrations (
@@ -97,7 +97,7 @@ export async function applyMigrations(client, directory) {
       }
     }
   } finally {
-    await client.query("SELECT pg_advisory_unlock($1, $2)", [LOCK_NAMESPACE, LOCK_RESOURCE]);
+    await client.query("SELECT pg_advisory_unlock($1::integer, $2::integer)", [LOCK_NAMESPACE, LOCK_RESOURCE]);
   }
 
   return { discovered: files.length, applied };
