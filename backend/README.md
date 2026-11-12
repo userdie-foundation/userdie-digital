@@ -31,28 +31,15 @@ This directory is the initial backend service scaffold. It is separate from the 
 
 Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 
-1. Create a local PostgreSQL database.
-2. Apply `migrations/001_initial_schema.sql` to a new database after review.
-3. For an existing database created from migration 001, review and apply `migrations/002_application_status_history_trigger.sql`.
-4. Review and apply `migrations/003_auth_sessions.sql` after migration 001 to prepare session storage.
-5. Review and apply `migrations/004_program_portfolio_lifecycle.sql` after migration 001 to add program governance and milestone structures.
-6. Review and apply `migrations/005_application_workflow_tasks_sla.sql` after migrations 001–004 to add task and workflow-event structures.
-7. Review and apply `migrations/006_scoped_role_grants.sql` after migration 001 to add explicit program, organization, and contour-scoped grants.
-8. Review and apply `migrations/007_scoped_role_grant_lifecycle.sql` after migration 006 to add auditable one-way revocation and append-only grant events.
-9. Review and apply `migrations/008_independent_approvals.sql` and `migrations/009_auth_rate_limit_buckets.sql` after reviewing their dependencies.
-10. Review and apply `migrations/010_auth_recovery_tokens.sql` after migration 001 to prepare one-time recovery-token storage.
-11. Review and apply `migrations/011_audit_events_append_only.sql` after migration 001 to block ordinary UPDATE, DELETE and TRUNCATE operations on the audit log.
-12. Review and apply `migrations/012_mfa_persistence.sql` after migrations 001 and 011 to prepare encrypted MFA-factor, pending-challenge, and one-time recovery-code storage. This migration alone does not enable MFA.
-13. Review and apply `migrations/013_auth_recovery_rate_limits.sql` after migration 001 to prepare separate account- and network-scoped password-recovery throttling buckets. Only HMAC digests are stored.
-14. Review and apply `migrations/014_partnership_workspace.sql` after migrations 001 and 008 to add partnership profiles, relationship lifecycle records, protected evidence metadata, and append-only status history. Confirm a verified backup and apply through the controlled migration process.
-15. Install dependencies with `npm install`.
-16. Run `npm test` and `npm run check`.
-17. For a **new, empty, isolated non-production database only**, provide a dedicated schema-owner URL as `MIGRATIONS_DATABASE_URL` and explicitly run `MIGRATIONS_ALLOW_APPLY=true npm run migrate`. Set `MIGRATIONS_DATABASE_SSL=true` when the database requires verified TLS.
-18. Configure the separate least-privilege API runtime `DATABASE_URL`, then run `npm start`.
+1. Create a new, empty local or isolated non-production PostgreSQL database.
+2. Install dependencies with `npm install`.
+3. Run `npm test` and `npm run check`.
+4. For this new empty database only, provide a dedicated schema-owner connection as `MIGRATIONS_DATABASE_URL` and explicitly run `MIGRATIONS_ALLOW_APPLY=true npm run migrate`. Set `MIGRATIONS_DATABASE_SSL=true` when verified TLS is required.
+5. Configure the API runtime with a separate least-privilege, non-owner `DATABASE_URL` and run `npm start`.
 
-The migration runner records SHA-256 checksums in `public.schema_migrations`, acquires a PostgreSQL advisory lock, applies each numbered migration and its ledger row in one transaction, skips already-applied files only when their checksum matches, and refuses filename gaps or modified applied migrations. It requires the explicit `MIGRATIONS_ALLOW_APPLY=true` switch and the separate `MIGRATIONS_DATABASE_URL`; it is never invoked by API startup or the Docker entrypoint.
+The migration CLI stores SHA-256 checksums in `public.schema_migrations`, takes a PostgreSQL advisory lock, and applies each migration and its ledger row in one transaction. It skips a previously applied migration only when its checksum matches, and refuses filename gaps or edited applied migrations. It requires the explicit `MIGRATIONS_ALLOW_APPLY=true` flag and `MIGRATIONS_DATABASE_URL`; API startup and Docker startup never execute migrations.
 
-**Important:** this runner is for a new empty staging database. It does not automatically baseline a database whose migrations were previously applied manually. Do not point it at an existing database without a separately reviewed baseline/reconciliation procedure. Use a dedicated migration-owner credential for the CLI and a different non-owner, least-privilege credential for the API. Verify backups and a restore rehearsal before any production migration.
+**Important:** this runner is intended for a new empty staging database. It does not automatically baseline databases whose migrations were applied manually. Do not use it against an existing database until a separate baseline/reconciliation procedure is reviewed. Keep the migration-owner credential separate from the non-owner API runtime role. Verify backups and a restore rehearsal before any production migration.
 
 ## Endpoints
 
