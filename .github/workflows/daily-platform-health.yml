@@ -101,11 +101,13 @@ jobs:
           echo "Yandex verification file OK."
           while IFS='|' read -r path canonical; do
             html="$(curl --fail --location --silent --show-error --max-time 25 "$base$path")"
-            if ! grep -Fq -- "<link rel=\\"canonical\\" href=\\"$base$canonical\\">" <<< "$html"; then
+            expected_canonical="<link rel=\"canonical\" href=\"$base$canonical\">"
+            if ! grep -Fq -- "$expected_canonical" <<< "$html"; then
               echo "::error::Canonical URL mismatch on $path (expected $base$canonical)."
               exit 1
             fi
-            if ! grep -Fq -- "<meta property=\\"og:url\\" content=\\"$base$canonical\\">" <<< "$html"; then
+            expected_og_url="<meta property=\"og:url\" content=\"$base$canonical\">"
+            if ! grep -Fq -- "$expected_og_url" <<< "$html"; then
               echo "::error::Open Graph URL mismatch on $path (expected $base$canonical)."
               exit 1
             fi
