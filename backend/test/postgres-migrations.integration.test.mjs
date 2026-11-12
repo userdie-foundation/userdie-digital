@@ -6,6 +6,7 @@ import { Pool } from "pg";
 import { createPrincipalResolver } from "../src/security/principal.mjs";
 import { createSessionToken } from "../src/security/session.mjs";
 import { createLoginRateLimiter } from "../src/security/login-rate-limit.mjs";
+import { createPartnershipRepository } from "../src/server.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
@@ -408,6 +409,83 @@ test("PostgreSQL applies migrations 001-014 and enforces workflow, authorization
       [partnerOrganizationId, actorId],
     );
     const partnershipId = partnership.rows[0].id;
+
+    const secondPartnerOrganization = await client.query(
+      "INSERT INTO organizations (name, organization_type, status) VALUES ('Second partner fixture', 'partner', 'pending') RETURNING id",
+    );
+    const secondPartnerOrganizationId = secondPartnerOrganization.rows[0].id;
+    await client.query(
+      `INSERT INTO partner_profiles
+        (organization_id, historical_name, identity_status, source_reference, assigned_to)
+       VALUES ($1, 'Second partner fixture', 'requires_identification',
+         'docs/SECOND_HISTORICAL_PARTNER.md', $2)`,
+      [secondPartnerOrganizationId, otherWorkerId],
+    );
+    const secondPartnership = await client.query(
+      `INSERT INTO partnerships
+        (organization_id, relationship_type, status, summary, created_by)
+       VALUES ($1, 'historical', 'historical_record', 'Second unverified reference', $2)
+       RETURNING id`,
+      [secondPartnerOrganizationId, actorId],
+    );
+    const secondPartnershipId = secondPartnership.rows[0].id;
+
+    const partnershipRepository = createPartnershipRepository(client);
+    const ownOrganizationRows = await partnershipRepository.listVisible({
+      id: workerId,
+      grants: [{
+        roleCode: "partner",
+        scopeType: "organization",
+        scopeId: partnerOrganizationId,
+      }],
+    }, 25);
+    assert.deepEqual(ownOrganizationRows.map((row) => row.id), [partnershipId]);
+    assert.equal(ownOrganizationRows[0].assignedTo, workerId);
+
+    const otherOrganizationRows = await partnershipRepository.listVisible({
+      id: workerId,
+      grants: [{
+        roleCode: "partner",
+        scopeType: "organization",
+        scopeId: secondPartnerOrganizationId,
+      }],
+    }, 25);
+    assert.deepEqual(otherOrganizationRows.map((row) => row.id), [secondPartnershipId]);
+
+    const assignedCaseRows = await partnershipRepository.listVisible({
+      id: workerId,
+      grants: [{ roleCode: "case_worker", scopeType: "global" }],
+    }, 25);
+    assert.deepEqual(assignedCaseRows.map((row) => row.id), [partnershipId]);
+
+    const auditorRows = await partnershipRepository.listVisible({
+      id: otherWorkerId,
+      grants: [{ roleCode: "auditor", scopeType: "global" }],
+    }, 25);
+    assert.deepEqual(new Set(auditorRows.map((row) => row.id)), new Set([partnershipId, secondPartnershipId]));
+
+    const administratorRows = await partnershipRepository.listVisible({
+      id: actorId,
+      grants: [{ roleCode: "administrator", scopeType: "global" }],
+    }, 25);
+    assert.equal(administratorRows.length, 2);
+
+    const limitedRows = await partnershipRepository.listVisible({
+      id: actorId,
+      grants: [{ roleCode: "auditor", scopeType: "global" }],
+    }, 1);
+    assert.equal(limitedRows.length, 1);
+
+    const unscopedRows = await partnershipRepository.listVisible({
+      id: otherWorkerId,
+      grants: [],
+    }, 25);
+    assert.deepEqual(unscopedRows, []);
+
+    const partnershipDetail = await partnershipRepository.getById(partnershipId);
+    assert.equal(partnershipDetail.id, partnershipId);
+    assert.equal(partnershipDetail.organizationId, partnerOrganizationId);
+    assert.equal(partnershipDetail.assignedTo, workerId);
 
     const pendingPartnershipApproval = await client.query(
       `INSERT INTO approval_requests
