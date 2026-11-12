@@ -45,8 +45,8 @@ The sample `backend/.env.example` is not a production configuration. Confirm the
 ## 4. Database preparation
 
 1. Provision an isolated staging database with a dedicated least-privilege application role.
-2. Review migrations `001`–`013` and their dependencies before execution.
-3. Apply migrations through a controlled, logged process; do not assume the application runs migrations at startup.
+2. Review migrations `001`–`014` and their dependencies before execution.
+3. Apply migrations `001`–`014` through a controlled, logged process; do not assume the application runs migrations at startup. Migration 013 adds separate recovery throttling buckets; migration 014 adds partnership workspace persistence and depends on migrations 001 and 008.
 4. Verify schema version and run the PostgreSQL integration tests against a disposable staging/test schema.
 5. Confirm the application role cannot alter database ownership or bypass append-only audit protections.
 6. Create only synthetic test accounts and records.
