@@ -76,19 +76,35 @@ jobs:
         run: |
           set -euo pipefail
           base="https://xn--d1abbl2ben.online"
-          curl --fail --location --silent --show-error --max-time 25 "$base/robots.txt" | grep -Fq "Sitemap: $base/sitemap.xml"
+          robots="$(curl --fail --location --silent --show-error --max-time 25 "$base/robots.txt")"
+          if ! printf '%s' "$robots" | grep -Fq "Sitemap: $base/sitemap.xml"; then
+            echo "::error::robots.txt does not advertise the expected sitemap URL."
+            exit 1
+          fi
+          echo "robots.txt OK."
           sitemap="$(curl --fail --location --silent --show-error --max-time 25 "$base/sitemap.xml")"
           url_count="$(printf '%s' "$sitemap" | grep -o '<loc>' | wc -l | tr -d ' ')"
           if [ "$url_count" -ne 8 ]; then
             echo "::error::Expected 8 sitemap URLs, received $url_count."
             exit 1
           fi
+          echo "Sitemap OK: $url_count URLs."
           verification="$(curl --fail --location --silent --show-error --max-time 25 "$base/yandex_85472297227dd2a2.html")"
-          printf '%s' "$verification" | grep -Fq "Verification: 85472297227dd2a2"
+          if ! printf '%s' "$verification" | grep -Fq "Verification: 85472297227dd2a2"; then
+            echo "::error::Yandex verification file is reachable but its expected token is missing."
+            exit 1
+          fi
+          echo "Yandex verification file OK."
           while IFS='|' read -r path canonical; do
             html="$(curl --fail --location --silent --show-error --max-time 25 "$base$path")"
-            printf '%s' "$html" | grep -Fq "<link rel=\"canonical\" href=\"$base$canonical\">"
-            printf '%s' "$html" | grep -Fq "<meta property=\"og:url\" content=\"$base$canonical\">"
+            if ! printf '%s' "$html" | grep -Fq "<link rel=\\"canonical\\" href=\\"$base$canonical\\">"; then
+              echo "::error::Canonical URL mismatch on $path (expected $base$canonical)."
+              exit 1
+            fi
+            if ! printf '%s' "$html" | grep -Fq "<meta property=\\"og:url\\" content=\\"$base$canonical\\">"; then
+              echo "::error::Open Graph URL mismatch on $path (expected $base$canonical)."
+              exit 1
+            fi
             echo "Public page and canonical/OG URL OK: $path"
           done <<'PUBLIC_PAGES'
           /|/
