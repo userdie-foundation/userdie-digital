@@ -786,3 +786,17 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Исходник workflow повторно прочитан из GitHub; обе группы изменений присутствуют. На момент записи combined status нового commit не возвращает статусов, поэтому запуск и прохождение новой проверки ещё не подтверждены.
 - Следующий шаг: получить свежий Daily platform health check run после commit `024c469...`, изучить job steps и подтвердить отдельный success для discovery endpoints. Не объявлять SEO health check исправленным до фактического успешного запуска.
 - Backend checks run `43196254445` на `eb4dbcd...` ранее завершился success; это не является подтверждением backend deployment или staging.
+
+
+## 8. Контрольная точка — 2026-11-12, containerization backend
+
+- Добавлен `backend/Dockerfile`: Node.js 22 slim base, production dependencies only, runtime source + migrations, non-root `node` user, liveness healthcheck. Добавлен `backend/.dockerignore`, исключающий env/secrets, node_modules, тесты и Git metadata.
+- Commit `0138413db611b587efe6830182b4391bd1866e03`: backend Dockerfile.
+- Commit `170dd27f8a24b57a09c0d155ad99d3089238ad0d`: Docker build context exclusions.
+- Commit `be400e73633fe4f0560b64e02fc0cf525783d7f4`: Backend checks workflow теперь строит production container image после syntax и automated tests. Удалён npm cache setup, который ссылался на несуществующий `backend/package-lock.json`; workflow использует `npm install`.
+- Commit `cd69056ede073fee7780010a402b36b858f539dd`: staging runbook отражает контейнерную сборку и границы deployment.
+- Commit `1d06ed77b7a11e0dc577ca47741fd558cf7f4ec4`: backend README документирует image и запрет на трактовку CI build как deployment.
+- Backend CI trigger настроен на изменения `backend/**`; новые коммиты должны инициировать проверку. Однако connector не вернул combined statuses для этих commit SHA, а доступный workflow-runs helper возвращает только PR-triggered runs. Поэтому фактическое прохождение Docker build и PostgreSQL tests после этих изменений пока не подтверждено.
+- Docker image не публикуется в registry и не развёртывается. Нет выбранного хостинга, DB, secret manager, SMTP/KMS adapters, публичного API endpoint или разрешения на платные ресурсы. Не менять DNS/MX.
+- Не подключать публичный UI и не принимать реальные обращения: recovery не wired в runtime, MFA не реализована, intake/write flows отключены, privacy/legal acceptance и независимый security review не завершены.
+- Следующий технический шаг: получить фактические backend CI job results; затем расширить backend staging с отдельной non-owner application DB role, проверенным migration/rollback process, trusted email adapter, MFA/KMS integration and synthetic E2E tests. Внешний хостинг, секреты, mail/KMS provider и любые платные ресурсы требуют отдельного выбора/разрешения.
