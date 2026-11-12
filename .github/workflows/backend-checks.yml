@@ -56,3 +56,26 @@ jobs:
         run: npm test
       - name: Build production container image
         run: docker build --pull -f Dockerfile -t userdie-digital-api:ci .
+      - name: Smoke-test production container
+        env:
+          DATABASE_URL: postgresql://synthetic:synthetic@127.0.0.1:1/userdie_test
+        run: |
+          set -euo pipefail
+          docker run --detach --name userdie-api-smoke \
+            --publish 127.0.0.1:18080:8080 \
+            --env PORT=8080 \
+            --env DATABASE_URL="$DATABASE_URL" \
+            userdie-digital-api:ci
+          trap 'docker rm --force userdie-api-smoke >/dev/null 2>&1 || true' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:18080/api/v1/health/live >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:18080/api/v1/health/live
+          ready_status="$(curl --silent --output /tmp/userdie-ready.json --write-out '%{http_code}' http://127.0.0.1:18080/api/v1/health/ready)"
+          test "$ready_status" = "503"
+          test "$(docker exec userdie-api-smoke id -u)" = "1000"
+          grep -Fq '"status":"unavailable"' /tmp/userdie-ready.json
+          echo "Container smoke test passed: non-root runtime, live endpoint, fail-closed database readiness."
