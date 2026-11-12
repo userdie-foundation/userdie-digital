@@ -50,11 +50,15 @@ The migration CLI stores SHA-256 checksums in `public.schema_migrations`, takes 
 - `GET /api/v1/applications/:id` — read-only detail route; requires a valid server-side session and record-level authorization.
 - `GET /api/v1/applications` — returns `503 applications_module_unavailable`; collection access remains disabled.
 - `GET /api/v1/programs?limit=25` — read-only program directory (limit 1–50); applicants and partners see open programs, program managers see exact granted scopes, and administrators/auditors/case workers see the governed portfolio.
+- `GET /api/v1/partnerships?limit=25` — read-only partnership directory (limit 1–50); administrators and auditors can review the directory, case workers see only records assigned to them, and partner accounts require an exact organization-scoped grant.
+- `GET /api/v1/partnerships/:id` — read-only partnership detail with the same record-level authorization; missing and unauthorized records both return 404. Evidence files, storage keys, write operations, confirmation, and public partner publication remain unavailable.
 - `GET /api/v1/programs/:id` — read-only program dossier and milestone timeline; requires a valid server-side session and `programs:read` authorization.
 - `GET /api/v1/applications/:id/workflow` — internal read-only task, SLA and event timeline; visible only to the assigned case worker or exact-scope program manager with a valid server-side session.
 - `PATCH /api/v1/workspace/tasks/:id/status` — allowlisted task-status transition; requires a valid session, trusted scoped permission, exact Origin, and a valid transition. The route is implemented and CI-tested but is not connected to the public static-site UI or a confirmed production API deployment.
 
 Account-recovery HTTP request/reset routes exist but remain unavailable because the production entry point does not inject the recovery service; a production email-delivery adapter is also not configured. MFA enrollment, verification, recovery-code consumption, KMS integration, and enforcement are not implemented. Migration 012 is schema groundwork only; no normal session is gated on a second factor yet. All unknown routes return 404; non-GET/HEAD methods return 405 unless explicitly supported. The applications module deliberately fails closed: it does not read or write application records until identity, authorization, validation, and audit requirements are implemented and tested.
+
+The partnership directory now exposes only read-only relationship metadata through the authenticated API. The database query narrows results by global reviewer role, exact assigned case-worker identity, or exact partner organization grants, and the route repeats record-level authorization before returning a response. Partner-facing responses omit internal assignment metadata. No evidence storage key or document bytes are exposed. Partnership writes and independent confirmation remain disabled.
 
 ## Authentication implementation requirements
 
