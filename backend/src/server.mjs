@@ -943,7 +943,11 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
           permission: "partnerships:read",
           resource: partnership,
         }));
-        return sendJson(res, 200, { partnerships: allowed, count: allowed.length }, req.method);
+        const safePartnerships = allowed.map(({ assignedTo, ...partnership }) => partnership);
+        return sendJson(res, 200, {
+          partnerships: safePartnerships,
+          count: safePartnerships.length,
+        }, req.method);
       } catch {
         return sendJson(res, 503, { error: "partnerships_unavailable" }, req.method);
       }
