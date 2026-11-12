@@ -46,10 +46,13 @@ Requirements: Node.js 22+ and PostgreSQL with `gen_random_uuid()` available.
 13. Review and apply `migrations/013_auth_recovery_rate_limits.sql` after migration 001 to prepare separate account- and network-scoped password-recovery throttling buckets. Only HMAC digests are stored.
 14. Review and apply `migrations/014_partnership_workspace.sql` after migrations 001 and 008 to add partnership profiles, relationship lifecycle records, protected evidence metadata, and append-only status history. Confirm a verified backup and apply through the controlled migration process.
 15. Install dependencies with `npm install`.
-16. Set `DATABASE_URL` and optional configuration variables from `.env.example` in your shell.
-17. Run `npm test`, `npm run check`, then `npm start`.
+16. Run `npm test` and `npm run check`.
+17. For a **new, empty, isolated non-production database only**, provide a dedicated schema-owner URL as `MIGRATIONS_DATABASE_URL` and explicitly run `MIGRATIONS_ALLOW_APPLY=true npm run migrate`. Set `MIGRATIONS_DATABASE_SSL=true` when the database requires verified TLS.
+18. Configure the separate least-privilege API runtime `DATABASE_URL`, then run `npm start`.
 
-Migrations are reviewed SQL files, not an automated migration runner. Apply them through a controlled deployment process and verify backups first. Do not run migrations against production until a backup and restore procedure has been verified.
+The migration runner records SHA-256 checksums in `public.schema_migrations`, acquires a PostgreSQL advisory lock, applies each numbered migration and its ledger row in one transaction, skips already-applied files only when their checksum matches, and refuses filename gaps or modified applied migrations. It requires the explicit `MIGRATIONS_ALLOW_APPLY=true` switch and the separate `MIGRATIONS_DATABASE_URL`; it is never invoked by API startup or the Docker entrypoint.
+
+**Important:** this runner is for a new empty staging database. It does not automatically baseline a database whose migrations were previously applied manually. Do not point it at an existing database without a separately reviewed baseline/reconciliation procedure. Use a dedicated migration-owner credential for the CLI and a different non-owner, least-privilege credential for the API. Verify backups and a restore rehearsal before any production migration.
 
 ## Endpoints
 
