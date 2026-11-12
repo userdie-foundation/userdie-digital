@@ -59,6 +59,7 @@ Do not run migrations against production as part of this staging procedure. A pr
 - [ ] `docker build --pull -f backend/Dockerfile -t userdie-digital-api:staging backend` succeeds; verify the image runs as the non-root `node` user.
 - [ ] `npm run check` passes.
 - [ ] `npm test` passes against an isolated PostgreSQL test database.
+- [ ] Backend CI builds the image and passes its container smoke test: non-root runtime, liveness success, and database readiness returning 503 when the database is deliberately unavailable.
 - [ ] Service starts without logging connection strings, credentials or tokens.
 - [ ] `/api/v1/health/live` returns success.
 - [ ] `/api/v1/health/ready` returns success only when the database is reachable.
