@@ -2,7 +2,7 @@
 
 **Status:** preparation document only. No hosting provider, database instance, secret, DNS record, deployment or production service is created by this runbook.
 
-**Baseline reviewed:** `main` at `a670f704326434ddd69c4de952732ec9ea40efc8` (2026-11-12); subsequent commits in this run update documentation only.
+**Baseline reviewed:** `main` after the 2026-11-12 containerization changes. Re-check the deployed commit before provisioning.
 
 ## 1. Deployment boundary
 
@@ -13,7 +13,7 @@
 - Do not use real beneficiary, donor, employee or partner data in staging.
 - Do not change the domain's DNS or mail records as part of backend staging.
 
-The repository currently has no backend Dockerfile, Compose file, hosting manifest or backend deployment workflow. Select the host and deployment method before adding provider-specific infrastructure.
+A production-oriented `backend/Dockerfile` now builds a minimal Node.js 22 image, installs production dependencies only, copies runtime source and migrations, runs as the unprivileged `node` user, and exposes a liveness health check. `.dockerignore` excludes local environment files, dependencies, tests and Git metadata. Backend CI builds this image but does not publish it to a registry or deploy it. No Compose stack, hosting manifest, registry, cloud resource or backend deployment workflow is configured.
 
 ## 2. Runtime requirements verified in source
 
@@ -56,6 +56,7 @@ Do not run migrations against production as part of this staging procedure. A pr
 ## 5. Deployment acceptance checks
 
 - [ ] Build/install from the repository's current `main` revision.
+- [ ] `docker build --pull -f backend/Dockerfile -t userdie-digital-api:staging backend` succeeds; verify the image runs as the non-root `node` user.
 - [ ] `npm run check` passes.
 - [ ] `npm test` passes against an isolated PostgreSQL test database.
 - [ ] Service starts without logging connection strings, credentials or tokens.
