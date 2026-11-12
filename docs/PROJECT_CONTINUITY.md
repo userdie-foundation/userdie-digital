@@ -842,3 +842,11 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Staging PostgreSQL не создана, миграции в реальной базе не выполнялись, роли и grants не проверены на живом сервере.
 - Backend не развернут, registry не настроен; recovery mail adapter, MFA/KMS, application intake и partner HTTP routes не реализованы.
 - Не подключать реальные формы/персональные данные и не менять DNS/MX. Внешний hosting/database/secrets/mail/KMS и платные ресурсы требуют отдельного согласования.
+
+
+### 11.1. Результат CI для migration runner
+- Backend checks run `43200123531` на commit `43f5fc41834f7d428774138ac47c1d8e888a5a69`: **SUCCESS**. В job подтверждены automated tests (включая migration-runner tests), JavaScript syntax, production Docker build и container smoke test.
+- Первый прогон migration-runner tests на commit `ba54d29...` выявил только несовпадение ожидаемого форматирования строки в unit test; SQL runner не выполнялся. Assertion исправлен в commit `43f5fc4...`, после чего полный Backend checks завершился success.
+- CLI и SQL runner проверены тестами на разбор transaction wrappers, отказ при некорректных wrappers и последовательность миграций 001–014. Реальное применение к PostgreSQL ещё не выполнялось.
+- README и staging runbook приведены к одной инструкции: новая пустая staging DB; отдельный migration-owner `MIGRATIONS_DATABASE_URL`; явное подтверждение `MIGRATIONS_ALLOW_APPLY=true`; отдельная non-owner runtime `DATABASE_URL`; запрет на автоматический baseline ранее вручную мигрированной БД.
+- Последний документальный коммит runbook: `49144a44a5cd1cb2fa7e1637fb8e053fc6498722`; README: `bbfa1381bf47e4503d4d342305c51225918bdad8`.
