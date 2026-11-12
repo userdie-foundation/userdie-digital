@@ -44,12 +44,15 @@ The sample `backend/.env.example` is not a production configuration. Confirm the
 
 ## 4. Database preparation
 
-1. Provision an isolated staging database with a dedicated least-privilege application role.
-2. Review migrations `001`–`014` and their dependencies before execution.
-3. Apply migrations `001`–`014` through a controlled, logged process; do not assume the application runs migrations at startup. Migration 013 adds separate recovery throttling buckets; migration 014 adds partnership workspace persistence and depends on migrations 001 and 008.
-4. Verify schema version and run the PostgreSQL integration tests against a disposable staging/test schema.
-5. Confirm the application role cannot alter database ownership or bypass append-only audit protections.
-6. Create only synthetic test accounts and records.
+1. Provision a new, empty, isolated staging database. Do not point the runner at a database that has already received migrations manually.
+2. Create two distinct credentials: a schema-owner/migration role for controlled DDL, and a non-owner API runtime role with only the required DML, sequence and function privileges. Do not use the migration owner as the API `DATABASE_URL`.
+3. Review migrations `001`–`014` and their dependencies before execution.
+4. From a protected operator environment, set `MIGRATIONS_DATABASE_URL` to the migration-owner connection and run `MIGRATIONS_ALLOW_APPLY=true npm run migrate`. Set `MIGRATIONS_DATABASE_SSL=true` when verified TLS is required. Never commit either credential.
+5. The runner takes a PostgreSQL advisory lock, validates sequential filenames, stores SHA-256 checksums in `public.schema_migrations`, and commits each migration together with its ledger row. A checksum mismatch or SQL error stops the process; failed migration SQL is rolled back.
+6. Verify all 14 versions are recorded, then configure the separate API runtime `DATABASE_URL` and test readiness using the runtime role.
+7. Run the PostgreSQL integration tests against a disposable staging/test schema.
+8. Confirm the application role cannot alter database ownership or bypass append-only audit protections.
+9. Create only synthetic test accounts and records.
 
 Do not run migrations against production as part of this staging procedure. A production migration requires a separately verified backup and restore procedure.
 
