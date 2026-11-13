@@ -88,8 +88,8 @@ jobs:
           echo "robots.txt OK."
           sitemap="$(curl --fail --location --silent --show-error --max-time 25 "$base/sitemap.xml")"
           url_count="$(printf '%s' "$sitemap" | grep -o '<loc>' | wc -l | tr -d ' ')"
-          if [ "$url_count" -ne 8 ]; then
-            echo "::error::Expected 8 sitemap URLs, received $url_count."
+          if [ "$url_count" -ne 5 ]; then
+            echo "::error::Expected 5 indexable sitemap URLs, received $url_count."
             exit 1
           fi
           echo "Sitemap OK: $url_count URLs."
