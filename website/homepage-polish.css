@@ -133,3 +133,29 @@ body:has(> .header .brand[href="#top"]) :where(a,button):focus-visible{
   body:has(> .header .brand[href="#top"]) .welcome-route-steps a:hover,
   body:has(> .header .brand[href="#top"]) .quick-help-card:hover{transform:none}
 }
+
+
+/* Contrast correction: readable navigation cards on the deep-green route panel. */
+body:has(> .header .brand[href="#top"]) .welcome-route-steps a,
+body:has(> .header .brand[href="#top"]) .welcome-route-steps a:visited{
+  color:#f8f7f0;
+}
+body:has(> .header .brand[href="#top"]) .welcome-route-steps strong{
+  color:#fffdf6 !important;
+  font-weight:700;
+}
+body:has(> .header .brand[href="#top"]) .welcome-route-steps .welcome-step-number{
+  color:#ead9a7;
+}
+body:has(> .header .brand[href="#top"]) .welcome-route-steps a>span:nth-last-child(2){
+  color:#edf1e9 !important;
+}
+body:has(> .header .brand[href="#top"]) .welcome-route-steps .welcome-step-arrow{
+  color:#ead9a7;
+  font-family:Arial,sans-serif;
+  font-variant-emoji:text;
+}
+body:has(> .header .brand[href="#top"]) .welcome-route-steps a:focus-visible{
+  outline:3px solid #ead9a7;
+  outline-offset:4px;
+}
