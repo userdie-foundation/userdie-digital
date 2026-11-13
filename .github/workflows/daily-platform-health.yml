@@ -1,9 +1,5 @@
 name: Daily platform health check
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/daily-platform-health.yml"
   schedule:
     - cron: "17 3 * * *"
   workflow_dispatch:
@@ -122,8 +118,8 @@ jobs:
           /prototype/resource-base.html|/prototype/resource-base.html
           /prototype/assets-and-intellectual-capital.html|/prototype/assets-and-intellectual-capital.html
           PUBLIC_PAGES
-          echo "status=PASS — robots.txt, sitemap (8 URL), Yandex verification, 8 pages and canonical/OG URLs" >> "$GITHUB_OUTPUT"
-          echo "Public discovery endpoints, all 8 sitemap pages and canonical/OG URLs passed."
+          echo "status=PASS — robots.txt, sitemap (5 indexable URL), Yandex verification, 8 published pages and canonical/OG URLs" >> "$GITHUB_OUTPUT"
+          echo "Public discovery endpoints, 5 indexable sitemap URLs, 8 published pages and canonical/OG URLs passed."
       - name: Publish readable health report
         id: report
         if: always()
