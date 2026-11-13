@@ -1,0 +1,135 @@
+/* USERDIE DIGITAL — visual pass 01
+   Public homepage: clearer hierarchy, restrained premium finish, mobile-first usability.
+   Preserve the foundation tree emblem, approved wording and existing navigation targets. */
+:root{
+  --ud-home-ink:#20382c;
+  --ud-home-forest:#1d4a35;
+  --ud-home-gold:#b69a5c;
+  --ud-home-muted:#627268;
+  --ud-home-line:rgba(32,56,44,.14);
+  --ud-home-card:#fffefa;
+}
+body:has(> .header .brand[href="#top"]){color:var(--ud-home-ink)}
+body:has(> .header .brand[href="#top"]) .header{
+  background:rgba(250,249,244,.94);
+  border-bottom:1px solid var(--ud-home-line);
+  box-shadow:0 7px 26px rgba(25,54,38,.055);
+}
+body:has(> .header .brand[href="#top"]) .header-inner{min-height:78px}
+body:has(> .header .brand[href="#top"]) .brand strong{letter-spacing:.12em}
+body:has(> .header .brand[href="#top"]) .primary-navigation{gap:clamp(12px,2vw,25px)}
+body:has(> .header .brand[href="#top"]) .primary-navigation a{
+  position:relative;padding-block:8px;color:#405b49;font-size:12px;
+  transition:color .18s ease;
+}
+body:has(> .header .brand[href="#top"]) .primary-navigation a:after{
+  position:absolute;right:0;bottom:1px;left:0;height:2px;background:var(--ud-home-gold);
+  content:"";transform:scaleX(0);transform-origin:left;transition:transform .18s ease;
+}
+body:has(> .header .brand[href="#top"]) .primary-navigation a:hover{color:var(--ud-home-forest)}
+body:has(> .header .brand[href="#top"]) .primary-navigation a:hover:after,
+body:has(> .header .brand[href="#top"]) .primary-navigation a:focus-visible:after{transform:scaleX(1)}
+body:has(> .header .brand[href="#top"]) .header-cta,
+body:has(> .header .brand[href="#top"]) .actions .button{
+  min-height:48px;padding-inline:20px;border-radius:4px;
+  box-shadow:0 7px 18px rgba(29,74,53,.13);
+}
+body:has(> .header .brand[href="#top"]) .hero-copy .eyebrow{color:#806d43}
+body:has(> .header .brand[href="#top"]) .hero-copy h1{max-width:680px}
+body:has(> .header .brand[href="#top"]) .hero-film-visual{
+  border-radius:8px;box-shadow:0 24px 60px rgba(25,54,38,.15);
+}
+body:has(> .header .brand[href="#top"]) .foundation-pillars article{
+  position:relative;overflow:hidden;border-radius:6px;
+  border-color:rgba(182,154,92,.32);box-shadow:0 9px 25px rgba(25,54,38,.045);
+}
+body:has(> .header .brand[href="#top"]) .foundation-pillars article:before{
+  position:absolute;top:0;bottom:0;left:0;width:3px;background:var(--ud-home-gold);content:"";
+}
+body:has(> .header .brand[href="#top"]) .welcome-route{
+  background:linear-gradient(125deg,#173c2c 0%,#214f39 58%,#1b4431 100%);
+}
+body:has(> .header .brand[href="#top"]) .welcome-route-steps a{
+  min-height:205px;border-radius:7px;background:rgba(255,255,255,.075);
+  box-shadow:inset 0 1px rgba(255,255,255,.08);
+}
+body:has(> .header .brand[href="#top"]) .welcome-route-steps a:hover{
+  transform:translateY(-3px);border-color:rgba(220,199,143,.8);
+  background:rgba(255,255,255,.12);
+}
+body:has(> .header .brand[href="#top"]) .quick-help,
+body:has(> .header .brand[href="#top"]) .platform-status{
+  background:linear-gradient(180deg,#fff 0%,#fbfaf6 100%);
+}
+body:has(> .header .brand[href="#top"]) .quick-help-card,
+body:has(> .header .brand[href="#top"]) .platform-status-card{
+  border:1px solid var(--ud-home-line);border-radius:7px;
+  background:var(--ud-home-card);box-shadow:0 8px 24px rgba(25,54,38,.045);
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+body:has(> .header .brand[href="#top"]) .quick-help-card:hover,
+body:has(> .header .brand[href="#top"]) .quick-help-card:focus-visible{
+  transform:translateY(-3px);border-color:rgba(182,154,92,.7);
+  box-shadow:0 15px 34px rgba(25,54,38,.09);
+}
+body:has(> .header .brand[href="#top"]) .platform-status-card{padding:25px}
+body:has(> .header .brand[href="#top"]) .platform-status-mark{
+  width:42px;height:42px;border-radius:50%;background:#edf2e7;
+}
+body:has(> .header .brand[href="#top"]) .intro.section{background:#f8f7f1}
+body:has(> .header .brand[href="#top"]) .directions.section{
+  background:linear-gradient(180deg,#eff1e8 0%,#e9ede3 100%);
+}
+body:has(> .header .brand[href="#top"]) .direction-card{
+  min-height:310px;padding:26px;border-radius:7px;
+  border:1px solid rgba(32,56,44,.12);background:rgba(255,254,250,.94);
+  box-shadow:0 8px 24px rgba(25,54,38,.045);
+}
+body:has(> .header .brand[href="#top"]) .direction-card.card-featured{
+  background:linear-gradient(145deg,#e4ecd9,#f8f7f0);
+  border-color:rgba(112,137,83,.3);
+}
+body:has(> .header .brand[href="#top"]) .direction-card h3{color:#234a36}
+body:has(> .header .brand[href="#top"]) .direction-card .card-status{
+  border-top-color:rgba(182,154,92,.42);color:#75613a;
+}
+body:has(> .header .brand[href="#top"]) .governance-note{
+  border-left-color:var(--ud-home-gold);border-radius:0 6px 6px 0;
+  background:rgba(255,255,255,.72);
+}
+body:has(> .header .brand[href="#top"]) #program-portfolio .direction-card{
+  background:linear-gradient(145deg,#fffefa,#f5f6ef);
+}
+body:has(> .header .brand[href="#top"]) .transparency.section{
+  background:linear-gradient(180deg,#fbfaf6,#f0f2e9);
+}
+body:has(> .header .brand[href="#top"]) .footer{
+  background:#173b2b;color:#f7f5ec;border-top:1px solid rgba(220,199,143,.25);
+}
+body:has(> .header .brand[href="#top"]) .footer p,
+body:has(> .header .brand[href="#top"]) .footer-inner>a:last-child{color:#d5dfd5}
+body:has(> .header .brand[href="#top"]) :where(a,button):focus-visible{
+  outline:3px solid #b69a5c;outline-offset:4px;
+}
+@media(max-width:900px){
+  body:has(> .header .brand[href="#top"]) .header-inner{gap:12px}
+  body:has(> .header .brand[href="#top"]) .primary-navigation{gap:10px 16px}
+}
+@media(max-width:680px){
+  body:has(> .header .brand[href="#top"]) .header-inner{padding-block:10px}
+  body:has(> .header .brand[href="#top"]) .primary-navigation a{
+    min-height:38px;padding:8px 11px;border:1px solid var(--ud-home-line);
+    border-radius:999px;background:#fffefa;font-size:11px;
+  }
+  body:has(> .header .brand[href="#top"]) .primary-navigation a:after{display:none}
+  body:has(> .header .brand[href="#top"]) .hero-copy h1{line-height:1.04}
+  body:has(> .header .brand[href="#top"]) .welcome-route-steps a{min-height:0;padding:20px}
+  body:has(> .header .brand[href="#top"]) .direction-card{min-height:0;padding:21px}
+  body:has(> .header .brand[href="#top"]) .platform-status-card{padding:20px}
+  body:has(> .header .brand[href="#top"]) .footer-inner{gap:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  body:has(> .header .brand[href="#top"]) *{scroll-behavior:auto!important;transition:none!important}
+  body:has(> .header .brand[href="#top"]) .welcome-route-steps a:hover,
+  body:has(> .header .brand[href="#top"]) .quick-help-card:hover{transform:none}
+}
