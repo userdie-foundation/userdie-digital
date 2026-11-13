@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+<title id="title">Росток — символ заботы и развития</title>
+<desc id="desc">Молодой зелёный росток с двумя свежими листьями пробивается из плодородной земли в мягком золотистом свете.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#102d22"/><stop offset=".55" stop-color="#194331"/><stop offset="1" stop-color="#10291f"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#e6d69d" stop-opacity=".34"/><stop offset=".48" stop-color="#b6c58a" stop-opacity=".12"/><stop offset="1" stop-color="#173b2b" stop-opacity="0"/></radialGradient>
+ <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8e6a2"/><stop offset=".48" stop-color="#8fb66b"/><stop offset="1" stop-color="#477b4e"/></linearGradient>
+ <linearGradient id="leaf2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e4e8ad"/><stop offset=".55" stop-color="#a6c879"/><stop offset="1" stop-color="#5b9258"/></linearGradient>
+ <linearGradient id="soil" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#92794d"/><stop offset=".25" stop-color="#554b34"/><stop offset="1" stop-color="#28372a"/></linearGradient>
+ <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="28"/></filter>
+ <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="12"/></filter>
+</defs>
+<rect width="1200" height="800" fill="url(#bg)"/>
+<circle cx="610" cy="350" r="380" fill="url(#glow)"/>
+<circle cx="610" cy="350" r="255" fill="none" stroke="#d8d2a1" stroke-opacity=".10"/>
+<circle cx="610" cy="350" r="310" fill="none" stroke="#d8d2a1" stroke-opacity=".055"/>
+<ellipse cx="610" cy="642" rx="245" ry="38" fill="#071b13" opacity=".52" filter="url(#shadow)"/>
+<path d="M0 635 Q180 603 340 625 T660 621 T960 615 T1200 632 V800 H0Z" fill="url(#soil)"/>
+<path d="M0 636 Q180 604 340 626 T660 622 T960 616 T1200 633" fill="none" stroke="#c4a76c" stroke-opacity=".55" stroke-width="3"/>
+<g opacity=".48" fill="#c8b17b"><ellipse cx="380" cy="661" rx="5" ry="2"/><ellipse cx="760" cy="686" rx="7" ry="2"/><ellipse cx="855" cy="649" rx="4" ry="2"/><ellipse cx="470" cy="702" rx="6" ry="2"/><ellipse cx="680" cy="660" rx="4" ry="2"/></g>
+<path d="M605 635 C602 568 612 499 607 429 C604 389 610 351 619 319" fill="none" stroke="#a8c77a" stroke-width="13" stroke-linecap="round"/>
+<path d="M611 477 C540 446 481 389 478 329 C541 327 600 362 615 427 C624 449 620 465 611 477Z" fill="url(#leaf)" stroke="#d8e6a2" stroke-opacity=".6" stroke-width="3"/>
+<path d="M610 469 Q551 405 493 344" fill="none" stroke="#e5edbd" stroke-opacity=".75" stroke-width="3" stroke-linecap="round"/>
+<path d="M609 420 Q555 398 528 371 M584 402 Q564 379 551 357" fill="none" stroke="#e5edbd" stroke-opacity=".38" stroke-width="2"/>
+<path d="M616 391 C626 319 686 257 767 247 C773 321 731 391 650 414 C635 418 622 407 616 391Z" fill="url(#leaf2)" stroke="#e3e9b1" stroke-opacity=".65" stroke-width="3"/>
+<path d="M625 396 Q683 321 752 264" fill="none" stroke="#f0edc6" stroke-opacity=".76" stroke-width="3" stroke-linecap="round"/>
+<path d="M671 341 Q709 327 735 298 M691 320 Q701 292 719 279" fill="none" stroke="#f0edc6" stroke-opacity=".4" stroke-width="2"/>
+<path d="M600 632 Q575 608 553 603 M618 631 Q648 608 674 608" fill="none" stroke="#b7c987" stroke-width="5" stroke-linecap="round"/>
+<g fill="#e1d3a2" opacity=".8"><circle cx="420" cy="295" r="3"/><circle cx="810" cy="382" r="2.5"/><circle cx="770" cy="190" r="2"/><circle cx="470" cy="480" r="2"/></g>
+<path d="M600 650 Q610 665 620 650" fill="none" stroke="#d6c18b" stroke-opacity=".65" stroke-width="2"/>
+</svg>
