@@ -89,6 +89,34 @@ jobs:
             exit 1
           fi
           echo "Sitemap OK: $url_count URLs."
+          # The five canonical public pages must remain indexable.
+          while IFS='|' read -r path; do
+            html="$(curl --fail --location --silent --show-error --max-time 25 "$base$path")"
+            if grep -Eiq '<meta[^>]+name=["\\047]robots["\\047][^>]+content=["\\047][^"\\047]*noindex|<meta[^>]+content=["\\047][^"\\047]*noindex[^"\\047]*["\\047][^>]+name=["\\047]robots["\\047]' <<< "$html"; then
+              echo "::error::Indexable sitemap page unexpectedly contains noindex: $path"
+              exit 1
+            fi
+            echo "Indexability OK: $path"
+          done <<'INDEXABLE_PAGES'
+          /
+          /prototype/aid-directions.html
+          /prototype/platform.html
+          /prototype/project-portfolio.html
+          /prototype/assets-and-intellectual-capital.html
+          INDEXABLE_PAGES
+          # Demo cabinets stay reachable for users but must not enter search results.
+          while IFS='|' read -r path; do
+            html="$(curl --fail --location --silent --show-error --max-time 25 "$base$path")"
+            if ! grep -Eiq '<meta[^>]+name=["\\047]robots["\\047][^>]+content=["\\047][^"\\047]*noindex|<meta[^>]+content=["\\047][^"\\047]*noindex[^"\\047]*["\\047][^>]+name=["\\047]robots["\\047]' <<< "$html"; then
+              echo "::error::Demo page is missing noindex directive: $path"
+              exit 1
+            fi
+            echo "Demo exclusion OK: $path"
+          done <<'NOINDEX_PAGES'
+          /prototype/applicant-cabinet.html
+          /prototype/partner-space.html
+          /prototype/resource-base.html
+          NOINDEX_PAGES
           verification="$(curl --fail --location --silent --show-error --max-time 25 "$base/yandex_85472297227dd2a2.html")"
           if ! grep -Fq -- "Verification: 85472297227dd2a2" <<< "$verification"; then
             echo "::error::Yandex verification file is reachable but its expected token is missing."
