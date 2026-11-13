@@ -84,12 +84,12 @@ jobs:
           echo "robots.txt OK."
           sitemap="$(curl --fail --location --silent --show-error --max-time 25 "$base/sitemap.xml")"
           url_count="$(printf '%s' "$sitemap" | grep -o '<loc>' | wc -l | tr -d ' ')"
-          if [ "$url_count" -ne 5 ]; then
-            echo "::error::Expected 5 indexable sitemap URLs, received $url_count."
+          if [ "$url_count" -ne 7 ]; then
+            echo "::error::Expected 7 indexable sitemap URLs, received $url_count."
             exit 1
           fi
           echo "Sitemap OK: $url_count URLs."
-          # The five canonical public pages must remain indexable.
+          # All seven canonical public pages must remain indexable.
           while IFS='|' read -r path; do
             html="$(curl --fail --location --silent --show-error --max-time 25 "$base$path")"
             if grep -Eiq '<meta[^>]+name=["\\047]robots["\\047][^>]+content=["\\047][^"\\047]*noindex|<meta[^>]+content=["\\047][^"\\047]*noindex[^"\\047]*["\\047][^>]+name=["\\047]robots["\\047]' <<< "$html"; then
@@ -103,6 +103,8 @@ jobs:
           /prototype/platform.html
           /prototype/project-portfolio.html
           /prototype/assets-and-intellectual-capital.html
+          /prototype/robots.html
+          /prototype/office.html
           INDEXABLE_PAGES
           # Demo cabinets stay reachable for users but must not enter search results.
           while IFS='|' read -r path; do
@@ -145,9 +147,11 @@ jobs:
           /prototype/project-portfolio.html|/prototype/project-portfolio.html
           /prototype/resource-base.html|/prototype/resource-base.html
           /prototype/assets-and-intellectual-capital.html|/prototype/assets-and-intellectual-capital.html
+          /prototype/robots.html|/prototype/robots.html
+          /prototype/office.html|/prototype/office.html
           PUBLIC_PAGES
-          echo "status=PASS — robots.txt, sitemap (5 indexable URL), Yandex verification, 8 published pages and canonical/OG URLs" >> "$GITHUB_OUTPUT"
-          echo "Public discovery endpoints, 5 indexable sitemap URLs, 8 published pages and canonical/OG URLs passed."
+          echo "status=PASS — robots.txt, sitemap (7 indexable URLs), Yandex verification, 10 published pages and canonical/OG URLs" >> "$GITHUB_OUTPUT"
+          echo "Public discovery endpoints, 7 indexable sitemap URLs, 10 published pages and canonical/OG URLs passed."
       - name: Publish readable health report
         id: report
         if: always()
