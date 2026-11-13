@@ -159,3 +159,40 @@ body:has(> .header .brand[href="#top"]) .welcome-route-steps a:focus-visible{
   outline:3px solid #ead9a7;
   outline-offset:4px;
 }
+
+
+/* Replace platform-dependent emoji arrows with a consistent CSS navigation glyph. */
+body:has(> .header .brand[href="#top"]) .welcome-route-steps .welcome-step-arrow{
+  position:relative;
+  display:block;
+  flex:0 0 22px;
+  width:22px;
+  height:22px;
+  margin-top:auto;
+  align-self:flex-end;
+  overflow:visible;
+  color:transparent;
+  font-size:0;
+  line-height:0;
+}
+body:has(> .header .brand[href="#top"]) .welcome-route-steps .welcome-step-arrow::before{
+  content:"";
+  position:absolute;
+  top:2px;
+  right:2px;
+  width:11px;
+  height:11px;
+  border-top:2px solid #ead9a7;
+  border-right:2px solid #ead9a7;
+}
+body:has(> .header .brand[href="#top"]) .welcome-route-steps .welcome-step-arrow::after{
+  content:"";
+  position:absolute;
+  top:10px;
+  left:1px;
+  width:19px;
+  height:2px;
+  background:#ead9a7;
+  transform:rotate(-45deg);
+  transform-origin:center;
+}
