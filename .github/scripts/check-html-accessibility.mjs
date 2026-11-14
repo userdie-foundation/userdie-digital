@@ -22,11 +22,14 @@ await walk(root);
 for (const file of htmlFiles) {
   const markup = await readFile(file, "utf8");
   const relative = path.relative(root, file);
+  // Search-engine ownership files are intentionally minimal provider artifacts.
+  // Preserve their exact verification payload and exempt only the document title.
+  const isSearchVerificationFile = /^(?:yandex|google)[-_].+\.html$/i.test(path.basename(file));
 
   if (!has(markup, /<html\b[^>]*\blang\s*=\s*(["'])[^"']+\1/i)) {
     errors.push(`${relative}: missing document language (html lang)`);
   }
-  if (!has(markup, /<title\b[^>]*>\s*[^<\s][\s\S]*?<\/title\s*>/i)) {
+  if (!isSearchVerificationFile && !has(markup, /<title\b[^>]*>\s*[^<\s][\s\S]*?<\/title\s*>/i)) {
     errors.push(`${relative}: missing non-empty document title`);
   }
   if (!has(markup, /<meta\b(?=[^>]*\bname\s*=\s*(["'])viewport\1)(?=[^>]*\bcontent\s*=\s*(["'])[^"']*width=device-width)[^>]*>/i)) {
@@ -48,5 +51,5 @@ if (errors.length) {
   for (const error of errors) console.error(" - " + error);
   process.exitCode = 1;
 } else {
-  console.log(`HTML accessibility baseline passed: ${htmlFiles.length} pages checked for language, title, viewport, main landmark and image alternatives.`);
+  console.log(`HTML accessibility baseline passed: ${htmlFiles.length} pages checked for language, title (except provider verification files), viewport, main landmark and image alternatives.`);
 }
