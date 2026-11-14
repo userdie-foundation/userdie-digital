@@ -7,12 +7,14 @@ on:
       - "website/**"
       - ".github/scripts/check-site-links.mjs"
       - ".github/scripts/check-inline-js.mjs"
+      - ".github/scripts/check-html-accessibility.mjs"
       - ".github/workflows/website-quality.yml"
   pull_request:
     paths:
       - "website/**"
       - ".github/scripts/check-site-links.mjs"
       - ".github/scripts/check-inline-js.mjs"
+      - ".github/scripts/check-html-accessibility.mjs"
       - ".github/workflows/website-quality.yml"
   workflow_dispatch:
 
@@ -25,7 +27,7 @@ concurrency:
 
 jobs:
   static-quality:
-    name: Check links, anchors and inline JavaScript
+    name: Check links, anchors, HTML accessibility and inline JavaScript
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -36,6 +38,8 @@ jobs:
           node-version: "22"
       - name: Check internal links and accessibility references
         run: node .github/scripts/check-site-links.mjs
+      - name: Check HTML accessibility baseline
+        run: node .github/scripts/check-html-accessibility.mjs
       - name: Check inline JavaScript syntax
         run: node .github/scripts/check-inline-js.mjs
       - name: Validate visual enhancement assets
