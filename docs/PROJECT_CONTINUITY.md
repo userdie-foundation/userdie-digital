@@ -910,4 +910,4 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Robot Team run `43601054915` — **SUCCESS** на последующем documentation commit `e11f2ff8e58f392560d68430f20bd1a45fbf4d0c`; published site availability, internal links, public secret scan and inline JS — success.
 - Public repository security check run `43601054821` — **SUCCESS** на commit `e11f2ff8e58f392560d68430f20bd1a45fbf4d0c`.
 - Security Guard run `43601054863` для последнего документационного commit на момент проверки оставался `pending`; CodeQL итог не подтверждён. Повторно проверить перед объявлением полного security acceptance.
-- Текущий верхний commit `main`: `e11f2ff8e58f392560d68430f20bd1a45fbf4d0c` (обновление continuity record). Он не менял файлы website; опубликованная версия сайта соответствует `47abd2aad6a8a64afd874aa227c6e63f465d8295`.
+- Непосредственно перед внесением этой записи верхним commit `main` был `e11f2ff8e58f392560d68430f20bd1a45fbf4d0c` (обновление continuity record); текущая запись также является документационным изменением и не меняет файлы website. Опубликованная версия сайта соответствует `47abd2aad6a8a64afd874aa227c6e63f465d8295`.
