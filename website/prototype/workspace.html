@@ -355,6 +355,25 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
  .app-nav-search{width:100%;min-height:44px;margin:0 0 6px;font-size:13px}
  .app-nav-search-status{margin:0 2px 8px}
 }
+
+/* Доступность: заметный клавиатурный фокус и удобные сенсорные цели */
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{
+  outline:3px solid #b96b49;
+  outline-offset:3px;
+}
+.app-nav [data-view],.contour-option{
+  min-height:44px;
+}
+.task-check{
+  min-width:44px;
+  min-height:44px;
+  flex:0 0 44px;
+}
+@media(prefers-reduced-motion:reduce){
+  :where(a,button,input,select,textarea,[tabindex]){
+    scroll-behavior:auto!important;
+  }
+}
 </style>
 </head>
 <body class="workspace">
