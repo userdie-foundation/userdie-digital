@@ -877,3 +877,27 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Успешны все шаги: dependency install, JavaScript syntax, full automated tests, Docker image build, container smoke test, cleanup.
 - Release-gate issue создана: [#22 — staging infrastructure, secrets and security acceptance](https://github.com/userdie-foundation/userdie-digital/issues/22). Это не дефект кода, а перечень внешних предпосылок, без которых нельзя безопасно включить staging/production.
 - В текущем контуре завершена доступная сегодня работа над исходниками и CI. Реальный backend deployment и provisioning БД не заявляются.
+
+
+## 14. Контрольная точка — 2026-11-14, HTML accessibility baseline в CI
+
+### Изменения в репозитории
+- Commit `73715fc6d48e03251cdd009ab334a295ca72f607`: добавлен `.github/scripts/check-html-accessibility.mjs`.
+- Commit `16d2f6da8ee681aef1b9587b9e1986b6db6ac7ad`: Website quality gate дополнен запуском нового HTML accessibility baseline.
+- Первый прогон выявил специальный файл подтверждения Яндекса `website/yandex_85472297227dd2a2.html`, в котором намеренно отсутствует `<title>`. Файл не изменялся, чтобы не рисковать поисковой верификацией.
+- Commit `47abd2aad6a8a64afd874aa227c6e63f465d8295`: проверка точечно исключает title только для provider verification files с именами `yandex_*.html` / `google_*.html`; остальные требования сохраняются. Файл подтверждения и его payload не менялись.
+
+### Подтверждённый результат
+- Website quality gate run `43601002798` на commit `47abd2aad6a8a64afd874aa227c6e63f465d8295`: **SUCCESS**.
+- На том же run успешны: internal links/anchors/accessibility references, HTML accessibility baseline, inline JavaScript syntax, visual enhancement asset validation, required 404 page.
+- Ссылка: https://github.com/userdie-foundation/userdie-digital/actions/runs/43601002798
+- Новый HTML baseline проверяет 30 страниц в `website/` по требованиям: `html lang`, непустой `title` (кроме поисковых verification files), responsive viewport, `main` landmark и наличие `alt` у каждого `img`.
+- Deploy public website run `43601002792` для commit `47abd2aad6a8a64afd874aa227c6e63f465d8295` на момент записи: **queued**. До получения итогового success не считать новую версию опубликованной.
+- Ранее commit `73715fc6d48e03251cdd009ab334a295ca72f607` прошёл deploy run `43600943794` success, но он предшествует финальной поправке проверки. Не использовать его как доказательство публикации финального HEAD.
+- Security Guard и другие проверки на финальном commit ожидают/выполняются; итоговые статусы нужно проверить отдельно.
+
+### Границы проверки
+- Это статическая baseline-проверка HTML в CI; она не заменяет WCAG-аудит, ручную клавиатурную приёмку, screen-reader testing или визуальную проверку в реальных браузерах.
+- Визуальная ручная приёмка desktop/mobile и подтверждённые скриншоты опубликованного commit по-прежнему не выполнены.
+- Applicant cabinet, partner space и workspace остаются демонстрационными; production API deployment, staging DB, recovery email delivery, MFA/KMS и public application intake не подтверждены.
+- Не менять DNS/MX, не создавать платную инфраструктуру и не использовать реальные персональные данные без отдельного согласования.
