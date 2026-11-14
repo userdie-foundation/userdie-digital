@@ -80,7 +80,7 @@ jobs:
           if-no-files-found: warn
       - name: Create or update operations issue on failure
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const title = 'USERDIE DIGITAL — команде роботов требуется внимание';
