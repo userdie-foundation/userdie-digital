@@ -64,6 +64,8 @@ body.analytics-page{background:var(--ad-bg);min-height:100vh;font-size:14px}
 .ad-empty{padding:15px;color:var(--ad-muted);font-size:10px}
 @media(max-width:900px){.ad-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ad-grid{grid-template-columns:1fr}}
 @media(max-width:560px){.ad-shell{padding:18px 13px 42px}.ad-hero{padding:24px 19px}.ad-card{padding:13px}.ad-card strong{font-size:26px}.ad-panel{padding:15px}.ad-period{width:100%;margin-left:0}.ad-bar-row{grid-template-columns:minmax(95px,1fr) minmax(70px,1.5fr) 22px;gap:7px}}
+
+.ad-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 </style>
 </head>
 <body class="analytics-page">
@@ -92,7 +94,7 @@ body.analytics-page{background:var(--ad-bg);min-height:100vh;font-size:14px}
 <div>
 <section class="ad-panel"><div class="ad-panel-head"><div><h2>Распределение по направлениям</h2><p>Количество демонстрационных обращений в текущей выборке</p></div><span class="ad-tag">ПО ТИПУ</span></div><div class="ad-bars" id="ad-program-bars"></div></section>
 <section class="ad-panel"><div class="ad-panel-head"><div><h2>Статусы рассмотрения</h2><p>Стадии процесса по тестовым записям</p></div><span class="ad-tag">ПО СТАТУСУ</span></div><div class="ad-bars" id="ad-status-bars"></div></section>
-<section class="ad-panel"><div class="ad-panel-head"><div><h2>Реестр выборки</h2><p>Сводка без персональных данных заявителей</p></div><span class="ad-tag" id="ad-count-label">8 записей</span></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>ID</th><th>Направление</th><th>Ответственная роль</th><th>Статус</th><th>Приоритет</th></tr></thead><tbody id="ad-case-rows"></tbody></table></div></section>
+<section class="ad-panel"><div class="ad-panel-head"><div><h2>Реестр выборки</h2><p>Сводка без персональных данных заявителей</p></div><span class="ad-tag" id="ad-count-label" aria-live="polite" aria-atomic="true">8 записей</span></div><div class="ad-table-wrap"><table class="ad-table"><caption class="ad-sr-only">Демонстрационные обращения: идентификатор, направление, ответственная роль, статус и приоритет</caption><thead><tr><th scope="col">ID</th><th scope="col">Направление</th><th scope="col">Ответственная роль</th><th scope="col">Статус</th><th scope="col">Приоритет</th></tr></thead><tbody id="ad-case-rows"></tbody></table></div></section>
 </div>
 <div>
 <section class="ad-panel"><div class="ad-panel-head"><div><h2>Нагрузка по ролям</h2><p>Количество назначенных записей в демо-выборке</p></div></div><div class="ad-bars" id="ad-owner-bars"></div></section>
