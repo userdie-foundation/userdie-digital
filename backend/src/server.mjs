@@ -551,10 +551,36 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
 
     if (allowedOrigin && req.headers.origin === allowedOrigin) {
       res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
       res.setHeader("Vary", "Origin");
     }
 
     const url = new URL(req.url ?? "/", "http://localhost");
+
+    // Browser clients on the separately hosted static site need a credentialed
+    // preflight before JSON POST/PATCH requests. Keep the origin exact and the
+    // requested methods/headers narrowly allowlisted.
+    if (req.method === "OPTIONS") {
+      const requestedMethod = req.headers["access-control-request-method"];
+      const requestedHeaders = (req.headers["access-control-request-headers"] ?? "")
+        .split(",").map((value) => value.trim().toLowerCase()).filter(Boolean);
+      const allowedMethods = new Set(["GET", "HEAD", "POST", "PATCH"]);
+      const headersAllowed = requestedHeaders.every((header) => header === "content-type");
+      if (!allowedOrigin || req.headers.origin !== allowedOrigin ||
+          !allowedMethods.has(requestedMethod) || !headersAllowed) {
+        return sendJson(res, 403, { error: "preflight_not_allowed" }, req.method);
+      }
+      res.writeHead(204, {
+        ...SECURITY_HEADERS,
+        "Access-Control-Allow-Origin": allowedOrigin,
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "GET, HEAD, POST, PATCH",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Max-Age": "600",
+        "Vary": "Origin",
+      });
+      return res.end();
+    }
 
     // Enforce same-origin CSRF protection centrally for every state-changing
     // method, including routes added in the future. Safe reads and CORS
