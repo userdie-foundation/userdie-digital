@@ -901,3 +901,13 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Визуальная ручная приёмка desktop/mobile и подтверждённые скриншоты опубликованного commit по-прежнему не выполнены.
 - Applicant cabinet, partner space и workspace остаются демонстрационными; production API deployment, staging DB, recovery email delivery, MFA/KMS и public application intake не подтверждены.
 - Не менять DNS/MX, не создавать платную инфраструктуру и не использовать реальные персональные данные без отдельного согласования.
+
+
+### 14.1. Итоговая публикация и дополнительные проверки — 2026-11-14
+- Website quality gate run `43601002798` — **SUCCESS** на commit `47abd2aad6a8a64afd874aa227c6e63f465d8295`.
+- Deploy public website run `43601002792` — **SUCCESS** на том же commit. Новая публикация GitHub Pages подтверждена workflow.
+- Daily platform health check run `43601042077` — **SUCCESS** на commit `47abd2aad6a8a64afd874aa227c6e63f465d8295`; проверены публикация, 404, ссылки/якоря, inline JS, visual assets, HTTPS readiness (non-blocking), discovery endpoints и verification file.
+- Robot Team run `43601054915` — **SUCCESS** на последующем documentation commit `e11f2ff8e58f392560d68430f20bd1a45fbf4d0c`; published site availability, internal links, public secret scan and inline JS — success.
+- Public repository security check run `43601054821` — **SUCCESS** на commit `e11f2ff8e58f392560d68430f20bd1a45fbf4d0c`.
+- Security Guard run `43601054863` для последнего документационного commit на момент проверки оставался `pending`; CodeQL итог не подтверждён. Повторно проверить перед объявлением полного security acceptance.
+- Текущий верхний commit `main`: `e11f2ff8e58f392560d68430f20bd1a45fbf4d0c` (обновление continuity record). Он не менял файлы website; опубликованная версия сайта соответствует `47abd2aad6a8a64afd874aa227c6e63f465d8295`.
