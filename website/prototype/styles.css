@@ -215,6 +215,32 @@ img,svg,video,canvas{max-width:100%}
     text-align: left !important;
     white-space: nowrap !important;
   }
+  body.workspace .app-sidebar .app-nav a.app-nav-link {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+    width: auto !important;
+    min-width: max-content !important;
+    min-height: 38px !important;
+    padding: 6px 11px !important;
+    border: 1px solid #dce1d6 !important;
+    border-radius: 999px !important;
+    background: #fffefa !important;
+    color: #526457 !important;
+    font: 600 11px 'DM Sans', sans-serif !important;
+    line-height: 1.2 !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
+  }
+  body.workspace .app-sidebar .app-nav a.app-nav-link:hover,
+  body.workspace .app-sidebar .app-nav a.app-nav-link:focus-visible {
+    border-color: #9fb48e !important;
+    background: #e8efdf !important;
+    color: #264d38 !important;
+  }
   body.workspace .app-sidebar .app-nav button[aria-current="page"] {
     border-color: #9fb48e !important;
     background: #e8efdf !important;
