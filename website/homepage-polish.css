@@ -419,3 +419,93 @@ body:has(> .header .brand[href="#top"]) :where(a,button){-webkit-tap-highlight-c
   body:has(> .header .brand[href="#top"]) .preview-card:hover,
   body:has(> .header .brand[href="#top"]) .platform-status-card:hover{transform:none}
 }
+
+ 
+/* Foundation mission statement and full-text visibility safeguards — 2026-11-16 */
+body:has(> .header .brand[href="#top"]) .foundation-mission{
+  position:relative;
+  overflow:visible;
+  padding:clamp(54px,7vw,88px) 0;
+  background:linear-gradient(135deg,#173d2e 0%,#24543e 58%,#183e30 100%);
+  color:#f8f7f0;
+}
+.foundation-mission-inner{min-width:0}
+.foundation-mission .eyebrow{margin-bottom:18px;color:#dfc98f;line-height:1.6}
+.foundation-mission h2{
+  max-width:900px;margin:0 0 20px;color:#fff;
+  font:700 clamp(30px,4.4vw,54px)/1.12 Manrope,Arial,sans-serif;
+  letter-spacing:-.04em;overflow-wrap:anywhere;
+}
+.foundation-mission h2 em{color:#e4d4a5;font-style:normal}
+.foundation-mission-lead{
+  max-width:820px;margin:0;color:#e5ece5;
+  font-size:clamp(16px,1.7vw,19px);line-height:1.75;
+}
+.foundation-mission-principles{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-top:34px;
+}
+.foundation-mission-principles article{
+  min-width:0;min-height:0;padding:22px 21px;
+  border:1px solid rgba(239,235,213,.25);border-radius:12px;
+  background:rgba(255,255,255,.065);
+}
+.foundation-mission-principles article>span{
+  display:block;margin-bottom:13px;color:#e2ce98;
+  font-size:11px;font-weight:800;letter-spacing:.12em;
+}
+.foundation-mission-principles h3{
+  margin:0 0 9px;color:#fff;font:700 20px/1.3 Manrope,Arial,sans-serif;
+}
+.foundation-mission-principles p{
+  margin:0;color:#e2e9e1;font-size:14px;line-height:1.75;
+}
+.foundation-mission-quote{
+  max-width:900px;margin:28px 0 0;padding:0 0 0 18px;
+  border-left:3px solid #d9c28a;color:#f2e8c9;
+  font:italic 17px/1.7 Georgia,serif;
+}
+
+/* Do not truncate meaningful copy: cards and content blocks grow to fit their text. */
+body:has(> .header .brand[href="#top"]) :is(
+  .direction-card,.module-card,.preview-card,.platform-status-card,
+  .quick-help-card,.welcome-route-steps a,.foundation-pillars article
+){
+  min-width:0;height:auto;max-height:none;overflow:visible;
+}
+body:has(> .header .brand[href="#top"]) :is(
+  .direction-card p,.module-card p,.preview-card p,.platform-status-card p,
+  .quick-help-card small,.foundation-pillars small
+){
+  min-height:0;height:auto;max-height:none;overflow:visible;
+  white-space:normal;overflow-wrap:anywhere;word-break:normal;
+  text-overflow:clip;-webkit-line-clamp:unset;
+}
+body:has(> .header .brand[href="#top"]) :is(
+  .direction-card h3,.module-card h3,.preview-card h3,
+  .platform-status-card h3,.quick-help-card strong
+){
+  min-width:0;max-height:none;overflow:visible;
+  white-space:normal;overflow-wrap:anywhere;word-break:normal;
+  text-overflow:clip;-webkit-line-clamp:unset;
+}
+body:has(> .header .brand[href="#top"]) .card-status{
+  display:inline-block;max-width:100%;white-space:normal;
+  overflow-wrap:anywhere;line-height:1.55;
+}
+body:has(> .header .brand[href="#top"]) .section-heading>p,
+body:has(> .header .brand[href="#top"]) .body-copy,
+body:has(> .header .brand[href="#top"]) .governance-note p,
+body:has(> .header .brand[href="#top"]) .preview-disclaimer{
+  max-width:100%;height:auto;max-height:none;overflow:visible;
+  white-space:normal;overflow-wrap:anywhere;line-height:1.75;
+}
+@media(max-width:760px){
+  .foundation-mission{padding:52px 0}
+  .foundation-mission-principles{grid-template-columns:1fr;gap:10px;margin-top:24px}
+  .foundation-mission-principles article{padding:18px}
+  .foundation-mission-principles p{font-size:14px;line-height:1.7}
+  .foundation-mission-quote{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  .foundation-mission *{animation:none!important;transition:none!important}
+}
