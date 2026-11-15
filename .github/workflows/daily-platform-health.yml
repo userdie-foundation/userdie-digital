@@ -191,7 +191,7 @@ jobs:
             echo "- Результат задания: **$JOB_RESULT**"
             echo "- Запуск: [$GITHUB_RUN_ID]($RUN_URL)"
             echo "- Событие: $EVENT_NAME"
-            echo "- Commit: `$COMMIT_SHA`"
+            echo "- Commit: \`$COMMIT_SHA\`"
             echo "- Время формирования: $(date -u +'%Y-%m-%d %H:%M UTC')"
             echo
             echo "| Проверка | Результат |"
