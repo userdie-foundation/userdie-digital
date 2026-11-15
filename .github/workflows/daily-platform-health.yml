@@ -84,12 +84,12 @@ jobs:
           echo "robots.txt OK."
           sitemap="$(curl --fail --location --silent --show-error --max-time 25 "$base/sitemap.xml")"
           url_count="$(printf '%s' "$sitemap" | grep -o '<loc>' | wc -l | tr -d ' ')"
-          if [ "$url_count" -ne 7 ]; then
-            echo "::error::Expected 7 indexable sitemap URLs, received $url_count."
+          if [ "$url_count" -ne 5 ]; then
+            echo "::error::Expected 5 indexable sitemap URLs, received $url_count."
             exit 1
           fi
           echo "Sitemap OK: $url_count URLs."
-          # All seven canonical public pages must remain indexable.
+          # Only the five approved public pages must remain indexable.
           while IFS='|' read -r path; do
             html="$(curl --fail --location --silent --show-error --max-time 25 "$base$path")"
             if grep -Eiq '<meta[^>]+name=["\\047]robots["\\047][^>]+content=["\\047][^"\\047]*noindex|<meta[^>]+content=["\\047][^"\\047]*noindex[^"\\047]*["\\047][^>]+name=["\\047]robots["\\047]' <<< "$html"; then
@@ -103,10 +103,8 @@ jobs:
           /prototype/platform.html
           /prototype/project-portfolio.html
           /prototype/assets-and-intellectual-capital.html
-          /prototype/robots.html
-          /prototype/office.html
           INDEXABLE_PAGES
-          # Demo cabinets stay reachable for users but must not enter search results.
+          # Internal workspaces, technical documentation and demo cabinets stay reachable by direct link but must not enter search results.
           while IFS='|' read -r path; do
             html="$(curl --fail --location --silent --show-error --max-time 25 "$base$path")"
             if ! grep -Eiq '<meta[^>]+name=["\\047]robots["\\047][^>]+content=["\\047][^"\\047]*noindex|<meta[^>]+content=["\\047][^"\\047]*noindex[^"\\047]*["\\047][^>]+name=["\\047]robots["\\047]' <<< "$html"; then
@@ -118,6 +116,25 @@ jobs:
           /prototype/applicant-cabinet.html
           /prototype/partner-space.html
           /prototype/resource-base.html
+          /prototype/workspace.html
+          /prototype/case-management.html
+          /prototype/office.html
+          /prototype/robots.html
+          /prototype/legal-intelligence.html
+          /prototype/analytics-data-contract.html
+          /prototype/applicant.html
+          /prototype/index.html
+          /prototype/fund-charter.html
+          /prototype/asset-register.html
+          /prototype/analytics-dashboard.html
+          /prototype/bfu.html
+          /prototype/bfu-treasury.html
+          /prototype/implementation-plan.html
+          /prototype/operating-model.html
+          /prototype/access-control-tests.html
+          /prototype/backend-architecture.html
+          /prototype/data-contract.html
+          /prototype/database-schema.html
           NOINDEX_PAGES
           verification="$(curl --fail --location --silent --show-error --max-time 25 "$base/yandex_85472297227dd2a2.html")"
           if ! grep -Fq -- "Verification: 85472297227dd2a2" <<< "$verification"; then
@@ -150,8 +167,8 @@ jobs:
           /prototype/robots.html|/prototype/robots.html
           /prototype/office.html|/prototype/office.html
           PUBLIC_PAGES
-          echo "status=PASS — robots.txt, sitemap (7 indexable URLs), Yandex verification, 10 published pages and canonical/OG URLs" >> "$GITHUB_OUTPUT"
-          echo "Public discovery endpoints, 7 indexable sitemap URLs, 10 published pages and canonical/OG URLs passed."
+          echo "status=PASS — robots.txt, sitemap (5 indexable URLs), Yandex verification, 10 published pages and canonical/OG URLs" >> "$GITHUB_OUTPUT"
+          echo "Public discovery endpoints, 5 indexable sitemap URLs, 10 published pages and canonical/OG URLs passed."
       - name: Publish readable health report
         id: report
         if: always()
