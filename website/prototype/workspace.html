@@ -374,6 +374,44 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
     scroll-behavior:auto!important;
   }
 }
+
+/* Mobile navigation parity: external module links must fit the same responsive grid as in-page modules. */
+@media(max-width:720px){
+  body.workspace .app-sidebar .app-nav a.app-nav-link{
+    display:flex !important;
+    flex:initial !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:6px !important;
+    width:100% !important;
+    min-width:0 !important;
+    min-height:72px !important;
+    padding:9px 5px !important;
+    border:1px solid var(--app-line) !important;
+    border-radius:12px !important;
+    background:#fffefa !important;
+    color:#5e6e61 !important;
+    font:600 11px 'DM Sans',sans-serif !important;
+    line-height:1.25 !important;
+    text-align:center !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+  }
+  body.workspace .app-sidebar .app-nav a.app-nav-link .nav-ico{
+    flex:0 0 27px !important;
+    width:27px !important;
+    height:27px !important;
+  }
+  body.workspace .app-sidebar .app-nav a.app-nav-link .nav-external{
+    margin:0 !important;
+    font-size:9px !important;
+  }
+  body.workspace .app-sidebar .app-nav a.app-nav-link:focus-visible{
+    outline:3px solid #6b8c54 !important;
+    outline-offset:3px !important;
+  }
+}
 </style>
 </head>
 <body class="workspace">
