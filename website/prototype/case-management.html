@@ -61,9 +61,9 @@ body.case-page{background:var(--cm-bg);min-height:100vh;font-size:14px}
 <div class="cm-warning" role="note"><strong>Важно: демонстрационный интерфейс.</strong> Записи ниже вымышлены. Здесь нет авторизации, серверной базы, загрузки документов, отправки обращений, уведомлений или юридически значимого журнала. Не вводите персональные данные и не используйте этот экран для реальных дел.</div>
 <section class="cm-metrics" aria-label="Демонстрационные показатели">
 <div class="cm-metric"><span>Всего в реестре</span><strong>08</strong><small>Условные карточки</small></div>
-<div class="cm-metric"><span>На рассмотрении</span><strong>05</strong><small>Демо-статистика</small></div>
-<div class="cm-metric"><span>Ожидают уточнений</span><strong>02</strong><small>Не реальные обращения</small></div>
-<div class="cm-metric"><span>Закрыто в примере</span><strong>03</strong><small>Не показатель работы фонда</small></div>
+<div class="cm-metric"><span>Открытые дела</span><strong id="metricOpen">06</strong><small>Все незакрытые статусы</small></div>
+<div class="cm-metric"><span>Ожидают документов</span><strong id="metricWaiting">01</strong><small>Только тестовые записи</small></div>
+<div class="cm-metric"><span>Решение принято / закрыто</span><strong id="metricClosed">02</strong><small>Только тестовые записи</small></div>
 </section>
 <section class="cm-panel" aria-labelledby="register-title">
 <div class="cm-panel-head"><div><h2 id="register-title">Реестр обращений</h2><p>Поиск и фильтры работают только в текущей демонстрационной странице.</p></div></div>
@@ -136,7 +136,7 @@ body.case-page{background:var(--cm-bg);min-height:100vh;font-size:14px}
   const results=document.getElementById('caseResults');
   const rows=[...document.querySelectorAll('#caseRows tr')];
   const empty=document.getElementById('caseEmpty');
-  const total=rows.length;
+  const total=rows.length;\n  const closedStatuses=new Set(["Решение принято","Закрыто"]);\n  document.getElementById("metricOpen").textContent=String(rows.filter(row=>!closedStatuses.has(row.dataset.status)).length).padStart(2,"0");\n  document.getElementById("metricWaiting").textContent=String(rows.filter(row=>row.dataset.status==="Ожидает документов").length).padStart(2,"0");\n  document.getElementById("metricClosed").textContent=String(rows.filter(row=>closedStatuses.has(row.dataset.status)).length).padStart(2,"0");
   function applyFilters(){
     const q=search.value.trim().toLocaleLowerCase('ru');
     let visible=0;
