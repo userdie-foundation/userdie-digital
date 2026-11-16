@@ -15,7 +15,7 @@ h1{margin:0 0 12px;color:var(--forest);font-size:clamp(27px,5vw,38px);line-heigh
 label{font-size:14px;font-weight:700}
 input{width:100%;min-height:50px;padding:12px 14px;border:1px solid #bfcbbf;border-radius:10px;background:#fff;color:var(--ink);font:inherit}
 input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid rgba(199,169,104,.65);outline-offset:3px}
-button{width:100%;min-height:50px;margin-top:8px;padding:12px 18px;border:1px solid var(--gold);border-radius:10px;background:var(--forest);color:#fff;font:700 15px inherit;cursor:pointer;transition:background .18s ease,transform .18s ease}
+button{width:100%;min-height:50px;margin-top:8px;padding:12px 18px;border:1px solid var(--gold);border-radius:10px;background:var(--forest);color:#fff;font:700 15px/1.2 Inter,"Segoe UI",Arial,sans-serif;cursor:pointer;transition:background .18s ease,transform .18s ease}
 button:hover:not(:disabled){background:var(--forest-2);transform:translateY(-1px)}
 button:disabled{opacity:.55;cursor:not-allowed}
 .notice{margin:18px 0 0;padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:#f5f7f3;color:var(--muted);font-size:14px}
