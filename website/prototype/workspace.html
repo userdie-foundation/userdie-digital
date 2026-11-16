@@ -681,7 +681,8 @@ const TASK_STATUSES=["Новая","Запланировано","В работе"
 const TASK_ROLE_OPTIONS=["Координатор программы","Специалист по обращениям","Юрист","Специалист по оценке активов","Аналитик","Специалист по партнёрствам","Руководитель направления"];
 let taskCounter=4;
 const tasks=[...document.querySelectorAll("#overview-tasks .task-row")].map((el,i)=>({id:i+1,title:el.querySelector(".task-title").textContent,meta:el.querySelector(".task-meta").textContent,status:el.querySelector(".task-state").textContent,done:false,events:[]}));
-function localDateKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}\nfunction taskIsOverdue(t){return Boolean(t.due&&!t.done&&/^\\d{4}-\\d{2}-\\d{2}$/.test(t.due)&&t.due<localDateKey());}
+function localDateKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function taskIsOverdue(t){return Boolean(t.due&&!t.done&&/^\\d{4}-\\d{2}-\\d{2}$/.test(t.due)&&t.due<localDateKey());}
 function taskStatusKey(t){if(t.done||t.status==="Завершена")return "done";if(taskIsOverdue(t))return "overdue";return ({"Новая":"new","Запланировано":"new","В работе":"progress","На проверке":"review","Приостановлена":"paused"})[t.status]||"new";}
 function recordTaskEvent(t,action,from,to,note){if(!Array.isArray(t.events))t.events=[];t.events.unshift({at:new Date().toISOString(),action,from:from||"",to:to||"",note:note||""});t.events=t.events.slice(0,20);}
 function saveDemoTasks(){try{localStorage.setItem("userdie-demo-tasks-v1",JSON.stringify(tasks));return true;}catch(error){showToast("Браузер не разрешил сохранить демо-задачи локально. Изменения останутся только в памяти страницы и исчезнут после её перезагрузки или закрытия.");return false;}}
