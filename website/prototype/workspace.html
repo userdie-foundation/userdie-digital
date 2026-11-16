@@ -686,7 +686,35 @@ function taskIsOverdue(t){return Boolean(t.due&&!t.done&&/^\\d{4}-\\d{2}-\\d{2}$
 function taskStatusKey(t){if(t.done||t.status==="Завершена")return "done";if(taskIsOverdue(t))return "overdue";return ({"Новая":"new","Запланировано":"new","В работе":"progress","На проверке":"review","Приостановлена":"paused"})[t.status]||"new";}
 function recordTaskEvent(t,action,from,to,note){if(!Array.isArray(t.events))t.events=[];t.events.unshift({at:new Date().toISOString(),action,from:from||"",to:to||"",note:note||""});t.events=t.events.slice(0,20);}
 function saveDemoTasks(){try{localStorage.setItem("userdie-demo-tasks-v1",JSON.stringify(tasks));return true;}catch(error){showToast("Браузер не разрешил сохранить демо-задачи локально. Изменения останутся только в памяти страницы и исчезнут после её перезагрузки или закрытия.");return false;}}
-function restoreDemoTasks(){try{const saved=localStorage.getItem("userdie-demo-tasks-v1");if(!saved)return;const parsed=JSON.parse(saved);const valid=Array.isArray(parsed)&&parsed.length<=100&&parsed.every(t=>t&&Number.isSafeInteger(t.id)&&t.id>0&&typeof t.title==="string"&&t.title.length<=300&&typeof t.meta==="string"&&t.meta.length<=500&&typeof t.status==="string"&&t.status.length<=100&&typeof t.done==="boolean"&&(!("owner" in t)||typeof t.owner==="string")&&(!("due" in t)||typeof t.due==="string")&&(!("acceptance" in t)||typeof t.acceptance==="string")&&(!("reviewNote" in t)||typeof t.reviewNote==="string")&&(!("requesterRole" in t)||TASK_ROLE_OPTIONS.includes(t.requesterRole))&&(!("reviewerRole" in t)||TASK_ROLE_OPTIONS.includes(t.reviewerRole))&&(!("managerRole" in t)||TASK_ROLE_OPTIONS.includes(t.managerRole))&&(!("events" in t)||(Array.isArray(t.events)&&t.events.length<=20&&t.events.every(e=>e&&typeof e.at==="string"&&typeof e.action==="string"&&typeof e.from==="string"&&typeof e.to==="string"&&(!("note" in e)||typeof e.note==="string"))));if(!valid){showToast("Сохранённые демо-данные повреждены или имеют неверный формат. Они проигнорированы; показаны исходные примеры.");return;}parsed.forEach(t=>{if(!TASK_STATUSES.includes(t.status)){t.status=t.done?"Завершена":"Новая";}if(!Array.isArray(t.events))t.events=[];if(!t.requesterRole)t.requesterRole="Координатор программы";if(!t.reviewerRole)t.reviewerRole="Руководитель направления";if(!t.managerRole)t.managerRole="Руководитель направления";});tasks.splice(0,tasks.length,...parsed);taskCounter=Math.max(4,...tasks.map(t=>t.id));}catch(error){showToast("Браузер не разрешил прочитать локальные демо-данные. Показаны исходные примеры.");}}
+function restoreDemoTasks(){
+ try{
+  const saved=localStorage.getItem("userdie-demo-tasks-v1");
+  if(!saved)return;
+  const parsed=JSON.parse(saved);
+  const valid=Array.isArray(parsed)&&parsed.length<=100&&parsed.every(t=>{
+   if(!t||!Number.isSafeInteger(t.id)||t.id<=0||typeof t.title!=="string"||t.title.length>300||typeof t.meta!=="string"||t.meta.length>500||typeof t.status!=="string"||t.status.length>100||typeof t.done!=="boolean")return false;
+   if("owner" in t&&typeof t.owner!=="string")return false;
+   if("due" in t&&typeof t.due!=="string")return false;
+   if("acceptance" in t&&typeof t.acceptance!=="string")return false;
+   if("reviewNote" in t&&typeof t.reviewNote!=="string")return false;
+   if("requesterRole" in t&&!TASK_ROLE_OPTIONS.includes(t.requesterRole))return false;
+   if("reviewerRole" in t&&!TASK_ROLE_OPTIONS.includes(t.reviewerRole))return false;
+   if("managerRole" in t&&!TASK_ROLE_OPTIONS.includes(t.managerRole))return false;
+   if("events" in t&&(!Array.isArray(t.events)||t.events.length>20||!t.events.every(e=>e&&typeof e.at==="string"&&typeof e.action==="string"&&typeof e.from==="string"&&typeof e.to==="string"&&(!("note" in e)||typeof e.note==="string"))))return false;
+   return true;
+  });
+  if(!valid){showToast("Сохранённые демо-данные повреждены или имеют неверный формат. Они проигнорированы; показаны исходные примеры.");return;}
+  parsed.forEach(t=>{
+   if(!TASK_STATUSES.includes(t.status))t.status=t.done?"Завершена":"Новая";
+   if(!Array.isArray(t.events))t.events=[];
+   if(!t.requesterRole)t.requesterRole="Координатор программы";
+   if(!t.reviewerRole)t.reviewerRole="Руководитель направления";
+   if(!t.managerRole)t.managerRole="Руководитель направления";
+  });
+  tasks.splice(0,tasks.length,...parsed);
+  taskCounter=Math.max(4,...tasks.map(t=>t.id));
+ }catch(error){showToast("Браузер не разрешил прочитать локальные демо-данные. Показаны исходные примеры.");}
+}
 function updateMetrics(){document.getElementById("metric-open").textContent=String(tasks.filter(t=>!t.done&&t.status!=="Завершена").length).padStart(2,"0");}
 function updateTaskStatus(t,next){const previous=t.done?"Завершена":t.status;if(!TASK_STATUSES.includes(next))return;t.status=next;t.done=next==="Завершена";if(previous!==next)recordTaskEvent(t,"Изменён статус",previous,next);const saved=saveDemoTasks();renderTasks();renderOverviewTasks();updateMetrics();showToast(saved?"Статус демо-задачи изменён. История и данные сохранены только в этом браузере; сервер не обновлён.":"Статус изменён только в памяти страницы: браузер не разрешил локальное сохранение.");}
 function decideTaskReview(t,decision,note){const clean=note.trim();if(clean.length<8){showToast("Для решения проверки укажите обоснование не короче 8 символов.");return;}if(t.status!=="На проверке"||t.done)return;const previous=t.status;if(decision==="approve"){t.status="Завершена";t.done=true;t.reviewNote=clean;recordTaskEvent(t,"Результат проверки подтверждён",previous,"Завершена",clean);}else if(decision==="return"){t.status="В работе";t.done=false;t.reviewNote=clean;recordTaskEvent(t,"Возвращено на доработку",previous,"В работе",clean);}else{return;}const saved=saveDemoTasks();renderTasks();renderOverviewTasks();updateMetrics();showToast(saved?"Демо-решение записано в локальную историю браузера. Это не серверное согласование.":"Решение осталось только в памяти вкладки: браузер не разрешил локальное сохранение.");}
