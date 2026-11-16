@@ -43,7 +43,7 @@
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (submit.disabled) return;
+    if (submit.disabled || !form.reportValidity()) return;
     const data = new FormData(form);
     const payload = tokenField
       ? { token: recoveryToken, newPassword: String(data.get("newPassword") ?? "") }
