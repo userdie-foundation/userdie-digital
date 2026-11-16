@@ -69,7 +69,7 @@ function parseRecoveryUrl(raw) {
 function parseSender(raw) {
   if (raw === undefined || raw === "") return undefined;
   if (typeof raw !== "string" ||
-      !/^(?:[^<>]*<)?[^<>\\s@]+@[^<>\\s@]+\\.[^<>\\s@]+>?$/.test(raw.trim())) {
+      !/^(?:[^<>]*<)?[^<>\s@]+@[^<>\s@]+\.[^<>\s@]+>?$/.test(raw.trim())) {
     throw new Error("RESEND_FROM_EMAIL must be a valid sender email address");
   }
   return raw.trim();
