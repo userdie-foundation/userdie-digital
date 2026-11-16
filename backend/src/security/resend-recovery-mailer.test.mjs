@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createResendRecoveryMailer } from "./resend-recovery-mailer.mjs";
 
 const settings = {
-  apiKey: "re_test_key_123456789",
+  apiKey: "placeholder",
   from: "USERDIE Digital <security@example.org>",
   recoveryUrl: "https://platform.example/reset-password",
 };
