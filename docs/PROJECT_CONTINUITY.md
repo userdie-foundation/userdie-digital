@@ -1051,5 +1051,5 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Website quality gate run `43948452900` на commit `1d3ef41535654b9af6ec90573cc66f2b813b4cba` — **SUCCESS**.
 - Deploy public website run `43948452904` на том же commit — **SUCCESS**. Обновлённые recovery pages опубликованы GitHub Pages workflow.
 - Backend checks run `43948200067` на commit `9d54c10b5a1729df34f5eeed6ea4739d4444efba` — **SUCCESS**, включая CR/LF regression tests.
-- Backend checks run `43948429499` на commit `5a80d7372560c106b73696ff3642a56475a24706` — **QUEUED/PENDING** на момент записи; содержит последний тест, ограничивающий CORS preflight только recovery endpoints. Его итог проверить отдельно.
+- Backend checks run `43948429499` на commit `5a80d7372560c106b73696ff3642a56475a24706` — **SUCCESS**; прошли syntax check, все automated tests (включая запрет preflight вне recovery endpoints), container build и smoke test.
 - Production API origin всё ещё не определён. Не заполнять meta `userdie-api-base`, не устанавливать `RECOVERY_URL` и не включать отправку писем до подтверждения backend host, Resend sender identity и защищённого secret store.
