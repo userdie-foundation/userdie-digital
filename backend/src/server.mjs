@@ -564,6 +564,26 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
     }
 
+    // Cross-origin recovery pages (for example, GitHub Pages + a separately
+    // hosted API) need a narrowly scoped preflight for JSON POST requests.
+    if (req.method === "OPTIONS") {
+      if (!allowedOrigin || req.headers.origin !== allowedOrigin) {
+        return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
+      }
+      const requestedMethod = req.headers["access-control-request-method"];
+      const requestedHeaders = String(req.headers["access-control-request-headers"] ?? "")
+        .split(",").map((header) => header.trim().toLowerCase()).filter(Boolean);
+      if (requestedMethod !== "POST" || requestedHeaders.some((header) => header !== "content-type")) {
+        return sendJson(res, 403, { error: "preflight_not_allowed" }, req.method);
+      }
+      res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+      res.setHeader("Access-Control-Max-Age", "600");
+      res.setHeader("Vary", "Origin, Access-Control-Request-Method, Access-Control-Request-Headers");
+      res.writeHead(204);
+      return res.end();
+    }
+
     if (url.pathname === "/api/v1/auth/recovery/request") {
       if (req.method !== "POST") {
         res.setHeader("Allow", "POST");
