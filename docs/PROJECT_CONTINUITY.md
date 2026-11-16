@@ -977,3 +977,16 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Публичный браузерный инструмент не смог открыть страницу `https://xn--d1abbl2ben.online/prototype/office.html`; поэтому подтверждена публикация через успешный GitHub Pages deploy и health-check, но не выполнена независимая визуальная приёмка страницы в браузере.
 
 **Следующий шаг:** получить итог CodeQL, затем продолжить аудит пользовательских сценариев и ручную визуальную приёмку; не объявлять production-готовность кабинетов или backend.
+
+
+## Контрольная точка 2026-11-16 — аудит безопасности и восстановления доступа
+
+- Актуальная верхушка `main` до записи: `cd84c8280d382b97efeb49ea89380e77cc3c2109` (проверка мобильной навигации на публичных страницах).
+- Повторно изучены `backend/src/index.mjs`, `backend/src/server.mjs`, `backend/src/config.mjs`, `backend/src/security/account-recovery.mjs`, `backend/src/security/session-lifecycle.mjs`, `backend/migrations/012_mfa_persistence.sql`, `docs/MFA_IMPLEMENTATION_DESIGN.md`, route-level recovery tests и security readiness review.
+- Подтверждено: recovery core реализует digest-only token storage, короткий срок действия, одноразовое потребление, generic response, отзыв активных сессий и audit event. HTTP handlers и route-level tests присутствуют.
+- Блокер recovery: `index.mjs` не создаёт и не inject-ит `recoveryService`; trusted email adapter/provider не утверждён и не настроен. Маршруты остаются fail-closed; не подключать фиктивную отправку.
+- Подтверждено: migration `012_mfa_persistence.sql` — только схема хранения; MFA enrollment, challenge verification, managed key custody, session gating и enforcement отсутствуют.
+- Текущий login способен выдавать обычную сессию без MFA; не считать привилегированные аккаунты защищёнными MFA до завершения реализации и проверки.
+- Создан документ `docs/SECURITY_IMPLEMENTATION_CHECKPOINT_2026-11-16.md`, commit `5ca0376cec5b9a947324ad853599719259d98752`. Это документальный контрольный пункт; application code, production configuration, database и deployment не менялись.
+- Combined status для документального commit вернул пустой список; workflow-run wrapper не предоставил push-triggered runs. CI для этого commit не подтверждён; зелёный статус не заявляется.
+- Следующий шаг, требующий решения владельца: утвердить почтового провайдера, отправителя, ответственного и бюджет. После этого — реализовать адаптер и подключить recovery service с тестами. Параллельно до кодирования MFA утвердить policy привилегированных ролей, фактор (TOTP/WebAuthn) и KMS/HSM.
