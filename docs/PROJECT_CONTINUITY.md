@@ -990,3 +990,18 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Создан документ `docs/SECURITY_IMPLEMENTATION_CHECKPOINT_2026-11-16.md`, commit `5ca0376cec5b9a947324ad853599719259d98752`. Это документальный контрольный пункт; application code, production configuration, database и deployment не менялись.
 - Combined status для документального commit вернул пустой список; workflow-run wrapper не предоставил push-triggered runs. CI для этого commit не подтверждён; зелёный статус не заявляется.
 - Следующий шаг, требующий решения владельца: утвердить почтового провайдера, отправителя, ответственного и бюджет. После этого — реализовать адаптер и подключить recovery service с тестами. Параллельно до кодирования MFA утвердить policy привилегированных ролей, фактор (TOTP/WebAuthn) и KMS/HSM.
+
+
+## Контрольная точка 2026-11-16 — интеграция Resend для восстановления доступа
+
+- Восстановлен предыдущий контекст: аккаунт Resend уже зарегистрирован; повторная регистрация или поиск нового провайдера не требуются. Письмо приветствия подтверждает создание аккаунта, но не доказывает проверку отправителя или успешную доставку.
+- Актуальный исходный код проверен перед изменениями. Ранее recovery core и HTTP routes существовали, но production entry point не inject-ил `recoveryService`.
+- Добавлен `backend/src/security/resend-recovery-mailer.mjs`: адаптер отправляет plain-text письмо через официальный HTTPS API Resend; токен передаётся только в ссылке восстановления, ошибки провайдера и сети не раскрываются.
+- Добавлены unit tests адаптера, валидация `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RECOVERY_URL`, runtime injection существующего account-recovery service и включение нового модуля в syntax-check.
+- Обновлена backend документация. Отдельный контрольный документ: `docs/RESEND_RECOVERY_INTEGRATION_2026-11-16.md`.
+- Коммиты интеграции в `main`: `c4d844912a42e5948695260cb2352bae824e1140`, `518aa74da8e6c0d2ab1ef773916d605c68d6b86c`, `bc1185171951fe8855e285271d23493c7f3c714b`, `156400fc135f921b676ed584f3508dc3cf644d47`, `2f70da6a96b75c0d31c33a6ca29709daf4d21056`, `2b0b09a825e01ddb73d78f63e4074f0df41cd9e7`, `866e770ecd37ad0896742193ea1a8bb28ca148fc`, `0bdf544e46092a68d5abed048b154766e9dc6c35`, `1390389b8f20fa3facc381d60243efbdcab990c6`.
+- Принцип fail-closed сохранён: recovery service запускается только при наличии Resend settings и отдельного `RECOVERY_RATE_LIMIT_HMAC_KEY`.
+- В текущем `website/` не найден password-reset page. Поэтому `RECOVERY_URL` намеренно не задан и не придуман. До активации нужно реализовать страницу сброса, которая передаёт токен и новый пароль в `POST /api/v1/auth/recovery/complete`.
+- Не подтверждены Resend sender-domain verification, live delivery, backend host, runtime secret manager и end-to-end reset. DNS/MX не менялись; API key не записывался в GitHub.
+- CI и локальный запуск тестов в этой точке ещё не подтверждены. Не объявлять интеграцию production-ready или рабочей доставкой.
+- Следующий этап: реализовать reset page с привязкой к реальному API origin; проверить Resend sender в существующем аккаунте; после определения backend host внести секреты в его secret manager; затем пройти unit, PostgreSQL integration, CI и end-to-end tests.
