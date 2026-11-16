@@ -129,7 +129,7 @@ test("configuration rejects partial or unsafe Resend recovery settings", () => {
   assert.throws(() => readConfig({
     DATABASE_URL: databaseUrl,
     RESEND_API_KEY: "re_test_key_123456789",
-    RESEND_FROM_EMAIL: "security@example.org\\r\\nBcc: attacker@example.org",
+    RESEND_FROM_EMAIL: "security@example.org\r\nBcc: attacker@example.org",
     RECOVERY_URL: "https://platform.example/reset-password",
   }), /RESEND_FROM_EMAIL/);
   assert.throws(() => readConfig({
