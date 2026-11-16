@@ -128,3 +128,16 @@ test("partnership write and confirmation permissions remain disabled", () => {
     assert.equal(isAuthorized({ principal: administrator, permission, resource }), false);
   }
 });
+
+
+test("independent approval rejects self-review and enforces reviewer and program scope", () => {
+  const globalReviewer = active("reviewer-1", [grant("independent_approver")]);
+  const scopedReviewer = active("reviewer-2", [grant("independent_approver", "program", "program-a")]);
+  const approval = { reviewerId: "reviewer-1", submittedBy: "submitter-1", programId: "program-a" };
+
+  assert.equal(isAuthorized({ principal: globalReviewer, permission: "approvals:detail:read", resource: approval }), true);
+  assert.equal(isAuthorized({ principal: globalReviewer, permission: "approvals:detail:read", resource: { ...approval, submittedBy: "reviewer-1" } }), false);
+  assert.equal(isAuthorized({ principal: active("reviewer-2", [grant("independent_approver")]), permission: "approvals:detail:read", resource: approval }), false);
+  assert.equal(isAuthorized({ principal: scopedReviewer, permission: "approvals:detail:read", resource: { ...approval, reviewerId: "reviewer-2" } }), true);
+  assert.equal(isAuthorized({ principal: scopedReviewer, permission: "approvals:detail:read", resource: { ...approval, reviewerId: "reviewer-2", programId: "program-b" } }), false);
+});
