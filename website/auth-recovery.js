@@ -10,20 +10,6 @@
     status.textContent = message;
     status.dataset.kind = kind;
   };
-  const apiBaseValue = apiMeta?.content?.trim() ?? "";
-  let apiBase = "";
-  try {
-    const parsed = new URL(apiBaseValue);
-    if (parsed.protocol === "https:" && parsed.origin === apiBaseValue.replace(/\/$/, "") &&
-        !parsed.username && !parsed.password && parsed.pathname === "/" &&
-        !parsed.search && !parsed.hash) apiBase = parsed.origin;
-  } catch {}
-  if (!apiBase) {
-    submit.disabled = true;
-    announce("Сервис восстановления пока не подключён к серверу фонда. Не вводите здесь пароль или другие конфиденциальные данные. После настройки защищённого API форма станет доступна.", "error");
-    return;
-  }
-
   const tokenField = form.querySelector('[name="token"]');
   let recoveryToken = null;
   if (tokenField) {
@@ -39,6 +25,20 @@
       announce("Ссылка восстановления отсутствует или имеет неверный формат. Запросите новое письмо.", "error");
       return;
     }
+  }
+
+  const apiBaseValue = apiMeta?.content?.trim() ?? "";
+  let apiBase = "";
+  try {
+    const parsed = new URL(apiBaseValue);
+    if (parsed.protocol === "https:" && parsed.origin === apiBaseValue.replace(/\/$/, "") &&
+        !parsed.username && !parsed.password && parsed.pathname === "/" &&
+        !parsed.search && !parsed.hash) apiBase = parsed.origin;
+  } catch {}
+  if (!apiBase) {
+    submit.disabled = true;
+    announce("Сервис восстановления пока не подключён к серверу фонда. Не вводите здесь пароль или другие конфиденциальные данные. После настройки защищённого API форма станет доступна.", "error");
+    return;
   }
 
   form.addEventListener("submit", async (event) => {
