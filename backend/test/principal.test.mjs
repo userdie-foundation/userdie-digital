@@ -57,7 +57,7 @@ test("principal resolver ignores client-supplied identity, roles, and scopes", a
   const resolve = createPrincipalResolver({
     pool: {
       async query(sql) {
-        assert.match(sql, /g\\.revoked_at IS NULL/);
+        assert.match(sql, /g\.revoked_at IS NULL/);
         return { rows: [
           { id: "database-user", account_status: "active", role_code: "case_worker", scope_type: "global", scope_id: null },
         ] };
