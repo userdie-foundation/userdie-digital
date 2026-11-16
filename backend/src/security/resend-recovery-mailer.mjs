@@ -18,7 +18,7 @@ export function createResendRecoveryMailer({
   if (typeof apiKey !== "string" || apiKey.trim().length < 10) {
     throw new TypeError("A Resend API key is required");
   }
-  if (typeof from !== "string" || !/^(?:[^<>]*<)?[^<>\s@]+@[^<>\s@]+\.[^<>\s@]+>?$/.test(from.trim())) {
+  if (typeof from !== "string" || /[\r\n]/.test(from) || !/^(?:[^<>]*<)?[^<>\s@]+@[^<>\s@]+\.[^<>\s@]+>?$/.test(from.trim())) {
     throw new TypeError("A valid Resend sender address is required");
   }
   const baseUrl = validateRecoveryUrl(recoveryUrl);
