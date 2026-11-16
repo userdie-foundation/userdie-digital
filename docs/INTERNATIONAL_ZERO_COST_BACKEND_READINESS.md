@@ -108,3 +108,28 @@ A production launch is not approved until all are true:
 ## 8. Superseded hosting note
 
 The earlier `docs/REG_RU_BACKEND_HOSTING_PLAN.md` is retained for historical context only. Its REG.RU-first hosting assumption is superseded by this provider-independent, international, zero-new-spend decision. No REG.RU or international production infrastructure is currently selected or deployed.
+
+
+## 9. Focused integration audit — findings to resolve before deployment
+
+The following issues were identified by source review on 2026-11-16. They are release blockers or integration requirements, not evidence of a production compromise.
+
+### P1 — Cross-origin browser authentication is not yet enabled
+
+The API currently returns `Access-Control-Allow-Origin` for the configured website origin, but does not return `Access-Control-Allow-Credentials: true`. Its OPTIONS allowlist currently permits preflight only for the two password-recovery routes. A browser frontend on GitHub Pages calling a separately hosted API will need a carefully scoped credentialed CORS policy and preflight rules for the required authentication/session endpoints. Do not enable this broadly: keep the exact origin, explicit methods/headers, and same-origin Origin validation on state-changing requests. Add integration tests before changing this behavior.
+
+### P1 — Reverse-proxy client IP boundary is not configured
+
+Login and recovery throttling currently use `req.socket.remoteAddress` and intentionally do not trust forwarded headers. This is safe against spoofed `X-Forwarded-For`, but behind a reverse proxy the socket peer may be the proxy address for every user. Before deployment behind any proxy/load balancer, implement a narrowly configured trusted-proxy boundary or enforce equivalent per-client throttling at the trusted edge. Never simply trust arbitrary forwarded headers.
+
+### P2 — Dependency lockfile was not found at `backend/package-lock.json`
+
+The inspected path returned 404. The CI and Docker build currently use `npm install`, so dependency resolution is not pinned by a committed npm lockfile. Before a production release, generate and commit a lockfile from the declared dependencies, then use `npm ci` in CI and the Docker build, and rerun the full test suite. Do not make this change without verifying the resulting lockfile and tests.
+
+### P2 — Full authorization and migration audit remains open
+
+The review confirmed parameterized queries in the inspected repository methods and several deny-by-default controls, but this was not a complete audit of every route, migration, grant, and data field. Review all route-level permission checks, transaction boundaries, audit events, and all migrations 001 onward before any real user data is introduced.
+
+## 10. CI evidence
+
+The existing Backend checks run `43948429499` was inspected directly. Its single `test` job completed with conclusion `success`; the steps for dependency installation, syntax checks, automated tests, Docker image build, and production-container smoke test all completed successfully. This run belongs to the earlier commit recorded in the project continuity notes, not to the documentation commits in this file. The documentation-only commits did not trigger the backend workflow. No claim of a fresh test run on the current HEAD is made.
