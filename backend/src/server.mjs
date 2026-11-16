@@ -570,6 +570,9 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       if (!allowedOrigin || req.headers.origin !== allowedOrigin) {
         return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
       }
+      if (!["/api/v1/auth/recovery/request", "/api/v1/auth/recovery/complete"].includes(url.pathname)) {
+        return sendJson(res, 403, { error: "preflight_not_allowed" }, req.method);
+      }
       const requestedMethod = req.headers["access-control-request-method"];
       const requestedHeaders = String(req.headers["access-control-request-headers"] ?? "")
         .split(",").map((header) => header.trim().toLowerCase()).filter(Boolean);
