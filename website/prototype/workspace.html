@@ -788,6 +788,17 @@ if(navSearch&&navRoot&&navStatus){
 }
 views.forEach(el=>el.setAttribute("aria-hidden",String(!el.classList.contains("active"))));
 restoreDemoTasks();restoreObjects();updateMetrics();renderOverviewTasks();renderTasks();renderObjects();
+const routeParams=new URLSearchParams(window.location.search);
+const requestedView=routeParams.get("view");
+const allowedViews=["overview","tasks","objects","programs","assets","knowledge","partners","documents","security"];
+if(allowedViews.includes(requestedView)){
+ if(requestedView==="objects"){
+  const requestedType=routeParams.get("type");
+  const allowedTypes=["all","program","task","asset","knowledge","document","partner","analysis"];
+  if(allowedTypes.includes(requestedType))document.getElementById("object-filter-type").value=requestedType;
+ }
+ go(requestedView);
+}
 })();
 </script>
 </body></html>
