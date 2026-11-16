@@ -1015,3 +1015,17 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Security Guard run `43946316750` на момент проверки — **PENDING**; полный security acceptance не подтверждён.
 - Текущий `main` HEAD после обновления документации: `67d602d03acf4a90867061769fdeb9055b972569`. После backend CI успешного source commit менялись только документы.
 - CI подтверждает проверку исходников и контейнерный smoke test, но не production deployment, проверку Resend sender, реальную доставку письма или end-to-end смену пароля.
+
+
+## Контрольная точка 2026-11-16 — страницы восстановления доступа
+
+- Проверен актуальный `main`: существующие backend endpoints `POST /api/v1/auth/recovery/request` и `POST /api/v1/auth/recovery/complete` уже реализованы; повторный API модуль не создавался.
+- Добавлены публичные страницы `website/recovery.html` и `website/reset-password.html`, общий JS/CSS: `website/auth-recovery.js`, `website/auth-recovery.css`.
+- Страницы исключены из индексации (`noindex,nofollow`), используют `no-referrer`, native form validation, не сохраняют пароли/токены в browser storage; reset token очищается из адресной строки сразу при открытии страницы.
+- Важная дополнительная находка: backend ранее не отвечал на CORS OPTIONS preflight, хотя комментарий в коде утверждал обратное. Добавлена узкая обработка preflight: только точный `ALLOWED_ORIGIN`, метод POST и заголовок Content-Type; добавлены тесты разрешённых и отклонённых запросов.
+- В `.github/workflows/website-quality.yml` добавлена проверка синтаксиса внешнего recovery JS.
+- Публичный reset URL, подтверждённый доменом сайта: `https://xn--d1abbl2ben.online/reset-password.html`. Именно его можно будет задать как `RECOVERY_URL` в backend runtime secret store после подтверждения host.
+- В обеих страницах `userdie-api-base` намеренно пустой: точный production API origin пока неизвестен. Не выдумывать его. Перед включением форм указать реальный HTTPS origin; `ALLOWED_ORIGIN` backend должен быть строго `https://xn--d1abbl2ben.online`.
+- Новые страницы не включены в sitemap; публичная навигация главной страницы не менялась, пока реальный backend не развернут.
+- Не подтверждены: Pages deployment этих последних файлов, production backend host/deployment, Resend sender verification, protected runtime secrets, real email delivery, end-to-end reset. Не использовать реальные пароли и персональные данные.
+- Следующий шаг: проверить Website quality + Deploy public website + Backend checks на новых коммитах; затем определить и настроить реальный backend host/API origin и Resend secrets в secret manager, после чего провести controlled end-to-end test.
