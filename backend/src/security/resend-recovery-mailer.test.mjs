@@ -68,4 +68,5 @@ test("Resend recovery mailer rejects unsafe or incomplete configuration", () => 
   assert.throws(() => createResendRecoveryMailer({ ...settings, recoveryUrl: "https://user:pass@platform.example/reset" }), /HTTPS/);
   assert.throws(() => createResendRecoveryMailer({ ...settings, apiKey: "" }), /API key/);
   assert.throws(() => createResendRecoveryMailer({ ...settings, from: "not-an-email" }), /sender address/);
+  assert.throws(() => createResendRecoveryMailer({ ...settings, from: "security@example.org\\r\\nBcc: attacker@example.org" }), /sender address/);
 });
