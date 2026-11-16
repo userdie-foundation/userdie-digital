@@ -1005,3 +1005,13 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Не подтверждены Resend sender-domain verification, live delivery, backend host, runtime secret manager и end-to-end reset. DNS/MX не менялись; API key не записывался в GitHub.
 - CI и локальный запуск тестов в этой точке ещё не подтверждены. Не объявлять интеграцию production-ready или рабочей доставкой.
 - Следующий этап: реализовать reset page с привязкой к реальному API origin; проверить Resend sender в существующем аккаунте; после определения backend host внести секреты в его secret manager; затем пройти unit, PostgreSQL integration, CI и end-to-end tests.
+
+
+### Подтверждение CI по Resend integration
+
+- Backend checks run `43946248803` на commit `0bdf544e46092a68d5abed048b154766e9dc6c35` — **SUCCESS**. Успешно завершились syntax check, automated tests, production container build и smoke test.
+- Public repository security check run `43946316828` — **SUCCESS`.
+- Robot Team run `43946316843` — **SUCCESS`.
+- Security Guard run `43946316750` на момент проверки — **PENDING**; полный security acceptance не подтверждён.
+- Текущий `main` HEAD после обновления документации: `67d602d03acf4a90867061769fdeb9055b972569`. После backend CI успешного source commit менялись только документы.
+- CI подтверждает проверку исходников и контейнерный smoke test, но не production deployment, проверку Resend sender, реальную доставку письма или end-to-end смену пароля.
