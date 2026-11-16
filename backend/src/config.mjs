@@ -53,6 +53,28 @@ function parseAllowedOrigin(raw) {
   return parsed.origin;
 }
 
+function parseRecoveryUrl(raw) {
+  if (raw === undefined || raw === "") return undefined;
+  let parsed;
+  try { parsed = new URL(raw); } catch {
+    throw new Error("RECOVERY_URL must be a valid HTTPS URL");
+  }
+  if (parsed.protocol !== "https:" || !parsed.hostname || parsed.username ||
+      parsed.password || parsed.search || parsed.hash) {
+    throw new Error("RECOVERY_URL must be an HTTPS page URL without credentials, query, or fragment");
+  }
+  return parsed.toString();
+}
+
+function parseSender(raw) {
+  if (raw === undefined || raw === "") return undefined;
+  if (typeof raw !== "string" ||
+      !/^(?:[^<>]*<)?[^<>\\s@]+@[^<>\\s@]+\\.[^<>\\s@]+>?$/.test(raw.trim())) {
+    throw new Error("RESEND_FROM_EMAIL must be a valid sender email address");
+  }
+  return raw.trim();
+}
+
 export function readConfig(env = process.env) {
   const loginRateLimitHmacKey = env.LOGIN_RATE_LIMIT_HMAC_KEY;
   if (loginRateLimitHmacKey !== undefined && Buffer.byteLength(loginRateLimitHmacKey, "utf8") < 32) {
@@ -62,6 +84,18 @@ export function readConfig(env = process.env) {
   if (recoveryRateLimitHmacKey !== undefined && Buffer.byteLength(recoveryRateLimitHmacKey, "utf8") < 32) {
     throw new Error("RECOVERY_RATE_LIMIT_HMAC_KEY must contain at least 32 bytes");
   }
+
+  const resendApiKey = env.RESEND_API_KEY;
+  const resendFromEmail = parseSender(env.RESEND_FROM_EMAIL);
+  const recoveryUrl = parseRecoveryUrl(env.RECOVERY_URL);
+  const resendSettingsProvided = [resendApiKey, resendFromEmail, recoveryUrl]
+    .some((value) => value !== undefined && value !== "");
+  const resendSettingsComplete = typeof resendApiKey === "string" &&
+    resendApiKey.trim().length >= 10 && Boolean(resendFromEmail) && Boolean(recoveryUrl);
+  if (resendSettingsProvided && !resendSettingsComplete) {
+    throw new Error("RESEND_API_KEY, RESEND_FROM_EMAIL, and RECOVERY_URL must be configured together");
+  }
+
   return {
     port: parseInteger("PORT", env.PORT, 8080, 1, 65535),
     databaseUrl: parseDatabaseUrl(env.DATABASE_URL),
@@ -70,5 +104,8 @@ export function readConfig(env = process.env) {
     allowedOrigin: parseAllowedOrigin(env.ALLOWED_ORIGIN),
     loginRateLimitHmacKey,
     recoveryRateLimitHmacKey,
+    resendApiKey: resendSettingsComplete ? resendApiKey : undefined,
+    resendFromEmail,
+    recoveryUrl,
   };
 }
