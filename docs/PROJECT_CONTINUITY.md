@@ -1042,3 +1042,14 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Последний регрессионный run `43948200067` на commit `9d54c10b5a1729df34f5eeed6ea4739d4444efba` — **PENDING/QUEUED** на момент записи; он должен проверить новые CR/LF тест-кейсы. Не считать завершённым до финального статуса GitHub.
 - Первоначальный Website quality gate выявил отсутствие `<title>` у двух новых страниц; titles добавлены, последующий quality gate прошёл успешно.
 - Публичные страницы: `https://xn--d1abbl2ben.online/recovery.html` и `https://xn--d1abbl2ben.online/reset-password.html`. Они опубликованы workflow, но форма остаётся отключённой, пока не будет подтверждён и внесён реальный API origin.
+
+
+### Финальное обновление страниц восстановления — 16 ноября 2026
+
+- При пустом `userdie-api-base` обе recovery формы полностью скрываются; пользователю показывается предупреждение, что сервис ещё не подключён. Это исключает ввод адреса или пароля в неработающую форму.
+- CORS preflight дополнительно ограничен только двумя recovery endpoints: `/api/v1/auth/recovery/request` и `/api/v1/auth/recovery/complete`.
+- Website quality gate run `43948452900` на commit `1d3ef41535654b9af6ec90573cc66f2b813b4cba` — **SUCCESS**.
+- Deploy public website run `43948452904` на том же commit — **SUCCESS**. Обновлённые recovery pages опубликованы GitHub Pages workflow.
+- Backend checks run `43948200067` на commit `9d54c10b5a1729df34f5eeed6ea4739d4444efba` — **SUCCESS**, включая CR/LF regression tests.
+- Backend checks run `43948429499` на commit `5a80d7372560c106b73696ff3642a56475a24706` — **QUEUED/PENDING** на момент записи; содержит последний тест, ограничивающий CORS preflight только recovery endpoints. Его итог проверить отдельно.
+- Production API origin всё ещё не определён. Не заполнять meta `userdie-api-base`, не устанавливать `RECOVERY_URL` и не включать отправку писем до подтверждения backend host, Resend sender identity и защищённого secret store.
