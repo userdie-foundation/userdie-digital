@@ -1377,6 +1377,17 @@ test("CORS preflight permits only exact-origin JSON POST requests", async () => 
     assert.equal(unsupportedHeader.status, 403);
     assert.deepEqual(await unsupportedHeader.json(), { error: "preflight_not_allowed" });
 
+    const unrelatedEndpoint = await fetch(base + "/api/v1/auth/login", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(unrelatedEndpoint.status, 403);
+    assert.deepEqual(await unrelatedEndpoint.json(), { error: "preflight_not_allowed" });
+
     const unsupportedMethod = await fetch(base + "/api/v1/auth/recovery/complete", {
       method: "OPTIONS",
       headers: {
