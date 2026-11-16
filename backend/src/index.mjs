@@ -5,6 +5,8 @@ import { createPrincipalResolver } from "./security/principal.mjs";
 import { createLoginRateLimiter } from "./security/login-rate-limit.mjs";
 import { createRecoveryRateLimiter } from "./security/recovery-rate-limit.mjs";
 import { createAuthenticationService } from "./security/authentication.mjs";
+import { createAccountRecoveryService } from "./security/account-recovery.mjs";
+import { createResendRecoveryMailer } from "./security/resend-recovery-mailer.mjs";
 import { readConfig } from "./config.mjs";
 
 const config = readConfig();
@@ -33,11 +35,25 @@ const recoveryRateLimiter = config.recoveryRateLimitHmacKey
   ? createRecoveryRateLimiter({ pool, hmacKey: config.recoveryRateLimitHmacKey })
   : undefined;
 
+// Recovery remains fail-closed until the Resend credentials, verified sender,
+// recovery page URL, and dedicated rate-limit key are configured at runtime.
+const recoveryService = config.resendApiKey && config.recoveryRateLimitHmacKey
+  ? createAccountRecoveryService({
+    pool,
+    sendRecoveryMessage: createResendRecoveryMailer({
+      apiKey: config.resendApiKey,
+      from: config.resendFromEmail,
+      recoveryUrl: config.recoveryUrl,
+    }),
+  })
+  : undefined;
+
 const server = createHttpServer(createServer({
   pool,
   allowedOrigin: config.allowedOrigin,
   resolvePrincipal: createPrincipalResolver({ pool }),
   authenticationService,
+  recoveryService,
   recoveryRateLimiter,
 }));
 
