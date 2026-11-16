@@ -33,7 +33,12 @@
         <span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span>
         <span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span>
       </a>
-      <nav aria-label="Главная навигация">
+      <button class="menu-toggle" type="button" aria-controls="primary-navigation" aria-expanded="false">
+        <span class="menu-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="menu-toggle-label">Меню</span>
+      </button>
+      
+      <nav id="primary-navigation" class="primary-navigation" aria-label="Главная навигация">
         <a href="../index.html">Главная</a>
         <a href="platform.html">Карта платформы</a>
         <a href="#portfolio">Проекты</a>
@@ -151,5 +156,50 @@
     </section>
   </main>
   <footer class="footer"><div class="container"><p>Благотворительный фонд социально-правовой помощи инвалидам и пенсионерам «УСЕРДИЕ»</p><a href="../index.html">На главную</a></div></footer>
+
+<script>
+(() => {
+  const header = document.querySelector(".header");
+  const toggle = document.querySelector(".menu-toggle");
+  const navigation = document.querySelector("#primary-navigation");
+  if (!header || !toggle || !navigation) return;
+
+  header.classList.add("menu-enhanced");
+  const mobile = window.matchMedia("(max-width: 680px)");
+  const closeMenu = () => {
+    toggle.setAttribute("aria-expanded", "false");
+    navigation.hidden = mobile.matches;
+  };
+  const openMenu = () => {
+    toggle.setAttribute("aria-expanded", "true");
+    navigation.hidden = false;
+  };
+  const syncLayout = () => {
+    if (mobile.matches) {
+      if (toggle.getAttribute("aria-expanded") !== "true") closeMenu();
+    } else {
+      navigation.hidden = false;
+      toggle.setAttribute("aria-expanded", "false");
+    }
+  };
+
+  syncLayout();
+  toggle.addEventListener("click", () => {
+    toggle.getAttribute("aria-expanded") === "true" ? closeMenu() : openMenu();
+  });
+  navigation.addEventListener("click", (event) => {
+    if (event.target.closest("a") && mobile.matches) closeMenu();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+      closeMenu();
+      toggle.focus();
+    }
+  });
+  mobile.addEventListener("change", syncLayout);
+  window.addEventListener("resize", syncLayout);
+})();
+</script>
+
 </body>
 </html>
