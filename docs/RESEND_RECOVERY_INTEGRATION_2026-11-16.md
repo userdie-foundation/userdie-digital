@@ -53,3 +53,16 @@ The Resend adapter and backend injection are implemented in source. This is not 
 - Security Guard run `43946316750`: still **PENDING** at the time of this update. Do not report full CodeQL/security acceptance until it completes.
 - The latest `main` commit `0a5b9fa275391a456888469e9251a5c8b6764f61` updates continuity documentation only; no application code changed after the successful backend check.
 - These CI results validate source checks and the container smoke test; they do not establish production deployment, Resend account verification, real email delivery, or an end-to-end password reset.
+
+
+## Recovery pages and API preflight — implementation update
+
+- Added `website/recovery.html` for requesting a recovery email and `website/reset-password.html` for setting a new password.
+- Added shared `website/auth-recovery.js` and `website/auth-recovery.css`.
+- Pages are marked `noindex,nofollow`, set `no-referrer`, use native field validation, enforce matching passwords and a 12-character minimum, do not persist credentials in browser storage, and clear the one-time token from the address bar immediately.
+- The reset page calls `POST /api/v1/auth/recovery/complete`; the request page calls `POST /api/v1/auth/recovery/request`. Both use the configured HTTPS API origin and fail closed when it is blank.
+- Added narrow CORS preflight handling in `backend/src/server.mjs`: only the exact configured origin, JSON POST, and `Content-Type` header are accepted. Added tests for allowed and rejected preflight cases.
+- Added a website workflow step to syntax-check the external recovery JavaScript.
+- Confirmed reset-page URL for runtime configuration: `https://xn--d1abbl2ben.online/reset-password.html`. This is the public Pages URL from the repository's configured domain. The API origin is still unknown and intentionally remains blank in both pages' `userdie-api-base` meta tags.
+- The new pages are not added to the sitemap and are excluded from search indexing. No homepage CTA was added until the backend is operational, avoiding a public promise of an unavailable service.
+- No production API host, Resend sender verification, runtime secrets, real delivery, or end-to-end reset has been confirmed. Do not enable the form until the confirmed API origin is inserted and the runtime gates are met.
