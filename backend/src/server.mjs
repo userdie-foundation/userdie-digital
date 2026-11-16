@@ -616,7 +616,15 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
         const blocked = await recoveryRateLimiter.isBlocked({ email, clientAddress });
         if (!blocked) {
           const attempt = await recoveryRateLimiter.recordAttempt({ email, clientAddress });
-          if (!attempt?.blocked) await recoveryService.request({ email });
+          if (!attempt?.blocked) {
+            try {
+              await recoveryService.request({ email });
+            } catch {
+              // Never expose whether an account exists through mail-provider or
+              // account-specific persistence failures. Emit only a fixed message.
+              process.stderr.write("Account recovery request could not be completed.\\n");
+            }
+          }
         }
       } catch {
         return sendJson(res, 503, { error: "recovery_unavailable" }, req.method);
