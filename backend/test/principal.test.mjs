@@ -50,3 +50,35 @@ test("principal resolver fails closed when the session is absent, expired, revok
   const resolve = createPrincipalResolver({ pool: { async query() { return { rows: [] }; } } });
   assert.equal(await resolve({ headers: { cookie: `__Host-userdie_session=${token}` } }), null);
 });
+
+
+test("principal resolver ignores client-supplied identity, roles, and scopes", async () => {
+  const { token } = createSessionToken();
+  const resolve = createPrincipalResolver({
+    pool: {
+      async query(sql) {
+        assert.match(sql, /g\\.revoked_at IS NULL/);
+        return { rows: [
+          { id: "database-user", account_status: "active", role_code: "case_worker", scope_type: "global", scope_id: null },
+        ] };
+      },
+    },
+  });
+
+  const principal = await resolve({
+    headers: {
+      cookie: `__Host-userdie_session=${token}`,
+      "x-user-id": "attacker-user",
+      "x-user-role": "administrator",
+      "x-user-scope": "global",
+    },
+    user: { id: "attacker-user", roles: ["administrator"], scopes: ["*"] },
+    body: { userId: "attacker-user", role: "administrator" },
+  });
+
+  assert.deepEqual(principal, {
+    id: "database-user",
+    accountStatus: "active",
+    grants: [{ roleCode: "case_worker", scopeType: "global" }],
+  });
+});
