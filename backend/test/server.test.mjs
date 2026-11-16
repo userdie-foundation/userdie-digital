@@ -1389,3 +1389,26 @@ test("CORS preflight permits only exact-origin JSON POST requests", async () => 
     assert.deepEqual(await unsupportedMethod.json(), { error: "preflight_not_allowed" });
   }, { allowedOrigin: "https://platform.example" });
 });
+
+
+test("recovery request keeps the same generic response when delivery fails for a known account", async () => {
+  const recoveryRateLimiter = {
+    async isBlocked() { return false; },
+    async recordAttempt() { return { blocked: false }; },
+  };
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/auth/recovery/request", {
+      method: "POST",
+      headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify({ email: "person@example.org" }),
+    });
+    assert.equal(response.status, 202);
+    assert.deepEqual(await response.json(), { accepted: true });
+  }, {
+    allowedOrigin: "https://platform.example",
+    recoveryRateLimiter,
+    recoveryService: {
+      async request() { throw new Error("private Resend response and account details"); },
+    },
+  });
+});
