@@ -57,6 +57,10 @@ body.workspace{background:var(--app-bg);min-height:100vh;font-size:14px}
 .metric-icon{display:grid;place-items:center;width:29px;height:29px;border-radius:5px;background:#edf1e5;color:#54724d;font-size:15px}
 .metric-value{display:block;margin:17px 0 5px;font:700 31px/1 Manrope,sans-serif;letter-spacing:-1px;color:var(--app-text)}
 .metric-foot{color:#859085;font-size:9px;line-height:1.6}
+.metric-card-action{box-sizing:border-box;display:block;width:100%;color:inherit;text-align:left;text-decoration:none;font:inherit;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.metric-card-action:hover{border-color:#9eb28f;background:#fff}
+.metric-card-action:focus-visible{outline:3px solid #6b8c54;outline-offset:3px}
+button.metric-card-action{appearance:none;-webkit-appearance:none}
 .content-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.85fr);gap:17px;align-items:start}
 .panel{min-width:0;margin-bottom:17px;padding:22px;background:var(--app-panel);border:1px solid var(--app-line);border-radius:5px}
 .panel-head{display:flex;align-items:start;justify-content:space-between;gap:15px;margin-bottom:18px}
@@ -477,12 +481,12 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
   <div class="leadership-priority"><div><p class="eyebrow">ПРИОРИТЕТЫ ЗАПУСКА</p><strong>Что необходимо завершить до рабочего использования</strong></div><ol><li><span>01</span>Подключить защищённое серверное хранение и разграничение доступа</li><li><span>02</span>Связать обращения, задачи, ответственных и контроль сроков</li><li><span>03</span>Включить аудит действий и процедуру независимого согласования</li></ol></div>
 </section>
 <div class="metrics-grid" aria-label="Ключевые показатели демонстрационной панели">
-<article class="metric-card"><div class="metric-top">Открытые задачи <span class="metric-icon">✓</span></div><strong class="metric-value" id="metric-open">04</strong><div class="metric-foot">Незавершённые записи локального списка</div></article>
-<article class="metric-card"><div class="metric-top">На проверке <span class="metric-icon">◷</span></div><strong class="metric-value" id="metric-review">01</strong><div class="metric-foot">Задачи, ожидающие демонстрационного решения</div></article>
-<article class="metric-card"><div class="metric-top">Просрочено <span class="metric-icon">!</span></div><strong class="metric-value" id="metric-overdue">00</strong><div class="metric-foot">По срокам, указанным в локальных демо-задачах</div></article>
-<article class="metric-card"><div class="metric-top">Обращения <span class="metric-icon">▣</span></div><strong class="metric-value">06</strong><div class="metric-foot">Условные карточки · не реальные обращения граждан</div></article>
-<article class="metric-card"><div class="metric-top">Программы <span class="metric-icon">◫</span></div><strong class="metric-value">03</strong><div class="metric-foot">Демонстрационные карточки программ</div></article>
-<article class="metric-card"><div class="metric-top">Активы на проверке <span class="metric-icon">◇</span></div><strong class="metric-value">02</strong><div class="metric-foot">Условные записи · права и источники не подтверждены</div></article>
+<button type="button" class="metric-card metric-card-action" data-go="tasks" aria-label="Открыть раздел задач: открытые задачи"><span class="metric-top">Открытые задачи <span class="metric-icon">✓</span></span><strong class="metric-value" id="metric-open">04</strong><span class="metric-foot">Незавершённые записи локального списка · открыть задачи →</span></button>
+<button type="button" class="metric-card metric-card-action" data-go="tasks" aria-label="Открыть раздел задач на проверке"><span class="metric-top">На проверке <span class="metric-icon">◷</span></span><strong class="metric-value" id="metric-review">01</strong><span class="metric-foot">Задачи, ожидающие демонстрационного решения · открыть задачи →</span></button>
+<button type="button" class="metric-card metric-card-action" data-go="tasks" aria-label="Открыть раздел просроченных задач"><span class="metric-top">Просрочено <span class="metric-icon">!</span></span><strong class="metric-value" id="metric-overdue">00</strong><span class="metric-foot">По срокам локальных демо-задач · открыть задачи →</span></button>
+<a class="metric-card metric-card-action" href="case-management.html" aria-label="Открыть демонстрационный реестр обращений"><span class="metric-top">Обращения <span class="metric-icon">▣</span></span><strong class="metric-value">06</strong><span class="metric-foot">Условные карточки, не реальные обращения граждан · открыть реестр ↗</span></a>
+<button type="button" class="metric-card metric-card-action" data-go="programs" aria-label="Открыть раздел программ фонда"><span class="metric-top">Программы <span class="metric-icon">◫</span></span><strong class="metric-value">03</strong><span class="metric-foot">Демонстрационные карточки программ · открыть программы →</span></button>
+<a class="metric-card metric-card-action" href="asset-register.html" aria-label="Открыть демонстрационный реестр активов"><span class="metric-top">Активы на проверке <span class="metric-icon">◇</span></span><strong class="metric-value">02</strong><span class="metric-foot">Условные записи, права и источники не подтверждены · открыть реестр ↗</span></a>
 </div>
 <div class="content-grid">
 <div>
