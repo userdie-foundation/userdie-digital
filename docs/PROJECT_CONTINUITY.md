@@ -1029,3 +1029,16 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - Новые страницы не включены в sitemap; публичная навигация главной страницы не менялась, пока реальный backend не развернут.
 - Не подтверждены: Pages deployment этих последних файлов, production backend host/deployment, Resend sender verification, protected runtime secrets, real email delivery, end-to-end reset. Не использовать реальные пароли и персональные данные.
 - Следующий шаг: проверить Website quality + Deploy public website + Backend checks на новых коммитах; затем определить и настроить реальный backend host/API origin и Resend secrets в secret manager, после чего провести controlled end-to-end test.
+
+
+### Дополнительная безопасность и результаты проверок recovery
+
+- Исправлено возможное account enumeration: сбой отправки Resend или ошибки обработки конкретной учётной записи больше не раскрываются через отдельный HTTP-ответ; endpoint возвращает общий `202 {accepted:true}`. В журнал уходит только фиксированное сообщение без email, токена и текста ответа провайдера. Ошибки самого rate limiter по-прежнему закрывают endpoint.
+- Конфигурация отправителя Resend дополнительно защищена от CR/LF header injection; API key обрезается от внешних пробелов. Добавлены регрессионные тесты.
+- Website quality gate run `43947797239` на commit `d2755435d86c80bbd2d77f5b54e5664653710ac5` — **SUCCESS**; прошли ссылки, доступность HTML, syntax check recovery JS, мобильная навигация, visual assets и 404.
+- Deploy public website run `43947797267` на том же commit — **SUCCESS**; build и deploy jobs завершились успешно. Публичные страницы восстановления включены в эту публикацию, но API пока отключён пустой настройкой.
+- Backend checks run `43947950959` на commit `d1a5e55730c71d0c7532d81cd4b89ca835de824c` — **SUCCESS** (tests, container build, smoke test).
+- Backend checks run `43948121242` на commit `f925edbdc7c9aa29409311b88be5b43fbf3a91aa` — **SUCCESS** (включая hardening sender config).
+- Последний регрессионный run `43948200067` на commit `9d54c10b5a1729df34f5eeed6ea4739d4444efba` — **PENDING/QUEUED** на момент записи; он должен проверить новые CR/LF тест-кейсы. Не считать завершённым до финального статуса GitHub.
+- Первоначальный Website quality gate выявил отсутствие `<title>` у двух новых страниц; titles добавлены, последующий quality gate прошёл успешно.
+- Публичные страницы: `https://xn--d1abbl2ben.online/recovery.html` и `https://xn--d1abbl2ben.online/reset-password.html`. Они опубликованы workflow, но форма остаётся отключённой, пока не будет подтверждён и внесён реальный API origin.
