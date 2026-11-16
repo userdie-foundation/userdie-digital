@@ -7,6 +7,7 @@ on:
       - "website/**"
       - ".github/scripts/check-site-links.mjs"
       - ".github/scripts/check-inline-js.mjs"
+      - ".github/scripts/check-mobile-navigation.mjs"
       - ".github/scripts/check-html-accessibility.mjs"
       - ".github/workflows/website-quality.yml"
   pull_request:
@@ -42,6 +43,8 @@ jobs:
         run: node .github/scripts/check-html-accessibility.mjs
       - name: Check inline JavaScript syntax
         run: node .github/scripts/check-inline-js.mjs
+      - name: Test mobile navigation behavior
+        run: node .github/scripts/check-mobile-navigation.mjs
       - name: Validate visual enhancement assets
         run: node .github/scripts/apply-visual-enhancements.mjs --check
       - name: Check required 404 page
