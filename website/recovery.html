@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f4ee">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="userdie-api-base" content="">
+  <link rel="icon" href="assets/fund-emblem.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="auth-recovery.css">
+  <script src="auth-recovery.js" defer></script>
+</head>
+<body>
+  <main class="page">
+    <a class="brand" href="index.html" aria-label="УСЕРДИЕ — на главную">
+      <img src="assets/fund-emblem.svg" alt="">
+      <span><strong>УСЕРДИЕ</strong><small>Благотворительный фонд · USERDIE Digital</small></span>
+    </a>
+    <section class="panel" aria-labelledby="page-title">
+      <p class="eyebrow">Безопасность учётной записи</p>
+      <h1 id="page-title">Восстановление доступа</h1>
+      <p class="intro">Укажите адрес электронной почты, связанный с вашей учётной записью. Если она существует, мы направим инструкцию по восстановлению доступа.</p>
+      <form data-recovery-form novalidate>
+        <div class="field">
+          <label for="email">Электронная почта</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="320" required>
+        </div>
+        <button type="submit">Отправить инструкцию</button>
+      </form>
+      <p class="notice" data-status role="status" aria-live="polite" aria-atomic="true"></p>
+      <p class="security-note">В целях защиты учётных записей система не сообщает, существует ли указанный адрес. Никому не передавайте коды и ссылки восстановления.</p>
+      <a class="back" href="index.html">← Вернуться на сайт фонда</a>
+    </section>
+  </main>
+</body>
+</html>
