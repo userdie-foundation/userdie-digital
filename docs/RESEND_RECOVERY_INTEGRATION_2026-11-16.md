@@ -42,3 +42,14 @@ The Resend adapter and backend injection are implemented in source. This is not 
 3. Configure runtime secrets in the confirmed backend host.
 4. Run backend unit tests, PostgreSQL integration tests, CI, and an end-to-end recovery test.
 5. Keep recovery fail-closed until every gate is verified.
+
+
+## CI result update — 2026-11-16
+
+- Backend checks run `43946248803` on source/config/documentation commit `0bdf544e46092a68d5abed048b154766e9dc6c35`: **SUCCESS**.
+- Confirmed successful steps: dependency installation, JavaScript syntax check, automated tests, production container image build, and container smoke test.
+- Public repository security check run `43946316828`: **SUCCESS**.
+- Robot Team run `43946316843`: **SUCCESS**.
+- Security Guard run `43946316750`: still **PENDING** at the time of this update. Do not report full CodeQL/security acceptance until it completes.
+- The latest `main` commit `0a5b9fa275391a456888469e9251a5c8b6764f61` updates continuity documentation only; no application code changed after the successful backend check.
+- These CI results validate source checks and the container smoke test; they do not establish production deployment, Resend account verification, real email delivery, or an end-to-end password reset.
