@@ -527,6 +527,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <div class="view-intro"><p class="eyebrow">01 / УПРАВЛЕНИЕ РАБОТОЙ</p><h2>Задачи команды</h2><p>Интерактивный пример списка задач. Отметки и новые записи сохраняются в локальном хранилище этого браузера и доступны только на этом устройстве в данном браузере; серверного хранения и назначений исполнителям нет.</p></div>
 <div class="notice-box"><strong>Стандарт постановки задачи:</strong> формулировка действия → ожидаемый результат → один ответственный → срок → критерий приёмки → подтверждение. При риске срыва исполнитель фиксирует причину и новый прогноз; перенос срока подтверждает руководитель. Статусы: новая, в работе, на проверке, завершена, приостановлена, просрочена.</div>
 <div class="workflow-links" aria-label="Связи задач с другими модулями"><strong>Связать работу с объектом</strong><button type="button" data-go="programs">Программа или проект →</button><button type="button" data-go="assets">Объект оценки →</button><button type="button" data-go="knowledge">Методика или исследование →</button></div>
+<div class="workflow-links" aria-label="Демонстрационная связанная задача"><strong>Пример задачи в реестре объектов</strong><a href="workspace.html?view=objects&amp;id=DEMO-002">Открыть DEMO-002 · «Подготовить модель этапов проекта» →</a><span>Связь с проектом DEMO-001 показана в демонстрационном реестре.</span></div>
 <div class="panel"><div class="panel-head"><div><h2>Список задач</h2><p id="task-summary">4 демонстрационные задачи</p></div><button class="app-button" id="new-task-secondary">＋ Добавить</button></div>
 <form id="team-task-form" class="team-task-form" autocomplete="off">
 <label>Название задачи<input id="team-task-title" name="title" maxlength="180" required placeholder="Например: проверить комплект документов"></label>
@@ -555,6 +556,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <div class="view-intro"><p class="eyebrow">02 / ПРОГРАММНАЯ ДЕЯТЕЛЬНОСТЬ</p><h2>Программы фонда</h2><p>Структура будущего модуля: описание программы, ответственный, этапы, подтверждающие документы и критерии результата. Ниже — только условные карточки, не действующие программы фонда.</p></div>
 <div class="notice-box"><strong>Паспорт каждой программы:</strong> общественная проблема и цель; целевые группы и критерии участия; география; мероприятия и календарный план; ответственный; партнёры; бюджет и источник финансирования; риски; показатели результата; документы и порядок отчётности. Запуск — только после утверждения уполномоченным органом фонда.</div>
 <div class="workflow-links" aria-label="Связи программ с другими модулями"><strong>Рабочий цикл программы</strong><button type="button" data-go="tasks">Задачи и контроль →</button><button type="button" data-go="partners">Партнёры →</button><button type="button" data-go="knowledge">Методики и материалы →</button><button type="button" data-go="objects" data-object-type="program">Карточки программ в общем реестре →</button></div>
+<div class="workflow-links" aria-label="Сквозной демонстрационный маршрут"><strong>Пример сквозной связи · проект «Маяк»</strong><a href="workspace.html?view=objects&amp;id=DEMO-001">DEMO-001 · карточка проекта →</a><a href="workspace.html?view=objects&amp;id=DEMO-002">DEMO-002 · связанная задача →</a><a href="workspace.html?view=objects&amp;id=DEMO-005">DEMO-005 · контрольный документ →</a><span>Условные записи для проверки навигации; не являются действующими программами или документами фонда.</span></div>
 <div class="module-list">
 <article class="module-tile"><span class="tile-ico"><svg class="decorative-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8 14.5 9.5 21.2 12 14.5 14.5 12 21.2 9.5 14.5 2.8 12 9.5 9.5 12 2.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><strong>«Открытый мир»</strong><small>Структура карточки программы: целевые группы, география, партнёры и подтверждённые результаты.</small><span class="tile-state">Требует сверки</span></article>
 <article class="module-tile"><span class="tile-ico">⌁</span><strong>«Гуманитарный диалог»</strong><small>Инициативы взаимодействия, мероприятия, участники и документальная база.</small><span class="tile-state">Требует сверки</span></article>
@@ -611,6 +613,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </section>
 <section class="page-view" id="view-documents">
 <div class="view-intro"><p class="eyebrow">04 / ДОКУМЕНТЫ И ПРОЗРАЧНОСТЬ</p><h2>Проверка перед публикацией</h2><p>Планируемый реестр документов с версией, ответственным, датой проверки и статусом согласования. Реальных документов или юридически значимых сведений в демонстрационном списке нет.</p></div>
+<div class="workflow-links" aria-label="Демонстрационная связь документа"><strong>Документ-основание в общем реестре</strong><a href="workspace.html?view=objects&amp;id=DEMO-005">Открыть DEMO-005 · «Контрольный список перед публикацией» →</a><span>Условная карточка документа связана с демонстрационным проектом DEMO-001; файл не загружен.</span></div>
 <div class="notice-box"><strong>Маршрут документа:</strong> проект → проверка фактов и источников → правовая и ответственная проверка → согласование владельцем процесса → утверждение уполномоченным лицом → публикация версии → контроль актуальности. Для каждой версии фиксируются автор, дата, основание изменения и статус; устаревшие версии не должны выглядеть действующими.</div>
 <div class="panel"><div class="panel-head"><div><h2>Контрольный список публикаций</h2><p>Пример внутреннего редакционного процесса.</p></div></div>
 <div class="task-list">
@@ -798,6 +801,11 @@ if(allowedViews.includes(requestedView)){
   if(allowedTypes.includes(requestedType))document.getElementById("object-filter-type").value=requestedType;
  }
  go(requestedView);
+ const requestedObjectId=routeParams.get("id");
+ if(requestedView==="objects"&&requestedObjectId&&/^DEMO-[0-9]{3,}$/.test(requestedObjectId)){
+  const targetCard=[...document.querySelectorAll(".object-card")].find(card=>card.querySelector(".object-id")?.textContent.startsWith(requestedObjectId+" "));
+  if(targetCard){const reduceMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;targetCard.scrollIntoView({behavior:reduceMotion?"auto":"smooth",block:"center"});targetCard.focus({preventScroll:true});}
+ }
 }
 })();
 </script>
