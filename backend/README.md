@@ -77,7 +77,7 @@ Before enabling real user accounts, complete and test:
 
 ## Production blockers — do not accept real applications yet
 
-- A central exact-Origin guard now rejects every state-changing HTTP method (POST, PUT, PATCH, DELETE) when Origin is absent, null, or does not match the configured application origin; safe reads and OPTIONS preflight are excluded. Route-specific Origin checks remain on authentication endpoints. This is a CSRF control, not a substitute for production review of proxy/origin configuration, browser behavior, and future cross-origin requirements. Production activation is not confirmed; recovery routes and trusted delivery are not wired, and MFA remains incomplete.
+- A central exact-Origin guard now rejects every state-changing HTTP method (POST, PUT, PATCH, DELETE) when Origin is absent, null, or does not match the configured application origin; safe reads and OPTIONS preflight are excluded. Route-specific Origin checks remain on authentication endpoints. This is a CSRF control, not a substitute for production review of proxy/origin configuration, browser behavior, and future cross-origin requirements. Production activation is not confirmed. Recovery routes are wired to Resend in source but remain gated on a confirmed backend host, runtime secrets, exact-origin CORS configuration, verified sender identity, and end-to-end tests. MFA remains incomplete.
 - Application and program write/lifecycle routes remain disabled. All future routes must use trusted database-loaded grants and per-record checks.
 - Application CRUD, task creation/update, file upload/download, malware scanning, notifications, and reporting are not implemented.
 - SLA overdue state is computed on read; no background scheduler, automatic escalation worker, or notification channel is deployed. Only the narrow task-status transition route is implemented; task creation, assignment changes, due-date edits, and other task-field writes remain unavailable.
@@ -90,7 +90,8 @@ Never put real applicant data, uploaded documents, database credentials, or acce
 ## Runtime wiring clarification — 2026-11-09
 
 - The entry point creates and injects the authentication service only when `LOGIN_RATE_LIMIT_HMAC_KEY` is configured. The login route then remains fail-closed if that service is absent.
-- The entry point creates and injects the recovery rate limiter when `RECOVERY_RATE_LIMIT_HMAC_KEY` is configured, but does not create or inject `recoveryService`. Recovery request/reset handlers therefore return `503 recovery_unavailable` and are not operational.
+- The entry point creates and injects the recovery rate limiter when `RECOVERY_RATE_LIMIT_HMAC_KEY` is configured. It creates and injects `recoveryService` only when the Resend API key, verified sender address, recovery-page URL, and dedicated rate-limit key are all present.
+- The public recovery request and reset pages now exist in `website/recovery.html` and `website/reset-password.html`. Their `userdie-api-base` meta value is intentionally blank until a real HTTPS backend origin is confirmed; the pages remain fail-closed while blank.
 - No backend hosting, staging database, deployment workflow or provider configuration is confirmed. See `docs/BACKEND_STAGING_DEPLOYMENT_RUNBOOK.md` before any provisioning.
 
 
@@ -120,6 +121,18 @@ Configure these values only in the backend hosting provider's protected runtime 
 - `RECOVERY_URL` — HTTPS URL of the deployed password-reset page. The page must read the `token` query parameter and submit the new password to `POST /api/v1/auth/recovery/complete`.
 - `RECOVERY_RATE_LIMIT_HMAC_KEY` — dedicated random secret of at least 32 bytes for recovery throttling.
 
-The three Resend settings must be supplied together. The recovery service is instantiated only when the Resend settings and dedicated recovery rate-limit key are both present. The reset page is not yet present in the current static website tree, and no backend host is confirmed; therefore do not set a guessed `RECOVERY_URL` or enable production recovery yet.
+The three Resend settings must be supplied together. The recovery service is instantiated only when the Resend settings and dedicated recovery rate-limit key are both present. The reset page is present at `https://xn--d1abbl2ben.online/reset-password.html`. Set this exact value as `RECOVERY_URL` only in the confirmed backend runtime secret store. The API origin is not yet confirmed, so `website/reset-password.html` and `website/recovery.html` intentionally keep `userdie-api-base` blank; update that meta value to the real HTTPS API origin before enabling the forms.
 
 No DNS or MX changes are part of this code integration. Resend sender-domain verification must be checked in the existing Resend account separately; do not alter existing mail-routing records without an explicit review.
+
+
+## Public recovery pages and cross-origin API
+
+- Request page: `website/recovery.html`.
+- Password reset page: `website/reset-password.html`; the Resend link uses the `token` query parameter.
+- Shared browser logic and styles: `website/auth-recovery.js` and `website/auth-recovery.css`.
+- Both pages are marked `noindex,nofollow`, use a no-referrer policy, do not persist passwords/tokens in browser storage, and remove the one-time token from the address bar as soon as the reset page loads.
+- The browser API origin is configured through `<meta name="userdie-api-base" content="https://YOUR-CONFIRMED-API-ORIGIN">`. Replace the blank value only after the backend host and HTTPS certificate are confirmed. The value must be an HTTPS origin without a path, query, or fragment.
+- Backend `ALLOWED_ORIGIN` must exactly equal `https://xn--d1abbl2ben.online`. The API now answers CORS preflight only for that exact origin, JSON `POST`, and the `Content-Type` header; other origins, methods, and headers are rejected.
+- If the API is placed behind the same public origin with a reverse proxy, configure the meta value as that exact HTTPS origin and route `/api/v1/` to the backend. If the API has a separate origin, use that confirmed origin and preserve the exact CORS allow-list.
+- The recovery pages remain unavailable until the API origin is configured. A successful GitHub Pages deployment does not deploy the API.
