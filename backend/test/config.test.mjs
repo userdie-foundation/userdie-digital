@@ -13,6 +13,9 @@ test("configuration applies safe defaults and parses the PostgreSQL URL", () => 
     allowedOrigin: undefined,
     loginRateLimitHmacKey: undefined,
     recoveryRateLimitHmacKey: undefined,
+    resendApiKey: undefined,
+    resendFromEmail: undefined,
+    recoveryUrl: undefined,
   });
 });
 
@@ -98,4 +101,35 @@ test("configuration accepts and validates a dedicated recovery rate-limit HMAC k
     () => readConfig({ DATABASE_URL: databaseUrl, RECOVERY_RATE_LIMIT_HMAC_KEY: "short" }),
     /RECOVERY_RATE_LIMIT_HMAC_KEY must contain at least 32 bytes/,
   );
+});
+
+test("configuration accepts a complete Resend recovery delivery configuration", () => {
+  const config = readConfig({
+    DATABASE_URL: databaseUrl,
+    RESEND_API_KEY: "re_test_key_123456789",
+    RESEND_FROM_EMAIL: "USERDIE Digital <security@example.org>",
+    RECOVERY_URL: "https://platform.example/reset-password",
+  });
+  assert.equal(config.resendApiKey, "re_test_key_123456789");
+  assert.equal(config.resendFromEmail, "USERDIE Digital <security@example.org>");
+  assert.equal(config.recoveryUrl, "https://platform.example/reset-password");
+});
+
+test("configuration rejects partial or unsafe Resend recovery settings", () => {
+  assert.throws(() => readConfig({
+    DATABASE_URL: databaseUrl,
+    RESEND_API_KEY: "re_test_key_123456789",
+  }), /must be configured together/);
+  assert.throws(() => readConfig({
+    DATABASE_URL: databaseUrl,
+    RESEND_API_KEY: "re_test_key_123456789",
+    RESEND_FROM_EMAIL: "not-an-email",
+    RECOVERY_URL: "https://platform.example/reset-password",
+  }), /RESEND_FROM_EMAIL/);
+  assert.throws(() => readConfig({
+    DATABASE_URL: databaseUrl,
+    RESEND_API_KEY: "re_test_key_123456789",
+    RESEND_FROM_EMAIL: "security@example.org",
+    RECOVERY_URL: "http://platform.example/reset-password",
+  }), /RECOVERY_URL/);
 });
