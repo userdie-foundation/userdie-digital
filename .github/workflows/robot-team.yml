@@ -14,6 +14,7 @@ on:
       - ".github/scripts/check-site-links.mjs"
       - ".github/scripts/check-public-secrets.mjs"
       - ".github/scripts/check-inline-js.mjs"
+      - ".github/scripts/check-mobile-navigation.mjs"
       - ".github/workflows/robot-team.yml"
 permissions:
   contents: read
@@ -43,6 +44,10 @@ jobs:
         id: javascript
         if: always()
         run: node .github/scripts/check-inline-js.mjs
+      - name: Test mobile navigation behavior
+        id: mobile_navigation
+        if: always()
+        run: node .github/scripts/check-mobile-navigation.mjs
       - name: Check published site availability
         id: uptime
         if: always()
@@ -54,6 +59,7 @@ jobs:
           LINKS_RESULT: ${{ steps.links.outcome }}
           SECURITY_RESULT: ${{ steps.security.outcome }}
           JS_RESULT: ${{ steps.javascript.outcome }}
+          MOBILE_NAV_RESULT: ${{ steps.mobile_navigation.outcome }}
           UPTIME_RESULT: ${{ steps.uptime.outcome }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
@@ -65,6 +71,7 @@ jobs:
             echo "- Ссылки и якоря: ${LINKS_RESULT}"
             echo "- Сканер публичных секретов: ${SECURITY_RESULT}"
             echo "- JavaScript: ${JS_RESULT}"
+            echo "- Мобильная навигация: ${MOBILE_NAV_RESULT}"
             echo "- Доступность сайта: ${UPTIME_RESULT}"
             echo
             cat robot-team-report.md
