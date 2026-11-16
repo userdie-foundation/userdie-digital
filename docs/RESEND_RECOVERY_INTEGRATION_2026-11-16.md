@@ -66,3 +66,15 @@ The Resend adapter and backend injection are implemented in source. This is not 
 - Confirmed reset-page URL for runtime configuration: `https://xn--d1abbl2ben.online/reset-password.html`. This is the public Pages URL from the repository's configured domain. The API origin is still unknown and intentionally remains blank in both pages' `userdie-api-base` meta tags.
 - The new pages are not added to the sitemap and are excluded from search indexing. No homepage CTA was added until the backend is operational, avoiding a public promise of an unavailable service.
 - No production API host, Resend sender verification, runtime secrets, real delivery, or end-to-end reset has been confirmed. Do not enable the form until the confirmed API origin is inserted and the runtime gates are met.
+
+
+## Additional security review and CI evidence
+
+- Fixed an account-enumeration edge case: a Resend/provider or account-specific recovery-service failure now returns the same generic `202 {accepted:true}` response as a non-matching account. A fixed operational log message is emitted without email, token, or provider response details. Rate-limiter infrastructure failure still fails closed.
+- Resend sender configuration now rejects CR/LF header injection, and the API key is trimmed before constructing the Authorization header. Added regression tests for CR/LF injection.
+- Website quality gate run `43947797239` on commit `d2755435d86c80bbd2d77f5b54e5664653710ac5`: **SUCCESS**. Confirmed internal links, accessibility baseline, external recovery JS syntax, mobile navigation, visual assets, and 404 checks.
+- Public website deployment run `43947797267` on the same commit: **SUCCESS**; both build and deploy jobs completed successfully.
+- Backend checks run `43947950959` on commit `d1a5e55730c71d0c7532d81cd4b89ca835de824c`: **SUCCESS**, including automated tests, container build, and smoke test.
+- Backend checks run `43948121242` on commit `f925edbdc7c9aa29409311b88be5b43fbf3a91aa`: **SUCCESS**, including the sender-validation hardening.
+- Final regression-test run `43948200067` on commit `9d54c10b5a1729df34f5eeed6ea4739d4444efba` was **PENDING/QUEUED** at the time of this checkpoint; it is intended to include the new CR/LF regression cases. Do not report that final run as passed until GitHub marks it successful.
+- A previous website quality run failed because the two new HTML pages lacked document titles; titles were added and the subsequent quality gate passed. This defect is corrected.
