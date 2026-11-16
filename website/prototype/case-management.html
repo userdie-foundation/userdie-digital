@@ -136,7 +136,11 @@ body.case-page{background:var(--cm-bg);min-height:100vh;font-size:14px}
   const results=document.getElementById('caseResults');
   const rows=[...document.querySelectorAll('#caseRows tr')];
   const empty=document.getElementById('caseEmpty');
-  const total=rows.length;\n  const closedStatuses=new Set(["Решение принято","Закрыто"]);\n  document.getElementById("metricOpen").textContent=String(rows.filter(row=>!closedStatuses.has(row.dataset.status)).length).padStart(2,"0");\n  document.getElementById("metricWaiting").textContent=String(rows.filter(row=>row.dataset.status==="Ожидает документов").length).padStart(2,"0");\n  document.getElementById("metricClosed").textContent=String(rows.filter(row=>closedStatuses.has(row.dataset.status)).length).padStart(2,"0");
+  const total=rows.length;
+  const closedStatuses=new Set(["Решение принято","Закрыто"]);
+  document.getElementById("metricOpen").textContent=String(rows.filter(row=>!closedStatuses.has(row.dataset.status)).length).padStart(2,"0");
+  document.getElementById("metricWaiting").textContent=String(rows.filter(row=>row.dataset.status==="Ожидает документов").length).padStart(2,"0");
+  document.getElementById("metricClosed").textContent=String(rows.filter(row=>closedStatuses.has(row.dataset.status)).length).padStart(2,"0");
   function applyFilters(){
     const q=search.value.trim().toLocaleLowerCase('ru');
     let visible=0;
