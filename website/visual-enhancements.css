@@ -701,3 +701,17 @@ img {
     width:100%;
   }
 }
+
+/* Keep the project-page context label below the brand/menu row. */
+@media (max-width:680px) {
+  .header.menu-enhanced .header-inner > .prototype-pill {
+    grid-column:1/-1;
+    grid-row:2;
+    justify-self:start;
+    max-width:100%;
+    margin:0;
+  }
+  .header.menu-enhanced .header-inner > .primary-navigation {
+    grid-row:3;
+  }
+}
