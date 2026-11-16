@@ -622,7 +622,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
             } catch {
               // Never expose whether an account exists through mail-provider or
               // account-specific persistence failures. Emit only a fixed message.
-              process.stderr.write("Account recovery request could not be completed.\\n");
+              process.stderr.write("Account recovery request could not be completed.\n");
             }
           }
         }
