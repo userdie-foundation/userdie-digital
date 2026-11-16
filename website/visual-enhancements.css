@@ -660,3 +660,44 @@ img {
     padding-top:34px;
   }
 }
+
+
+/* USERDIE — mobile header cascade correction, 2026-11-16. */
+/* The shared visual layer is injected after page styles. Keep the expandable
+   homepage header on the grid layout required by its mobile menu coordinates. */
+@media (max-width:680px) {
+  .header.menu-enhanced .header-inner {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    column-gap:12px;
+    row-gap:10px;
+  }
+  .header.menu-enhanced .header-inner > .brand {
+    grid-column:1;
+    grid-row:1;
+    order:initial;
+    min-width:0;
+  }
+  .header.menu-enhanced .header-inner > .menu-toggle {
+    grid-column:2;
+    grid-row:1;
+    order:initial;
+    justify-self:end;
+  }
+  .header.menu-enhanced .header-inner > .header-cta {
+    grid-column:1/-1;
+    grid-row:2;
+    order:initial;
+    justify-self:start;
+    max-width:100%;
+    margin:0;
+  }
+  .header.menu-enhanced .header-inner > .primary-navigation {
+    grid-column:1/-1;
+    grid-row:3;
+    order:initial;
+    min-width:0;
+    width:100%;
+  }
+}
