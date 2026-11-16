@@ -1338,3 +1338,54 @@ test("partnership API remains read-only", async () => {
     assert.deepEqual(await response.json(), { error: "method_not_allowed" });
   }, { allowedOrigin: "https://platform.example" });
 });
+
+
+test("CORS preflight permits only exact-origin JSON POST requests", async () => {
+  await withServer(noDb, async (base) => {
+    const allowed = await fetch(base + "/api/v1/auth/recovery/complete", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(allowed.status, 204);
+    assert.equal(allowed.headers.get("access-control-allow-origin"), "https://platform.example");
+    assert.equal(allowed.headers.get("access-control-allow-methods"), "POST, OPTIONS");
+    assert.equal(allowed.headers.get("access-control-allow-headers"), "Content-Type");
+
+    const foreign = await fetch(base + "/api/v1/auth/recovery/complete", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://attacker.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(foreign.status, 403);
+    assert.deepEqual(await foreign.json(), { error: "origin_not_allowed" });
+
+    const unsupportedHeader = await fetch(base + "/api/v1/auth/recovery/complete", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type, authorization",
+      },
+    });
+    assert.equal(unsupportedHeader.status, 403);
+    assert.deepEqual(await unsupportedHeader.json(), { error: "preflight_not_allowed" });
+
+    const unsupportedMethod = await fetch(base + "/api/v1/auth/recovery/complete", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "DELETE",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(unsupportedMethod.status, 403);
+    assert.deepEqual(await unsupportedMethod.json(), { error: "preflight_not_allowed" });
+  }, { allowedOrigin: "https://platform.example" });
+});
