@@ -78,3 +78,13 @@ The Resend adapter and backend injection are implemented in source. This is not 
 - Backend checks run `43948121242` on commit `f925edbdc7c9aa29409311b88be5b43fbf3a91aa`: **SUCCESS**, including the sender-validation hardening.
 - Final regression-test run `43948200067` on commit `9d54c10b5a1729df34f5eeed6ea4739d4444efba` was **PENDING/QUEUED** at the time of this checkpoint; it is intended to include the new CR/LF regression cases. Do not report that final run as passed until GitHub marks it successful.
 - A previous website quality run failed because the two new HTML pages lacked document titles; titles were added and the subsequent quality gate passed. This defect is corrected.
+
+
+## Latest release-gate update
+
+- Recovery pages now hide the entire form while the API origin meta value is blank; users cannot enter an email or password into an inactive form. The one-time token is still removed from the URL before the readiness check.
+- CORS preflight is now scoped not only to the exact allowed origin, POST and Content-Type, but also exclusively to `/api/v1/auth/recovery/request` and `/api/v1/auth/recovery/complete`.
+- Website quality gate run `43948452900` on commit `1d3ef41535654b9af6ec90573cc66f2b813b4cba`: **SUCCESS**.
+- Deploy public website run `43948452904` on the same commit: **SUCCESS**. The latest recovery-page UI guard is included in the successful deployment.
+- Backend checks run `43948200067` on commit `9d54c10b5a1729df34f5eeed6ea4739d4444efba`: **SUCCESS**, including automated tests and production-container smoke test. This run includes the CR/LF sender regression tests.
+- Backend checks run `43948429499` on commit `5a80d7372560c106b73696ff3642a56475a24706` — still **QUEUED/PENDING** at the time of this update. It includes the final regression test that rejects CORS preflight on non-recovery endpoints; wait for this result before declaring that last change CI-verified.
