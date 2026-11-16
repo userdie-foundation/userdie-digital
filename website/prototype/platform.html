@@ -24,8 +24,11 @@
         <span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span>
         <span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span>
       </a>
-      <button class="prototype-menu-toggle" type="button" aria-controls="prototype-navigation" aria-expanded="false"><span class="prototype-menu-icon" aria-hidden="true"><span></span><span></span><span></span></span><span>Меню</span></button>
-      <nav id="prototype-navigation" class="primary-navigation" aria-label="Главная навигация">
+      <button class="menu-toggle" type="button" aria-controls="primary-navigation" aria-expanded="false">
+        <span class="menu-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="menu-toggle-label">Меню</span>
+      </button>
+      <nav id="primary-navigation" class="primary-navigation" aria-label="Главная навигация">
         <a href="../index.html">Главная</a>
         <a href="#modules">Модули</a>
         <a href="#principles">Принципы</a>
@@ -206,39 +209,45 @@
 
 <script>
 (() => {
-  const header = document.querySelector('.header');
-  const button = document.querySelector('.prototype-menu-toggle');
-  const navigation = document.getElementById('prototype-navigation');
-  if (!header || !button || !navigation) return;
-  header.classList.add('prototype-menu-enhanced');
-  const mobile = window.matchMedia('(max-width: 680px)');
+  const header = document.querySelector(".header");
+  const toggle = document.querySelector(".menu-toggle");
+  const navigation = document.querySelector("#primary-navigation");
+  if (!header || !toggle || !navigation) return;
+
+  header.classList.add("menu-enhanced");
+  const mobile = window.matchMedia("(max-width: 680px)");
   const closeMenu = () => {
-    button.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute("aria-expanded", "false");
     navigation.hidden = mobile.matches;
   };
+  const openMenu = () => {
+    toggle.setAttribute("aria-expanded", "true");
+    navigation.hidden = false;
+  };
   const syncLayout = () => {
-    if (mobile.matches) closeMenu();
-    else {
+    if (mobile.matches) {
+      if (toggle.getAttribute("aria-expanded") !== "true") closeMenu();
+    } else {
       navigation.hidden = false;
-      button.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute("aria-expanded", "false");
     }
   };
-  button.addEventListener('click', () => {
-    const expanded = button.getAttribute('aria-expanded') === 'true';
-    button.setAttribute('aria-expanded', String(!expanded));
-    navigation.hidden = expanded;
+
+  syncLayout();
+  toggle.addEventListener("click", () => {
+    toggle.getAttribute("aria-expanded") === "true" ? closeMenu() : openMenu();
   });
-  navigation.addEventListener('click', event => {
-    if (event.target.closest('a') && mobile.matches) closeMenu();
+  navigation.addEventListener("click", (event) => {
+    if (event.target.closest("a") && mobile.matches) closeMenu();
   });
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
       closeMenu();
-      button.focus();
+      toggle.focus();
     }
   });
-  mobile.addEventListener('change', syncLayout);
-  syncLayout();
+  mobile.addEventListener("change", syncLayout);
+  window.addEventListener("resize", syncLayout);
 })();
 </script>
 
