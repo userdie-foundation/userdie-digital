@@ -8,6 +8,7 @@ import { createAuthenticationService } from "./security/authentication.mjs";
 import { createAccountRecoveryService } from "./security/account-recovery.mjs";
 import { createResendRecoveryMailer } from "./security/resend-recovery-mailer.mjs";
 import { readConfig } from "./config.mjs";
+import { createValuationProvider } from "./valuation/valuation-provider.mjs";
 
 const config = readConfig();
 
@@ -48,6 +49,12 @@ const recoveryService = config.resendApiKey && config.recoveryRateLimitHmacKey
   })
   : undefined;
 
+const valuationProvider = createValuationProvider({
+  apiKey: config.valuationApiKey,
+  baseUrl: config.valuationBaseUrl,
+  model: config.valuationModel,
+});
+
 const server = createHttpServer(createServer({
   pool,
   allowedOrigin: config.allowedOrigin,
@@ -55,6 +62,7 @@ const server = createHttpServer(createServer({
   authenticationService,
   recoveryService,
   recoveryRateLimiter,
+  valuationProvider,
 }));
 
 server.listen(config.port, "0.0.0.0", () => {
