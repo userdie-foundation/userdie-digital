@@ -1,9 +1,11 @@
 /**
  * Fail-closed authorization policy primitives.
  *
- * The policy is enforced by read-only application, workflow, and program
- * routes using the trusted database-backed session principal resolver.
- * All write routes remain disabled pending a separately reviewed workflow.
+ * The policy is enforced by protected application, workflow, program, and
+ * analytical-document routes using the trusted database-backed session
+ * principal resolver. Analytical-document lifecycle writes have their own
+ * explicit role checks and PostgreSQL lifecycle guards. Other write routes
+ * remain disabled until separately reviewed and tested.
  * The client must never supply trusted roles or scopes.
  */
 const ACTIVE_ACCOUNT_STATES = new Set(["active"]);
