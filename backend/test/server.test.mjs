@@ -32,6 +32,83 @@ const syntheticRepository = {
 };
 const noDb = { query: async () => ({ rows: [] }) };
 
+test("valuation analysis requires a valid authorized session and configured provider", async () => {
+  const payload = {
+    assetId: "ASSET-DEMO-001",
+    assetClass: "property",
+    title: "Synthetic asset",
+    currency: "EUR",
+    valuationDate: "2026-11-18",
+    description: "Synthetic description",
+    evidenceSummary: "Synthetic evidence only; no personal data.",
+    knownLimitations: "No verified comparables.",
+  };
+  await withServer(noDb, async (base) => {
+    const anonymous = await fetch(base + "/api/v1/valuation/analyze", {
+      method: "POST", headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    assert.equal(anonymous.status, 401);
+  }, { allowedOrigin: "https://platform.example" });
+
+  await withServer(noDb, async (base) => {
+    const denied = await fetch(base + "/api/v1/valuation/analyze", {
+      method: "POST", headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    assert.equal(denied.status, 403);
+  }, {
+    allowedOrigin: "https://platform.example",
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+  });
+
+  await withServer(noDb, async (base) => {
+    const unavailable = await fetch(base + "/api/v1/valuation/analyze", {
+      method: "POST", headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    assert.equal(unavailable.status, 503);
+    assert.deepEqual(await unavailable.json(), { error: "valuation_ai_unavailable" });
+  }, {
+    allowedOrigin: "https://platform.example",
+    resolvePrincipal: async () => identity("valuator-1", "asset_valuator", "contour", "assets"),
+  });
+});
+
+test("valuation analysis audits successful preliminary output and rejects extra input fields", async () => {
+  const payload = {
+    assetId: "ASSET-DEMO-001", assetClass: "property", title: "Synthetic asset",
+    currency: "EUR", valuationDate: "2026-11-18", description: "Synthetic description",
+    evidenceSummary: "Synthetic evidence only; no personal data.", knownLimitations: "No comparables.",
+  };
+  const calls = [];
+  const pool = { async query(sql, params) { calls.push({ sql, params }); return { rows: [] }; } };
+  const valuationProvider = { async analyze(asset) {
+    return { assetId: asset.assetId, reviewStatus: "preliminary_ai_analysis", approvalRequired: true };
+  } };
+  await withServer(pool, async (base) => {
+    const invalid = await fetch(base + "/api/v1/valuation/analyze", {
+      method: "POST", headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify({ ...payload, unapproved: true }),
+    });
+    assert.equal(invalid.status, 400);
+    const response = await fetch(base + "/api/v1/valuation/analyze", {
+      method: "POST", headers: { origin: "https://platform.example", "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).analysis.approvalRequired, true);
+  }, {
+    allowedOrigin: "https://platform.example",
+    resolvePrincipal: async () => identity("valuator-1", "asset_valuator", "contour", "assets"),
+    valuationProvider,
+  });
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].sql, /valuation.ai_preliminary_analysis/);
+  assert.equal(calls[0].params[0], "valuator-1");
+  assert.equal(calls[0].params[1], "ASSET-DEMO-001");
+});
+
 test("live endpoint returns minimal health information and security headers", async () => {
   await withServer({ query: async () => { throw new Error("should not query"); } }, async (base) => {
     const response = await fetch(`${base}/api/v1/health/live`);
