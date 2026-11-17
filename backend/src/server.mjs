@@ -6,6 +6,7 @@ import {
   serializeSessionCookie,
 } from "./security/session.mjs";
 import { rotateSession } from "./security/session-lifecycle.mjs";
+import { validateValuationInput } from "./valuation/valuation-provider.mjs";
 
 const SECURITY_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -533,7 +534,7 @@ export function createPartnershipRepository(pool) {
   };
 }
 
-export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, recoveryService, recoveryRateLimiter, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository, partnershipRepository } = {}) {
+export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, recoveryService, recoveryRateLimiter, valuationProvider, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository, partnershipRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
@@ -819,7 +820,8 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
     // All other non-read methods remain blocked by this central allowlist.
     const isWorkspaceTaskStatusPatch = req.method === "PATCH" &&
       /^\/api\/v1\/workspace\/tasks\/[^/]+\/status$/.test(url.pathname);
-    if (req.method !== "GET" && req.method !== "HEAD" && !isWorkspaceTaskStatusPatch) {
+    const isValuationAnalyzePost = req.method === "POST" && url.pathname === "/api/v1/valuation/analyze";
+    if (req.method !== "GET" && req.method !== "HEAD" && !isWorkspaceTaskStatusPatch && !isValuationAnalyzePost) {
       return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
     }
 
@@ -1139,6 +1141,57 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
         return sendJson(res, 404, { error: "not_found" }, req.method);
       }
       return sendJson(res, 200, { approval }, req.method);
+    }
+
+    if (url.pathname === "/api/v1/valuation/analyze") {
+      if (req.method !== "POST") {
+        res.setHeader("Allow", "POST");
+        return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
+      }
+      if (typeof resolvePrincipal !== "function") {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      let principal;
+      try { principal = await resolvePrincipal(req); } catch {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isValidPrincipal(principal)) {
+        return sendJson(res, 401, { error: "authentication_required" }, req.method);
+      }
+      if (!isAuthorized({ principal, permission: "valuation:analyze" })) {
+        return sendJson(res, 403, { error: "valuation_access_denied" }, req.method);
+      }
+      if (!valuationProvider || typeof valuationProvider.analyze !== "function") {
+        return sendJson(res, 503, { error: "valuation_ai_unavailable" }, req.method);
+      }
+      const parsed = await readJsonBody(req, 12288);
+      if (parsed.error) {
+        const status = parsed.error === "payload_too_large" ? 413
+          : parsed.error === "unsupported_media_type" ? 415 : 400;
+        return sendJson(res, status, { error: parsed.error }, req.method);
+      }
+      const asset = validateValuationInput(parsed.value);
+      if (!asset) return sendJson(res, 400, { error: "invalid_valuation_input" }, req.method);
+      let analysis;
+      try {
+        analysis = await valuationProvider.analyze(asset);
+      } catch {
+        return sendJson(res, 503, { error: "valuation_analysis_unavailable" }, req.method);
+      }
+      try {
+        await pool.query(
+          `INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata)
+           VALUES ($1, 'valuation.ai_preliminary_analysis', 'asset', $2, $3::jsonb)`,
+          [principal.id, asset.assetId, JSON.stringify({
+            assetClass: asset.assetClass,
+            reviewStatus: "preliminary_ai_analysis",
+            approvalRequired: true,
+          })],
+        );
+      } catch {
+        return sendJson(res, 503, { error: "valuation_audit_unavailable" }, req.method);
+      }
+      return sendJson(res, 200, { analysis }, req.method);
     }
 
     // Status writes are scoped to the assigned worker or exact program grant.
