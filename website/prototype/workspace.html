@@ -649,6 +649,9 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <div class="notice-box"><strong>Порядок работы:</strong> внесите свободный денежный поток (FCFF) по годам, ставку дисконтирования WACC, долг и денежные средства. Все суммы должны быть в одной валюте и единице измерения. Результат — предварительный сценарный расчёт, а не официальная оценка.</div>
 <form id="ib-dcf-form" class="object-form" novalidate>
 <label>Валюта расчёта<input id="ib-dcf-currency" class="search-box" maxlength="8" value="RUB" aria-describedby="ib-dcf-units"></label>
+<label>Дата оценки<input id="ib-dcf-date" class="search-box" type="date" required></label>
+<label>Статус исходных данных<select id="ib-dcf-source-status" class="filter-select" required><option value="confirmed">Подтверждены документами</option><option value="preliminary">Предварительные</option><option value="unverified">Не проверены</option></select></label>
+<label class="object-wide">Источник финансовых данных<input id="ib-dcf-source" class="search-box" maxlength="200" required placeholder="Например: управленческая отчётность за 2025 год, версия и дата"></label>
 <label>Единица измерения<input id="ib-dcf-unit" class="search-box" maxlength="24" value="млн" aria-describedby="ib-dcf-units"></label>
 <p class="object-wide" id="ib-dcf-units">Например: RUB / млн. Не смешивайте рубли и миллионы рублей в одной модели.</p>
 <label>FCFF — год 1<input id="ib-dcf-fcf1" class="search-box" type="number" step="any" value="100" required></label>
@@ -989,6 +992,9 @@ if(dcfForm){
   const waccPct=dcfNum("ib-dcf-wacc"),growthPct=dcfNum("ib-dcf-growth"),debt=dcfNum("ib-dcf-debt"),cash=dcfNum("ib-dcf-cash"),shares=dcfNum("ib-dcf-shares");
   const currency=document.getElementById("ib-dcf-currency").value.trim().toUpperCase();
   const unit=document.getElementById("ib-dcf-unit").value.trim();
+  const valuationDate=document.getElementById("ib-dcf-date").value;
+  const source=document.getElementById("ib-dcf-source").value.trim();
+  const sourceStatus=document.getElementById("ib-dcf-source-status").selectedOptions[0].textContent;
   const errors=[];
   if(fcfs.some(v=>v===null))errors.push("Заполните все пять значений FCFF корректными числами.");
   if(waccPct===null||waccPct<0.1||waccPct>50)errors.push("WACC должен находиться в диапазоне от 0,1% до 50%.");
@@ -998,6 +1004,8 @@ if(dcfForm){
   if(cash===null||cash<0)errors.push("Укажите неотрицательную величину денежных средств.");
   if(shares!==null&&shares<=0)errors.push("Количество акций должно быть положительным числом либо поле следует оставить пустым.");
   if(!/^[A-ZА-ЯЁ]{3,8}$/.test(currency))errors.push("Укажите код валюты буквами, например RUB, EUR или USD.");
+  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(valuationDate)||Number.isNaN(Date.parse(valuationDate)))errors.push("Укажите корректную дату оценки.");
+  if(!source||source.length>200)errors.push("Укажите источник финансовых данных (до 200 символов).");
   if(!/^[A-Za-zА-Яа-яЁё0-9 ._-]{1,24}$/.test(unit))errors.push("Единица измерения: только буквы, цифры, пробел, точка, дефис или подчёркивание (до 24 символов).");
   if(errors.length){dcfError.textContent=errors.join(" ");dcfError.hidden=false;dcfResults.innerHTML="<strong>Расчёт не выполнен</strong><p>Исправьте отмеченные предпосылки и повторите расчёт.</p>";return;}
   const wacc=waccPct/100,g=growthPct/100,ev=dcfEv(fcfs,wacc,g),equity=ev-debt+cash;
@@ -1007,6 +1015,7 @@ if(dcfForm){
   const unitLabel=currency+" / "+unit;
   const rows=[["Enterprise Value (EV)",ev],["Equity Value",equity],["PV прогнозных FCFF",pvFlows],["Terminal Value на конец 5-го года",terminal],["PV Terminal Value",pvTerminal],["Чистый долг (долг − деньги)",debt-cash]];
   dcfResults.innerHTML="<strong>Результат DCF · "+unitLabel+"</strong>"+rows.map(([label,value])=>"<p>"+label+": <strong>"+dcfFormat(value)+"</strong></p>").join("")+(shares!==null?"<p>Расчётная стоимость на акцию / долю: <strong>"+dcfFormat(equity/shares)+" "+unitLabel+"</strong></p>":"")+"<p>Доля Terminal Value в EV: <strong>"+dcfFormat(ev!==0?pvTerminal/ev*100:0)+"%</strong></p><p>Предпосылки: WACC "+dcfFormat(waccPct)+"%; g "+dcfFormat(growthPct)+"%; прогноз 5 лет.</p>";
+  const provenance=document.createElement("p");provenance.textContent="Дата оценки: "+valuationDate+" · Источник: "+source+" · Статус: "+sourceStatus;dcfResults.appendChild(provenance);
   const waccCases=[waccPct-1,waccPct,waccPct+1],growthCases=[growthPct-0.5,growthPct,growthPct+0.5];
   const table=document.createElement("table");table.className="data-table";
   const caption=document.createElement("caption");caption.textContent="Чувствительность Enterprise Value · "+unitLabel;table.appendChild(caption);
