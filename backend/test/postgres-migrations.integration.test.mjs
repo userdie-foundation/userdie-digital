@@ -10,7 +10,7 @@ import { createPartnershipRepository } from "../src/server.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-014 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, and partnership invariants", {
+test("PostgreSQL applies migrations 001-016 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and analytical-document invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -35,6 +35,8 @@ test("PostgreSQL applies migrations 001-014 and enforces workflow, authorization
       "012_mfa_persistence.sql",
       "013_auth_recovery_rate_limits.sql",
       "014_partnership_workspace.sql",
+      "015_asset_valuator_role.sql",
+      "016_analytical_document_registry.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -597,6 +599,125 @@ test("PostgreSQL applies migrations 001-014 and enforces workflow, authorization
         [partnershipId],
       ),
       /partnership history is append-only/i,
+    );
+
+    const analyticalDocument = await client.query(
+      `INSERT INTO analytical_documents
+        (document_type, organizational_contour, asset_reference, title,
+         created_by, assigned_reviewer_id)
+       VALUES ('preliminary_valuation', 'assets', 'ASSET-TEST-001',
+         'Synthetic asset analysis', $1, $2)
+       RETURNING id, status, document_number`,
+      [actorId, workerId],
+    );
+    const analyticalDocumentId = analyticalDocument.rows[0].id;
+    assert.equal(analyticalDocument.rows[0].status, "draft");
+    assert.equal(analyticalDocument.rows[0].document_number, null);
+
+    const documentVersion = await client.query(
+      `INSERT INTO analytical_document_versions
+        (document_id, version_number, content, content_sha256, created_by)
+       VALUES ($1, 1, '{"summary":"Synthetic test content"}'::jsonb, $2, $3)
+       RETURNING id, version_number`,
+      [analyticalDocumentId, "a".repeat(64), actorId],
+    );
+    const documentVersionId = documentVersion.rows[0].id;
+    assert.equal(documentVersion.rows[0].version_number, 1);
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_document_versions SET content = '{}'::jsonb WHERE id = $1",
+        [documentVersionId],
+      ),
+      /analytical document versions are immutable/i,
+    );
+    await assert.rejects(
+      client.query(
+        "DELETE FROM analytical_document_versions WHERE id = $1",
+        [documentVersionId],
+      ),
+      /analytical document versions are immutable/i,
+    );
+
+    const documentApproval = await client.query(
+      `INSERT INTO analytical_document_approvals
+        (document_id, document_version_id, submitted_by, reviewer_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, status`,
+      [analyticalDocumentId, documentVersionId, actorId, workerId],
+    );
+    assert.equal(documentApproval.rows[0].status, "pending");
+    await assert.rejects(
+      client.query(
+        `INSERT INTO analytical_document_approvals
+          (document_id, document_version_id, submitted_by, reviewer_id)
+         VALUES ($1, $2, $3, $3)`,
+        [analyticalDocumentId, documentVersionId, actorId],
+      ),
+      /check constraint/i,
+    );
+    await client.query(
+      "UPDATE analytical_document_approvals SET status = 'approved', decided_at = now(), decision_rationale = 'Independent synthetic review' WHERE id = $1",
+      [documentApproval.rows[0].id],
+    );
+    await assert.rejects(
+      client.query(
+        "DELETE FROM analytical_document_approvals WHERE id = $1",
+        [documentApproval.rows[0].id],
+      ),
+      /analytical document approval history is append-only/i,
+    );
+
+    await client.query(
+      "UPDATE analytical_documents SET status = 'approved', approved_by = $2, approved_at = now(), updated_at = now() WHERE id = $1",
+      [analyticalDocumentId, workerId],
+    );
+    await client.query(
+      "UPDATE analytical_documents SET status = 'issued', document_number = 'UA-2026-000001', issued_at = now(), updated_at = now() WHERE id = $1",
+      [analyticalDocumentId],
+    );
+    const issuedDocument = await client.query(
+      "SELECT status, document_number, approved_by, created_by FROM analytical_documents WHERE id = $1",
+      [analyticalDocumentId],
+    );
+    assert.deepEqual(issuedDocument.rows[0], {
+      status: "issued",
+      document_number: "UA-2026-000001",
+      approved_by: workerId,
+      created_by: actorId,
+    });
+    await assert.rejects(
+      client.query(
+        `INSERT INTO analytical_documents
+          (document_type, organizational_contour, title, status, created_by,
+           approved_by, approved_at, document_number, issued_at)
+         VALUES ('asset_analysis', 'assets', 'Invalid self-issued document',
+           'issued', $1, $1, now(), 'UA-2026-000002', now())`,
+        [actorId],
+      ),
+      /check constraint/i,
+    );
+
+    await client.query(
+      `INSERT INTO analytical_document_events
+        (document_id, document_version_id, actor_id, event_type,
+         previous_status, new_status, details)
+       VALUES ($1, $2, $3, 'issued', 'approved', 'issued',
+         '{"registration":"UA-2026-000001"}'::jsonb)`,
+      [analyticalDocumentId, documentVersionId, workerId],
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_document_events SET details = '{}'::jsonb WHERE document_id = $1",
+        [analyticalDocumentId],
+      ),
+      /analytical document events are append-only/i,
+    );
+    await assert.rejects(
+      client.query(
+        "DELETE FROM analytical_document_events WHERE document_id = $1",
+        [analyticalDocumentId],
+      ),
+      /analytical document events are append-only/i,
     );
 
   } finally {
