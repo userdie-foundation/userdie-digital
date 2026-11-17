@@ -64,7 +64,7 @@ test("analytical document creation is denied to roles without valuation authorit
   });
 });
 
-test("analytical document creation rejects self-review and malformed content before database writes", async () => {
+test("analytical document creation rejects self-review before database writes", async () => {
   let queries = 0;
   const pool = { async query() { queries += 1; return { rows: [] }; } };
   await withServer(pool, async (base) => {
