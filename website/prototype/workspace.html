@@ -101,7 +101,11 @@ button.metric-card-action{appearance:none;-webkit-appearance:none}
 .notice-box{margin-top:18px;padding:13px 15px;border-left:3px solid #c4a16f;background:#f3efe5;color:#74664f;font-size:10px;line-height:1.8}
 .toast{position:fixed;right:22px;bottom:22px;z-index:20;max-width:min(380px,calc(100vw - 36px));padding:14px 17px;border:1px solid #cbd8be;border-radius:5px;background:#f9fbf5;color:#294833;box-shadow:0 12px 35px #20372b1c;font-size:11px;line-height:1.6;display:none}
 .toast.visible{display:block}
-.object-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.object-form label{display:grid;gap:7px;color:var(--app-muted);font-size:10px;font-weight:700}.object-form .object-wide{grid-column:1/-1}.object-form input,.object-form select,.object-form textarea{box-sizing:border-box;width:100%;min-width:0}.object-textarea{padding:11px;border:1px solid #dce1d6;border-radius:4px;background:#fff;color:var(--app-text);font:11px/1.6 'DM Sans',sans-serif;resize:vertical}.object-list{display:grid;gap:12px}.object-card{padding:16px;border:1px solid var(--app-line);border-radius:5px;background:#fff}.object-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.object-card h3{margin:0 0 7px;font:700 13px Manrope,sans-serif;color:var(--app-text)}.object-card p{margin:6px 0;color:var(--app-muted);font-size:10px;line-height:1.7;overflow-wrap:anywhere}.object-card-meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.object-status-control{width:auto;max-width:170px;min-height:34px;padding:6px 9px;font-size:10px;font-weight:700}@media(max-width:720px){.object-status-control{width:100%;max-width:none}}.object-chip{padding:5px 7px;border-radius:3px;background:#edf1e5;color:#4b6a47;font-size:8px;font-weight:800}.object-id{color:#8b9488;font-size:8px}.object-empty{padding:25px;text-align:center;color:var(--app-muted);font-size:11px}@media(max-width:720px){.object-form{grid-template-columns:1fr}.object-form .object-wide{grid-column:auto}.object-card-head{flex-direction:column}}
+.object-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.object-form label{display:grid;gap:7px;color:var(--app-muted);font-size:10px;font-weight:700}.object-form .object-wide{grid-column:1/-1}.object-form input,.object-form select,.object-form textarea{box-sizing:border-box;width:100%;min-width:0}.object-textarea{padding:11px;border:1px solid #dce1d6;border-radius:4px;background:#fff;color:var(--app-text);font:11px/1.6 'DM Sans',sans-serif;resize:vertical}.object-list{display:grid;gap:12px}.object-card{padding:16px;border:1px solid var(--app-line);border-radius:5px;background:#fff}.object-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.object-card h3{margin:0 0 7px;font:700 13px Manrope,sans-serif;color:var(--app-text)}.object-card p{margin:6px 0;color:var(--app-muted);font-size:10px;line-height:1.7;overflow-wrap:anywhere}.object-card-meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.object-status-control{width:auto;max-width:170px;min-height:34px;padding:6px 9px;font-size:10px;font-weight:700}@media(max-width:720px){.object-status-control{width:100%;max-width:none}}.object-chip{padding:5px 7px;border-radius:3px;background:#edf1e5;color:#4b6a47;font-size:8px;font-weight:800}.object-id{color:#8b9488;font-size:8px}.object-empty{padding:25px;text-align:center;color:var(--app-muted);font-size:11px}
+.document-review{display:inline-flex;align-items:center;gap:6px;margin:5px 0;padding:5px 8px;border-radius:4px;background:#edf1e5;color:#4b6a47;font-size:9px;font-weight:700}
+.document-review.overdue{background:#f7e8e2;color:#8d4935}.document-review.today{background:#f3efe5;color:#80633b}
+#documents-clear-filters{min-height:40px}
+@media(max-width:720px){#documents-clear-filters{width:100%}}@media(max-width:720px){.object-form{grid-template-columns:1fr}.object-form .object-wide{grid-column:auto}.object-card-head{flex-direction:column}}
 @media(max-width:1080px){.metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.content-grid{grid-template-columns:1fr}.module-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:720px){.app-shell{grid-template-columns:1fr}.app-sidebar{position:relative;top:auto;height:auto;padding:10px 14px;border-right:0;border-bottom:1px solid var(--app-line)}.sidebar-caption,.sidebar-status{display:none}.app-nav{display:flex;gap:5px;overflow-x:auto;margin:0}.app-nav button{width:auto;flex:0 0 auto;padding:9px;font-size:10px}.nav-ico{width:21px;height:21px}.app-main{padding:22px 15px 40px}.welcome-row{align-items:flex-start;flex-direction:column}.app-topline{margin-bottom:22px}.metrics-grid{gap:8px}.metric-card{padding:14px}.metric-value{font-size:27px}.module-list{grid-template-columns:1fr 1fr}.module-tile{min-height:155px;padding:13px}.panel{padding:16px}.task-row{grid-template-columns:25px minmax(0,1fr)}.task-state{grid-column:2;justify-self:start}.demo-label{font-size:8px}}
 @media(max-width:390px){.module-list{grid-template-columns:1fr}.metrics-grid{grid-template-columns:1fr 1fr}.metric-top{font-size:9px}}
@@ -627,6 +631,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <label class="object-wide">Наименование документа<input id="doc-title" class="search-box" maxlength="140" required placeholder="Например: Положение о порядке рассмотрения обращений"></label>
 <label>Регистрационный номер<input id="doc-number" class="search-box" maxlength="60" placeholder="Например: УС-РЕГ-001"></label>
 <label>Тип документа<select id="doc-kind" class="filter-select"><option>Внутренний документ</option><option>Учредительный документ</option><option>Отчётность</option><option>Договор / соглашение</option><option>Методика / регламент</option><option>Публичный материал</option><option>Иное</option></select></label>
+<label>Организационный контур<select id="doc-contour" class="filter-select"><option value="fund">Фонд «УСЕРДИЕ»</option><option value="assets">Центр оценки активов</option><option value="analytics">Аналитический центр</option></select></label>
 <label>Версия<input id="doc-version" class="search-box" maxlength="20" value="1.0" required></label>
 <label>Ответственная роль<input id="doc-owner" class="search-box" maxlength="100" placeholder="Например: ответственный за документооборот" required></label>
 <label>Дата следующей проверки<input id="doc-review-date" class="search-box" type="date"></label>
@@ -638,7 +643,12 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </div>
 <div class="panel">
 <div class="panel-head"><div><h2>Единый реестр</h2><p id="document-registry-summary">Документы и их контрольные статусы</p></div></div>
-<div class="filter-row"><input id="document-search" class="search-box" type="search" placeholder="Поиск по названию, номеру или ответственному" aria-label="Поиск документов"><select id="document-status-filter" class="filter-select" aria-label="Фильтр по статусу"><option value="all">Все статусы</option><option>Черновик</option><option>Требует проверки</option><option>На согласовании</option><option>Утверждён</option><option>Опубликован</option><option>Устарел</option></select></div>
+<div class="filter-row" role="search" aria-label="Фильтры реестра документов">
+<input id="document-search" class="search-box" type="search" placeholder="Поиск по названию, номеру, роли или источнику" aria-label="Поиск документов">
+<select id="document-status-filter" class="filter-select" aria-label="Фильтр по статусу"><option value="all">Все статусы</option><option>Черновик</option><option>Требует проверки</option><option>На согласовании</option><option>Утверждён</option><option>Опубликован</option><option>Устарел</option></select>
+<select id="document-contour-filter" class="filter-select" aria-label="Фильтр по организационному контуру"><option value="all">Все контуры</option><option value="fund">Фонд «УСЕРДИЕ»</option><option value="assets">Центр оценки активов</option><option value="analytics">Аналитический центр</option></select>
+<button type="button" id="documents-clear-filters" class="app-button secondary">Сбросить</button>
+</div>
 <div id="document-registry-list" class="object-list" aria-live="polite"></div>
 </div>
 </section>
@@ -821,27 +831,37 @@ function renderDocuments(){
  const root=document.getElementById("document-registry-list");if(!root)return;
  const search=(document.getElementById("document-search")?.value||"").trim().toLocaleLowerCase("ru");
  const filter=document.getElementById("document-status-filter")?.value||"all";
- const docs=objects.filter(o=>o.type==="document"&&(filter==="all"||(o.docApproval||o.status)===filter)&&[o.title,o.docNumber,o.docOwner,o.docKind,o.docVersion,o.docApproval].join(" ").toLocaleLowerCase("ru").includes(search));
+ const contourFilter=document.getElementById("document-contour-filter")?.value||"all";
+ const allDocs=objects.filter(o=>o.type==="document");
+ const docs=allDocs.filter(o=>(filter==="all"||(o.docApproval||o.status)===filter)&&(contourFilter==="all"||(o.docContour||o.contour)===contourFilter)&&[o.title,o.docNumber,o.docOwner,o.docKind,o.docVersion,o.docApproval,o.source,contourNames[o.docContour||o.contour]].join(" ").toLocaleLowerCase("ru").includes(search));
  root.replaceChildren();
- if(!docs.length){const empty=document.createElement("div");empty.className="object-empty";empty.textContent="Документы по выбранным условиям не найдены.";root.appendChild(empty);}
+ if(!docs.length){const empty=document.createElement("div");empty.className="object-empty";empty.textContent=allDocs.length?"По заданным фильтрам документы не найдены. Сбросьте фильтры или измените поисковый запрос.":"В реестре пока нет документов. Заполните форму выше, чтобы добавить первую демонстрационную запись.";root.appendChild(empty);}
+ const now=new Date();const today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,"0"),String(now.getDate()).padStart(2,"0")].join("-");
  docs.forEach(o=>{
   const card=document.createElement("article");card.className="object-card";
   const head=document.createElement("div");head.className="object-card-head";
   const left=document.createElement("div");const title=document.createElement("h3");title.textContent=o.title;
   const id=document.createElement("span");id.className="object-id";id.textContent=(o.docNumber||o.id)+" · "+o.id;left.append(title,id);
-  const state=document.createElement("select");state.className="filter-select object-status-control";state.setAttribute("aria-label","Статус документа "+o.id);
+  const state=document.createElement("select");state.className="filter-select object-status-control";state.setAttribute("aria-label","Изменить статус документа «"+o.title+"»");
   ["Черновик","Требует проверки","На согласовании","Утверждён","Опубликован","Устарел"].forEach(v=>{const opt=document.createElement("option");opt.value=v;opt.textContent=v;state.appendChild(opt);});
   state.value=o.docApproval||o.status||"Черновик";
   state.addEventListener("change",()=>{o.docApproval=state.value;o.status=state.value;const saved=saveObjects();showToast(saved?"Статус документа изменён. Изменение сохранено только в этом браузере.":"Изменение действует только до закрытия страницы.");renderDocuments();renderObjects();});
   head.append(left,state);card.appendChild(head);
   const chips=document.createElement("div");chips.className="object-card-meta";
-  [o.docKind||"Тип не указан","Версия "+(o.docVersion||"не указана"),contourNames[o.contour]||"Контур не указан"].forEach(v=>{const chip=document.createElement("span");chip.className="object-chip";chip.textContent=v;chips.appendChild(chip);});
+  [o.docKind||"Тип не указан","Версия "+(o.docVersion||"не указана"),contourNames[o.docContour||o.contour]||"Контур не указан"].forEach(v=>{const chip=document.createElement("span");chip.className="object-chip";chip.textContent=v;chips.appendChild(chip);});
   card.appendChild(chips);
-  [[ "Ответственная роль",o.docOwner||o.owner||"Не назначена"],["Следующая проверка",o.docReviewDate||"Не назначена"],["Источник / основание",o.source||"Не указан"]].forEach(pair=>{const p=document.createElement("p");const strong=document.createElement("strong");strong.textContent=pair[0]+": ";p.append(strong,document.createTextNode(pair[1]));card.appendChild(p);});
+  const reviewDate=o.docReviewDate||"";
+  const review=document.createElement("p");review.className="document-review";
+  if(!reviewDate){review.textContent="Дата следующей проверки не назначена";}
+  else if(reviewDate<today){review.classList.add("overdue");review.textContent="Проверка просрочена: "+reviewDate;}
+  else if(reviewDate===today){review.classList.add("today");review.textContent="Проверка сегодня";}
+  else{review.textContent="Следующая проверка: "+reviewDate;}
+  card.appendChild(review);
+  [[ "Ответственная роль",o.docOwner||o.owner||"Не назначена"],["Источник / основание",o.source||"Не указан"]].forEach(pair=>{const p=document.createElement("p");const strong=document.createElement("strong");strong.textContent=pair[0]+": ";p.append(strong,document.createTextNode(pair[1]));card.appendChild(p);});
   const rel=parseObjectLink(o.links);if(rel){const target=objects.find(x=>x.id===rel.id);if(target){const p=document.createElement("p");const b=document.createElement("strong");b.textContent="Связанный объект: ";p.append(b,document.createTextNode(target.id+" — "+target.title));card.appendChild(p);}}
   root.appendChild(card);
  });
- document.getElementById("document-registry-summary").textContent=docs.length+" документов в реестре · локальная демо-среда";
+ document.getElementById("document-registry-summary").textContent="Показано "+docs.length+" из "+allDocs.length+" документов · локальная демо-среда";
 }
 function refreshDocumentTargets(){
  const select=document.getElementById("doc-linked-object");if(!select)return;const previous=select.value;select.replaceChildren();
@@ -851,14 +871,19 @@ function refreshDocumentTargets(){
 }
 document.getElementById("document-register-form").addEventListener("submit",event=>{
  event.preventDefault();const title=document.getElementById("doc-title").value.trim();if(!title)return;if(objects.length>=100){showToast("Достигнут лимит в 100 демонстрационных карточек. Удаление или архивирование записей ещё не реализовано; существующие данные сохранены.");return;}
+ const number=document.getElementById("doc-number").value.trim();
+ if(number&&objects.some(o=>o.type==="document"&&(o.docNumber||"").toLocaleLowerCase("ru")===number.toLocaleLowerCase("ru"))){showToast("Такой регистрационный номер уже есть в демонстрационном реестре. Проверьте номер.");document.getElementById("doc-number").focus();return;}
  const next=objects.reduce((max,o)=>Math.max(max,Number(o.id.replace("DEMO-",""))||0),0)+1;
  const linked=document.getElementById("doc-linked-object").value;
  const status=document.getElementById("doc-approval").value;
- objects.unshift({id:"DEMO-"+String(next).padStart(3,"0"),type:"document",contour:"fund",title,goal:"Запись метаданных документа; файл не загружен.",owner:document.getElementById("doc-owner").value.trim(),status,deadline:document.getElementById("doc-review-date").value,links:linked?"rel:related_to:"+linked:"",source:"Файл не загружен",created:new Date().toISOString().slice(0,10),confirmed:"Не подтверждено",docNumber:document.getElementById("doc-number").value.trim(),docKind:document.getElementById("doc-kind").value,docVersion:document.getElementById("doc-version").value.trim(),docOwner:document.getElementById("doc-owner").value.trim(),docReviewDate:document.getElementById("doc-review-date").value,docApproval:status});
+ const docContour=document.getElementById("doc-contour").value;
+ objects.unshift({id:"DEMO-"+String(next).padStart(3,"0"),type:"document",contour:docContour,docContour,title,goal:"Запись метаданных документа; файл не загружен.",owner:document.getElementById("doc-owner").value.trim(),status,deadline:document.getElementById("doc-review-date").value,links:linked?"rel:related_to:"+linked:"",source:"Файл не загружен",created:new Date().toISOString().slice(0,10),confirmed:"Не подтверждено",docNumber:number,docKind:document.getElementById("doc-kind").value,docVersion:document.getElementById("doc-version").value.trim(),docOwner:document.getElementById("doc-owner").value.trim(),docReviewDate:document.getElementById("doc-review-date").value,docApproval:status});
  const saved=saveObjects();event.target.reset();document.getElementById("doc-version").value="1.0";renderDocuments();renderObjects();showToast(saved?"Документ зарегистрирован в локальном демо-реестре. Файл не загружен, сервер не обновлён.":"Запись создана только в памяти страницы; локальное сохранение недоступно.");
 });
 document.getElementById("document-search").addEventListener("input",renderDocuments);
 document.getElementById("document-status-filter").addEventListener("change",renderDocuments);
+document.getElementById("document-contour-filter").addEventListener("change",renderDocuments);
+document.getElementById("documents-clear-filters").addEventListener("click",()=>{document.getElementById("document-search").value="";document.getElementById("document-status-filter").value="all";document.getElementById("document-contour-filter").value="all";renderDocuments();document.getElementById("document-search").focus();});
 document.getElementById("object-form").addEventListener("submit",event=>{event.preventDefault();const title=document.getElementById("object-title").value.trim();if(!title){showToast("Укажите название объекта.");return;}if(objects.length>=100){showToast("Достигнут лимит в 100 демонстрационных карточек. Существующие данные сохранены; сначала требуется отдельная функция архивирования.");return;}const next=objects.reduce((max,o)=>Math.max(max,Number(o.id.replace("DEMO-",""))||0),0)+1;objects.unshift({id:"DEMO-"+String(next).padStart(3,"0"),type:document.getElementById("object-type").value,contour:document.getElementById("object-contour").value,title,goal:document.getElementById("object-goal").value.trim(),owner:document.getElementById("object-owner").value.trim(),status:document.getElementById("object-status").value,deadline:document.getElementById("object-deadline").value,links:(document.getElementById("object-link-target").value&&document.getElementById("object-link-target").value!=="DEMO-"+String(next).padStart(3,"0"))?("rel:"+document.getElementById("object-link-kind").value+":"+document.getElementById("object-link-target").value):"",source:document.getElementById("object-source").value.trim(),created:new Date().toISOString().slice(0,10),confirmed:"Не подтверждено"});const saved=saveObjects();event.target.reset();renderObjects();showToast(saved?"Демо-карточка добавлена и сохранена только в этом браузере; на сервер не отправлена.":"Демо-карточка добавлена только в памяти вкладки; браузер не разрешил локальное сохранение.");});
 document.getElementById("object-search").addEventListener("input",renderObjects);document.getElementById("object-filter-type").addEventListener("change",renderObjects);document.getElementById("object-link-target").addEventListener("change",()=>{const id=document.getElementById("object-link-target").value;const target=objects.find(o=>o.id===id);document.getElementById("object-link-hint").textContent=target?"Будет создана связь «"+relationLabel(document.getElementById("object-link-kind").value)+"» с "+target.id+" — "+target.title+". Это только локальная демо-связь.":"Связь не выбрана. Связь не предоставляет доступ к данным."});document.getElementById("object-link-kind").addEventListener("change",()=>document.getElementById("object-link-target").dispatchEvent(new Event("change")));
 
