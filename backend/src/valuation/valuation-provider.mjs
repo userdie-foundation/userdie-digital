@@ -1,6 +1,14 @@
 const MAX_EVIDENCE_CHARS = 8000;
 const ALLOWED_ASSET_CLASSES = new Set(["financial", "property", "intellectual", "other"]);
 
+const METHODOLOGY_GUIDANCE = {
+  financial: "Financial assets: consider market/quoted-price evidence for liquid instruments, income or discounted-cash-flow methods only where supportable cash flows exist, and asset-based methods where relevant. Check ownership, instrument terms, restrictions, liabilities, liquidity, corporate actions, and valuation date.",
+  property: "Real property: consider comparable-sales, income-capitalization/DCF, and cost approaches according to asset type and available evidence. Check title, encumbrances, permitted use, cadastral/technical data, condition, occupancy/leases, location, and verified comparable transactions.",
+  intellectual: "Intellectual assets: consider relief-from-royalty, with-and-without, excess-earnings, or cost approaches only where rights and attributable economic benefits can be evidenced. Check chain of title, scope/territory/term, exclusivity, registrations, contracts, revenue attribution, remaining useful life, and obsolescence.",
+  other: "Other asset class: first identify the asset's legal and economic nature, ownership, restrictions, useful life, and evidence base. Explain why a methodology is or is not applicable; do not force a standard valuation approach.",
+};
+
+
 function safeText(value, max, required = false) {
   if (typeof value !== "string") return required ? null : "";
   const text = value.trim();
@@ -64,6 +72,7 @@ export function createValuationProvider({ apiKey, baseUrl = "https://api.openai.
                 role: "user",
                 content: JSON.stringify({
                   task: "Prepare a preliminary evidence-led review. Do not issue an appraisal or final valuation.",
+                  methodologyGuidance: METHODOLOGY_GUIDANCE[asset.assetClass],
                   asset,
                 }),
               },
