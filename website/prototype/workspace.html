@@ -422,7 +422,23 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
     outline-offset:3px !important;
   }
 }
-.team-task-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 18px;padding:16px;border:1px solid var(--app-line);border-radius:5px;background:#f7f8f2}.team-task-form label{display:grid;gap:6px;color:var(--app-muted);font-size:10px;font-weight:700}.team-task-form input,.team-task-form select,.team-task-form textarea{box-sizing:border-box;width:100%;min-width:0;min-height:38px;padding:9px 10px;border:1px solid #dce1d6;border-radius:4px;background:#fff;color:var(--app-text);font:11px 'DM Sans',sans-serif}.team-task-form textarea{resize:vertical;line-height:1.5}.team-task-wide{grid-column:1/-1}.team-task-actions{grid-column:1/-1;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.team-task-actions span{color:var(--app-muted);font-size:9px}.task-extra{margin-top:7px;color:#657467;font-size:9px;line-height:1.6}.task-extra strong{color:#405b45}@media(max-width:620px){.team-task-form{grid-template-columns:1fr}.team-task-wide,.team-task-actions{grid-column:auto}.team-task-actions .app-button{width:100%}}</style>
+.team-task-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 18px;padding:16px;border:1px solid var(--app-line);border-radius:5px;background:#f7f8f2}.team-task-form label{display:grid;gap:6px;color:var(--app-muted);font-size:10px;font-weight:700}.team-task-form input,.team-task-form select,.team-task-form textarea{box-sizing:border-box;width:100%;min-width:0;min-height:38px;padding:9px 10px;border:1px solid #dce1d6;border-radius:4px;background:#fff;color:var(--app-text);font:11px 'DM Sans',sans-serif}.team-task-form textarea{resize:vertical;line-height:1.5}.team-task-wide{grid-column:1/-1}.team-task-actions{grid-column:1/-1;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.team-task-actions span{color:var(--app-muted);font-size:9px}.task-extra{margin-top:7px;color:#657467;font-size:9px;line-height:1.6}.task-extra strong{color:#405b45}@media(max-width:620px){.team-task-form{grid-template-columns:1fr}.team-task-wide,.team-task-actions{grid-column:auto}.team-task-actions .app-button{width:100%}}
+/* Inclusive readability pass for everyday document work. */
+.object-form label{font-size:12px;color:#526357}
+#document-register-form input,#document-register-form select{min-height:44px;font-size:12px}
+.object-card h3{font-size:15px}
+.object-card p{font-size:12px;line-height:1.75}
+.object-chip{font-size:10px;color:#3f5d43}
+.object-id{font-size:10px;color:#58685d}
+.object-empty{font-size:12px;line-height:1.7}
+.document-review{font-size:11px;line-height:1.5}
+.object-status-control{min-height:44px;font-size:12px}
+#documents-clear-filters{min-height:44px}
+@media(max-width:720px){
+  #document-register-form .app-button{width:100%;min-height:46px}
+  .document-filter-row .filter-select{width:100%}
+}
+</style>
 </head>
 <body class="workspace">
 <a class="skip-link" href="#app-content">Перейти к содержанию</a>
