@@ -455,6 +455,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <button type="button" data-view="objects" aria-controls="view-objects"><span class="nav-ico">▣</span>Карточки объектов</button>
 <button type="button" data-view="programs" aria-controls="view-programs"><span class="nav-ico">◫</span>Программы</button>
 <button type="button" data-view="assets" aria-controls="view-assets"><span class="nav-ico">◈</span>Активы</button>
+<button type="button" data-view="investment-banking" aria-controls="view-investment-banking"><span class="nav-ico">▥</span>Investment Banking</button>
 <button type="button" data-view="knowledge" aria-controls="view-knowledge"><span class="nav-ico">⌁</span>Интеллектуальные ресурсы</button>
 <button type="button" data-view="partners" aria-controls="view-partners"><span class="nav-ico">⌁</span>Партнёры</button>
 <button type="button" data-view="documents" aria-controls="view-documents"><span class="nav-ico">▤</span>Документы</button>
@@ -519,6 +520,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <section class="panel"><div class="panel-head"><div><h2>Модули платформы</h2><p>Переходите между демонстрационными разделами.</p></div></div>
 <div class="module-list">
 <button class="module-tile" data-go="assets"><span class="tile-ico">◈</span><strong>Активы и оценка</strong><small>Акции, облигации, основания оценки и история источников</small><span class="tile-state">Концепция · без реестра реальных активов</span></button>
+<button class="module-tile" data-go="investment-banking"><span class="tile-ico">▥</span><strong>Investment Banking</strong><small>Сделки, финансирование, оценка бизнеса, кредитный анализ и инвестиционные материалы</small><span class="tile-state">Новый аналитический контур · демонстрационный каталог</span></button>
 <button class="module-tile" data-go="knowledge"><span class="tile-ico">⌁</span><strong>Интеллектуальные ресурсы</strong><small>Методики, исследования, знания и банки интеллектуальных ресурсов</small><span class="tile-state">Концепция · демонстрационный режим</span></button>
 <button class="module-tile" data-go="programs"><span class="tile-ico">◫</span><strong>Программы фонда</strong><small>Карточки, этапы и контроль материалов</small><span class="tile-state">Демо-данные</span></button>
 <a class="module-tile module-tile-link" href="case-management.html"><span class="tile-ico">▣</span><strong>Обращения и дела</strong><small>Реестр, статусы, ответственные и контроль сроков</small><span class="tile-state">Отдельный демо-кабинет ↗</span></a>
@@ -608,6 +610,45 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <article class="module-tile"><span class="tile-ico">↺</span><strong>История изменений</strong><small>Версии оценки, автор изменения, причина пересмотра и ссылка на основание.</small><span class="tile-state">Требует журналирования</span></article>
 </div>
 <div class="notice-box"><strong>Принцип контроля:</strong> оценка должна быть воспроизводимой: у каждого результата фиксируются источник, дата, методика и ответственное лицо. До согласования модели и прав доступа реальные финансовые данные не загружаются.</div>
+</section>
+<section class="page-view" id="view-investment-banking">
+<div class="view-intro"><p class="eyebrow">09 / INVESTMENT BANKING</p><h2>Инвестиционно-банковские инструменты</h2><p>Рабочий аналитический контур для сделок, корпоративных финансов, оценки бизнеса, привлечения капитала и финансового моделирования. Модуль дополняет Центр оценки активов и Аналитический центр; он не является отдельным банком или лицензированной финансовой организацией.</p></div>
+<div class="notice-box"><strong>Границы применения:</strong> инструменты предназначены для подготовки аналитики, моделей и материалов к профессиональному рассмотрению. Они не открывают банковские счета, не принимают депозиты, не выдают кредиты, не размещают ценные бумаги и не исполняют денежные или биржевые операции. Любые выводы требуют подтверждённых источников, проверки специалистом и решения уполномоченного лица.</div>
+<div class="workflow-links" aria-label="Связи инвестиционно-банковского модуля"><strong>Связанные контуры USERDIE</strong><button type="button" data-go="assets">Центр оценки активов →</button><button type="button" data-go="knowledge">Банк методик и исследований →</button><button type="button" data-go="documents">Документы и due diligence →</button><button type="button" data-go="tasks">Задачи и согласования →</button><a href="valuation-intelligence.html">USERDIE Valuation Intelligence ↗</a><a href="asset-register.html">Реестр активов ↗</a></div>
+<div class="panel"><div class="panel-head"><div><h2>1. Сделки и корпоративные финансы</h2><p>Инструменты подготовки и сопровождения транзакций.</p></div><span class="demo-label">КАТАЛОГ ИНСТРУМЕНТОВ</span></div>
+<div class="module-list">
+<article class="module-tile"><span class="tile-ico">⇄</span><strong>M&amp;A и стратегические альтернативы</strong><small>Структура сделки, периметр, сценарии приобретения или продажи, источники средств и ключевые условия.</small><span class="tile-state">Аналитический workflow</span></article>
+<article class="module-tile"><span class="tile-ico">▤</span><strong>CIM, Teaser и материалы сделки</strong><small>Подготовка и проверка инвестиционного меморандума, тизера и презентации менеджмента; контроль утверждений и источников.</small><span class="tile-state">Документы и контроль источников</span></article>
+<article class="module-tile"><span class="tile-ico">◎</span><strong>Покупатели, инвесторы и спонсоры</strong><small>Формирование и ранжирование списка стратегических покупателей, фондов, инвесторов и финансовых партнёров.</small><span class="tile-state">Поиск и квалификация контрагентов</span></article>
+<article class="module-tile"><span class="tile-ico">◷</span><strong>Deal Process Tracker</strong><small>Этапы процесса, NDA, доступ к материалам, запросы due diligence, предложения, дедлайны и журнал действий.</small><span class="tile-state">Модель процесса · без внешнего VDR</span></article>
+</div></div>
+<div class="panel"><div class="panel-head"><div><h2>2. Оценка бизнеса и финансовые модели</h2><p>Расчётные инструменты с явным разделением фактов, допущений и сценариев.</p></div></div>
+<div class="module-list">
+<article class="module-tile"><span class="tile-ico">↗</span><strong>Trading &amp; Precedent Comps</strong><small>Сопоставимые публичные компании и прецедентные сделки, мультипликаторы, peer selection и обоснование исключений.</small><span class="tile-state">Оценочная методика</span></article>
+<article class="module-tile"><span class="tile-ico">ƒ</span><strong>DCF и WACC</strong><small>Дисконтированные денежные потоки, стоимость капитала, terminal value и таблицы чувствительности.</small><span class="tile-state">Финансовая модель</span></article>
+<article class="module-tile"><span class="tile-ico">▥</span><strong>LBO Model</strong><small>Sources &amp; Uses, структура долга, операционные сценарии, доходность инвестора и exit sensitivity.</small><span class="tile-state">Сценарная модель</span></article>
+<article class="module-tile"><span class="tile-ico">⇄</span><strong>Merger Model</strong><small>Accretion / dilution, синергии, purchase accounting и pro forma расчёты.</small><span class="tile-state">Модель объединения</span></article>
+<article class="module-tile"><span class="tile-ico">▦</span><strong>Three-Statement Model</strong><small>Интегрированная модель отчёта о прибылях и убытках, баланса и движения денежных средств.</small><span class="tile-state">Финансовое моделирование</span></article>
+<article class="module-tile"><span class="tile-ico">⌁</span><strong>Scenario &amp; Sensitivity</strong><small>Базовый, негативный и позитивный сценарии, стресс-факторы, чувствительность и пороговые значения.</small><span class="tile-state">Сценарный анализ</span></article>
+<article class="module-tile"><span class="tile-ico">✓</span><strong>Model Audit &amp; Tie-out</strong><small>Проверка формул, связей, источников, контрольных сумм и согласованности модели с отчётностью.</small><span class="tile-state">Контроль качества модели</span></article>
+</div></div>
+<div class="panel"><div class="panel-head"><div><h2>3. Капитал, финансирование и кредитный анализ</h2><p>Инструменты для анализа источников капитала и долговой нагрузки.</p></div></div>
+<div class="module-list">
+<article class="module-tile"><span class="tile-ico">₽</span><strong>ECM / DCM / LevFin</strong><small>Акционерное и долговое финансирование, private placement, гибридные инструменты, конвертируемые выпуски и рефинансирование.</small><span class="tile-state">Структурирование вариантов</span></article>
+<article class="module-tile"><span class="tile-ico">▤</span><strong>Private Credit Underwriting</strong><small>Кредитоспособность заёмщика, долговая ёмкость, обеспечение, downside case и готовность кредитного пакета.</small><span class="tile-state">Кредитный анализ</span></article>
+<article class="module-tile"><span class="tile-ico">⌗</span><strong>Covenant Package Analyzer</strong><small>Финансовые ковенанты, baskets, ограничения на выплаты, leakage, covenant headroom и условия изменения долга.</small><span class="tile-state">Анализ долговых условий</span></article>
+<article class="module-tile"><span class="tile-ico">↘</span><strong>Restructuring &amp; Recovery Waterfall</strong><small>Структура требований кредиторов, очередность, сценарии восстановления и диапазоны возврата.</small><span class="tile-state">Сценарий реструктуризации</span></article>
+</div></div>
+<div class="panel"><div class="panel-head"><div><h2>4. Аналитика, проверка и материалы для принятия решений</h2><p>Поддержка руководителя, инвестиционного комитета и команды сделки.</p></div></div>
+<div class="module-list">
+<article class="module-tile"><span class="tile-ico">▣</span><strong>Company / Issuer Tearsheet</strong><small>Профиль компании, бизнес-модель, финансовые показатели, структура собственности и ключевые риски.</small><span class="tile-state">Профиль контрагента</span></article>
+<article class="module-tile"><span class="tile-ico">⌕</span><strong>Due Diligence Review</strong><small>Разбор CIM, VDR-пакета, финансовых и юридических материалов, проверка заявлений и перечень пробелов.</small><span class="tile-state">Проверка доказательств</span></article>
+<article class="module-tile"><span class="tile-ico">▤</span><strong>Investment / Board Memo</strong><small>Структурированное заключение для руководства и инвестиционного комитета с рисками, альтернативами и условиями решения.</small><span class="tile-state">Аналитический документ</span></article>
+<article class="module-tile"><span class="tile-ico">▧</span><strong>Pitch Deck &amp; Deck QC</strong><small>План презентации, финансовые страницы, согласование тезисов с моделью и финальная проверка материалов.</small><span class="tile-state">Подготовка и контроль презентации</span></article>
+<article class="module-tile"><span class="tile-ico">☷</span><strong>Meeting Prep</strong><small>Подготовка к встречам с инвесторами, банками, покупателями и кредиторами; вопросы и follow-up.</small><span class="tile-state">Подготовка переговоров</span></article>
+</div></div>
+<div class="notice-box"><strong>Правило источников:</strong> рыночные котировки, отчётность, прогнозы, условия финансирования и сведения о контрагентах должны сопровождаться источником, датой, периодом и статусом проверки. Не смешивать подтверждённые данные с предположениями. Не считать модель или презентацию независимой оценкой.</div>
+<div class="notice-box"><strong>Статус интеграции:</strong> на этой странице добавлен каталог инструментов и их связей с модулями USERDIE. Это не означает, что внешние банковские системы, базы котировок, CRM, VDR, платёжная инфраструктура или реальные транзакционные сервисы подключены. Инструменты Investment Banking доступны для аналитической работы в ChatGPT; перенос каждого workflow в серверную платформу потребует отдельной реализации, источников данных, прав доступа и тестирования.</div>
 </section>
 <section class="page-view" id="view-knowledge">
 <div class="view-intro"><p class="eyebrow">07 / БАНКИ ИНТЕЛЛЕКТУАЛЬНЫХ РЕСУРСОВ</p><h2>Знания, исследования и методики</h2><p>Контур для систематизации интеллектуальных ресурсов фонда и аналитической работы. Карточки ниже описывают целевую модель, а не существующее хранилище документов.</p></div>
@@ -720,7 +761,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </div>
 <script>
 (function(){
-const names={overview:"Обзор",tasks:"Задачи",programs:"Программы",assets:"Активы и оценка",knowledge:"Интеллектуальные ресурсы",partners:"Партнёры",documents:"Документы",security:"Доступы и безопасность",objects:"Карточки объектов"};
+const names={overview:"Обзор",tasks:"Задачи",programs:"Программы",assets:"Активы и оценка",investment-banking:"Investment Banking",knowledge:"Интеллектуальные ресурсы",partners:"Партнёры",documents:"Документы",security:"Доступы и безопасность",objects:"Карточки объектов"};
 const nav=[...document.querySelectorAll("[data-view]")],views=[...document.querySelectorAll(".page-view")],crumb=document.getElementById("crumb"),toast=document.getElementById("toast");
 function showToast(message){toast.textContent=message;toast.classList.add("visible");}
 function go(view){if(!names[view])return;views.forEach(el=>{const active=el.id==="view-"+view;el.classList.toggle("active",active);el.setAttribute("aria-hidden",String(!active));});nav.forEach(el=>{if(el.dataset.view===view)el.setAttribute("aria-current","page");else el.removeAttribute("aria-current")});crumb.textContent=names[view];if(view==="tasks")renderTasks();if(view==="objects")renderObjects();const activeNav=nav.find(el=>el.dataset.view===view);const navSearchInput=document.getElementById("app-nav-search");if(activeNav&&activeNav.hidden&&navSearchInput){navSearchInput.value="";navSearchInput.dispatchEvent(new Event("input"));}const reduceMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;const navRail=document.querySelector(".app-nav");if(activeNav&&navRail&&window.matchMedia("(max-width: 720px)").matches){const targetLeft=activeNav.getBoundingClientRect().left-navRail.getBoundingClientRect().left+navRail.scrollLeft-(navRail.clientWidth-activeNav.clientWidth)/2;navRail.scrollTo({left:targetLeft,behavior:reduceMotion?"auto":"smooth"});}window.scrollTo({top:0,behavior:reduceMotion?"auto":"smooth"});}
@@ -912,7 +953,7 @@ const initialTaskRouteParams=new URLSearchParams(window.location.search);const r
 restoreDemoTasks();restoreObjects();updateMetrics();renderOverviewTasks();renderTasks();renderObjects();renderDocumentRegister();
 const routeParams=new URLSearchParams(window.location.search);
 const requestedView=routeParams.get("view");
-const allowedViews=["overview","tasks","objects","programs","assets","knowledge","partners","documents","security"];
+const allowedViews=["overview","tasks","objects","programs","assets","investment-banking","knowledge","partners","documents","security"];
 if(allowedViews.includes(requestedView)){
  if(requestedView==="objects"){
   const requestedType=routeParams.get("type");
