@@ -59,6 +59,9 @@ test("provider sends request server-side and returns explicitly preliminary stru
   const result = await provider.analyze(valid);
   assert.equal(request.url, "https://api.openai.com/v1/chat/completions");
   assert.equal(request.options.headers.Authorization, "Bearer " + "x".repeat(40));
+  const providerRequest = JSON.parse(request.options.body);
+  const task = JSON.parse(providerRequest.messages[1].content);
+  assert.match(task.methodologyGuidance, /comparable-sales/);
   assert.equal(result.approvalRequired, true);
   assert.equal(result.valueConclusion.status, "not_estimable");
   assert.equal(result.assetId, valid.assetId);
