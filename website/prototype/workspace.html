@@ -827,7 +827,7 @@ const TASK_ROLE_OPTIONS=["Координатор программы","Специ
 let taskCounter=4;
 const tasks=[...document.querySelectorAll("#overview-tasks .task-row")].map((el,i)=>({id:i+1,title:el.querySelector(".task-title").textContent,meta:el.querySelector(".task-meta").textContent,status:el.querySelector(".task-state").textContent,done:false,events:[]}));
 function localDateKey(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
-function taskIsOverdue(t){return Boolean(t.due&&!t.done&&/^\\d{4}-\\d{2}-\\d{2}$/.test(t.due)&&t.due<localDateKey());}
+function taskIsOverdue(t){return Boolean(t.due&&!t.done&&/^\d{4}-\d{2}-\d{2}$/.test(t.due)&&t.due<localDateKey());}
 function taskStatusKey(t){if(t.done||t.status==="Завершена")return "done";if(taskIsOverdue(t))return "overdue";return ({"Новая":"new","Запланировано":"new","В работе":"progress","На проверке":"review","Приостановлена":"paused"})[t.status]||"new";}
 function recordTaskEvent(t,action,from,to,note){if(!Array.isArray(t.events))t.events=[];t.events.unshift({at:new Date().toISOString(),action,from:from||"",to:to||"",note:note||""});t.events=t.events.slice(0,20);}
 function saveDemoTasks(){try{localStorage.setItem("userdie-demo-tasks-v1",JSON.stringify(tasks));return true;}catch(error){showToast("Браузер не разрешил сохранить демо-задачи локально. Изменения останутся только в памяти страницы и исчезнут после её перезагрузки или закрытия.");return false;}}
@@ -1033,7 +1033,7 @@ if(dcfForm){
   if(cash===null||cash<0)errors.push("Укажите неотрицательную величину денежных средств.");
   if(shares!==null&&shares<=0)errors.push("Количество акций должно быть положительным числом либо поле следует оставить пустым.");
   if(!/^[A-ZА-ЯЁ]{3,8}$/.test(currency))errors.push("Укажите код валюты буквами, например RUB, EUR или USD.");
-  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(valuationDate)||Number.isNaN(Date.parse(valuationDate)))errors.push("Укажите корректную дату оценки.");
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(valuationDate)||Number.isNaN(Date.parse(valuationDate)))errors.push("Укажите корректную дату оценки.");
   if(!source||source.length>200)errors.push("Укажите источник финансовых данных (до 200 символов).");
   if(!/^[A-Za-zА-Яа-яЁё0-9 ._-]{1,24}$/.test(unit))errors.push("Единица измерения: только буквы, цифры, пробел, точка, дефис или подчёркивание (до 24 символов).");
   if(errors.length){dcfError.textContent=errors.join(" ");dcfError.hidden=false;dcfResults.innerHTML="<strong>Расчёт не выполнен</strong><p>Исправьте отмеченные предпосылки и повторите расчёт.</p>";return;}
@@ -1080,7 +1080,7 @@ if(capForm){
   if(interest===0&&ebit>0){} 
   if(!/^[A-ZА-ЯЁ]{3,8}$/.test(currency))errors.push("Укажите код валюты буквами, например RUB, EUR или USD.");
   if(!/^[A-Za-zА-Яа-яЁё0-9 ._-]{1,24}$/.test(unit))errors.push("Единица измерения: до 24 символов, буквы, цифры, пробел, точка, дефис или подчёркивание.");
-  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||Number.isNaN(Date.parse(date)))errors.push("Укажите корректную дату анализа.");
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(Date.parse(date)))errors.push("Укажите корректную дату анализа.");
   if(!source||source.length>200)errors.push("Укажите источник данных (до 200 символов).");
   if(errors.length){capError.textContent=errors.join(" ");capError.hidden=false;capResults.innerHTML="<strong>Расчёт не выполнен</strong><p>Исправьте исходные данные и повторите расчёт.</p>";capReport.innerHTML="<strong>Основа для заключения</strong><p>Сводка не сформирована из-за ошибок исходных данных.</p>";return;}
   const netDebt=debt-cash,debtEbitda=debt/ebitda,netDebtEbitda=netDebt/ebitda,coverage=interest>0?ebit/interest:null;
@@ -1092,7 +1092,7 @@ if(capForm){
   const afterTaxCost=rate*(1-tax/100);
   const unitLabel=currency+" / "+unit;
   const lines=[
-   ["Чистый долг",netDebt],["Debt / EBITDA",debtEbitda],["Net Debt / EBITDA",netDebtEbitda],
+   ["Чистый долг",netDebt],["Debt / Equity",equity>0?debt/equity:null],["Debt / EBITDA",debtEbitda],["Net Debt / EBITDA",netDebtEbitda],
    ["Interest Coverage (EBIT / Interest)",coverage],["Годовые дополнительные проценты по новому долгу",newInterest],
    ["Стоимость нового долга после налогового эффекта (справочно), %",afterTaxCost],
    ["Ёмкость по лимиту Debt / EBITDA",leverageCapacity],["Запас EBIT для процентного покрытия",coverageHeadroom],
