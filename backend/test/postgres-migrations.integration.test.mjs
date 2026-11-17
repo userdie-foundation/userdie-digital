@@ -10,7 +10,7 @@ import { createPartnershipRepository } from "../src/server.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-014 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, and partnership invariants", {
+test("PostgreSQL applies migrations 001-015 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and document registry invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -35,6 +35,7 @@ test("PostgreSQL applies migrations 001-014 and enforces workflow, authorization
       "012_mfa_persistence.sql",
       "013_auth_recovery_rate_limits.sql",
       "014_partnership_workspace.sql",
+      "015_workspace_document_registry.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -329,6 +330,85 @@ test("PostgreSQL applies migrations 001-014 and enforces workflow, authorization
       [applicationId, programId, workerId, actorId],
     );
     const taskId = task.rows[0].id;
+
+    const document = await client.query(
+      `INSERT INTO workspace_documents
+        (registration_number, title, document_type, organizational_contour,
+         status, owner_id, created_by, updated_by)
+       VALUES ('UD-TEST-0001', 'Synthetic policy record', 'policy',
+         'foundation', 'active', $1, $2, $2)
+       RETURNING id`,
+      [workerId, actorId],
+    );
+    const documentId = document.rows[0].id;
+    const version = await client.query(
+      `INSERT INTO workspace_document_versions
+        (document_id, version_number, version_label, content_sha256,
+         change_note, registered_by)
+       VALUES ($1, 1, '1.0', $2, 'Initial metadata-only version', $3)
+       RETURNING id`,
+      [documentId, "a".repeat(64), actorId],
+    );
+    assert.equal(version.rowCount, 1);
+    await client.query(
+      "INSERT INTO workspace_document_program_links (document_id, program_id, linked_by) VALUES ($1, $2, $3)",
+      [documentId, programId, actorId],
+    );
+    await client.query(
+      "INSERT INTO workspace_document_application_links (document_id, application_id, linked_by) VALUES ($1, $2, $3)",
+      [documentId, applicationId, actorId],
+    );
+    await client.query(
+      "INSERT INTO workspace_document_task_links (document_id, task_id, linked_by) VALUES ($1, $2, $3)",
+      [documentId, taskId, actorId],
+    );
+    await client.query(
+      `INSERT INTO workspace_document_events
+        (document_id, actor_id, event_type, rationale, details)
+       VALUES ($1, $2, 'registered', 'Synthetic integration fixture', '{"source":"test"}'::jsonb)`,
+      [documentId, actorId],
+    );
+    const documentLinks = await client.query(
+      `SELECT
+        (SELECT count(*) FROM workspace_document_program_links WHERE document_id = $1) AS programs,
+        (SELECT count(*) FROM workspace_document_application_links WHERE document_id = $1) AS applications,
+        (SELECT count(*) FROM workspace_document_task_links WHERE document_id = $1) AS tasks`,
+      [documentId],
+    );
+    assert.deepEqual(documentLinks.rows[0], { programs: "1", applications: "1", tasks: "1" });
+    await assert.rejects(
+      client.query("UPDATE workspace_document_versions SET version_label = 'tampered' WHERE id = $1", [version.rows[0].id]),
+      /append-only/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM workspace_document_versions WHERE id = $1", [version.rows[0].id]),
+      /append-only/i,
+    );
+    await assert.rejects(
+      client.query("TRUNCATE workspace_document_versions"),
+      /append-only/i,
+    );
+    await assert.rejects(
+      client.query("UPDATE workspace_document_events SET rationale = 'tampered' WHERE document_id = $1", [documentId]),
+      /append-only/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM workspace_document_events WHERE document_id = $1", [documentId]),
+      /append-only/i,
+    );
+    await assert.rejects(
+      client.query("TRUNCATE workspace_document_events"),
+      /append-only/i,
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO workspace_documents
+          (registration_number, title, document_type, created_by, updated_by)
+         VALUES ('UD-TEST-0001', 'Duplicate registration', 'policy', $1, $1)`,
+        [actorId],
+      ),
+      /unique constraint/i,
+    );
 
     await assert.rejects(
       client.query(
