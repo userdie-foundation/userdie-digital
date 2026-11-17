@@ -772,7 +772,7 @@ const demoObjects=[
 {id:"DEMO-002",type:"task",contour:"fund",title:"Подготовить модель этапов проекта",goal:"Сформировать последовательность этапов и критерии результата.",owner:"Проектный координатор",status:"В работе",deadline:"",links:"DEMO-001",source:"Условный план работ",created:"2026-10-26",confirmed:"Не подтверждено"},
 {id:"DEMO-003",type:"asset",contour:"assets",title:"Пример карточки актива без оценки",goal:"Показать структуру: источник, дата и метод оценки, единица измерения, риски и история переоценки.",owner:"Специалист по оценке",status:"Черновик",deadline:"",links:"DEMO-004",source:"Источник оценки не приложен",created:"2026-10-26",confirmed:"Не подтверждено"},
 {id:"DEMO-004",type:"knowledge",contour:"analytics",title:"Методика анализа — демонстрационный шаблон",goal:"Условная методика с версией, источниками, ограничениями и ответственным.",owner:"Аналитик",status:"На согласовании",deadline:"",links:"DEMO-003",source:"Условная версия 0.1",created:"2026-10-26",confirmed:"Не подтверждено"},
-{id:"DEMO-005",type:"document",contour:"fund",title:"Контрольный список перед публикацией",goal:"Проверить актуальность и согласование материалов до публичного размещения.",owner:"Редактор",status:"Запланировано",deadline:"",links:"DEMO-001",source:"Документ не загружен",created:"2026-10-26",confirmed:"Не подтверждено",documentMeta:{documentType:"Редакционный контрольный лист",documentDate:"Не задана",version:"0.1 · макет",evidenceStatus:"Не подтверждено",accessLevel:"Внутренний макет",reviewOwner:"Редактор",reviewDate:"Не назначена",validity:"До утверждения владельцем процесса",fileState:"Файл отсутствует"}},
+{id:"DEMO-005",type:"document",contour:"fund",title:"Контрольный список перед публикацией",goal:"Проверить актуальность и согласование материалов до публичного размещения.",owner:"Редактор",status:"Запланировано",deadline:"",links:"DEMO-001",source:"Документ не загружен",created:"2026-10-26",confirmed:"Не подтверждено",documentMeta:{documentType:"Редакционный контрольный лист",documentDate:"Не задана",version:"0.1 · макет",evidenceStatus:"Не подтверждено",accessLevel:"Внутренний макет",reviewOwner:"Редактор",reviewDate:"Не назначена",validity:"До утверждения владельцем процесса",fileState:"Файл отсутствует",issuingBody:"Не установлено",signatory:"Не установлен",decisionNumber:"Не указан",originalStatus:"Оригинал не предоставлен",signatureCheck:"Не проводилась",appendices:"Не указаны",publicUse:"Не разрешено"}},
 {id:"DEMO-006",type:"partner",contour:"fund",title:"Условная партнёрская инициатива «Север»",goal:"Пример этапа взаимодействия без реальных организаций и контактов.",owner:"Координатор партнёрств",status:"Черновик",deadline:"",links:"DEMO-001",source:"Условная карточка взаимодействия",created:"2026-10-26",confirmed:"Не подтверждено"},
 {id:"DEMO-007",type:"analysis",contour:"analytics",title:"Пример аналитического вывода",goal:"Вывод должен содержать проверяемые источники, дату, расчёт, ограничения и связь с решением.",owner:"Аналитик",status:"Черновик",deadline:"",links:"DEMO-004",source:"Источники не приложены; вывод не подтверждён",created:"2026-10-26",confirmed:"Не подтверждено"}
 ];
@@ -801,17 +801,33 @@ function renderDocumentRegister(){
   const fields=[
    ["Тип",meta.documentType||"Не указан"],
    ["Дата документа",meta.documentDate||"Не задана"],
-   ["Версия",meta.version||"Не указана"],
+   ["Номер решения / протокола",meta.decisionNumber||"Не указан"],
+   ["Орган, принявший документ",meta.issuingBody||"Не установлен"],
+   ["Подписант",meta.signatory||"Не установлен"],
+   ["Оригинал / копия",meta.originalStatus||"Не определено"],
+   ["Проверка подписи",meta.signatureCheck||"Не проводилась"],
+   ["Редакция / версия",meta.version||"Не указана"],
+   ["Приложения",meta.appendices||"Не указаны"],
    ["Уровень доступа",meta.accessLevel||"Внутренний макет"],
    ["Ответственный",meta.reviewOwner||item.owner||"Не назначен"],
    ["Следующая проверка",meta.reviewDate||item.deadline||"Не назначена"],
    ["Актуальность",meta.validity||"Не определена"],
    ["Файл",meta.fileState||"Не загружен"],
-   ["Связанный объект",item.links||"Связь не задана"]
+   ["Публичное использование",meta.publicUse||"Не разрешено"]
   ];
   fields.forEach(([label,value])=>{const field=document.createElement("div");field.className="document-record-field";const caption=document.createElement("span");caption.textContent=label;const strong=document.createElement("strong");strong.textContent=value;field.append(caption,strong);grid.appendChild(field);});
   card.appendChild(grid);
-  const note=document.createElement("p");note.className="document-record-note";note.textContent="Основание: "+(item.source||"не указано")+". Статус карточки не подтверждает подлинность документа, подпись или юридическую силу.";
+  const relation=document.createElement("p");relation.className="document-record-note";
+  const parsedRelation=parseObjectLink(item.links);
+  const relatedObject=parsedRelation?objects.find(entry=>entry.id===parsedRelation.id):null;
+  if(relatedObject){
+   relation.appendChild(document.createTextNode("Связь: "+relationLabel(parsedRelation.kind)+" "));
+   const relatedLink=document.createElement("a");relatedLink.href="workspace.html?view=objects&id="+encodeURIComponent(relatedObject.id);relatedLink.textContent=relatedObject.id+" — "+relatedObject.title;relation.appendChild(relatedLink);
+  }else{
+   relation.textContent="Связь: "+(item.links?"указанная карточка не найдена или формат связи не распознан":"не указана");
+  }
+  card.appendChild(relation);
+  const note=document.createElement("p");note.className="document-record-note";note.textContent="Основание: "+(item.source||"не указано")+". Статус карточки не подтверждает подлинность документа, подпись или юридическую силу. Публичное использование допускается только после документальной проверки и отдельного разрешения.";
   card.appendChild(note);
   const link=document.createElement("a");link.className="document-record-link";link.href="workspace.html?view=objects&id="+encodeURIComponent(item.id);link.textContent="Открыть карточку в общем реестре →";card.appendChild(link);
   root.appendChild(card);
