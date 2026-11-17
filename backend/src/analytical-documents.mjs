@@ -408,7 +408,7 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
           [documentId],
         );
         const doc = locked.rows?.[0];
-        if (!doc || doc.created_by !== principal.id || !["draft", "changes_requested"].includes(doc.status) ||
+        if (!doc || doc.created_by !== principal.id || doc.status !== "draft" ||
             !doc.assigned_reviewer_id || doc.assigned_reviewer_id === principal.id) return null;
         const latest = await client.query(
           "SELECT id, version_number FROM analytical_document_versions WHERE document_id = $1::uuid ORDER BY version_number DESC LIMIT 1",
