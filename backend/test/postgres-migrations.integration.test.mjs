@@ -10,7 +10,7 @@ import { createPartnershipRepository } from "../src/server.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-016 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and analytical-document invariants", {
+test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and analytical-document invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -37,6 +37,7 @@ test("PostgreSQL applies migrations 001-016 and enforces workflow, authorization
       "014_partnership_workspace.sql",
       "015_asset_valuator_role.sql",
       "016_analytical_document_registry.sql",
+      "017_analytical_document_lifecycle_guard.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -661,6 +662,13 @@ test("PostgreSQL applies migrations 001-016 and enforces workflow, authorization
     );
     await assert.rejects(
       client.query(
+        "UPDATE analytical_document_approvals SET decision_rationale = 'tampered' WHERE id = $1",
+        [documentApproval.rows[0].id],
+      ),
+      /analytical document approval decision is immutable/i,
+    );
+    await assert.rejects(
+      client.query(
         "DELETE FROM analytical_document_approvals WHERE id = $1",
         [documentApproval.rows[0].id],
       ),
@@ -668,12 +676,16 @@ test("PostgreSQL applies migrations 001-016 and enforces workflow, authorization
     );
 
     await client.query(
-      "UPDATE analytical_documents SET status = 'approved', approved_by = $2, approved_at = now(), updated_at = now() WHERE id = $1",
-      [analyticalDocumentId, workerId],
+      "UPDATE analytical_documents SET status = 'submitted_for_review', updated_at = now() WHERE id = $1",
+      [analyticalDocumentId],
     );
     await client.query(
-      "UPDATE analytical_documents SET status = 'issued', document_number = 'UA-2026-000001', issued_at = now(), updated_at = now() WHERE id = $1",
-      [analyticalDocumentId],
+      "UPDATE analytical_documents SET status = 'approved', approved_by = $2, approved_at = now(), approved_version_id = $3, updated_at = now() WHERE id = $1",
+      [analyticalDocumentId, workerId, documentVersionId],
+    );
+    await client.query(
+      "UPDATE analytical_documents SET status = 'issued', document_number = 'UA-2026-000001', issued_at = now(), issued_version_id = $2, updated_at = now() WHERE id = $1",
+      [analyticalDocumentId, documentVersionId],
     );
     const issuedDocument = await client.query(
       "SELECT status, document_number, approved_by, created_by FROM analytical_documents WHERE id = $1",
