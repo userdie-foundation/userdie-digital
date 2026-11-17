@@ -15,7 +15,7 @@ export function validateValuationInput(input) {
   const assetId = safeText(input.assetId, 100, true);
   const title = safeText(input.title, 240, true);
   const assetClass = safeText(input.assetClass, 30, true);
-  const currency = safeText(input.currency, 3, true);
+  const currency = typeof input.currency === "string" ? input.currency.trim() : "";
   const description = safeText(input.description, 2000, true);
   const evidenceSummary = safeText(input.evidenceSummary, MAX_EVIDENCE_CHARS, true);
   const valuationDate = safeText(input.valuationDate, 10, true);
