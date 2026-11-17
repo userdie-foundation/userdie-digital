@@ -30,7 +30,7 @@ export function createValuationProvider({ apiKey, baseUrl = "https://api.openai.
   if (!apiKey || !model || typeof fetchImpl !== "function") return null;
   let endpoint;
   try {
-    endpoint = new URL("/chat/completions", baseUrl);
+    endpoint = new URL(`${String(baseUrl).replace(/\\/+$/, "")}/chat/completions`);
   } catch {
     throw new Error("Valuation provider URL is invalid");
   }
