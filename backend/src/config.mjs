@@ -75,6 +75,19 @@ function parseSender(raw) {
   return raw.trim();
 }
 
+function parseValuationBaseUrl(raw) {
+  if (raw === undefined || raw === "") return "https://api.openai.com/v1";
+  let parsed;
+  try { parsed = new URL(raw); } catch {
+    throw new Error("VALUATION_AI_BASE_URL must be a trusted HTTPS base URL");
+  }
+  if (parsed.protocol !== "https:" || !parsed.hostname || parsed.username ||
+      parsed.password || parsed.search || parsed.hash) {
+    throw new Error("VALUATION_AI_BASE_URL must be a trusted HTTPS base URL");
+  }
+  return parsed.toString().replace(/\/$/, "");
+}
+
 export function readConfig(env = process.env) {
   const loginRateLimitHmacKey = env.LOGIN_RATE_LIMIT_HMAC_KEY;
   if (loginRateLimitHmacKey !== undefined && Buffer.byteLength(loginRateLimitHmacKey, "utf8") < 32) {
@@ -96,6 +109,18 @@ export function readConfig(env = process.env) {
     throw new Error("RESEND_API_KEY, RESEND_FROM_EMAIL, and RECOVERY_URL must be configured together");
   }
 
+  const valuationApiKey = env.VALUATION_AI_API_KEY;
+  const valuationModel = env.VALUATION_AI_MODEL;
+  const valuationBaseUrl = parseValuationBaseUrl(env.VALUATION_AI_BASE_URL);
+  const valuationSettingsProvided = [valuationApiKey, valuationModel]
+    .some((value) => value !== undefined && value !== "");
+  const valuationSettingsComplete = typeof valuationApiKey === "string" &&
+    valuationApiKey.trim().length >= 10 &&
+    typeof valuationModel === "string" && /^[A-Za-z0-9._:-]{1,100}$/.test(valuationModel.trim());
+  if (valuationSettingsProvided && !valuationSettingsComplete) {
+    throw new Error("VALUATION_AI_API_KEY and VALUATION_AI_MODEL must be configured together");
+  }
+
   return {
     port: parseInteger("PORT", env.PORT, 8080, 1, 65535),
     databaseUrl: parseDatabaseUrl(env.DATABASE_URL),
@@ -107,5 +132,8 @@ export function readConfig(env = process.env) {
     resendApiKey: resendSettingsComplete ? resendApiKey : undefined,
     resendFromEmail,
     recoveryUrl,
+    valuationApiKey: valuationSettingsComplete ? valuationApiKey : undefined,
+    valuationModel: valuationSettingsComplete ? valuationModel.trim() : undefined,
+    valuationBaseUrl,
   };
 }
