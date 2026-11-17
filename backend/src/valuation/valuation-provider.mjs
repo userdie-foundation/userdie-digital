@@ -82,18 +82,62 @@ export function createValuationProvider({ apiKey, baseUrl = "https://api.openai.
             !Array.isArray(analysis.contradictions) ||
             !Array.isArray(analysis.methodology) ||
             !analysis.valueConclusion || typeof analysis.valueConclusion !== "object" ||
+            Array.isArray(analysis.valueConclusion) ||
+            typeof analysis.valueConclusion.explanation !== "string" ||
             !Array.isArray(analysis.risks) ||
             !Array.isArray(analysis.sourceRequirements) ||
             !Array.isArray(analysis.expertReviewChecklist)) {
           throw new Error("valuation_provider_invalid_response");
         }
+        const boundedStringList = (items) => {
+          if (items.length > 30 || items.some((item) => typeof item !== "string")) {
+            throw new Error("valuation_provider_invalid_response");
+          }
+          return items.map((item) => item.trim().slice(0, 500));
+        };
+        const methodology = analysis.methodology.map((item) => {
+          if (!item || typeof item !== "object" || Array.isArray(item) ||
+              typeof item.approach !== "string" ||
+              typeof item.applicability !== "string" ||
+              typeof item.rationale !== "string" ||
+              !Array.isArray(item.requiredInputs)) {
+            throw new Error("valuation_provider_invalid_response");
+          }
+          return {
+            approach: item.approach.trim().slice(0, 120),
+            applicability: item.applicability.trim().slice(0, 500),
+            rationale: item.rationale.trim().slice(0, 1000),
+            requiredInputs: boundedStringList(item.requiredInputs),
+          };
+        });
+        if (methodology.length > 10 || analysis.executiveSummary.length > 4000 ||
+            analysis.valueConclusion.explanation.length > 2000) {
+          throw new Error("valuation_provider_invalid_response");
+        }
+        // No verified evidence registry is connected yet. Therefore the server,
+        // not the model prompt, unconditionally prevents monetary conclusions.
         return {
-          ...analysis,
+          executiveSummary: analysis.executiveSummary.trim(),
+          assetClass: asset.assetClass,
+          evidenceGaps: boundedStringList(analysis.evidenceGaps),
+          contradictions: boundedStringList(analysis.contradictions),
+          methodology,
+          valueConclusion: {
+            status: "not_estimable",
+            currency: asset.currency,
+            low: null,
+            central: null,
+            high: null,
+            explanation: analysis.valueConclusion.explanation.trim(),
+          },
+          risks: boundedStringList(analysis.risks),
+          sourceRequirements: boundedStringList(analysis.sourceRequirements),
+          expertReviewChecklist: boundedStringList(analysis.expertReviewChecklist),
           assetId: asset.assetId,
           generatedAt: new Date().toISOString(),
           reviewStatus: "preliminary_ai_analysis",
           approvalRequired: true,
-          disclaimer: "Предварительный аналитический материал. Не является независимой оценкой, юридическим заключением или утверждённой стоимостью. Требует проверки ответственным специалистом.",
+          disclaimer: "Предварительный аналитический материал. Не является независимой оценкой, юридическим заключением или утверждённой стоимостью. Денежный вывод заблокирован до подключения проверяемых источников и экспертной проверки.",
         };
       } finally {
         clearTimeout(timeout);
