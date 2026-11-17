@@ -438,6 +438,23 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
   #document-register-form .app-button{width:100%;min-height:46px}
   .document-filter-row .filter-select{width:100%}
 }
+
+/* Dashboard usability: compact operational directory instead of a wall of tiles. */
+.module-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}
+.module-tile{display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-rows:auto auto auto;align-items:start;column-gap:10px;min-height:0;padding:13px 5px;border:0;border-bottom:1px solid #e1e6dc;border-radius:0;background:transparent;box-shadow:none;transform:none}
+.module-tile:hover{border-color:#cbd7c2;background:#f3f6ef;transform:none}
+.module-tile:focus-visible{outline:3px solid #6b8c54;outline-offset:2px}
+.module-tile .tile-ico{grid-column:1;grid-row:1/4;width:30px;height:30px;margin:0}
+.module-tile strong{grid-column:2;margin:0 0 3px;font-size:12px}
+.module-tile small{grid-column:2;font-size:10px;line-height:1.55}
+.module-tile .tile-state{grid-column:2;margin:0;padding-top:5px;font-size:9px;line-height:1.45}
+@media(max-width:720px){
+ .module-list{grid-template-columns:1fr}
+ .module-tile{grid-template-columns:36px minmax(0,1fr);padding:14px 4px}
+ .module-tile .tile-ico{width:32px;height:32px}
+ .module-tile small{font-size:11px}
+ .module-tile .tile-state{font-size:10px}
+}
 </style>
 </head>
 <body class="workspace">
@@ -517,7 +534,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <div class="task-row" data-task="3"><button class="task-check" aria-label="Отметить задачу выполненной" aria-pressed="false">✓</button><div><p class="task-title">Описать роли доступа к кабинетам</p><p class="task-meta">Безопасность · Ответственный: администратор</p></div><span class="task-state">В работе</span></div>
 <div class="task-row" data-task="4"><button class="task-check" aria-label="Отметить задачу выполненной" aria-pressed="false">✓</button><div><p class="task-title">Согласовать путь партнёра</p><p class="task-meta">Партнёрское пространство · Ответственный: команда</p></div><span class="task-state">Запланировано</span></div>
 </div></section>
-<section class="panel"><div class="panel-head"><div><h2>Модули платформы</h2><p>Переходите между демонстрационными разделами.</p></div></div>
+<section class="panel"><div class="panel-head"><div><h2>Рабочие разделы</h2><p>Короткие переходы к функциям системы; статус каждого контура указан прямо в списке.</p></div></div>
 <div class="module-list">
 <button class="module-tile" data-go="assets"><span class="tile-ico">◈</span><strong>Активы и оценка</strong><small>Акции, облигации, основания оценки и история источников</small><span class="tile-state">Концепция · без реестра реальных активов</span></button>
 <button class="module-tile" data-go="knowledge"><span class="tile-ico">⌁</span><strong>Интеллектуальные ресурсы</strong><small>Методики, исследования, знания и банки интеллектуальных ресурсов</small><span class="tile-state">Концепция · демонстрационный режим</span></button>
