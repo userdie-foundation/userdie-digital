@@ -644,6 +644,31 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <article class="module-tile"><span class="tile-ico">▧</span><strong>Pitch Deck &amp; Deck QC</strong><small>План презентации, финансовые страницы, согласование тезисов с моделью и финальная проверка материалов.</small><span class="tile-state">Подготовка и контроль презентации</span></article>
 <article class="module-tile"><span class="tile-ico">☷</span><strong>Meeting Prep</strong><small>Подготовка к встречам с инвесторами, банками, покупателями и кредиторами; вопросы и follow-up.</small><span class="tile-state">Подготовка переговоров</span></article>
 </div></div>
+<div class="panel" id="ib-dcf-workbench">
+<div class="panel-head"><div><h2>Расчётный инструмент 01 · DCF / WACC</h2><p>Пятилетняя модель дисконтированных денежных потоков с расчётом Enterprise Value, Equity Value и проверкой чувствительности.</p></div><span class="demo-label">ЛОКАЛЬНЫЙ РАСЧЁТ</span></div>
+<div class="notice-box"><strong>Порядок работы:</strong> внесите свободный денежный поток (FCFF) по годам, ставку дисконтирования WACC, долг и денежные средства. Все суммы должны быть в одной валюте и единице измерения. Результат — предварительный сценарный расчёт, а не официальная оценка.</div>
+<form id="ib-dcf-form" class="object-form" novalidate>
+<label>Валюта расчёта<input id="ib-dcf-currency" class="search-box" maxlength="8" value="RUB" aria-describedby="ib-dcf-units"></label>
+<label>Единица измерения<input id="ib-dcf-unit" class="search-box" maxlength="24" value="млн" aria-describedby="ib-dcf-units"></label>
+<p class="object-wide" id="ib-dcf-units">Например: RUB / млн. Не смешивайте рубли и миллионы рублей в одной модели.</p>
+<label>FCFF — год 1<input id="ib-dcf-fcf1" class="search-box" type="number" step="any" value="100" required></label>
+<label>FCFF — год 2<input id="ib-dcf-fcf2" class="search-box" type="number" step="any" value="110" required></label>
+<label>FCFF — год 3<input id="ib-dcf-fcf3" class="search-box" type="number" step="any" value="120" required></label>
+<label>FCFF — год 4<input id="ib-dcf-fcf4" class="search-box" type="number" step="any" value="130" required></label>
+<label>FCFF — год 5<input id="ib-dcf-fcf5" class="search-box" type="number" step="any" value="140" required></label>
+<label>WACC, % годовых<input id="ib-dcf-wacc" class="search-box" type="number" min="0.1" max="50" step="0.1" value="12" required></label>
+<label>Долгосрочный рост g, %<input id="ib-dcf-growth" class="search-box" type="number" min="-5" max="10" step="0.1" value="3" required></label>
+<label>Процентный долг<input id="ib-dcf-debt" class="search-box" type="number" step="any" value="250" required></label>
+<label>Денежные средства<input id="ib-dcf-cash" class="search-box" type="number" step="any" value="40" required></label>
+<label>Количество акций / долей (опционально)<input id="ib-dcf-shares" class="search-box" type="number" min="0" step="any" placeholder="Оставьте пустым, если не требуется"></label>
+<div class="object-wide"><button class="app-button" type="submit">Рассчитать DCF</button> <button class="app-button secondary" type="reset">Сбросить пример</button></div>
+</form>
+<div id="ib-dcf-error" class="notice-box" role="alert" hidden></div>
+<div id="ib-dcf-results" class="notice-box" aria-live="polite"><strong>Результат модели</strong><p>Нажмите «Рассчитать DCF», чтобы получить расчёт на основе введённых предпосылок.</p></div>
+<div id="ib-dcf-sensitivity" class="object-wide" aria-live="polite"></div>
+<div class="notice-box"><strong>Методика:</strong> PV(FCFF) = Σ FCFFₜ / (1 + WACC)ᵗ; Terminal Value = FCFF₅ × (1 + g) / (WACC − g); Enterprise Value = PV прогнозных FCFF + PV Terminal Value; Equity Value = Enterprise Value − долг + денежные средства. Чувствительность показывает Enterprise Value при изменении WACC на ±1 п.п. и g на ±0,5 п.п. без изменения остальных предпосылок.</div>
+<div class="notice-box"><strong>Ограничения текущей версии:</strong> расчёт выполняется в браузере и не сохраняется в реестр, не передаётся на сервер и не создаёт аудиторскую запись. Нет автоматической загрузки отчётности, проверки источников, расчёта WACC из рыночных данных, корректировок долга и non-operating assets. Перед использованием результата специалист должен подтвердить FCFF, прогнозный период, WACC, g, чистый долг и дату оценки.</div>
+</div>
 <div class="notice-box"><strong>Правило источников:</strong> рыночные котировки, отчётность, прогнозы, условия финансирования и сведения о контрагентах должны сопровождаться источником, датой, периодом и статусом проверки. Не смешивать подтверждённые данные с предположениями. Не считать модель или презентацию независимой оценкой.</div>
 <div class="notice-box"><strong>Статус интеграции:</strong> на этой странице добавлен каталог инструментов и их связей с модулями USERDIE. Это не означает, что внешние банковские системы, базы котировок, CRM, VDR, платёжная инфраструктура или реальные транзакционные сервисы подключены. Инструменты Investment Banking доступны для аналитической работы в ChatGPT; перенос каждого workflow в серверную платформу потребует отдельной реализации, источников данных, прав доступа и тестирования.</div>
 </section>
@@ -949,6 +974,50 @@ if(navSearch&&navRoot&&navStatus){
 views.forEach(el=>el.setAttribute("aria-hidden",String(!el.classList.contains("active"))));
 const initialTaskRouteParams=new URLSearchParams(window.location.search);const requestedTaskObject=initialTaskRouteParams.get("object");if(requestedTaskObject&&/^DEMO-[0-9]{3,}$/.test(requestedTaskObject))taskObjectFilter=requestedTaskObject;
 restoreDemoTasks();restoreObjects();updateMetrics();renderOverviewTasks();renderTasks();renderObjects();renderDocumentRegister();
+// DCF calculator: transparent browser-only scenario math; no server persistence.
+const dcfForm=document.getElementById("ib-dcf-form");
+if(dcfForm){
+ const dcfError=document.getElementById("ib-dcf-error");
+ const dcfResults=document.getElementById("ib-dcf-results");
+ const dcfSensitivity=document.getElementById("ib-dcf-sensitivity");
+ const dcfNum=id=>{const raw=document.getElementById(id).value.trim();if(raw==="")return null;const value=Number(raw);return Number.isFinite(value)?value:null;};
+ const dcfFormat=value=>new Intl.NumberFormat("ru-RU",{maximumFractionDigits:2,minimumFractionDigits:0}).format(value);
+ const dcfEv=(fcfs,wacc,g)=>{if(!(wacc>g))return null;let pv=0;fcfs.forEach((fcf,i)=>{pv+=fcf/Math.pow(1+wacc,i+1);});const terminal=fcfs[4]*(1+g)/(wacc-g);return pv+terminal/Math.pow(1+wacc,5);};
+ dcfForm.addEventListener("submit",event=>{
+  event.preventDefault();dcfError.hidden=true;dcfSensitivity.innerHTML="";
+  const fcfs=[1,2,3,4,5].map(i=>dcfNum("ib-dcf-fcf"+i));
+  const waccPct=dcfNum("ib-dcf-wacc"),growthPct=dcfNum("ib-dcf-growth"),debt=dcfNum("ib-dcf-debt"),cash=dcfNum("ib-dcf-cash"),shares=dcfNum("ib-dcf-shares");
+  const currency=document.getElementById("ib-dcf-currency").value.trim().toUpperCase();
+  const unit=document.getElementById("ib-dcf-unit").value.trim();
+  const errors=[];
+  if(fcfs.some(v=>v===null))errors.push("Заполните все пять значений FCFF корректными числами.");
+  if(waccPct===null||waccPct<0.1||waccPct>50)errors.push("WACC должен находиться в диапазоне от 0,1% до 50%.");
+  if(growthPct===null||growthPct< -5||growthPct>10)errors.push("Долгосрочный рост должен находиться в диапазоне от −5% до 10%.");
+  if(waccPct!==null&&growthPct!==null&&waccPct<=growthPct)errors.push("WACC должен быть строго выше долгосрочного темпа роста g.");
+  if(debt===null||debt<0)errors.push("Укажите неотрицательную величину процентного долга.");
+  if(cash===null||cash<0)errors.push("Укажите неотрицательную величину денежных средств.");
+  if(shares!==null&&shares<=0)errors.push("Количество акций должно быть положительным числом либо поле следует оставить пустым.");
+  if(!/^[A-ZА-ЯЁ]{3,8}$/.test(currency))errors.push("Укажите код валюты буквами, например RUB, EUR или USD.");
+  if(!unit||unit.length>24)errors.push("Укажите единицу измерения, например млн или тыс.");
+  if(errors.length){dcfError.textContent=errors.join(" ");dcfError.hidden=false;dcfResults.innerHTML="<strong>Расчёт не выполнен</strong><p>Исправьте отмеченные предпосылки и повторите расчёт.</p>";return;}
+  const wacc=waccPct/100,g=growthPct/100,ev=dcfEv(fcfs,wacc,g),equity=ev-debt+cash;
+  if(!Number.isFinite(ev)||!Number.isFinite(equity)){dcfError.textContent="Модель дала некорректный результат. Проверьте входные значения.";dcfError.hidden=false;return;}
+  const pvFlows=fcfs.reduce((sum,fcf,i)=>sum+fcf/Math.pow(1+wacc,i+1),0);
+  const terminal=fcfs[4]*(1+g)/(wacc-g),pvTerminal=terminal/Math.pow(1+wacc,5);
+  const unitLabel=currency+" / "+unit;
+  const rows=[["Enterprise Value (EV)",ev],["Equity Value",equity],["PV прогнозных FCFF",pvFlows],["Terminal Value на конец 5-го года",terminal],["PV Terminal Value",pvTerminal],["Чистый долг (долг − деньги)",debt-cash]];
+  dcfResults.innerHTML="<strong>Результат DCF · "+unitLabel+"</strong>"+rows.map(([label,value])=>"<p>"+label+": <strong>"+dcfFormat(value)+"</strong></p>").join("")+(shares!==null?"<p>Расчётная стоимость на акцию / долю: <strong>"+dcfFormat(equity/shares)+" "+unitLabel+"</strong></p>":"")+"<p>Доля Terminal Value в EV: <strong>"+dcfFormat(ev!==0?pvTerminal/ev*100:0)+"%</strong></p><p>Предпосылки: WACC "+dcfFormat(waccPct)+"%; g "+dcfFormat(growthPct)+"%; прогноз 5 лет.</p>";
+  const waccCases=[waccPct-1,waccPct,waccPct+1],growthCases=[growthPct-0.5,growthPct,growthPct+0.5];
+  const table=document.createElement("table");table.className="data-table";
+  const caption=document.createElement("caption");caption.textContent="Чувствительность Enterprise Value · "+unitLabel;table.appendChild(caption);
+  const thead=document.createElement("thead"),head=document.createElement("tr");["WACC / g",...growthCases.map(v=>dcfFormat(v)+"%")].forEach(label=>{const th=document.createElement("th");th.textContent=label;head.appendChild(th);});thead.appendChild(head);table.appendChild(thead);
+  const tbody=document.createElement("tbody");
+  waccCases.forEach(w=>{const tr=document.createElement("tr");const th=document.createElement("th");th.textContent=dcfFormat(w)+"%";tr.appendChild(th);growthCases.forEach(gr=>{const td=document.createElement("td");const scenario=dcfEv(fcfs,w/100,gr/100);td.textContent=scenario===null?"н/д":dcfFormat(scenario);tr.appendChild(td);});tbody.appendChild(tr);});
+  table.appendChild(tbody);dcfSensitivity.appendChild(table);
+  const stamp=document.createElement("p");stamp.className="tile-state";stamp.textContent="Рассчитано локально: "+new Date().toLocaleString("ru-RU")+". Значения не сохранены на сервере.";dcfSensitivity.appendChild(stamp);
+ });
+ dcfForm.addEventListener("reset",()=>{dcfError.hidden=true;dcfSensitivity.innerHTML="";dcfResults.innerHTML="<strong>Результат модели</strong><p>Форма сброшена к демонстрационным предпосылкам. Нажмите «Рассчитать DCF».</p>";});
+}
 const routeParams=new URLSearchParams(window.location.search);
 const requestedView=routeParams.get("view");
 const legacyInvestmentRoute=requestedView==="investment-banking";
