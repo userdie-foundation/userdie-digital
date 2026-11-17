@@ -164,6 +164,13 @@ export function isAuthorized({ principal, permission, resource = {} } = {}) {
     case "partnerships:evidence:write":
       return false;
 
+    case "valuation:analyze":
+      return (
+        hasGrant(principal, "administrator", "global") ||
+        hasGrant(principal, "asset_valuator", "global") ||
+        hasGrant(principal, "asset_valuator", "contour", "assets")
+      );
+
     case "audit:read":
       return hasGrant(principal, "auditor", "global");
 
