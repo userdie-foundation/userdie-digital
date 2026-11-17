@@ -454,8 +454,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <button type="button" data-view="tasks" aria-controls="view-tasks"><span class="nav-ico">✓</span>Задачи</button>
 <button type="button" data-view="objects" aria-controls="view-objects"><span class="nav-ico">▣</span>Карточки объектов</button>
 <button type="button" data-view="programs" aria-controls="view-programs"><span class="nav-ico">◫</span>Программы</button>
-<button type="button" data-view="assets" aria-controls="view-assets"><span class="nav-ico">◈</span>Активы</button>
-<button type="button" data-view="investment-banking" aria-controls="view-investment-banking"><span class="nav-ico">▥</span>Investment Banking</button>
+<button type="button" data-view="assets" aria-controls="view-assets"><span class="nav-ico">◈</span>Центр оценки активов</button>
 <button type="button" data-view="knowledge" aria-controls="view-knowledge"><span class="nav-ico">⌁</span>Интеллектуальные ресурсы</button>
 <button type="button" data-view="partners" aria-controls="view-partners"><span class="nav-ico">⌁</span>Партнёры</button>
 <button type="button" data-view="documents" aria-controls="view-documents"><span class="nav-ico">▤</span>Документы</button>
@@ -520,7 +519,6 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <section class="panel"><div class="panel-head"><div><h2>Модули платформы</h2><p>Переходите между демонстрационными разделами.</p></div></div>
 <div class="module-list">
 <button class="module-tile" data-go="assets"><span class="tile-ico">◈</span><strong>Активы и оценка</strong><small>Акции, облигации, основания оценки и история источников</small><span class="tile-state">Концепция · без реестра реальных активов</span></button>
-<button class="module-tile" data-go="investment-banking"><span class="tile-ico">▥</span><strong>Investment Banking</strong><small>Сделки, финансирование, оценка бизнеса, кредитный анализ и инвестиционные материалы</small><span class="tile-state">Новый аналитический контур · демонстрационный каталог</span></button>
 <button class="module-tile" data-go="knowledge"><span class="tile-ico">⌁</span><strong>Интеллектуальные ресурсы</strong><small>Методики, исследования, знания и банки интеллектуальных ресурсов</small><span class="tile-state">Концепция · демонстрационный режим</span></button>
 <button class="module-tile" data-go="programs"><span class="tile-ico">◫</span><strong>Программы фонда</strong><small>Карточки, этапы и контроль материалов</small><span class="tile-state">Демо-данные</span></button>
 <a class="module-tile module-tile-link" href="case-management.html"><span class="tile-ico">▣</span><strong>Обращения и дела</strong><small>Реестр, статусы, ответственные и контроль сроков</small><span class="tile-state">Отдельный демо-кабинет ↗</span></a>
@@ -610,9 +608,8 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <article class="module-tile"><span class="tile-ico">↺</span><strong>История изменений</strong><small>Версии оценки, автор изменения, причина пересмотра и ссылка на основание.</small><span class="tile-state">Требует журналирования</span></article>
 </div>
 <div class="notice-box"><strong>Принцип контроля:</strong> оценка должна быть воспроизводимой: у каждого результата фиксируются источник, дата, методика и ответственное лицо. До согласования модели и прав доступа реальные финансовые данные не загружаются.</div>
-</section>
-<section class="page-view" id="view-investment-banking">
-<div class="view-intro"><p class="eyebrow">09 / INVESTMENT BANKING</p><h2>Инвестиционно-банковские инструменты</h2><p>Рабочий аналитический контур для сделок, корпоративных финансов, оценки бизнеса, привлечения капитала и финансового моделирования. Модуль дополняет Центр оценки активов и Аналитический центр; он не является отдельным банком или лицензированной финансовой организацией.</p></div>
+<section class="panel" id="investment-banking-tools">
+<div class="view-intro"><p class="eyebrow">ДОПОЛНЯЮЩИЙ МОДУЛЬ · CORPORATE FINANCE &amp; INVESTMENT BANKING</p><h2>Финансово-инвестиционный инструментарий Центра</h2><p>Инструменты Investment Banking встроены в единый Центр оценки активов. Они расширяют оценку активов анализом бизнеса, структуры капитала, стоимости финансирования и параметров сделок. Это функциональный слой Центра, а не отдельное подразделение.</p></div>
 <div class="notice-box"><strong>Границы применения:</strong> инструменты предназначены для подготовки аналитики, моделей и материалов к профессиональному рассмотрению. Они не открывают банковские счета, не принимают депозиты, не выдают кредиты, не размещают ценные бумаги и не исполняют денежные или биржевые операции. Любые выводы требуют подтверждённых источников, проверки специалистом и решения уполномоченного лица.</div>
 <div class="workflow-links" aria-label="Связи инвестиционно-банковского модуля"><strong>Связанные контуры USERDIE</strong><button type="button" data-go="assets">Центр оценки активов →</button><button type="button" data-go="knowledge">Банк методик и исследований →</button><button type="button" data-go="documents">Документы и due diligence →</button><button type="button" data-go="tasks">Задачи и согласования →</button><a href="valuation-intelligence.html">USERDIE Valuation Intelligence ↗</a><a href="asset-register.html">Реестр активов ↗</a></div>
 <div class="panel"><div class="panel-head"><div><h2>1. Сделки и корпоративные финансы</h2><p>Инструменты подготовки и сопровождения транзакций.</p></div><span class="demo-label">КАТАЛОГ ИНСТРУМЕНТОВ</span></div>
@@ -649,6 +646,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </div></div>
 <div class="notice-box"><strong>Правило источников:</strong> рыночные котировки, отчётность, прогнозы, условия финансирования и сведения о контрагентах должны сопровождаться источником, датой, периодом и статусом проверки. Не смешивать подтверждённые данные с предположениями. Не считать модель или презентацию независимой оценкой.</div>
 <div class="notice-box"><strong>Статус интеграции:</strong> на этой странице добавлен каталог инструментов и их связей с модулями USERDIE. Это не означает, что внешние банковские системы, базы котировок, CRM, VDR, платёжная инфраструктура или реальные транзакционные сервисы подключены. Инструменты Investment Banking доступны для аналитической работы в ChatGPT; перенос каждого workflow в серверную платформу потребует отдельной реализации, источников данных, прав доступа и тестирования.</div>
+</section>
 </section>
 <section class="page-view" id="view-knowledge">
 <div class="view-intro"><p class="eyebrow">07 / БАНКИ ИНТЕЛЛЕКТУАЛЬНЫХ РЕСУРСОВ</p><h2>Знания, исследования и методики</h2><p>Контур для систематизации интеллектуальных ресурсов фонда и аналитической работы. Карточки ниже описывают целевую модель, а не существующее хранилище документов.</p></div>
@@ -761,7 +759,7 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 </div>
 <script>
 (function(){
-const names={overview:"Обзор",tasks:"Задачи",programs:"Программы",assets:"Активы и оценка","investment-banking":"Investment Banking",knowledge:"Интеллектуальные ресурсы",partners:"Партнёры",documents:"Документы",security:"Доступы и безопасность",objects:"Карточки объектов"};
+const names={overview:"Обзор",tasks:"Задачи",programs:"Программы",assets:"Центр оценки активов",knowledge:"Интеллектуальные ресурсы",partners:"Партнёры",documents:"Документы",security:"Доступы и безопасность",objects:"Карточки объектов"};
 const nav=[...document.querySelectorAll("[data-view]")],views=[...document.querySelectorAll(".page-view")],crumb=document.getElementById("crumb"),toast=document.getElementById("toast");
 function showToast(message){toast.textContent=message;toast.classList.add("visible");}
 function go(view){if(!names[view])return;views.forEach(el=>{const active=el.id==="view-"+view;el.classList.toggle("active",active);el.setAttribute("aria-hidden",String(!active));});nav.forEach(el=>{if(el.dataset.view===view)el.setAttribute("aria-current","page");else el.removeAttribute("aria-current")});crumb.textContent=names[view];if(view==="tasks")renderTasks();if(view==="objects")renderObjects();const activeNav=nav.find(el=>el.dataset.view===view);const navSearchInput=document.getElementById("app-nav-search");if(activeNav&&activeNav.hidden&&navSearchInput){navSearchInput.value="";navSearchInput.dispatchEvent(new Event("input"));}const reduceMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;const navRail=document.querySelector(".app-nav");if(activeNav&&navRail&&window.matchMedia("(max-width: 720px)").matches){const targetLeft=activeNav.getBoundingClientRect().left-navRail.getBoundingClientRect().left+navRail.scrollLeft-(navRail.clientWidth-activeNav.clientWidth)/2;navRail.scrollTo({left:targetLeft,behavior:reduceMotion?"auto":"smooth"});}window.scrollTo({top:0,behavior:reduceMotion?"auto":"smooth"});}
@@ -953,7 +951,9 @@ const initialTaskRouteParams=new URLSearchParams(window.location.search);const r
 restoreDemoTasks();restoreObjects();updateMetrics();renderOverviewTasks();renderTasks();renderObjects();renderDocumentRegister();
 const routeParams=new URLSearchParams(window.location.search);
 const requestedView=routeParams.get("view");
-const allowedViews=["overview","tasks","objects","programs","assets","investment-banking","knowledge","partners","documents","security"];
+const legacyInvestmentRoute=requestedView==="investment-banking";
+const allowedViews=["overview","tasks","objects","programs","assets","knowledge","partners","documents","security"];
+if(legacyInvestmentRoute){go("assets");document.getElementById("investment-banking-tools")?.scrollIntoView({block:"start"});}
 if(allowedViews.includes(requestedView)){
  if(requestedView==="objects"){
   const requestedType=routeParams.get("type");
