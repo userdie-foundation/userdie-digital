@@ -436,6 +436,34 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 .object-relations,.object-linked-tasks{display:grid;gap:9px;margin-top:14px;padding:13px;border:1px solid #e1e6dc;border-radius:5px;background:#f8faf5}.object-relations>strong,.object-linked-tasks>strong{font:700 11px Manrope,sans-serif;color:#294b39}.object-relation-list{display:grid;gap:7px}.object-relation-item{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:#667568;font-size:10px;line-height:1.5}.object-relation-item a,.object-linked-tasks a{color:#315d40;font-weight:700;text-decoration:underline;text-underline-offset:2px}.object-relation-remove{min-height:30px;padding:4px 8px;border:1px solid #d7ddd2;border-radius:4px;background:#fff;color:#786b5d;font:600 9px sans-serif;cursor:pointer}.object-relation-editor{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr) auto;gap:7px}.object-relation-editor select{min-width:0;width:100%;font-size:10px}.object-relation-editor .app-button{min-height:38px;padding:0 10px;font-size:10px}.object-relation-empty{margin:0;color:#899388;font-size:10px}.object-linked-tasks a{font-size:10px;line-height:1.5}@media(max-width:620px){.object-relation-editor{grid-template-columns:1fr}.object-relation-editor .app-button{width:100%}.object-relation-item{align-items:flex-start}}
 
 .object-incoming-relations{display:grid;gap:7px;padding-top:9px;border-top:1px solid #e1e6dc}.object-incoming-relations>strong{font:700 10px Manrope,sans-serif;color:#536b54}.task-filter-reset{color:#315d40;font-weight:700;text-decoration:underline;text-underline-offset:2px}.task-filter-reset:focus-visible{outline:3px solid #6b8c54;outline-offset:2px}
+
+/* Report preview: clean print/PDF output without navigation or workspace controls. */
+#ib-report-preview{margin-top:18px;padding:28px;background:#fff;border:1px solid #dce1d6;color:#24382c}
+#ib-report-preview h2{margin:20px 0 8px;font:700 18px Georgia,serif;color:#20372b}
+#ib-report-preview h3{margin:0 0 8px;font:700 16px Georgia,serif;color:#20372b}
+#ib-report-preview h4{margin:18px 0 6px;font:700 12px Manrope,sans-serif;color:#31583d}
+#ib-report-preview p{margin:6px 0;color:#35483a;font:11px/1.75 Georgia,serif;white-space:pre-wrap;overflow-wrap:anywhere}
+#ib-report-preview .report-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0;padding:12px;background:#f4f6f0}
+#ib-report-preview .report-meta p{margin:0;font:10px/1.6 'DM Sans',sans-serif}
+#ib-report-preview .report-warning{margin-top:18px;padding:12px;border-left:3px solid #b58c54;background:#f7f2e8;font:10px/1.7 'DM Sans',sans-serif}
+#ib-report-preview .report-section{break-inside:avoid;page-break-inside:avoid}
+body.report-printing .header,body.report-printing .app-sidebar,body.report-printing .app-topline,body.report-printing .welcome-row,body.report-printing .contour-switcher,body.report-printing .metrics-grid,body.report-printing .toast{display:none!important}
+body.report-printing .app-shell{display:block!important;min-height:0!important}
+body.report-printing .app-main{padding:0!important}
+body.report-printing .page-view{display:none!important}
+body.report-printing #view-assets{display:block!important}
+body.report-printing #view-assets>*:not(#investment-banking-tools){display:none!important}
+body.report-printing #investment-banking-tools>*:not(#ib-report-builder){display:none!important}
+body.report-printing #ib-report-builder>*:not(#ib-report-preview){display:none!important}
+body.report-printing #ib-report-preview{display:block!important;margin:0!important;padding:12mm!important;border:0!important;box-shadow:none!important}
+body.report-printing #ib-report-preview .report-warning{display:block!important}
+@media print{
+ @page{size:A4;margin:16mm}
+ body{background:#fff!important;color:#20372b!important}
+ #ib-report-preview{border:0!important;padding:0!important}
+ #ib-report-preview h2,#ib-report-preview h3,#ib-report-preview h4{break-after:avoid}
+ #ib-report-preview .report-section{break-inside:avoid}
+}
 </style>
 </head>
 <body class="workspace">
@@ -700,6 +728,40 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <div id="ib-cap-report" class="notice-box" aria-live="polite"><strong>Основа для заключения</strong><p>После расчёта здесь появится структурированная аналитическая сводка с исходными данными, показателями, сценариями и оговорками. Она не является готовым официальным заключением.</p></div>
 <div class="notice-box"><strong>Методика:</strong> Net Debt = процентный долг − денежные средства; Debt / EBITDA = валовой долг / EBITDA; Net Debt / EBITDA = чистый долг / EBITDA; Interest Coverage = EBIT / фактические процентные расходы; Debt Capacity по leverage = EBITDA × пользовательский лимит Debt / EBITDA − текущий долг. Ограничение по процентному покрытию рассчитывается как доступный запас процентных расходов / ставка нового долга. Ориентировочная ёмкость долга — меньшая положительная величина из двух ограничений.</div>
 <div class="notice-box"><strong>Ограничения:</strong> упрощённая сценарная модель не заменяет кредитный анализ банка или кредитора. Не учитывает сезонность, оборотный капитал, график амортизации, обеспечение, валютные риски, ковенанты, субординацию, комиссии, плавающие ставки и юридические ограничения. Налоговый эффект показывается справочно и не означает гарантированную налоговую экономию.</div>
+</div>
+
+<div class="panel" id="ib-report-builder">
+<div class="panel-head"><div><h2>Документальный инструмент 03 · Конструктор аналитического заключения</h2><p>Сборка структурированного проекта заключения на основе исходных данных, источников, расчётов, допущений и экспертных выводов.</p></div><span class="demo-label">ПРОЕКТ ДОКУМЕНТА</span></div>
+<div class="notice-box"><strong>Назначение:</strong> конструктор формирует проект аналитического документа для проверки специалистом. Он не присваивает официальный регистрационный номер, не удостоверяет достоверность исходных документов, не заменяет независимую оценку и не создаёт юридически значимое утверждение.</div>
+<form id="ib-report-form" class="object-form" novalidate>
+<label>Вид документа<select id="ib-report-type" class="filter-select" required><option value="asset">Аналитическое заключение об активе</option><option value="valuation">Предварительное оценочное заключение</option><option value="investment">Инвестиционно-аналитическое заключение</option><option value="credit">Заключение о структуре капитала и долговой нагрузке</option></select></label>
+<label>Дата документа<input id="ib-report-date" class="search-box" type="date" required></label>
+<label>Идентификатор актива / объекта<input id="ib-report-asset-id" class="search-box" maxlength="100" required placeholder="Например, ASSET-0001"></label>
+<label>Заказчик / инициатор анализа<input id="ib-report-client" class="search-box" maxlength="180" placeholder="Наименование организации или подразделения"></label>
+<label class="object-wide">Наименование актива / предмет анализа<input id="ib-report-title" class="search-box" maxlength="240" required placeholder="Полное наименование объекта анализа"></label>
+<label>Валюта и единица измерения<input id="ib-report-units" class="search-box" maxlength="40" value="RUB / млн"></label>
+<label>Статус исходных данных<select id="ib-report-evidence-status" class="filter-select" required><option value="confirmed">Подтверждены документами</option><option value="preliminary">Предварительные</option><option value="unverified">Не проверены</option><option value="mixed">Смешанный статус — указать по каждому источнику</option></select></label>
+<label>Модель взаимодействия с фондом<select id="ib-report-engagement" class="filter-select" required><option value="probono">Безвозмездная аналитическая работа фонда</option><option value="donation">Добровольное пожертвование без встречного обязательства</option><option value="paid">Возмездная работа по отдельному договору</option><option value="internal">Внутренняя работа фонда</option></select></label>
+<label class="object-wide">Цель и назначение заключения<textarea id="ib-report-purpose" class="object-textarea" rows="2" maxlength="1200" required placeholder="Для какого решения готовится документ и кем будет использоваться"></textarea></label>
+<label class="object-wide">Описание объекта и границы анализа<textarea id="ib-report-scope" class="object-textarea" rows="3" maxlength="3000" required placeholder="Состав объекта, права, ограничения, география, период и пределы исследования"></textarea></label>
+<label class="object-wide">Документы и источники данных<textarea id="ib-report-sources" class="object-textarea" rows="3" maxlength="4000" required placeholder="Перечень документов, реквизиты, даты, версии, ссылки/идентификаторы и статус проверки"></textarea></label>
+<label class="object-wide">Методика и обоснование выбора<textarea id="ib-report-method" class="object-textarea" rows="3" maxlength="2500" required placeholder="Метод, формулы, критерии сопоставимости и причины выбора или неприменимости альтернатив"></textarea></label>
+<label class="object-wide">Исходные предпосылки и допущения<textarea id="ib-report-assumptions" class="object-textarea" rows="3" maxlength="2500" required placeholder="Прогнозы, ставки, допущения, сценарии и сведения, требующие подтверждения"></textarea></label>
+<label class="object-wide">Расчёты и аналитические результаты<textarea id="ib-report-calculations" class="object-textarea" rows="4" maxlength="4000" placeholder="Показатели, формулы, результаты DCF/WACC, долгового анализа и другие расчёты"></textarea></label>
+<label class="object-wide">Основной вывод<textarea id="ib-report-conclusion" class="object-textarea" rows="4" maxlength="3000" required placeholder="Сдержанный вывод с диапазоном или статусом «недостаточно данных», если расчёт не обоснован"></textarea></label>
+<label class="object-wide">Риски, противоречия и пробелы<textarea id="ib-report-risks" class="object-textarea" rows="3" maxlength="2500" placeholder="Неустранённые расхождения, юридические/финансовые/рыночные риски и недостающие сведения"></textarea></label>
+<label class="object-wide">Ограничения применения заключения<textarea id="ib-report-limitations" class="object-textarea" rows="3" maxlength="2000" required placeholder="Ограничения данных, даты, методов, доступа и области применимости"></textarea></label>
+<label>Подготовил (ФИО / должность)<input id="ib-report-author" class="search-box" maxlength="180" placeholder="Ответственный составитель"></label>
+<label>Проверил (ФИО / должность)<input id="ib-report-reviewer" class="search-box" maxlength="180" placeholder="Эксперт / проверяющий"></label>
+<label class="object-wide"><span><input id="ib-report-dcf" type="checkbox"> Включить рассчитанный DCF/WACC из рабочего инструмента</span></label>
+<label class="object-wide"><span><input id="ib-report-capital" type="checkbox"> Включить рассчитанный анализ структуры капитала</span></label>
+<label class="object-wide"><span><input id="ib-report-ack" type="checkbox" required> Подтверждаю, что не представляю пожертвование как оплату гарантированного заключения и не включаю неподтверждённые сведения в документ.</label>
+<div class="object-wide"><button class="app-button" type="submit">Сформировать проект заключения</button> <button class="app-button secondary" type="reset">Очистить форму</button> <button class="app-button secondary" id="ib-report-print" type="button" disabled>Печать / сохранить PDF</button></div>
+</form>
+<div id="ib-report-error" class="notice-box" role="alert" hidden></div>
+<article id="ib-report-preview" class="document-record" aria-live="polite" aria-label="Предварительный просмотр заключения"><div class="document-record-head"><div><h3>Предварительный просмотр документа</h3><p class="document-record-id">Проект не сформирован</p></div><span class="object-chip">НЕ УТВЕРЖДЁН</span></div><p class="document-record-note">Заполните форму и сформируйте проект. До экспертной проверки документ не имеет статуса утверждённого заключения.</p></article>
+<div class="notice-box"><strong>Правило пожертвований:</strong> пожертвование является добровольным и не создаёт встречного обязательства выдать конкретное заключение, гарантировать результат или изменить выводы. Если заказчик получает гарантированное встречное предоставление, отношения должны оформляться как возмездная работа по отдельному договору с самостоятельной правовой и налоговой проверкой.</div>
+<div class="notice-box"><strong>Ограничения текущей версии:</strong> проект формируется локально в браузере; данные не отправляются на сервер и не сохраняются в реестре. Печать / сохранение PDF доступно через системный диалог браузера. Электронная подпись, DOCX-экспорт, регистрация номера, хранение версий, согласование и журнал аудита будут подключаться после утверждения серверной модели документов и прав доступа. Не вводите персональные данные благополучателей или иную закрытую информацию.</div>
 </div>
 <div class="notice-box"><strong>Правило источников:</strong> рыночные котировки, отчётность, прогнозы, условия финансирования и сведения о контрагентах должны сопровождаться источником, датой, периодом и статусом проверки. Не смешивать подтверждённые данные с предположениями. Не считать модель или презентацию независимой оценкой.</div>
 <div class="notice-box"><strong>Статус интеграции:</strong> на этой странице добавлен каталог инструментов и их связей с модулями USERDIE. Это не означает, что внешние банковские системы, базы котировок, CRM, VDR, платёжная инфраструктура или реальные транзакционные сервисы подключены. Инструменты Investment Banking доступны для аналитической работы в ChatGPT; перенос каждого workflow в серверную платформу потребует отдельной реализации, источников данных, прав доступа и тестирования.</div>
@@ -1113,6 +1175,79 @@ if(capForm){
   const caveat=document.createElement("p");caveat.textContent="Вывод не является кредитным одобрением, офертой, независимой оценкой или официальным заключением. Требуется проверка первичных документов, периода показателей, состава долга, EBITDA/EBIT, процентных расходов, ковенант и допущений специалистом.";capReport.appendChild(caveat);
  });
  capForm.addEventListener("reset",()=>{capError.hidden=true;capResults.innerHTML="<strong>Результат анализа</strong><p>Форма сброшена к демонстрационным предпосылкам.</p>";capReport.innerHTML="<strong>Основа для заключения</strong><p>После расчёта здесь появится аналитическая сводка.</p>";});
+}
+
+// Analytical report composer: local draft only; all user content is rendered with textContent.
+const reportForm=document.getElementById("ib-report-form");
+if(reportForm){
+ const reportPreview=document.getElementById("ib-report-preview");
+ const reportError=document.getElementById("ib-report-error");
+ const reportPrint=document.getElementById("ib-report-print");
+ let reportReady=false;
+ const reportFields=["type","date","asset-id","client","title","units","evidence-status","engagement","purpose","scope","sources","method","assumptions","calculations","conclusion","risks","limitations","author","reviewer"];
+ const getReportValue=key=>{const el=document.getElementById("ib-report-"+key);return el?el.value.trim():"";};
+ const reportLabels={asset:"Аналитическое заключение об активе",valuation:"Предварительное оценочное заключение",investment:"Инвестиционно-аналитическое заключение",credit:"Заключение о структуре капитала и долговой нагрузке"};
+ const evidenceLabels={confirmed:"Подтверждены документами",preliminary:"Предварительные",unverified:"Не проверены",mixed:"Смешанный статус — уточнение по каждому источнику обязательно"};
+ const engagementLabels={probono:"Безвозмездная аналитическая работа фонда",donation:"Добровольное пожертвование без встречного обязательства",paid:"Возмездная работа по отдельному договору",internal:"Внутренняя работа фонда"};
+ const clearNode=node=>{while(node.firstChild)node.removeChild(node.firstChild);};
+ const addText=(parent,tag,value,className)=>{const el=document.createElement(tag);if(className)el.className=className;el.textContent=value||"Не указано";parent.appendChild(el);return el;};
+ const addSection=(parent,title,value)=>{const section=document.createElement("section");section.className="report-section";addText(section,"h4",title);addText(section,"p",value||"Не указано");parent.appendChild(section);};
+ reportForm.addEventListener("submit",event=>{
+  event.preventDefault();reportError.hidden=true;
+  const required=["date","asset-id","title","purpose","scope","sources","method","assumptions","conclusion","limitations"];
+  const missing=required.filter(key=>!getReportValue(key));
+  if(!document.getElementById("ib-report-ack").checked)missing.push("ack");
+  if(missing.length){reportError.textContent="Для формирования проекта заполните обязательные поля и подтвердите корректное разделение пожертвования и возмездной работы.";reportError.hidden=false;return;}
+  const date=getReportValue("date"),draftId="DRAFT-"+date.replaceAll("-","")+"-"+Math.random().toString(36).slice(2,7).toUpperCase();
+  clearNode(reportPreview);
+  const head=document.createElement("header");head.className="document-record-head";
+  const titleBlock=document.createElement("div");addText(titleBlock,"h3","АНАЛИТИЧЕСКОЕ ЗАКЛЮЧЕНИЕ");addText(titleBlock,"p",draftId+" · Проект документа · Версия 0.1","document-record-id");head.appendChild(titleBlock);addText(head,"span","НЕ УТВЕРЖДЁН","object-chip");reportPreview.appendChild(head);
+  addText(reportPreview,"h2",reportLabels[getReportValue("type")]||"Аналитическое заключение");
+  addText(reportPreview,"p",getReportValue("title"));
+  const meta=document.createElement("div");meta.className="report-meta";
+  [["Идентификатор объекта",getReportValue("asset-id")],["Дата документа",date],["Заказчик / инициатор",getReportValue("client")||"Не указан"],["Валюта / единица",getReportValue("units")||"Не указана"],["Статус исходных данных",evidenceLabels[getReportValue("evidence-status")]],["Модель взаимодействия",engagementLabels[getReportValue("engagement")]]].forEach(([label,value])=>addText(meta,"p",label+": "+value));
+  reportPreview.appendChild(meta);
+  addSection(reportPreview,"1. Цель и назначение",getReportValue("purpose"));
+  addSection(reportPreview,"2. Объект и границы анализа",getReportValue("scope"));
+  addSection(reportPreview,"3. Документы и источники",getReportValue("sources"));
+  addSection(reportPreview,"4. Методика и обоснование",getReportValue("method"));
+  addSection(reportPreview,"5. Исходные предпосылки и допущения",getReportValue("assumptions"));
+  let calcText=getReportValue("calculations");
+  if(document.getElementById("ib-report-dcf").checked){
+   const dcf=document.getElementById("ib-dcf-results");
+   calcText+=(calcText?"\n\n":"")+"DCF/WACC: "+(dcf?.textContent.includes("Результат DCF")?dcf.textContent:"расчёт не выполнен или не подтверждён; демонстрационные значения не включены.");
+  }
+  if(document.getElementById("ib-report-capital").checked){
+   const cap=document.getElementById("ib-cap-results");
+   calcText+=(calcText?"\n\n":"")+"Capital Structure: "+(cap?.textContent.includes("Результат анализа ·")?cap.textContent:"расчёт не выполнен или не подтверждён; демонстрационные значения не включены.");
+  }
+  addSection(reportPreview,"6. Расчёты и аналитические результаты",calcText);
+  addSection(reportPreview,"7. Основной вывод",getReportValue("conclusion"));
+  addSection(reportPreview,"8. Риски, противоречия и пробелы",getReportValue("risks"));
+  addSection(reportPreview,"9. Ограничения применения",getReportValue("limitations"));
+  addSection(reportPreview,"10. Ответственные лица","Подготовил: "+(getReportValue("author")||"Не назначен")+"\nПроверил: "+(getReportValue("reviewer")||"Не назначен")+"\nУтверждение: не выполнено.");
+  const warning=document.createElement("div");warning.className="report-warning";
+  const engagement=getReportValue("engagement");
+  warning.textContent="СТАТУС ДОКУМЕНТА: ПРОЕКТ. Не является официальным отчётом об оценке, юридическим заключением, кредитным решением или утверждённым документом фонда. Источники и расчёты требуют проверки ответственным специалистом. "+(engagement==="donation"?"Пожертвование добровольно и не является оплатой, условием выдачи или гарантией содержания данного заключения. ":"")+(engagement==="paid"?"Возмездная работа допускается только на основании отдельного согласованного договора и проверки правовых и налоговых условий. ":"")+"Номер DRAFT не является регистрационным номером фонда.";
+  reportPreview.appendChild(warning);
+  reportReady=true;reportPrint.disabled=false;
+  reportPreview.scrollIntoView({behavior:window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+ });
+ reportPrint.addEventListener("click",()=>{
+  if(!reportReady)return;
+  document.body.classList.add("report-printing");
+  const cleanup=()=>document.body.classList.remove("report-printing");
+  window.addEventListener("afterprint",cleanup,{once:true});
+  window.print();
+  setTimeout(cleanup,1500);
+ });
+ reportForm.addEventListener("reset",()=>{
+  reportError.hidden=true;clearNode(reportPreview);
+  const head=document.createElement("header");head.className="document-record-head";
+  const block=document.createElement("div");addText(block,"h3","Предварительный просмотр документа");addText(block,"p","Проект не сформирован","document-record-id");head.appendChild(block);addText(head,"span","НЕ УТВЕРЖДЁН","object-chip");reportPreview.appendChild(head);
+  addText(reportPreview,"p","Заполните форму и сформируйте проект. До экспертной проверки документ не имеет статуса утверждённого заключения.","document-record-note");
+  reportReady=false;reportPrint.disabled=true;
+ });
 }
 const routeParams=new URLSearchParams(window.location.search);
 const requestedView=routeParams.get("view");
