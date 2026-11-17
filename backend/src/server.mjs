@@ -820,7 +820,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
     // PATCH is enabled only for the explicitly implemented task-status route.
     // All other non-read methods remain blocked by this central allowlist.
     const isWorkspaceTaskStatusPatch = req.method === "PATCH" &&
-      /^\\/api\\/v1\\/workspace\\/tasks\\/[^/]+\\/status$/.test(url.pathname);
+      /^\/api\/v1\/workspace\/tasks\/[^/]+\/status$/.test(url.pathname);
     const isValuationAnalyzePost = req.method === "POST" && url.pathname === "/api/v1/valuation/analyze";
     const isAnalyticalDocumentOperation = isAnalyticalDocumentRoute(url.pathname) &&
       isAnalyticalDocumentMethodAllowed(req.method, url.pathname);
