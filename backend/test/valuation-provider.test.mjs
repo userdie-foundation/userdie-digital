@@ -71,3 +71,44 @@ test("provider fails closed on malformed provider output", async () => {
   });
   await assert.rejects(provider.analyze(valid), /valuation_provider_invalid_response/);
 });
+
+test("provider strips all model-supplied monetary values until verified evidence is connected", async () => {
+  const provider = createValuationProvider({
+    apiKey: "x".repeat(40),
+    model: "valuation-test-model",
+    fetchImpl: async () => ({
+      ok: true,
+      async json() {
+        return { choices: [{ message: { content: JSON.stringify({
+          executiveSummary: "Модель заявила предварительную стоимость.",
+          assetClass: "financial",
+          evidenceGaps: [],
+          contradictions: [],
+          methodology: [],
+          valueConclusion: {
+            status: "estimated",
+            currency: "USD",
+            low: 100000,
+            central: 150000,
+            high: 200000,
+            explanation: "Числовой вывод модели без проверяемого реестра доказательств.",
+          },
+          risks: [],
+          sourceRequirements: [],
+          expertReviewChecklist: [],
+        }) } }] };
+      },
+    }),
+  });
+  const result = await provider.analyze(valid);
+  assert.deepEqual(result.valueConclusion, {
+    status: "not_estimable",
+    currency: valid.currency,
+    low: null,
+    central: null,
+    high: null,
+    explanation: "Числовой вывод модели без проверяемого реестра доказательств.",
+  });
+  assert.equal(result.assetClass, valid.assetClass);
+  assert.equal(result.approvalRequired, true);
+});
