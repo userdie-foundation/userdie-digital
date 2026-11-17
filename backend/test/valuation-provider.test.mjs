@@ -34,7 +34,7 @@ test("provider rejects non-HTTPS endpoints", () => {
 test("provider sends request server-side and returns explicitly preliminary structured analysis", async () => {
   let request;
   const provider = createValuationProvider({
-    apiKey: "server-only-secret",
+    apiKey: "x".repeat(40),
     model: "valuation-test-model",
     fetchImpl: async (url, options) => {
       request = { url: String(url), options };
@@ -58,7 +58,7 @@ test("provider sends request server-side and returns explicitly preliminary stru
   });
   const result = await provider.analyze(valid);
   assert.equal(request.url, "https://api.openai.com/v1/chat/completions");
-  assert.equal(request.options.headers.Authorization, "Bearer server-only-secret");
+  assert.equal(request.options.headers.Authorization, "Bearer " + "x".repeat(40));
   assert.equal(result.approvalRequired, true);
   assert.equal(result.valueConclusion.status, "not_estimable");
   assert.equal(result.assetId, valid.assetId);
