@@ -10,9 +10,9 @@ const sql = await readFile(
 test("document registry is a separate metadata domain with the three organizational contours", () => {
   assert.match(sql, /CREATE TABLE workspace_documents/);
   assert.match(sql, /CREATE TABLE workspace_document_versions/);
-  assert.match(sql, /organizational_contour IN \('foundation', 'asset_valuation', 'analytics'\)/);
-  assert.doesNotMatch(sql, /CREATE TABLE documents\s*\(/);
-  assert.doesNotMatch(sql, /CREATE TABLE partnership_evidence\s*\(/);
+  assert.match(sql, /organizational_contour IN \\('foundation', 'asset_valuation', 'analytics'\\)/);
+  assert.doesNotMatch(sql, /CREATE TABLE documents\\s*\\(/);
+  assert.doesNotMatch(sql, /CREATE TABLE partnership_evidence\\s*\\(/);
   assert.doesNotMatch(sql, /storage_key|original_filename|content_type|size_bytes/i);
 });
 
@@ -24,9 +24,9 @@ test("document relationships use explicit foreign-key tables, not polymorphic ob
     ["workspace_document_partnership_links", "partnerships"],
   ]) {
     assert.match(sql, new RegExp(`CREATE TABLE ${table}`));
-    assert.match(sql, new RegExp(`REFERENCES ${target}\\(id\\)`));
+    assert.match(sql, new RegExp(`REFERENCES ${target}\\\\(id\\\\)`));
   }
-  assert.doesNotMatch(sql, /object_type\s+text[\s\S]{0,100}object_id\s+text/i);
+  assert.doesNotMatch(sql, /object_type\\s+text[\\s\\S]{0,100}object_id\\s+text/i);
 });
 
 test("document versions and domain events are append-only including truncate protection", () => {
@@ -40,8 +40,9 @@ test("document versions and domain events are append-only including truncate pro
 });
 
 test("migration is transaction wrapped and contains balanced trigger function bodies", () => {
-  assert.match(sql, /^BEGIN;/);
-  assert.match(sql, /COMMIT;\s*$/);
-  const delimiters = sql.match(/\$\$/g) ?? [];
+  // Leading SQL comments are valid; no executable statement may precede BEGIN.
+  assert.match(sql, /^(?:\\s*--[^\\n]*(?:\\n|$))*\\s*BEGIN;/);
+  assert.match(sql, /COMMIT;\\s*$/);
+  const delimiters = sql.match(/\\$\\$/g) ?? [];
   assert.equal(delimiters.length, 2);
 });
