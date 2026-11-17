@@ -76,7 +76,7 @@ test("analytical document creation rejects self-review and malformed content bef
         organizationalContour: "assets",
         title: "Synthetic report",
         reviewerId: "123e4567-e89b-42d3-a456-426614174000",
-        content: [],
+        content: { summary: "Synthetic content" },
       }),
     });
     assert.equal(response.status, 400);
