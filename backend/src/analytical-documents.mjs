@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 
 const ROOT = "/api/v1/analytical-documents";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -25,10 +25,10 @@ function hasGrant(principal, roleCode, scopeType, scopeId) {
   );
 }
 
-function canCreate(principal) {
+function canCreate(principal, contour = "assets") {
   return hasGrant(principal, "administrator", "global") ||
     hasGrant(principal, "asset_valuator", "global") ||
-    hasGrant(principal, "asset_valuator", "contour", "assets");
+    (contour === "assets" && hasGrant(principal, "asset_valuator", "contour", "assets"));
 }
 
 function canReview(principal) {
@@ -40,13 +40,14 @@ function canReview(principal) {
 function canReadAll(principal) {
   return hasGrant(principal, "administrator", "global") ||
     hasGrant(principal, "auditor", "global") ||
-    hasGrant(principal, "asset_valuator", "global") ||
-    hasGrant(principal, "asset_valuator", "contour", "assets");
+    hasGrant(principal, "asset_valuator", "global");
 }
 
 function canReadDocument(principal, document) {
-  return canReadAll(principal) || document.created_by === principal.id ||
-    document.assigned_reviewer_id === principal.id;
+  const scopedAssetReader = document.organizational_contour === "assets" &&
+    hasGrant(principal, "asset_valuator", "contour", "assets");
+  return canReadAll(principal) || scopedAssetReader ||
+    document.created_by === principal.id || document.assigned_reviewer_id === principal.id;
 }
 
 async function readBody(req, maxBytes = 65536) {
@@ -178,10 +179,11 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
                 asset_reference, title, status, created_by, assigned_reviewer_id,
                 approved_by, approved_at, issued_at, created_at, updated_at
          FROM analytical_documents
-         WHERE ($1::boolean OR created_by = $2::uuid OR assigned_reviewer_id = $2::uuid)
+         WHERE ($1::boolean OR ($2::boolean AND organizational_contour = 'assets')
+           OR created_by = $3::uuid OR assigned_reviewer_id = $3::uuid)
          ORDER BY updated_at DESC, id DESC
-         LIMIT $3`,
-        [canReadAll(principal), principal.id, limit],
+         LIMIT $4`,
+        [canReadAll(principal), hasGrant(principal, "asset_valuator", "contour", "assets"), principal.id, limit],
       );
       const documents = (result.rows ?? []).map((row) => ({
         id: row.id, documentNumber: row.document_number, documentType: row.document_type,
@@ -212,7 +214,7 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
     const body = parsed.value;
     const allowed = new Set(["documentType", "organizationalContour", "assetReference", "title", "reviewerId", "content"]);
     if (Object.keys(body).some((key) => !allowed.has(key)) ||
-        !TYPES.has(body.documentType) || !CONTOURS.has(body.organizationalContour) ||
+        !TYPES.has(body.documentType) || !CONTOURS.has(body.organizationalContour) || !canCreate(principal, body.organizationalContour) ||
         typeof body.title !== "string" || body.title.trim().length < 3 || body.title.trim().length > 240 ||
         !UUID.test(body.reviewerId ?? "") || body.reviewerId === principal.id ||
         (body.assetReference !== undefined && body.assetReference !== null &&
