@@ -16,6 +16,9 @@ test("configuration applies safe defaults and parses the PostgreSQL URL", () => 
     resendApiKey: undefined,
     resendFromEmail: undefined,
     recoveryUrl: undefined,
+    valuationApiKey: undefined,
+    valuationModel: undefined,
+    valuationBaseUrl: "https://api.openai.com/v1",
   });
 });
 
@@ -138,4 +141,26 @@ test("configuration rejects partial or unsafe Resend recovery settings", () => {
     RESEND_FROM_EMAIL: "security@example.org",
     RECOVERY_URL: "http://platform.example/reset-password",
   }), /RECOVERY_URL/);
+});
+
+test("configuration accepts complete valuation provider settings and rejects partial settings", () => {
+  const config = readConfig({
+    DATABASE_URL: databaseUrl,
+    VALUATION_AI_API_KEY: "server-side-test-key",
+    VALUATION_AI_MODEL: "gpt-4.1-mini",
+    VALUATION_AI_BASE_URL: "https://api.openai.com/v1",
+  });
+  assert.equal(config.valuationApiKey, "server-side-test-key");
+  assert.equal(config.valuationModel, "gpt-4.1-mini");
+  assert.equal(config.valuationBaseUrl, "https://api.openai.com/v1");
+  assert.throws(() => readConfig({
+    DATABASE_URL: databaseUrl,
+    VALUATION_AI_API_KEY: "server-side-test-key",
+  }), /must be configured together/);
+});
+
+test("configuration rejects unsafe valuation provider endpoints", () => {
+  for (const VALUATION_AI_BASE_URL of ["http://provider.example/v1", "https://user:pass@provider.example/v1", "not-a-url"]) {
+    assert.throws(() => readConfig({ DATABASE_URL: databaseUrl, VALUATION_AI_BASE_URL }), /trusted HTTPS/);
+  }
 });
