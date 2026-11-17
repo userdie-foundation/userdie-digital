@@ -672,6 +672,35 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
 <div class="notice-box"><strong>Методика:</strong> PV(FCFF) = Σ FCFFₜ / (1 + WACC)ᵗ; Terminal Value = FCFF₅ × (1 + g) / (WACC − g); Enterprise Value = PV прогнозных FCFF + PV Terminal Value; Equity Value = Enterprise Value − долг + денежные средства. Чувствительность показывает Enterprise Value при изменении WACC на ±1 п.п. и g на ±0,5 п.п. без изменения остальных предпосылок.</div>
 <div class="notice-box"><strong>Ограничения текущей версии:</strong> расчёт выполняется в браузере и не сохраняется в реестр, не передаётся на сервер и не создаёт аудиторскую запись. Нет автоматической загрузки отчётности, проверки источников, расчёта WACC из рыночных данных, корректировок долга и non-operating assets. Перед использованием результата специалист должен подтвердить FCFF, прогнозный период, WACC, g, чистый долг и дату оценки.</div>
 </div>
+
+<div class="panel" id="ib-capital-workbench">
+<div class="panel-head"><div><h2>Расчётный инструмент 02 · Capital Structure &amp; Debt Capacity</h2><p>Анализ структуры капитала, долговой нагрузки, процентного покрытия и ориентировочной ёмкости дополнительного долга.</p></div><span class="demo-label">ЛОКАЛЬНЫЙ РАСЧЁТ</span></div>
+<div class="notice-box"><strong>Порядок работы:</strong> укажите показатели компании за один и тот же период, процентный долг, денежные средства, EBITDA, EBIT, фактические процентные расходы и стоимость нового заимствования. Лимиты leverage и interest coverage задаются пользователем или подтверждёнными условиями финансирования — универсальные банковские нормативы не зашиты.</div>
+<form id="ib-capital-form" class="object-form" novalidate>
+<label>Валюта расчёта<input id="ib-cap-currency" class="search-box" maxlength="8" value="RUB"></label>
+<label>Единица измерения<input id="ib-cap-unit" class="search-box" maxlength="24" value="млн"></label>
+<label>Дата анализа<input id="ib-cap-date" class="search-box" type="date" required></label>
+<label>Статус исходных данных<select id="ib-cap-status" class="filter-select" required><option value="confirmed">Подтверждены документами</option><option value="preliminary">Предварительные</option><option value="unverified">Не проверены</option></select></label>
+<label class="object-wide">Источник данных<input id="ib-cap-source" class="search-box" maxlength="200" required placeholder="Отчётность, период, версия, дата и/или договоры финансирования"></label>
+<label>Собственный капитал<input id="ib-cap-equity" class="search-box" type="number" min="0" step="any" value="500" required></label>
+<label>Процентный долг (валовой)<input id="ib-cap-debt" class="search-box" type="number" min="0" step="any" value="250" required></label>
+<label>Денежные средства<input id="ib-cap-cash" class="search-box" type="number" min="0" step="any" value="40" required></label>
+<label>EBITDA за период<input id="ib-cap-ebitda" class="search-box" type="number" step="any" value="180" required></label>
+<label>EBIT за период<input id="ib-cap-ebit" class="search-box" type="number" step="any" value="130" required></label>
+<label>Фактические процентные расходы<input id="ib-cap-interest" class="search-box" type="number" min="0" step="any" value="25" required></label>
+<label>Налоговая ставка, %<input id="ib-cap-tax" class="search-box" type="number" min="0" max="100" step="0.1" value="20" required></label>
+<label>Ориентировочная ставка нового долга, % годовых<input id="ib-cap-rate" class="search-box" type="number" min="0" max="100" step="0.1" value="12" required></label>
+<label>Предельный Debt / EBITDA, x<input id="ib-cap-max-leverage" class="search-box" type="number" min="0.1" max="50" step="0.1" value="3" required></label>
+<label>Минимальный EBIT / Interest, x<input id="ib-cap-min-coverage" class="search-box" type="number" min="0.1" max="50" step="0.1" value="2" required></label>
+<label class="object-wide">Сумма предполагаемого нового финансирования<input id="ib-cap-new-debt" class="search-box" type="number" min="0" step="any" value="50" required></label>
+<div class="object-wide"><button class="app-button" type="submit">Рассчитать структуру капитала</button> <button class="app-button secondary" type="reset">Сбросить пример</button></div>
+</form>
+<div id="ib-cap-error" class="notice-box" role="alert" hidden></div>
+<div id="ib-cap-results" class="notice-box" aria-live="polite"><strong>Результат анализа</strong><p>Заполните исходные показатели и нажмите «Рассчитать структуру капитала».</p></div>
+<div id="ib-cap-report" class="notice-box" aria-live="polite"><strong>Основа для заключения</strong><p>После расчёта здесь появится структурированная аналитическая сводка с исходными данными, показателями, сценариями и оговорками. Она не является готовым официальным заключением.</p></div>
+<div class="notice-box"><strong>Методика:</strong> Net Debt = процентный долг − денежные средства; Debt / EBITDA = валовой долг / EBITDA; Net Debt / EBITDA = чистый долг / EBITDA; Interest Coverage = EBIT / фактические процентные расходы; Debt Capacity по leverage = EBITDA × пользовательский лимит Debt / EBITDA − текущий долг. Ограничение по процентному покрытию рассчитывается как доступный запас процентных расходов / ставка нового долга. Ориентировочная ёмкость долга — меньшая положительная величина из двух ограничений.</div>
+<div class="notice-box"><strong>Ограничения:</strong> упрощённая сценарная модель не заменяет кредитный анализ банка или кредитора. Не учитывает сезонность, оборотный капитал, график амортизации, обеспечение, валютные риски, ковенанты, субординацию, комиссии, плавающие ставки и юридические ограничения. Налоговый эффект показывается справочно и не означает гарантированную налоговую экономию.</div>
+</div>
 <div class="notice-box"><strong>Правило источников:</strong> рыночные котировки, отчётность, прогнозы, условия финансирования и сведения о контрагентах должны сопровождаться источником, датой, периодом и статусом проверки. Не смешивать подтверждённые данные с предположениями. Не считать модель или презентацию независимой оценкой.</div>
 <div class="notice-box"><strong>Статус интеграции:</strong> на этой странице добавлен каталог инструментов и их связей с модулями USERDIE. Это не означает, что внешние банковские системы, базы котировок, CRM, VDR, платёжная инфраструктура или реальные транзакционные сервисы подключены. Инструменты Investment Banking доступны для аналитической работы в ChatGPT; перенос каждого workflow в серверную платформу потребует отдельной реализации, источников данных, прав доступа и тестирования.</div>
 </section>
@@ -1026,6 +1055,64 @@ if(dcfForm){
   const stamp=document.createElement("p");stamp.className="tile-state";stamp.textContent="Рассчитано локально: "+new Date().toLocaleString("ru-RU")+". Значения не сохранены на сервере.";dcfSensitivity.appendChild(stamp);
  });
  dcfForm.addEventListener("reset",()=>{dcfError.hidden=true;dcfSensitivity.innerHTML="";dcfResults.innerHTML="<strong>Результат модели</strong><p>Форма сброшена к демонстрационным предпосылкам. Нажмите «Рассчитать DCF».</p>";});
+}
+
+// Capital structure workbench: user-defined limits, browser-only scenario analysis.
+const capForm=document.getElementById("ib-capital-form");
+if(capForm){
+ const capError=document.getElementById("ib-cap-error");
+ const capResults=document.getElementById("ib-cap-results");
+ const capReport=document.getElementById("ib-cap-report");
+ const capNum=id=>{const raw=document.getElementById(id).value.trim();if(raw==="")return null;const value=Number(raw);return Number.isFinite(value)?value:null;};
+ const capFmt=value=>new Intl.NumberFormat("ru-RU",{maximumFractionDigits:2,minimumFractionDigits:0}).format(value);
+ capForm.addEventListener("submit",event=>{
+  event.preventDefault();capError.hidden=true;
+  const equity=capNum("ib-cap-equity"),debt=capNum("ib-cap-debt"),cash=capNum("ib-cap-cash"),ebitda=capNum("ib-cap-ebitda"),ebit=capNum("ib-cap-ebit"),interest=capNum("ib-cap-interest"),tax=capNum("ib-cap-tax"),rate=capNum("ib-cap-rate"),maxLev=capNum("ib-cap-max-leverage"),minCov=capNum("ib-cap-min-coverage"),newDebt=capNum("ib-cap-new-debt");
+  const currency=document.getElementById("ib-cap-currency").value.trim().toUpperCase(),unit=document.getElementById("ib-cap-unit").value.trim(),date=document.getElementById("ib-cap-date").value,source=document.getElementById("ib-cap-source").value.trim(),status=document.getElementById("ib-cap-status").selectedOptions[0].textContent;
+  const errors=[];
+  [[equity,"Собственный капитал"],[debt,"Процентный долг"],[cash,"Денежные средства"],[interest,"Процентные расходы"],[newDebt,"Новое финансирование"]].forEach(([v,n])=>{if(v===null||v<0)errors.push(n+": укажите неотрицательное число.");});
+  if(ebitda===null||ebitda<=0)errors.push("EBITDA должна быть положительной для расчёта долговых мультипликаторов.");
+  if(ebit===null||ebit<0)errors.push("EBIT должен быть неотрицательным для данного сценария.");
+  if(tax===null||tax<0||tax>100)errors.push("Налоговая ставка должна быть от 0 до 100%.");
+  if(rate===null||rate<0||rate>100)errors.push("Ставка нового долга должна быть от 0 до 100%.");
+  if(maxLev===null||maxLev<=0||maxLev>50)errors.push("Предельный Debt / EBITDA должен быть больше нуля и не выше 50x.");
+  if(minCov===null||minCov<=0||minCov>50)errors.push("Минимальный Interest Coverage должен быть больше нуля и не выше 50x.");
+  if(interest===0&&ebit>0){} 
+  if(!/^[A-ZА-ЯЁ]{3,8}$/.test(currency))errors.push("Укажите код валюты буквами, например RUB, EUR или USD.");
+  if(!/^[A-Za-zА-Яа-яЁё0-9 ._-]{1,24}$/.test(unit))errors.push("Единица измерения: до 24 символов, буквы, цифры, пробел, точка, дефис или подчёркивание.");
+  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||Number.isNaN(Date.parse(date)))errors.push("Укажите корректную дату анализа.");
+  if(!source||source.length>200)errors.push("Укажите источник данных (до 200 символов).");
+  if(errors.length){capError.textContent=errors.join(" ");capError.hidden=false;capResults.innerHTML="<strong>Расчёт не выполнен</strong><p>Исправьте исходные данные и повторите расчёт.</p>";capReport.innerHTML="<strong>Основа для заключения</strong><p>Сводка не сформирована из-за ошибок исходных данных.</p>";return;}
+  const netDebt=debt-cash,debtEbitda=debt/ebitda,netDebtEbitda=netDebt/ebitda,coverage=interest>0?ebit/interest:null;
+  const leverageCapacity=Math.max(0,ebitda*maxLev-debt);
+  const coverageHeadroom=Math.max(0,ebit-minCov*interest);
+  const coverageCapacity=rate>0?coverageHeadroom/(rate/100):null;
+  const capacity=coverageCapacity===null?leverageCapacity:Math.min(leverageCapacity,coverageCapacity);
+  const newInterest=newDebt*(rate/100),postDebt=debt+newDebt,postInterest=interest+newInterest,postLeverage=postDebt/ebitda,postCoverage=postInterest>0?ebit/postInterest:null;
+  const afterTaxCost=rate*(1-tax/100);
+  const unitLabel=currency+" / "+unit;
+  const lines=[
+   ["Чистый долг",netDebt],["Debt / EBITDA",debtEbitda],["Net Debt / EBITDA",netDebtEbitda],
+   ["Interest Coverage (EBIT / Interest)",coverage],["Годовые дополнительные проценты по новому долгу",newInterest],
+   ["Стоимость нового долга после налогового эффекта (справочно), %",afterTaxCost],
+   ["Ёмкость по лимиту Debt / EBITDA",leverageCapacity],["Запас EBIT для процентного покрытия",coverageHeadroom],
+   ["Ориентировочная дополнительная долговая ёмкость",capacity],
+   ["Долг после сценарного финансирования",postDebt],["Debt / EBITDA после финансирования",postLeverage],
+   ["Процентные расходы после финансирования",postInterest],["Interest Coverage после финансирования",postCoverage]
+  ];
+  capResults.innerHTML="<strong>Результат анализа · "+unitLabel+"</strong>"+lines.map(([label,value])=>"<p>"+label+": <strong>"+(value===null?"не рассчитывается":capFmt(value)+(label.includes("%")?"%":label.includes("EBITDA")||label.includes("Coverage")?"x":""))+"</strong></p>").join("")+"<p>Пользовательские ограничения: Debt / EBITDA ≤ "+capFmt(maxLev)+"x; Interest Coverage ≥ "+capFmt(minCov)+"x.</p>";
+  const findings=[];
+  findings.push("Статус исходных данных: "+status+".");
+  findings.push("Дата анализа: "+date+". Источник: "+source+".");
+  findings.push("Чистый долг: "+capFmt(netDebt)+" "+unitLabel+"; Debt / EBITDA: "+capFmt(debtEbitda)+"x; Net Debt / EBITDA: "+capFmt(netDebtEbitda)+"x.");
+  findings.push("Текущий Interest Coverage: "+(coverage===null?"не рассчитывается из-за нулевых процентных расходов":capFmt(coverage)+"x")+".");
+  findings.push("Ориентировочная дополнительная долговая ёмкость по введённым ограничениям: "+(coverageCapacity===null?"не определяется по процентному покрытию при нулевой ставке":capFmt(capacity)+" "+unitLabel)+".");
+  findings.push("При новом финансировании "+capFmt(newDebt)+" "+unitLabel+": Debt / EBITDA составит "+capFmt(postLeverage)+"x, Interest Coverage — "+(postCoverage===null?"не рассчитывается":capFmt(postCoverage)+"x")+".");
+  findings.push("Лимиты leverage и покрытия заданы пользователем; они не являются универсальными банковскими нормативами.");
+  const p=document.createElement("p");p.textContent=findings.join(" ");capReport.innerHTML="<strong>Черновая аналитическая сводка для заключения</strong>";capReport.appendChild(p);
+  const caveat=document.createElement("p");caveat.textContent="Вывод не является кредитным одобрением, офертой, независимой оценкой или официальным заключением. Требуется проверка первичных документов, периода показателей, состава долга, EBITDA/EBIT, процентных расходов, ковенант и допущений специалистом.";capReport.appendChild(caveat);
+ });
+ capForm.addEventListener("reset",()=>{capError.hidden=true;capResults.innerHTML="<strong>Результат анализа</strong><p>Форма сброшена к демонстрационным предпосылкам.</p>";capReport.innerHTML="<strong>Основа для заключения</strong><p>После расчёта здесь появится аналитическая сводка.</p>";});
 }
 const routeParams=new URLSearchParams(window.location.search);
 const requestedView=routeParams.get("view");
