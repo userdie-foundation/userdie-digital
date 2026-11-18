@@ -25,7 +25,7 @@ test("rejects migration files without exactly one ordered transaction wrapper", 
 test("repository migrations are sequential and each has one transaction wrapper", async () => {
   const directory = fileURLToPath(new URL("../migrations/", import.meta.url));
   const migrations = await listMigrationFiles(path.resolve(directory));
-  assert.equal(migrations.length, 17);
+  assert.equal(migrations.length, 18);
   for (const migration of migrations) {
     const source = await readFile(migration.path, "utf8");
     assert.ok(extractTransactionalSql(source, migration.filename).length > 0, migration.filename);
