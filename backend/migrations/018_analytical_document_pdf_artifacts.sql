@@ -8,7 +8,7 @@ CREATE TABLE analytical_document_artifacts (
   artifact_type text NOT NULL DEFAULT 'pdf'
     CHECK (artifact_type = 'pdf'),
   storage_key text NOT NULL UNIQUE
-    CHECK (storage_key ~ '^[0-9a-f-]{36}\\.pdf$'),
+    CHECK (storage_key ~ '^[0-9a-f-]{36}\.pdf$'),
   content_sha256 char(64) NOT NULL
     CHECK (content_sha256 ~ '^[0-9a-f]{64}$'),
   byte_size bigint NOT NULL CHECK (byte_size > 0 AND byte_size <= 25000000),
