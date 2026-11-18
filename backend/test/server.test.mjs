@@ -168,6 +168,7 @@ test("CORS allows only the configured exact origin", async () => {
   await withServer(noDb, async (base) => {
     const allowed = await fetch(`${base}/api/v1/health/live`, { headers: { origin: "https://platform.example" } });
     assert.equal(allowed.headers.get("access-control-allow-origin"), "https://platform.example");
+    assert.equal(allowed.headers.get("access-control-allow-credentials"), "true");
     const rejected = await fetch(`${base}/api/v1/health/live`, { headers: { origin: "https://attacker.example" } });
     assert.equal(rejected.headers.get("access-control-allow-origin"), null);
   }, { allowedOrigin: "https://platform.example" });
