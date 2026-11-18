@@ -173,6 +173,43 @@ test("CORS allows only the configured exact origin", async () => {
   }, { allowedOrigin: "https://platform.example" });
 });
 
+test("credentialed CORS preflight permits only configured login and analytical-document POST routes", async () => {
+  await withServer(noDb, async (base) => {
+    const allowed = await fetch(base + "/api/v1/analytical-documents", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(allowed.status, 204);
+    assert.equal(allowed.headers.get("access-control-allow-origin"), "https://platform.example");
+    assert.equal(allowed.headers.get("access-control-allow-credentials"), "true");
+    assert.equal(allowed.headers.get("access-control-allow-methods"), "POST, OPTIONS");
+
+    const login = await fetch(base + "/api/v1/auth/login", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(login.status, 204);
+
+    const forbidden = await fetch(base + "/api/v1/analytical-documents/not-a-route", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(forbidden.status, 403);
+  }, { allowedOrigin: "https://platform.example" });
+});
+
 test("logout revokes the server session and appends its audit event in one transaction", async () => {
   const calls = [];
   const pool = {
