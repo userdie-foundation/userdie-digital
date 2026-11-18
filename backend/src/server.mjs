@@ -7,6 +7,7 @@ import {
 } from "./security/session.mjs";
 import { rotateSession } from "./security/session-lifecycle.mjs";
 import { validateValuationInput } from "./valuation/valuation-provider.mjs";
+import { handleAnalyticalDocumentRequest, isAnalyticalDocumentMethodAllowed, isAnalyticalDocumentRoute } from "./analytical-documents.mjs";
 
 const SECURITY_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -821,8 +822,18 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
     const isWorkspaceTaskStatusPatch = req.method === "PATCH" &&
       /^\/api\/v1\/workspace\/tasks\/[^/]+\/status$/.test(url.pathname);
     const isValuationAnalyzePost = req.method === "POST" && url.pathname === "/api/v1/valuation/analyze";
-    if (req.method !== "GET" && req.method !== "HEAD" && !isWorkspaceTaskStatusPatch && !isValuationAnalyzePost) {
+    const isAnalyticalDocumentOperation = isAnalyticalDocumentRoute(url.pathname) &&
+      isAnalyticalDocumentMethodAllowed(req.method, url.pathname);
+    if (req.method !== "GET" && req.method !== "HEAD" && !isWorkspaceTaskStatusPatch &&
+        !isValuationAnalyzePost && !isAnalyticalDocumentOperation) {
       return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
+    }
+
+    if (isAnalyticalDocumentRoute(url.pathname)) {
+      const handled = await handleAnalyticalDocumentRequest({
+        req, res, url, pool, principalResolver: resolvePrincipal,
+      });
+      if (handled) return;
     }
 
     if (url.pathname === "/api/v1/health/live") {

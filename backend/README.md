@@ -138,6 +138,20 @@ No DNS or MX changes are part of this code integration. Resend sender-domain ver
 - The recovery pages remain unavailable until the API origin is configured. A successful GitHub Pages deployment does not deploy the API.
 
 
+## Analytical document registry API
+
+The Asset Valuation Center now has source-level authenticated API operations backed by migrations 016–017:
+
+- `GET /api/v1/analytical-documents?limit=25` — lists only records visible to the authenticated principal; global administrators, auditors and authorized asset valuators can review the governed registry.
+- `POST /api/v1/analytical-documents` — creates a draft and its first immutable JSON content version. The caller must have the administrator or asset-valuator grant and must assign an active independent approver. The author cannot be assigned as reviewer.
+- `GET /api/v1/analytical-documents/:id` — returns the document, bounded version history, approval decisions and append-only event timeline to its author, assigned reviewer or an authorized registry reader.
+- `POST /api/v1/analytical-documents/:id/versions` — adds a new immutable JSON version while the document is a draft or has requested changes. The author alone may revise it.
+- `POST /api/v1/analytical-documents/:id/submit` — submits the latest version to the previously assigned independent reviewer.
+- `POST /api/v1/analytical-documents/:id/decision` — allows the assigned independent approver to approve the exact submitted version or request changes with a reason. Self-approval is prohibited.
+- `POST /api/v1/analytical-documents/:id/issue` — issues only the exact approved version and assigns a registration number at issuance.
+
+Every write runs in a PostgreSQL transaction and appends both a document lifecycle event and a global audit event; if audit persistence fails, the operation rolls back. Request bodies are bounded and strict, writes require the configured exact Origin, and role/scope claims are loaded only from the server-side session. Content is stored as immutable JSON snapshots with a server-computed SHA-256 digest. Binary file upload, PDF generation/storage, production API hosting, production migration execution and public workspace persistence are not included or implied by these source routes. The static website is unchanged.
+
 ## Preliminary valuation AI endpoint
 
 - `POST /api/v1/valuation/analyze` — protected, non-persistent preliminary analysis for a supplied asset summary. Requires a valid server-side session and either the global administrator role or the dedicated `asset_valuator` role (global or contour scope `assets`). Every successful analysis writes a minimal append-only audit event; if audit persistence fails, the result is not returned.
