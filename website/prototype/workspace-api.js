@@ -17,7 +17,7 @@
     ".ud-api-form input,.ud-api-form select,.ud-api-form textarea{box-sizing:border-box;width:100%;min-width:0;min-height:38px;padding:9px 10px;border:1px solid #dce1d6;border-radius:4px;background:#fff;color:#20372b;font:11px DM Sans,sans-serif}.ud-api-form textarea{min-height:72px;resize:vertical;line-height:1.55}",
     ".ud-api-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ud-api-btn{min-height:36px;padding:0 12px;border:1px solid #2c553e;border-radius:4px;background:#2c553e;color:white;font:700 10px DM Sans,sans-serif;cursor:pointer}.ud-api-btn.secondary{background:white;color:#2c553e}.ud-api-btn:disabled{opacity:.55;cursor:wait}",
     ".ud-api-feedback{margin:10px 0;color:#59695a;font-size:10px;line-height:1.6;white-space:pre-wrap}.ud-api-feedback.error{color:#9a4938}.ud-api-docs{display:grid;gap:9px;margin-top:14px}",
-    ".ud-api-doc{padding:13px;border:1px solid #dce1d6;border-radius:5px;background:white}.ud-api-doc-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.ud-api-doc strong{font:700 11px Manrope,sans-serif}.ud-api-doc p{margin:6px 0;color:#6d796e;font-size:10px;line-height:1.55;overflow-wrap:anywhere}.ud-api-doc-status{padding:5px 7px;border-radius:3px;background:#edf1e5;color:#4b6a47;font-size:8px;font-weight:800}.ud-api-doc-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}",
+    ".ud-api-doc{padding:13px;border:1px solid #dce1d6;border-radius:5px;background:white}.ud-api-doc-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.ud-api-doc strong{font:700 11px Manrope,sans-serif}.ud-api-doc p{margin:6px 0;color:#6d796e;font-size:10px;line-height:1.55;overflow-wrap:anywhere}.ud-api-doc-status{padding:5px 7px;border-radius:3px;background:#edf1e5;color:#4b6a47;font-size:8px;font-weight:800}.ud-api-doc-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.ud-api-detail{margin-top:12px;padding:12px;border-top:1px solid #e3e7df;background:#fbfaf6}.ud-api-detail h3{margin:10px 0 6px;color:#294b37;font:700 11px Manrope,sans-serif}.ud-api-detail p,.ud-api-detail li{color:#657367;font-size:10px;line-height:1.6;overflow-wrap:anywhere}.ud-api-detail ul{margin:5px 0;padding-left:18px}.ud-api-hash{font:9px ui-monospace,monospace;overflow-wrap:anywhere}",
     "@media(max-width:620px){.ud-api-panel{padding:15px}.ud-api-form{grid-template-columns:1fr}.ud-api-form .wide{grid-column:auto}.ud-api-head{flex-direction:column}}"
   ].join("");
   document.head.appendChild(style);
@@ -52,6 +52,53 @@
     const select=$("ud-api-reviewer");select.replaceChildren();const first=document.createElement("option");first.value="";first.textContent=reviewers.length?"Выберите независимого проверяющего":"Нет доступных проверяющих";select.appendChild(first);
     reviewers.forEach((r)=>{const o=document.createElement("option");o.value=r.id;o.textContent=r.displayName;select.appendChild(o);});
   };
+  const renderDocumentDetails = (host, data) => {
+    host.replaceChildren();
+    const doc=data.document||{};
+    const addSection=(heading)=>{const h=document.createElement("h3");h.textContent=heading;host.appendChild(h);};
+    const addParagraph=(value,className="")=>{const p=document.createElement("p");p.textContent=value||"—";if(className)p.className=className;host.appendChild(p);};
+    addSection("Сведения о документе");
+    addParagraph("Тип: "+(doc.documentType||"—")+" · Контур: "+(doc.organizationalContour||"—"));
+    addParagraph("Создан: "+(doc.createdAt?new Date(doc.createdAt).toLocaleString("ru-RU"):"—")+" · Обновлён: "+(doc.updatedAt?new Date(doc.updatedAt).toLocaleString("ru-RU"):"—"));
+    const versions=Array.isArray(data.versions)?data.versions:[];
+    addSection("Версии и контроль целостности");
+    if(!versions.length)addParagraph("Версии пока не зарегистрированы.");
+    versions.forEach((version)=>{
+      const item=document.createElement("p");
+      const label=document.createElement("strong");label.textContent="Версия "+version.version_number+" · ";
+      const hash=document.createElement("span");hash.className="ud-api-hash";hash.textContent="SHA-256 "+version.content_sha256;
+      item.append(label,hash,document.createTextNode(" · "+(version.created_at?new Date(version.created_at).toLocaleString("ru-RU"):"")));
+      host.appendChild(item);
+    });
+    addSection("Независимое согласование");
+    const approvals=Array.isArray(data.approvals)?data.approvals:[];
+    if(!approvals.length)addParagraph("Решение проверяющего ещё не зарегистрировано.");
+    approvals.forEach((approval)=>{
+      const decision=approval.status==="approved"?"Согласовано":approval.status==="changes_requested"?"Возвращено на доработку":"Ожидает решения";
+      addParagraph(decision+" · "+(approval.decided_at?new Date(approval.decided_at).toLocaleString("ru-RU"):"ожидает")+" · "+(approval.decision_rationale||"Обоснование не указано"));
+    });
+    addSection("Журнал событий");
+    const events=Array.isArray(data.events)?data.events:[];
+    const labels={draft_created:"Создан проект",version_created:"Создана новая версия",submitted_for_review:"Передан на независимую проверку",approved:"Согласован",changes_requested:"Возвращён на доработку",issued:"Документ выпущен"};
+    if(!events.length)addParagraph("Событий пока нет.");
+    const list=document.createElement("ul");
+    events.forEach((event)=>{
+      const item=document.createElement("li");
+      const transition=event.previous_status&&event.new_status?" · "+event.previous_status+" → "+event.new_status:"";
+      const rationale=event.details?.rationale?" · "+event.details.rationale:"";
+      item.textContent=(labels[event.event_type]||event.event_type)+transition+" · "+(event.created_at?new Date(event.created_at).toLocaleString("ru-RU"):"дата не указана")+rationale;
+      list.appendChild(item);
+    });
+    if(events.length)host.appendChild(list);
+  };
+  const toggleDetails = async (id, card, button) => {
+    const existing=card.querySelector(".ud-api-detail");
+    if(existing){existing.remove();button.textContent="История и версии";return;}
+    const detail=document.createElement("div");detail.className="ud-api-detail";detail.setAttribute("aria-live","polite");
+    detail.textContent="Загружаю историю, версии и журнал событий…";card.appendChild(detail);button.textContent="Скрыть историю";
+    try{const data=await json(root+"/"+encodeURIComponent(id));renderDocumentDetails(detail,data);}
+    catch(error){detail.textContent=explain(error);detail.classList.add("error");}
+  };
   const renderDocuments = () => {
     const host=$("ud-api-docs");host.replaceChildren();
     if(!documents.length){const p=document.createElement("p");p.className="ud-api-feedback";p.textContent="В доступном для вашей роли контуре пока нет документов.";host.appendChild(p);return;}
@@ -62,11 +109,14 @@
       const status=document.createElement("span");status.className="ud-api-doc-status";status.textContent=statusLabels[doc.status]||doc.status;head.append(title,status);card.appendChild(head);
       const meta=document.createElement("p");meta.textContent=[doc.documentNumber,doc.assetReference,doc.updatedAt?new Date(doc.updatedAt).toLocaleString("ru-RU"):""].filter(Boolean).join(" · ")||"Регистрационный номер присваивается только при выпуске.";card.appendChild(meta);
       const actions=document.createElement("div");actions.className="ud-api-doc-actions";
+      addButton(actions,"История и версии", (event)=>{}, true);
+      const historyButton=actions.lastElementChild;
+      historyButton.addEventListener("click",()=>toggleDetails(doc.id,card,historyButton));
       if(doc.status==="draft")addButton(actions,"Передать на проверку",()=>transition(doc.id,"submit"),false);
       if(doc.status==="submitted_for_review"){addButton(actions,"Согласовать",()=>decide(doc.id,"approved"),false);addButton(actions,"Вернуть на доработку",()=>decide(doc.id,"changes_requested"));}
       if(doc.status==="approved")addButton(actions,"Зарегистрировать и выпустить",()=>transition(doc.id,"issue"),false);
       if(doc.status==="issued")addButton(actions,"Скачать PDF",()=>downloadPdf(doc.id));
-      if(actions.childElementCount)card.appendChild(actions);host.appendChild(card);
+      card.appendChild(actions);host.appendChild(card);
     });
   };
   const refresh = async () => {
