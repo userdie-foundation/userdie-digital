@@ -32,6 +32,7 @@ test("analytical document routes expose only the intended methods", () => {
   assert.equal(isAnalyticalDocumentRoute(root), true);
   assert.equal(isAnalyticalDocumentRoute(`${root}/${docId}`), true);
   assert.equal(isAnalyticalDocumentRoute(`${root}/${docId}/decision`), true);
+  assert.equal(isAnalyticalDocumentRoute(`${root}/${docId}/pdf`), true);
   assert.equal(isAnalyticalDocumentRoute(`${root}/not-a-uuid`), false);
   assert.equal(isAnalyticalDocumentMethodAllowed("GET", root), true);
   assert.equal(isAnalyticalDocumentMethodAllowed("POST", root), true);
@@ -39,6 +40,9 @@ test("analytical document routes expose only the intended methods", () => {
   assert.equal(isAnalyticalDocumentMethodAllowed("POST", `${root}/${docId}/submit`), true);
   assert.equal(isAnalyticalDocumentMethodAllowed("GET", `${root}/${docId}/submit`), false);
   assert.equal(isAnalyticalDocumentMethodAllowed("PATCH", `${root}/${docId}/issue`), false);
+  assert.equal(isAnalyticalDocumentMethodAllowed("GET", `${root}/${docId}/pdf`), true);
+  assert.equal(isAnalyticalDocumentMethodAllowed("HEAD", `${root}/${docId}/pdf`), true);
+  assert.equal(isAnalyticalDocumentMethodAllowed("POST", `${root}/${docId}/pdf`), false);
 });
 
 test("analytical document API requires a trusted active session", async () => {

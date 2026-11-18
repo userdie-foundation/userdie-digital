@@ -1,3 +1,4 @@
+import { isAbsolute } from "node:path";
 function parseInteger(name, raw, fallback, min, max) {
   const value = raw === undefined ? String(fallback) : raw;
   if (!/^(0|[1-9][0-9]*)$/.test(value)) {
@@ -121,6 +122,13 @@ export function readConfig(env = process.env) {
     throw new Error("VALUATION_AI_API_KEY and VALUATION_AI_MODEL must be configured together");
   }
 
+  const analyticalDocumentStorageDirectory = env.ANALYTICAL_DOCUMENT_STORAGE_DIR;
+  if (analyticalDocumentStorageDirectory !== undefined &&
+      (typeof analyticalDocumentStorageDirectory !== "string" ||
+       !isAbsolute(analyticalDocumentStorageDirectory))) {
+    throw new Error("ANALYTICAL_DOCUMENT_STORAGE_DIR must be an absolute private storage path");
+  }
+
   return {
     port: parseInteger("PORT", env.PORT, 8080, 1, 65535),
     databaseUrl: parseDatabaseUrl(env.DATABASE_URL),
@@ -135,5 +143,8 @@ export function readConfig(env = process.env) {
     valuationApiKey: valuationSettingsComplete ? valuationApiKey : undefined,
     valuationModel: valuationSettingsComplete ? valuationModel.trim() : undefined,
     valuationBaseUrl,
+    analyticalDocumentStorageDirectory,
+    pdfFontRegularPath: env.PDF_FONT_REGULAR_PATH ?? "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
+    pdfFontBoldPath: env.PDF_FONT_BOLD_PATH ?? "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf",
   };
 }

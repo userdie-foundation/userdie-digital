@@ -46,6 +46,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install Cyrillic PDF fonts
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-noto-core
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Check JavaScript syntax
