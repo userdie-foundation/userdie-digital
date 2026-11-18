@@ -46,6 +46,8 @@ jobs:
         run: node .github/scripts/check-inline-js.mjs
       - name: Check external account recovery JavaScript syntax
         run: node --check website/auth-recovery.js
+      - name: Check valuation workspace API adapter syntax
+        run: node --check website/prototype/workspace-api.js
       - name: Test mobile navigation behavior
         run: node .github/scripts/check-mobile-navigation.mjs
       - name: Validate visual enhancement assets
