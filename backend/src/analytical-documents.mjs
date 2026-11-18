@@ -143,12 +143,12 @@ async function resolvePrincipal(req, resolver) {
 
 export function isAnalyticalDocumentRoute(pathname) {
   return pathname === ROOT ||
-    /^\/api\/v1\/analytical-documents\/[0-9a-f-]{36}(?:\/(?:versions|submit|decision|issue))?$/i.test(pathname);
+    /^\/api\/v1\/analytical-documents\/[0-9a-f-]{36}(?:\/(?:versions|submit|decision|issue|pdf))?$/i.test(pathname);
 }
 
 export function isAnalyticalDocumentMethodAllowed(method, pathname) {
   if (pathname === ROOT) return method === "GET" || method === "HEAD" || method === "POST";
-  const match = pathname.match(/^\/api\/v1\/analytical-documents\/([0-9a-f-]{36})(?:\/(versions|submit|decision|issue))?$/i);
+  const match = pathname.match(/^\/api\/v1\/analytical-documents\/([0-9a-f-]{36})(?:\/(versions|submit|decision|issue|pdf))?$/i);
   if (!match || !UUID.test(match[1])) return false;
   const action = match[2];
   if (!action) return method === "GET" || method === "HEAD";
@@ -286,7 +286,7 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
     return true;
   }
 
-  const match = pathname.match(/^\/api\/v1\/analytical-documents\/([0-9a-f-]{36})(?:\/(versions|submit|decision|issue))?$/i);
+  const match = pathname.match(/^\/api\/v1\/analytical-documents\/([0-9a-f-]{36})(?:\/(versions|submit|decision|issue|pdf))?$/i);
   if (!match || !UUID.test(match[1])) {
     send(res, 404, { error: "not_found" }, method);
     return true;
