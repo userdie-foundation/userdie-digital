@@ -3,10 +3,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
+import { createServer as createNodeServer } from "node:http";
+import { once } from "node:events";
 import { createPrincipalResolver } from "../src/security/principal.mjs";
 import { createSessionToken } from "../src/security/session.mjs";
 import { createLoginRateLimiter } from "../src/security/login-rate-limit.mjs";
-import { createPartnershipRepository } from "../src/server.mjs";
+import { createPartnershipRepository, createServer as createHttpHandler } from "../src/server.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
@@ -799,6 +801,177 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
       ),
       /analytical document events are append-only/i,
     );
+
+
+    const reviewerGrant = await client.query(
+      `INSERT INTO user_role_grants (user_id, role_id, scope_type, scope_id, granted_by)
+       SELECT $1, id, 'contour', 'assets', $2 FROM roles WHERE code = 'independent_approver'
+       RETURNING id`,
+      [workerId, actorId],
+    );
+    assert.equal(reviewerGrant.rowCount, 1, "independent reviewer role must exist in the migrated schema");
+
+    const apiPool = new Pool({
+      connectionString: databaseUrl,
+      max: 4,
+      options: `-c search_path=${schema}`,
+    });
+    const principals = {
+      author: {
+        id: actorId, accountStatus: "active",
+        grants: [{ roleCode: "asset_valuator", scopeType: "contour", scopeId: "assets" }],
+      },
+      reviewer: {
+        id: workerId, accountStatus: "active",
+        grants: [{ roleCode: "independent_approver", scopeType: "contour", scopeId: "assets" }],
+      },
+      outsider: { id: otherWorkerId, accountStatus: "active", grants: [] },
+    };
+    const server = createNodeServer(createHttpHandler({
+      pool: apiPool,
+      allowedOrigin: "https://platform.example",
+      resolvePrincipal: async (req) => principals[req.headers["x-test-actor"]] ?? null,
+    }));
+    server.listen(0, "127.0.0.1");
+    await once(server, "listening");
+    const address = server.address();
+    const apiBase = `http://127.0.0.1:${address.port}`;
+    const apiRequest = (path, { actor = "author", method = "GET", body } = {}) => fetch(apiBase + path, {
+      method,
+      headers: {
+        origin: "https://platform.example",
+        "x-test-actor": actor,
+        ...(body === undefined ? {} : { "content-type": "application/json" }),
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+
+    try {
+      const createResponse = await apiRequest("/api/v1/analytical-documents", {
+        method: "POST",
+        body: {
+          documentType: "preliminary_valuation",
+          organizationalContour: "assets",
+          assetReference: "ASSET-HTTP-E2E-001",
+          title: "Synthetic API lifecycle conclusion",
+          reviewerId: workerId,
+          content: { summary: "Version 1", methodology: "Synthetic integration fixture" },
+        },
+      });
+      assert.equal(createResponse.status, 201);
+      const created = await createResponse.json();
+      const apiDocumentId = created.document.id;
+      const apiFirstVersionId = created.version.id;
+      assert.match(created.version.sha256, /^[0-9a-f]{64}$/);
+
+      const outsiderList = await apiRequest("/api/v1/analytical-documents", { actor: "outsider" });
+      assert.equal(outsiderList.status, 200);
+      assert.equal((await outsiderList.json()).count, 0);
+      const outsiderDetail = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}`, { actor: "outsider" });
+      assert.equal(outsiderDetail.status, 404);
+
+      const submitFirst = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/submit`, { method: "POST" });
+      assert.equal(submitFirst.status, 201);
+      const selfDecision = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/decision`, {
+        method: "POST",
+        body: { decision: "approved", rationale: "Self-approval must be denied" },
+      });
+      assert.equal(selfDecision.status, 403);
+
+      const changesRequested = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/decision`, {
+        actor: "reviewer",
+        method: "POST",
+        body: { decision: "changes_requested", rationale: "Add verified comparable evidence" },
+      });
+      assert.equal(changesRequested.status, 200);
+      assert.equal((await changesRequested.json()).decision.status, "changes_requested");
+
+      const reviseResponse = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/versions`, {
+        method: "POST",
+        body: { content: { summary: "Version 2", methodology: "Revised synthetic fixture", comparables: ["Comparable A"] } },
+      });
+      assert.equal(reviseResponse.status, 201);
+      const revised = await reviseResponse.json();
+      assert.equal(revised.version.number, 2);
+      assert.notEqual(revised.version.sha256, created.version.sha256);
+
+      const submitSecond = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/submit`, { method: "POST" });
+      assert.equal(submitSecond.status, 201);
+      const approved = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/decision`, {
+        actor: "reviewer",
+        method: "POST",
+        body: { decision: "approved", rationale: "Independent review accepted revised version" },
+      });
+      assert.equal(approved.status, 200);
+      assert.equal((await approved.json()).decision.status, "approved");
+
+      const concurrentIssues = await Promise.all([
+        apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/issue`, { method: "POST" }),
+        apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/issue`, { method: "POST" }),
+      ]);
+      assert.deepEqual(concurrentIssues.map((response) => response.status).sort(), [200, 409]);
+
+      const detailResponse = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}`);
+      assert.equal(detailResponse.status, 200);
+      const detail = await detailResponse.json();
+      assert.equal(detail.document.status, "issued");
+      assert.equal(detail.versions.length, 2);
+      assert.equal(detail.approvals.length, 2);
+      assert.equal(detail.events.filter((event) => event.event_type === "changes_requested").length, 1);
+      assert.equal(detail.events.filter((event) => event.event_type === "issued").length, 1);
+      const finalVersion = detail.versions.find((version) => version.id === revised.version.id);
+      assert.ok(finalVersion);
+      assert.equal(detail.approvals.find((approval) => approval.status === "approved").document_version_id, revised.version.id);
+      const issuedRow = await apiPool.query(
+        "SELECT approved_version_id, issued_version_id FROM analytical_documents WHERE id = $1::uuid",
+        [apiDocumentId],
+      );
+      assert.equal(issuedRow.rows[0].approved_version_id, revised.version.id);
+      assert.equal(issuedRow.rows[0].issued_version_id, revised.version.id);
+      assert.notEqual(revised.version.id, apiFirstVersionId);
+
+      await client.query(`
+        CREATE FUNCTION reject_analytical_document_draft_audit()
+        RETURNS trigger LANGUAGE plpgsql AS $$
+        BEGIN
+          IF NEW.entity_type = 'analytical_document' AND NEW.action = 'analytical_document.draft_created' THEN
+            RAISE EXCEPTION 'synthetic audit rollback probe';
+          END IF;
+          RETURN NEW;
+        END;
+        $$;
+      `);
+      await client.query(`
+        CREATE TRIGGER reject_analytical_document_draft_audit
+        BEFORE INSERT ON audit_events
+        FOR EACH ROW EXECUTE FUNCTION reject_analytical_document_draft_audit()
+      `);
+      try {
+        const rollbackResponse = await apiRequest("/api/v1/analytical-documents", {
+          method: "POST",
+          body: {
+            documentType: "asset_analysis",
+            organizationalContour: "assets",
+            assetReference: "ASSET-ROLLBACK-PROBE",
+            title: "Synthetic audit rollback probe",
+            reviewerId: workerId,
+            content: { summary: "This document must roll back with its audit record" },
+          },
+        });
+        assert.equal(rollbackResponse.status, 503);
+        const rolledBack = await apiPool.query(
+          "SELECT count(*)::int AS count FROM analytical_documents WHERE asset_reference = 'ASSET-ROLLBACK-PROBE'",
+        );
+        assert.equal(rolledBack.rows[0].count, 0);
+      } finally {
+        await client.query("DROP TRIGGER IF EXISTS reject_analytical_document_draft_audit ON audit_events");
+        await client.query("DROP FUNCTION IF EXISTS reject_analytical_document_draft_audit()");
+      }
+    } finally {
+      server.close();
+      await once(server, "close");
+      await apiPool.end();
+    }
 
   } finally {
     try {
