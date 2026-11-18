@@ -138,6 +138,8 @@ export async function renderAnalyticalDocumentPdf({
     ["Объект / актив", document.asset_reference || "Не указан"],
     ["Контур", humanize(document.organizational_contour)],
     ["Дата выпуска", new Date(issuedAt ?? document.issued_at ?? Date.now()).toLocaleDateString("ru-RU", { timeZone: "UTC" })],
+    ["Независимый проверяющий", document.approved_by_name || "Независимая проверка подтверждена в реестре"],
+    ["Дата согласования", document.approved_at ? new Date(document.approved_at).toLocaleDateString("ru-RU", { timeZone: "UTC" }) : "—"],
     ["Версия содержания", String(version.version_number)],
   ];
   for (const [label, value] of metadata) {
