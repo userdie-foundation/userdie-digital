@@ -63,6 +63,9 @@ const server = createHttpServer(createServer({
   recoveryService,
   recoveryRateLimiter,
   valuationProvider,
+  pdfStorageDirectory: config.analyticalDocumentStorageDirectory,
+  pdfFontRegularPath: config.pdfFontRegularPath,
+  pdfFontBoldPath: config.pdfFontBoldPath,
 }));
 
 server.listen(config.port, "0.0.0.0", () => {
