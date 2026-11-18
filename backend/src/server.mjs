@@ -535,7 +535,7 @@ export function createPartnershipRepository(pool) {
   };
 }
 
-export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, recoveryService, recoveryRateLimiter, valuationProvider, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository, partnershipRepository } = {}) {
+export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, recoveryService, recoveryRateLimiter, valuationProvider, pdfStorageDirectory, pdfFontRegularPath, pdfFontBoldPath, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository, partnershipRepository } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
@@ -832,6 +832,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
     if (isAnalyticalDocumentRoute(url.pathname)) {
       const handled = await handleAnalyticalDocumentRequest({
         req, res, url, pool, principalResolver: resolvePrincipal,
+        pdfStorageDirectory, pdfFontRegularPath, pdfFontBoldPath,
       });
       if (handled) return;
     }
