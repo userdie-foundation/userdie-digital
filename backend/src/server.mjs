@@ -553,6 +553,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
 
     if (allowedOrigin && req.headers.origin === allowedOrigin) {
       res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
       res.setHeader("Vary", "Origin");
     }
 
@@ -572,7 +573,11 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       if (!allowedOrigin || req.headers.origin !== allowedOrigin) {
         return sendJson(res, 403, { error: "origin_not_allowed" }, req.method);
       }
-      if (!["/api/v1/auth/recovery/request", "/api/v1/auth/recovery/complete"].includes(url.pathname)) {
+      const isRecoveryPreflight = ["/api/v1/auth/recovery/request", "/api/v1/auth/recovery/complete"].includes(url.pathname);
+      const isLoginPreflight = ["/api/v1/auth/login", "/api/v1/auth/logout"].includes(url.pathname);
+      const isAnalyticalDocumentPreflight = isAnalyticalDocumentRoute(url.pathname) &&
+        isAnalyticalDocumentMethodAllowed("POST", url.pathname);
+      if (!isRecoveryPreflight && !isLoginPreflight && !isAnalyticalDocumentPreflight) {
         return sendJson(res, 403, { error: "preflight_not_allowed" }, req.method);
       }
       const requestedMethod = req.headers["access-control-request-method"];
