@@ -357,7 +357,7 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
                 d.approved_at, d.issued_at, d.issued_version_id
          FROM analytical_documents d
          LEFT JOIN app_users approver ON approver.id = d.approved_by
-         WHERE d.id = $1::uuid LIMIT 1`
+         WHERE d.id = $1::uuid LIMIT 1`,
         [documentId],
       );
       const document = found.rows?.[0];
