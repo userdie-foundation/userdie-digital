@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import { createServer as createNodeServer } from "node:http";
@@ -12,7 +14,7 @@ import { createPartnershipRepository, createServer as createHttpHandler } from "
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and analytical-document invariants", {
+test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and analytical-document invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -40,6 +42,7 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
       "015_asset_valuator_role.sql",
       "016_analytical_document_registry.sql",
       "017_analytical_document_lifecycle_guard.sql",
+      "018_analytical_document_pdf_artifacts.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -811,6 +814,7 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
     );
     assert.equal(reviewerGrant.rowCount, 1, "independent reviewer role must exist in the migrated schema");
 
+    const pdfStorageDirectory = await mkdtemp(join(tmpdir(), "userdie-pdf-it-"));
     const apiPool = new Pool({
       connectionString: databaseUrl,
       max: 4,
@@ -831,6 +835,9 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
       pool: apiPool,
       allowedOrigin: "https://platform.example",
       resolvePrincipal: async (req) => principals[req.headers["x-test-actor"]] ?? null,
+      pdfStorageDirectory,
+      pdfFontRegularPath: "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+      pdfFontBoldPath: "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     }));
     server.listen(0, "127.0.0.1");
     await once(server, "listening");
@@ -930,6 +937,39 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
       assert.equal(issuedRow.rows[0].issued_version_id, revised.version.id);
       assert.notEqual(revised.version.id, apiFirstVersionId);
 
+      const unauthorizedPdf = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/pdf`, { actor: "outsider" });
+      assert.equal(unauthorizedPdf.status, 404);
+      const pdfResponse = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/pdf`);
+      assert.equal(pdfResponse.status, 200);
+      assert.equal(pdfResponse.headers.get("content-type"), "application/pdf");
+      assert.match(pdfResponse.headers.get("content-disposition") ?? "", /^attachment; filename="UA-2026-/);
+      const pdfBytes = Buffer.from(await pdfResponse.arrayBuffer());
+      assert.equal(pdfBytes.subarray(0, 5).toString("ascii"), "%PDF-");
+      assert.ok(pdfBytes.length > 1000);
+      const pdfArtifact = await apiPool.query(
+        `SELECT storage_key, content_sha256, byte_size, document_version_id
+         FROM analytical_document_artifacts WHERE document_id = $1::uuid`,
+        [apiDocumentId],
+      );
+      assert.equal(pdfArtifact.rowCount, 1);
+      assert.equal(pdfArtifact.rows[0].document_version_id, revised.version.id);
+      assert.equal(Number(pdfArtifact.rows[0].byte_size), pdfBytes.length);
+      const secondPdfResponse = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/pdf`);
+      assert.equal(secondPdfResponse.status, 200);
+      assert.deepEqual(Buffer.from(await secondPdfResponse.arrayBuffer()), pdfBytes);
+      const pdfAudit = await apiPool.query(
+        `SELECT action FROM audit_events
+         WHERE entity_type = 'analytical_document' AND entity_id = $1
+           AND action IN ('analytical_document.pdf_generated', 'analytical_document.pdf_downloaded')
+         ORDER BY action`,
+        [apiDocumentId],
+      );
+      assert.deepEqual(pdfAudit.rows.map((row) => row.action), [
+        "analytical_document.pdf_downloaded",
+        "analytical_document.pdf_downloaded",
+        "analytical_document.pdf_generated",
+      ]);
+
       await client.query(`
         CREATE FUNCTION reject_analytical_document_draft_audit()
         RETURNS trigger LANGUAGE plpgsql AS $$
@@ -971,6 +1011,7 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
       server.close();
       await once(server, "close");
       await apiPool.end();
+      await rm(pdfStorageDirectory, { recursive: true, force: true });
     }
 
   } finally {
