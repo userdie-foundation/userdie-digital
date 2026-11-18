@@ -19,6 +19,9 @@ test("configuration applies safe defaults and parses the PostgreSQL URL", () => 
     valuationApiKey: undefined,
     valuationModel: undefined,
     valuationBaseUrl: "https://api.openai.com/v1",
+    analyticalDocumentStorageDirectory: undefined,
+    pdfFontRegularPath: "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
+    pdfFontBoldPath: "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf",
   });
 });
 
@@ -163,4 +166,16 @@ test("configuration rejects unsafe valuation provider endpoints", () => {
   for (const VALUATION_AI_BASE_URL of ["http://provider.example/v1", "https://user:pass@provider.example/v1", "not-a-url"]) {
     assert.throws(() => readConfig({ DATABASE_URL: databaseUrl, VALUATION_AI_BASE_URL }), /trusted HTTPS/);
   }
+});
+
+
+test("configuration requires an absolute private analytical PDF storage directory", () => {
+  assert.equal(
+    readConfig({ DATABASE_URL: databaseUrl, ANALYTICAL_DOCUMENT_STORAGE_DIR: "/var/lib/userdie/private-pdf" }).analyticalDocumentStorageDirectory,
+    "/var/lib/userdie/private-pdf",
+  );
+  assert.throws(
+    () => readConfig({ DATABASE_URL: databaseUrl, ANALYTICAL_DOCUMENT_STORAGE_DIR: "public/files" }),
+    /absolute private storage path/,
+  );
 });
