@@ -1,4 +1,10 @@
 import { createHash } from "node:crypto";
+import {
+  persistAnalyticalDocumentPdf,
+  readStoredAnalyticalDocumentPdf,
+  removeStoredAnalyticalDocumentPdf,
+  renderAnalyticalDocumentPdf,
+} from "./analytical-document-pdf.mjs";
 
 const ROOT = "/api/v1/analytical-documents";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -146,6 +152,7 @@ export function isAnalyticalDocumentMethodAllowed(method, pathname) {
   if (!match || !UUID.test(match[1])) return false;
   const action = match[2];
   if (!action) return method === "GET" || method === "HEAD";
+  if (action === "pdf") return method === "GET" || method === "HEAD";
   return method === "POST";
 }
 
@@ -333,6 +340,156 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
       }, method);
     } catch {
       send(res, 503, { error: "analytical_document_unavailable" }, method);
+    }
+    return true;
+  }
+
+  if (action === "pdf") {
+    if (!pdfStorageDirectory) {
+      send(res, 503, { error: "analytical_document_pdf_storage_unavailable" }, method);
+      return true;
+    }
+    try {
+      const found = await pool.query(
+        `SELECT id, document_number, document_type, organizational_contour,
+                asset_reference, title, status, created_by, assigned_reviewer_id,
+                approved_by, approved_at, issued_at, issued_version_id
+         FROM analytical_documents WHERE id = $1::uuid LIMIT 1`,
+        [documentId],
+      );
+      const document = found.rows?.[0];
+      if (!document || !canReadDocument(principal, document)) {
+        send(res, 404, { error: "not_found" }, method);
+        return true;
+      }
+      if (document.status !== "issued" || !document.issued_version_id) {
+        send(res, 409, { error: "analytical_document_not_issued" }, method);
+        return true;
+      }
+      const versionResult = await pool.query(
+        `SELECT id, version_number, content, content_sha256, created_by, created_at
+         FROM analytical_document_versions
+         WHERE document_id = $1::uuid AND id = $2::uuid LIMIT 1`,
+        [documentId, document.issued_version_id],
+      );
+      const version = versionResult.rows?.[0];
+      if (!version) {
+        send(res, 503, { error: "analytical_document_pdf_source_unavailable" }, method);
+        return true;
+      }
+
+      let artifactResult = await pool.query(
+        `SELECT storage_key, content_sha256, byte_size
+         FROM analytical_document_artifacts
+         WHERE document_id = $1::uuid AND document_version_id = $2::uuid
+           AND artifact_type = 'pdf' LIMIT 1`,
+        [documentId, version.id],
+      );
+      let bytes;
+      if (artifactResult.rows?.[0]) {
+        bytes = await readStoredAnalyticalDocumentPdf({
+          directory: pdfStorageDirectory,
+          key: artifactResult.rows[0].storage_key,
+          sha256: artifactResult.rows[0].content_sha256,
+          byteSize: Number(artifactResult.rows[0].byte_size),
+        });
+        await pool.query(
+          `INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata)
+           VALUES ($1, 'analytical_document.pdf_downloaded', 'analytical_document', $2, $3::jsonb)`,
+          [principal.id, documentId, JSON.stringify({
+            versionId: version.id,
+            sha256: artifactResult.rows[0].content_sha256,
+          })],
+        );
+      } else {
+        bytes = await renderAnalyticalDocumentPdf({
+          document,
+          version,
+          issuedAt: document.issued_at,
+          fontRegularPath: pdfFontRegularPath,
+          fontBoldPath: pdfFontBoldPath,
+        });
+        if (!Buffer.isBuffer(bytes) || bytes.length < 100 || bytes.length > 25000000) {
+          throw new Error("Generated PDF size is outside the permitted range");
+        }
+        const stored = await persistAnalyticalDocumentPdf({ directory: pdfStorageDirectory, bytes });
+        try {
+          const persisted = await inTransaction(pool, async (client) => {
+            const locked = await client.query(
+              "SELECT status, issued_version_id FROM analytical_documents WHERE id = $1::uuid FOR UPDATE",
+              [documentId],
+            );
+            if (locked.rows?.[0]?.status !== "issued" ||
+                locked.rows[0].issued_version_id !== version.id) {
+              throw new Error("The issued analytical document version changed during PDF generation");
+            }
+            const inserted = await client.query(
+              `INSERT INTO analytical_document_artifacts
+                (document_id, document_version_id, storage_key, content_sha256,
+                 byte_size, generated_by)
+               VALUES ($1, $2, $3, $4, $5, $6)
+               ON CONFLICT (document_id, document_version_id, artifact_type) DO NOTHING
+               RETURNING storage_key, content_sha256, byte_size`,
+              [documentId, version.id, stored.key, stored.sha256, stored.byteSize, principal.id],
+            );
+            const artifact = inserted.rows?.[0] ?? (await client.query(
+              `SELECT storage_key, content_sha256, byte_size
+               FROM analytical_document_artifacts
+               WHERE document_id = $1::uuid AND document_version_id = $2::uuid
+                 AND artifact_type = 'pdf' LIMIT 1`,
+              [documentId, version.id],
+            )).rows?.[0];
+            if (!artifact) throw new Error("PDF artifact registration failed");
+            await client.query(
+              `INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata)
+               VALUES ($1, 'analytical_document.pdf_generated', 'analytical_document', $2, $3::jsonb)`,
+              [principal.id, documentId, JSON.stringify({
+                versionId: version.id,
+                sha256: artifact.content_sha256,
+                byteSize: Number(artifact.byte_size),
+              })],
+            );
+            await client.query(
+              `INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata)
+               VALUES ($1, 'analytical_document.pdf_downloaded', 'analytical_document', $2, $3::jsonb)`,
+              [principal.id, documentId, JSON.stringify({
+                versionId: version.id,
+                sha256: artifact.content_sha256,
+              })],
+            );
+            return { artifact, created: Boolean(inserted.rows?.[0]) };
+          });
+          if (persisted.created) {
+            artifactResult = { rows: [persisted.artifact] };
+          } else {
+            await removeStoredAnalyticalDocumentPdf(stored.target);
+            artifactResult = { rows: [persisted.artifact] };
+            bytes = await readStoredAnalyticalDocumentPdf({
+              directory: pdfStorageDirectory,
+              key: persisted.artifact.storage_key,
+              sha256: persisted.artifact.content_sha256,
+              byteSize: Number(persisted.artifact.byte_size),
+            });
+          }
+        } catch (error) {
+          await removeStoredAnalyticalDocumentPdf(stored.target);
+          throw error;
+        }
+      }
+
+      const safeNumber = /^[A-Za-z0-9_-]+$/.test(document.document_number ?? "")
+        ? document.document_number : documentId;
+      res.writeHead(200, {
+        "Content-Type": "application/pdf",
+        "Content-Length": String(bytes.length),
+        "Content-Disposition": "attachment; filename=\"" + safeNumber + ".pdf\"",
+        "Cache-Control": "private, no-store",
+        "X-Content-Type-Options": "nosniff",
+        "X-Document-Version-SHA256": version.content_sha256,
+      });
+      res.end(method === "HEAD" ? undefined : bytes);
+    } catch {
+      send(res, 503, { error: "analytical_document_pdf_unavailable" }, method);
     }
     return true;
   }
