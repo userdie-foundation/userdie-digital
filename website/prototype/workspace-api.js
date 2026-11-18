@@ -46,7 +46,7 @@
   const statusLabels = { draft:"Черновик",submitted_for_review:"На независимой проверке",changes_requested:"Требуются изменения",approved:"Согласовано",issued:"Выпущено",archived:"В архиве" };
   const errorLabels = { authentication_required:"Требуется вход в систему.",invalid_credentials:"Не удалось войти: проверьте рабочую почту и пароль.",origin_not_allowed:"Backend не разрешил этот источник. Проверьте точный ALLOWED_ORIGIN.",authentication_unavailable:"Служба авторизации не настроена или недоступна.",analytical_document_reviewers_unavailable:"Список проверяющих временно недоступен.",analytical_document_reviewer_list_denied:"У этой учётной записи нет права создавать заключения.",analytical_documents_unavailable:"Реестр документов временно недоступен.",analytical_document_write_unavailable:"Не удалось сохранить проект документа.",invalid_reviewer_assignment:"Выбранный проверяющий не имеет действующего права независимого согласования.",pdf_storage_unavailable:"Частное хранилище PDF не настроено. Выдача временно недоступна." };
   const explain = (error) => errorLabels[error.message] || ("Операция не выполнена: " + error.message);
-  const addButton = (parent,label,action,secondary=true) => { const b=document.createElement("button");b.type="button";b.className="ud-api-btn"+(secondary?" secondary":"");b.textContent=label;b.addEventListener("click",action);parent.appendChild(b); };
+  const addButton = (parent,label,action,secondary=true) => { const b=document.createElement("button");b.type="button";b.className="ud-api-btn"+(secondary?" secondary":"");b.textContent=label;b.addEventListener("click",action);parent.appendChild(b);return b; };
   const loadReviewers = async () => {
     const data=await json(root+"/reviewers"); reviewers=Array.isArray(data.reviewers)?data.reviewers:[];
     const select=$("ud-api-reviewer");select.replaceChildren();const first=document.createElement("option");first.value="";first.textContent=reviewers.length?"Выберите независимого проверяющего":"Нет доступных проверяющих";select.appendChild(first);
@@ -109,9 +109,8 @@
       const status=document.createElement("span");status.className="ud-api-doc-status";status.textContent=statusLabels[doc.status]||doc.status;head.append(title,status);card.appendChild(head);
       const meta=document.createElement("p");meta.textContent=[doc.documentNumber,doc.assetReference,doc.updatedAt?new Date(doc.updatedAt).toLocaleString("ru-RU"):""].filter(Boolean).join(" · ")||"Регистрационный номер присваивается только при выпуске.";card.appendChild(meta);
       const actions=document.createElement("div");actions.className="ud-api-doc-actions";
-      addButton(actions,"История и версии", (event)=>{}, true);
-      const historyButton=actions.lastElementChild;
-      historyButton.addEventListener("click",()=>toggleDetails(doc.id,card,historyButton));
+      let historyButton;
+      historyButton=addButton(actions,"История и версии",()=>toggleDetails(doc.id,card,historyButton),true);
       if(doc.status==="draft")addButton(actions,"Передать на проверку",()=>transition(doc.id,"submit"),false);
       if(doc.status==="submitted_for_review"){addButton(actions,"Согласовать",()=>decide(doc.id,"approved"),false);addButton(actions,"Вернуть на доработку",()=>decide(doc.id,"changes_requested"));}
       if(doc.status==="approved")addButton(actions,"Зарегистрировать и выпустить",()=>transition(doc.id,"issue"),false);
