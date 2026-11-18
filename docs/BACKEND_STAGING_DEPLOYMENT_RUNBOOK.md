@@ -99,4 +99,4 @@ Choose a hosting region/provider and an acceptable monthly staging budget. Compa
 - The command requires both `MIGRATIONS_ALLOW_APPLY=true` and `MIGRATIONS_DATABASE_URL`. It is not called from API startup or the Docker image command.
 - Use the migration-owner credential only for the CLI. Use a separate non-owner credential for the API process.
 - Initial supported target is a new empty staging database. Existing databases with manually applied migrations require a reviewed baseline/reconciliation plan; do not run this CLI against them.
-- Unit tests validate migration wrapper parsing and all 14 filenames. PostgreSQL CI integration remains separate; no staging database has been provisioned or migrated.
+- Unit tests validate migration wrapper parsing and the migration sequence through version 018. PostgreSQL CI integration remains separate; no staging database has been provisioned or migrated.
