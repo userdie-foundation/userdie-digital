@@ -30,7 +30,7 @@ This directory is the initial backend service scaffold. It is separate from the 
 
 ## Valuation workspace API connection
 
-The public prototype intentionally ships with an empty `<meta name="userdie-api-origin" content="">` value. Keep it empty until the backend host, TLS, database, exact `ALLOWED_ORIGIN`, login rate-limit secret, migrations 001–018, and private PDF volume are approved and verified. The origin must be an HTTPS origin without a path and must exactly match the static workspace origin configured in the backend. Credentialed CORS supports only the explicit login/logout and analytical-document POST routes; browser cookies remain `HttpOnly` and are never read by client JavaScript. Do not add passwords, tokens, beneficiary data, or donor data to frontend configuration.
+The public prototype intentionally ships with an empty `<meta name="userdie-api-origin" content="">` value. Keep it empty until the backend host, TLS, database, exact `ALLOWED_ORIGIN`, login rate-limit secret, migrations 001–018, and private PDF volume are approved and verified. The origin must be an HTTPS origin without a path and must exactly match the static workspace origin configured in the backend. Credentialed CORS supports only the explicit login/logout and analytical-document POST routes; browser cookies remain `HttpOnly` and are never read by client JavaScript. Because the session cookie is `SameSite=Lax`, the API should be hosted on the same site (for example, an API subdomain of the platform domain) or exposed through a same-site reverse proxy; a cross-site API hostname will require a separately reviewed cookie deployment design. Do not add passwords, tokens, beneficiary data, or donor data to frontend configuration.
 
 ## Local development
 
