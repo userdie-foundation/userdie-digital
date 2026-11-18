@@ -836,8 +836,8 @@ test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization
       allowedOrigin: "https://platform.example",
       resolvePrincipal: async (req) => principals[req.headers["x-test-actor"]] ?? null,
       pdfStorageDirectory,
-      pdfFontRegularPath: "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-      pdfFontBoldPath: "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+      pdfFontRegularPath: "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
+      pdfFontBoldPath: "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf",
     }));
     server.listen(0, "127.0.0.1");
     await once(server, "listening");
