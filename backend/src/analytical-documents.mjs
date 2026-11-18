@@ -351,13 +351,13 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
     }
     try {
       const found = await pool.query(
-        `SELECT id, document_number, document_type, organizational_contour,
-                asset_reference, title, status, created_by, assigned_reviewer_id,
-                approved_by, approver.display_name AS approved_by_name,
-                approved_at, issued_at, issued_version_id
+        `SELECT d.id, d.document_number, d.document_type, d.organizational_contour,
+                d.asset_reference, d.title, d.status, d.created_by, d.assigned_reviewer_id,
+                d.approved_by, approver.display_name AS approved_by_name,
+                d.approved_at, d.issued_at, d.issued_version_id
          FROM analytical_documents d
          LEFT JOIN app_users approver ON approver.id = d.approved_by
-         WHERE d.id = $1::uuid LIMIT 1`,
+         WHERE d.id = $1::uuid LIMIT 1`
         [documentId],
       );
       const document = found.rows?.[0];
