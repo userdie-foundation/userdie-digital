@@ -443,15 +443,17 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
               [documentId, version.id],
             )).rows?.[0];
             if (!artifact) throw new Error("PDF artifact registration failed");
-            await client.query(
-              `INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata)
-               VALUES ($1, 'analytical_document.pdf_generated', 'analytical_document', $2, $3::jsonb)`,
-              [principal.id, documentId, JSON.stringify({
-                versionId: version.id,
-                sha256: artifact.content_sha256,
-                byteSize: Number(artifact.byte_size),
-              })],
-            );
+            if (inserted.rows?.[0]) {
+              await client.query(
+                `INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata)
+                 VALUES ($1, 'analytical_document.pdf_generated', 'analytical_document', $2, $3::jsonb)`,
+                [principal.id, documentId, JSON.stringify({
+                  versionId: version.id,
+                  sha256: artifact.content_sha256,
+                  byteSize: Number(artifact.byte_size),
+                })],
+              );
+            }
             await client.query(
               `INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata)
                VALUES ($1, 'analytical_document.pdf_downloaded', 'analytical_document', $2, $3::jsonb)`,
