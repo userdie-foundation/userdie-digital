@@ -156,7 +156,7 @@ export function isAnalyticalDocumentMethodAllowed(method, pathname) {
   return method === "POST";
 }
 
-export async function handleAnalyticalDocumentRequest({ req, res, url, pool, principalResolver }) {
+export async function handleAnalyticalDocumentRequest({ req, res, url, pool, principalResolver, pdfStorageDirectory, pdfFontRegularPath, pdfFontBoldPath }) {
   const pathname = url.pathname;
   if (!isAnalyticalDocumentRoute(pathname)) return false;
 
