@@ -30,6 +30,10 @@ const docId = "123e4567-e89b-42d3-a456-426614174000";
 
 test("analytical document routes expose only the intended methods", () => {
   assert.equal(isAnalyticalDocumentRoute(root), true);
+  assert.equal(isAnalyticalDocumentRoute(`${root}/reviewers`), true);
+  assert.equal(isAnalyticalDocumentMethodAllowed("GET", `${root}/reviewers`), true);
+  assert.equal(isAnalyticalDocumentMethodAllowed("HEAD", `${root}/reviewers`), true);
+  assert.equal(isAnalyticalDocumentMethodAllowed("POST", `${root}/reviewers`), false);
   assert.equal(isAnalyticalDocumentRoute(`${root}/${docId}`), true);
   assert.equal(isAnalyticalDocumentRoute(`${root}/${docId}/decision`), true);
   assert.equal(isAnalyticalDocumentRoute(`${root}/${docId}/pdf`), true);
@@ -93,6 +97,37 @@ test("analytical document creation rejects self-review before database writes", 
     ),
   });
   assert.equal(queries, 0);
+});
+
+test("reviewer discovery is scoped to active independent approvers and hides account identifiers from display metadata", async () => {
+  const calls = [];
+  const pool = { async query(sql, params) {
+    calls.push({ sql, params });
+    return { rows: [{ id: "reviewer-uuid", display_name: "Independent reviewer" }] };
+  } };
+  await withServer(pool, async (base) => {
+    const response = await fetch(base + `${root}/reviewers`);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      reviewers: [{ id: "reviewer-uuid", displayName: "Independent reviewer" }],
+    });
+  }, {
+    resolvePrincipal: async () => principal("valuator-1", grant("asset_valuator", "contour", "assets")),
+  });
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].sql, /r.code = 'independent_approver'/);
+  assert.match(calls[0].sql, /u.account_status = 'active'/);
+  assert.equal(calls[0].params[0], "valuator-1");
+});
+
+test("reviewer discovery is denied outside the asset valuation authority", async () => {
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + `${root}/reviewers`);
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "analytical_document_reviewer_list_denied" });
+  }, {
+    resolvePrincipal: async () => principal("worker-1", grant("case_worker")),
+  });
 });
 
 test("analytical document list is read through the authenticated database boundary", async () => {
