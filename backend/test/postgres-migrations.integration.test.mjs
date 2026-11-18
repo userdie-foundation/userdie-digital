@@ -615,64 +615,46 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
     assert.equal(analyticalDocument.rows[0].status, "draft");
     assert.equal(analyticalDocument.rows[0].document_number, null);
 
-    const documentVersion = await client.query(
+    const firstVersion = await client.query(
       `INSERT INTO analytical_document_versions
         (document_id, version_number, content, content_sha256, created_by)
-       VALUES ($1, 1, '{"summary":"Synthetic test content"}'::jsonb, $2, $3)
+       VALUES ($1, 1, '{"summary":"Synthetic test content v1"}'::jsonb, $2, $3)
        RETURNING id, version_number`,
       [analyticalDocumentId, "a".repeat(64), actorId],
     );
-    const documentVersionId = documentVersion.rows[0].id;
-    assert.equal(documentVersion.rows[0].version_number, 1);
+    const firstVersionId = firstVersion.rows[0].id;
+    assert.equal(firstVersion.rows[0].version_number, 1);
     await assert.rejects(
       client.query(
         "UPDATE analytical_document_versions SET content = '{}'::jsonb WHERE id = $1",
-        [documentVersionId],
+        [firstVersionId],
       ),
       /analytical document versions are immutable/i,
     );
     await assert.rejects(
       client.query(
         "DELETE FROM analytical_document_versions WHERE id = $1",
-        [documentVersionId],
+        [firstVersionId],
       ),
       /analytical document versions are immutable/i,
     );
 
-    const documentApproval = await client.query(
+    const firstApproval = await client.query(
       `INSERT INTO analytical_document_approvals
         (document_id, document_version_id, submitted_by, reviewer_id)
        VALUES ($1, $2, $3, $4)
        RETURNING id, status`,
-      [analyticalDocumentId, documentVersionId, actorId, workerId],
+      [analyticalDocumentId, firstVersionId, actorId, workerId],
     );
-    assert.equal(documentApproval.rows[0].status, "pending");
+    assert.equal(firstApproval.rows[0].status, "pending");
     await assert.rejects(
       client.query(
         `INSERT INTO analytical_document_approvals
           (document_id, document_version_id, submitted_by, reviewer_id)
          VALUES ($1, $2, $3, $3)`,
-        [analyticalDocumentId, documentVersionId, actorId],
+        [analyticalDocumentId, firstVersionId, actorId],
       ),
       /check constraint/i,
-    );
-    await client.query(
-      "UPDATE analytical_document_approvals SET status = 'approved', decided_at = now(), decision_rationale = 'Independent synthetic review' WHERE id = $1",
-      [documentApproval.rows[0].id],
-    );
-    await assert.rejects(
-      client.query(
-        "UPDATE analytical_document_approvals SET decision_rationale = 'tampered' WHERE id = $1",
-        [documentApproval.rows[0].id],
-      ),
-      /analytical document approval decision is immutable/i,
-    );
-    await assert.rejects(
-      client.query(
-        "DELETE FROM analytical_document_approvals WHERE id = $1",
-        [documentApproval.rows[0].id],
-      ),
-      /analytical document approval history is append-only/i,
     );
 
     await client.query(
@@ -680,15 +662,98 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
       [analyticalDocumentId],
     );
     await client.query(
-      "UPDATE analytical_documents SET status = 'approved', approved_by = $2, approved_at = now(), approved_version_id = $3, updated_at = now() WHERE id = $1",
-      [analyticalDocumentId, workerId, documentVersionId],
+      "UPDATE analytical_document_approvals SET status = 'changes_requested', decided_at = now(), decision_rationale = 'Please add verified comparable evidence' WHERE id = $1",
+      [firstApproval.rows[0].id],
     );
     await client.query(
-      "UPDATE analytical_documents SET status = 'issued', document_number = 'UA-2026-000001', issued_at = now(), issued_version_id = $2, updated_at = now() WHERE id = $1",
-      [analyticalDocumentId, documentVersionId],
+      "UPDATE analytical_documents SET status = 'changes_requested', updated_at = now() WHERE id = $1",
+      [analyticalDocumentId],
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_document_approvals SET decision_rationale = 'tampered' WHERE id = $1",
+        [firstApproval.rows[0].id],
+      ),
+      /analytical document approval decision is immutable/i,
+    );
+    await assert.rejects(
+      client.query(
+        "DELETE FROM analytical_document_approvals WHERE id = $1",
+        [firstApproval.rows[0].id],
+      ),
+      /analytical document approval history is append-only/i,
+    );
+
+    const secondVersion = await client.query(
+      `INSERT INTO analytical_document_versions
+        (document_id, version_number, content, content_sha256, created_by)
+       VALUES ($1, 2, '{"summary":"Synthetic test content v2 with revised evidence"}'::jsonb, $2, $3)
+       RETURNING id, version_number`,
+      [analyticalDocumentId, "b".repeat(64), actorId],
+    );
+    const secondVersionId = secondVersion.rows[0].id;
+    assert.equal(secondVersion.rows[0].version_number, 2);
+    await client.query(
+      "UPDATE analytical_documents SET status = 'draft', updated_at = now() WHERE id = $1",
+      [analyticalDocumentId],
+    );
+
+    const secondApproval = await client.query(
+      `INSERT INTO analytical_document_approvals
+        (document_id, document_version_id, submitted_by, reviewer_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, status`,
+      [analyticalDocumentId, secondVersionId, actorId, workerId],
+    );
+    assert.equal(secondApproval.rows[0].status, "pending");
+    await client.query(
+      "UPDATE analytical_documents SET status = 'submitted_for_review', updated_at = now() WHERE id = $1",
+      [analyticalDocumentId],
+    );
+
+    await assert.rejects(
+      client.query(
+        `UPDATE analytical_documents
+         SET status = 'approved', approved_by = $2, approved_at = now(),
+             approved_version_id = $3, updated_at = now()
+         WHERE id = $1`,
+        [analyticalDocumentId, workerId, firstVersionId],
+      ),
+      /approval must match the author, independent reviewer, and exact document version/i,
+    );
+
+    await client.query(
+      "UPDATE analytical_document_approvals SET status = 'approved', decided_at = now(), decision_rationale = 'Independent synthetic review accepted version 2' WHERE id = $1",
+      [secondApproval.rows[0].id],
+    );
+    await client.query(
+      `UPDATE analytical_documents
+       SET status = 'approved', approved_by = $2, approved_at = now(),
+           approved_version_id = $3, updated_at = now()
+       WHERE id = $1`,
+      [analyticalDocumentId, workerId, secondVersionId],
+    );
+
+    await assert.rejects(
+      client.query(
+        `UPDATE analytical_documents
+         SET status = 'issued', document_number = 'UA-2026-000001',
+             issued_at = now(), issued_version_id = $2, updated_at = now()
+         WHERE id = $1`,
+        [analyticalDocumentId, firstVersionId],
+      ),
+      /only the approved document version may be issued/i,
+    );
+
+    await client.query(
+      `UPDATE analytical_documents
+       SET status = 'issued', document_number = 'UA-2026-000001',
+           issued_at = now(), issued_version_id = $2, updated_at = now()
+       WHERE id = $1`,
+      [analyticalDocumentId, secondVersionId],
     );
     const issuedDocument = await client.query(
-      "SELECT status, document_number, approved_by, created_by FROM analytical_documents WHERE id = $1",
+      "SELECT status, document_number, approved_by, created_by, approved_version_id, issued_version_id FROM analytical_documents WHERE id = $1",
       [analyticalDocumentId],
     );
     assert.deepEqual(issuedDocument.rows[0], {
@@ -696,7 +761,10 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
       document_number: "UA-2026-000001",
       approved_by: workerId,
       created_by: actorId,
+      approved_version_id: secondVersionId,
+      issued_version_id: secondVersionId,
     });
+
     await assert.rejects(
       client.query(
         `INSERT INTO analytical_documents
@@ -714,8 +782,8 @@ test("PostgreSQL applies migrations 001-017 and enforces workflow, authorization
         (document_id, document_version_id, actor_id, event_type,
          previous_status, new_status, details)
        VALUES ($1, $2, $3, 'issued', 'approved', 'issued',
-         '{"registration":"UA-2026-000001"}'::jsonb)`,
-      [analyticalDocumentId, documentVersionId, workerId],
+         '{"registration":"UA-2026-000001","version":2}'::jsonb)`,
+      [analyticalDocumentId, secondVersionId, workerId],
     );
     await assert.rejects(
       client.query(
