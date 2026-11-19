@@ -108,3 +108,6 @@ Choose a hosting region/provider and an acceptable monthly staging budget. Compa
 - Migration 020 makes PDF artifact metadata append-only, blocking UPDATE, DELETE and TRUNCATE.
 - PostgreSQL integration coverage now probes approved/issued version mutation, illegal rollback, and artifact metadata mutation/deletion/truncation using synthetic data.
 - These migrations are source changes on PR #29; they are not applied to any live or staging database. The PostgreSQL integration test is conditional on `PG_INTEGRATION_URL`; a passing unit/CI run without that secret does not prove the live PostgreSQL integration executed.
+
+- Migration 019 additionally freezes document identity fields (type, contour, asset reference, title, author and assigned reviewer) once submission begins. This prevents the issued PDF title/metadata from diverging from the reviewed document record.
+- CI regression coverage includes attempts to mutate the issued title after issuance.
