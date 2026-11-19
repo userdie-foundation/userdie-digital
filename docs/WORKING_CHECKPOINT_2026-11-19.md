@@ -68,3 +68,11 @@
 - PR #29 остаётся Draft, не объединён. CI для commit `aa72464`: Website Quality Gate и Public Repository Security завершились success; Backend checks и USERDIE Security Guard были in progress на момент записи.
 - Staging не создан. Необходимо согласовать провайдера/регион/бюджет; подготовить минимальные права PostgreSQL runtime-role; использовать same-site API origin или reverse proxy из-за cookie SameSite=Lax.
 - Остаются пункты: корректная HEAD-семантика PDF, проверка фактических прав private volume, подтверждение выполнения PostgreSQL integration suite и браузерная desktop/mobile приёмка.
+
+## Уточнение CI после hardening
+
+- Backend checks run #377 на commit `63c4b11` завершился failure на integration test из-за устаревшего ожидаемого текста ошибки после усиления lifecycle trigger.
+- JavaScript syntax check в этом запуске завершился success; тест остановился на несовпадении regex с новым сообщением PostgreSQL.
+- Исправлен ожидаемый regex, добавлена проверка запрета изменения заголовка уже выпущенного документа.
+- Последний commit с тестовой корректировкой: `0b5cef712a908df01c181e0740244d3d40c504a5`.
+- Повторный Backend CI для этого commit ещё не подтверждён. Не считать migrations 019–020 принятыми до успешного PostgreSQL integration run.
