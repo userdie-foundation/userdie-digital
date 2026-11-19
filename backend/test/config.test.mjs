@@ -19,6 +19,7 @@ test("configuration applies safe defaults and parses the PostgreSQL URL", () => 
     valuationApiKey: undefined,
     valuationModel: undefined,
     valuationBaseUrl: "https://api.openai.com/v1",
+    privacyConsentLedgerEnabled: false,
     analyticalDocumentStorageDirectory: undefined,
     pdfFontRegularPath: "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
     pdfFontBoldPath: "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf",
