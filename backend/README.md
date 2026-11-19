@@ -172,3 +172,18 @@ Every write runs in a PostgreSQL transaction and appends both a document lifecyc
 - Provider output is schema-checked and bounded server-side, labelled as preliminary, and always requires human approval. Until a verified evidence registry and review workflow exist, the backend forcibly sets `valueConclusion.status` to `not_estimable` and `low`, `central`, and `high` to `null`, regardless of any numeric values returned by the model. The model is instructed not to invent sources, comparables, prices, or legal facts.
 - Migration 015 seeds the `asset_valuator` role. Apply it only through the reviewed migration process on an isolated staging database; do not apply it to an unreviewed or production database.
 - The route is source-implemented and CI-tested only after the current workflow completes. No backend host, provider secret, live provider call, or production deployment is implied by this source change.
+
+
+## Privacy consent ledger (disabled by default)
+
+Migration `021_privacy_consent_ledger.sql` creates a controlled registry of approved, versioned consent documents and an append-only event ledger. The service is intentionally fail-closed:
+
+- `PRIVACY_CONSENT_LEDGER_ENABLED=false` is the default; enabling it is not a legal approval and must not be done until the Foundation has approved the exact document versions, purpose codes, infrastructure and release checklist.
+- No consent documents are seeded. A version must be inserted into `privacy_consent_documents` through a controlled, reviewed deployment process with the final document SHA-256, approval identity and publication timestamp. The registry protects the content fields from later mutation; a version can only be revoked.
+- `GET /api/v1/privacy/consents` returns only the authenticated user's own events.
+- `POST /api/v1/privacy/consents` records a grant only for a registered, non-revoked document version. The request accepts only `documentCode`, `documentVersion` and a bounded map of boolean choices. Subject identity is derived from the authenticated session, never from the request body.
+- `POST /api/v1/privacy/consents/:documentCode/withdraw` appends a withdrawal event linked to the active grant. Existing events are never updated or deleted.
+- Each grant/withdrawal is written in a transaction with an audit event. The event ledger stores controlled choice flags only; it must not contain health details, case narratives, identity-document contents or arbitrary free text.
+- The routes inherit exact-Origin CSRF protection and narrow JSON preflight rules. No public/anonymous consent submission endpoint exists.
+
+The ledger is not yet connected to applicant-facing checkboxes or public intake forms. It does not prove that an individual document satisfies applicable law, that an electronic signature is sufficient, that a legal representative has authority, or that any particular processing purpose is lawful. Do not enable the flag or collect real beneficiary data until counsel has approved each document, the document registry is populated, operational notices and contacts are confirmed, and the staging security review has passed.
