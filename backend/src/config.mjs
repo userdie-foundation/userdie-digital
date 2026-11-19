@@ -144,6 +144,7 @@ export function readConfig(env = process.env) {
     valuationModel: valuationSettingsComplete ? valuationModel.trim() : undefined,
     valuationBaseUrl,
     analyticalDocumentStorageDirectory,
+    privacyConsentLedgerEnabled: parseBoolean("PRIVACY_CONSENT_LEDGER_ENABLED", env.PRIVACY_CONSENT_LEDGER_ENABLED, false),
     pdfFontRegularPath: env.PDF_FONT_REGULAR_PATH ?? "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
     pdfFontBoldPath: env.PDF_FONT_BOLD_PATH ?? "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf",
   };
