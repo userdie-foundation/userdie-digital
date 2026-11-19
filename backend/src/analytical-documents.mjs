@@ -231,6 +231,13 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
         assignedReviewerId: row.assigned_reviewer_id, approvedBy: row.approved_by,
         approvedAt: row.approved_at, issuedAt: row.issued_at,
         createdAt: row.created_at, updatedAt: row.updated_at,
+        canSubmit: row.created_by === principal.id && row.status === "draft" && canCreate(principal),
+        canRevise: row.created_by === principal.id && row.status === "changes_requested" && canCreate(principal),
+        canReview: row.assigned_reviewer_id === principal.id && row.status === "submitted_for_review" && canReview(principal),
+        canIssue: row.status === "approved" &&
+          (hasGrant(principal, "administrator", "global") ||
+            (row.created_by === principal.id && canCreate(principal))),
+        canDownloadPdf: row.status === "issued" && canReadDocument(principal, row),
       }));
       send(res, 200, { documents, count: documents.length }, method);
     } catch {
