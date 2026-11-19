@@ -8,6 +8,7 @@ import {
 import { rotateSession } from "./security/session-lifecycle.mjs";
 import { validateValuationInput } from "./valuation/valuation-provider.mjs";
 import { handleAnalyticalDocumentRequest, isAnalyticalDocumentMethodAllowed, isAnalyticalDocumentRoute } from "./analytical-documents.mjs";
+import { handlePrivacyConsentRequest, isPrivacyConsentMethodAllowed, isPrivacyConsentRoute } from "./privacy-consents.mjs";
 
 const SECURITY_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -535,7 +536,7 @@ export function createPartnershipRepository(pool) {
   };
 }
 
-export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, recoveryService, recoveryRateLimiter, valuationProvider, pdfStorageDirectory, pdfFontRegularPath, pdfFontBoldPath, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository, partnershipRepository } = {}) {
+export function createServer({ pool, allowedOrigin, resolvePrincipal, authenticationService, recoveryService, recoveryRateLimiter, valuationProvider, pdfStorageDirectory, pdfFontRegularPath, pdfFontBoldPath, applicationRepository, programRepository, applicationWorkflowRepository, workspaceRepository, approvalRepository, partnershipRepository, privacyConsentLedgerEnabled = false } = {}) {
   if (!pool || typeof pool.query !== "function") {
     throw new TypeError("A database pool with query() is required");
   }
@@ -577,7 +578,9 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       const isLoginPreflight = ["/api/v1/auth/login", "/api/v1/auth/logout"].includes(url.pathname);
       const isAnalyticalDocumentPreflight = isAnalyticalDocumentRoute(url.pathname) &&
         isAnalyticalDocumentMethodAllowed("POST", url.pathname);
-      if (!isRecoveryPreflight && !isLoginPreflight && !isAnalyticalDocumentPreflight) {
+      const isPrivacyConsentPreflight = isPrivacyConsentRoute(url.pathname) &&
+        isPrivacyConsentMethodAllowed("POST", url.pathname);
+      if (!isRecoveryPreflight && !isLoginPreflight && !isAnalyticalDocumentPreflight && !isPrivacyConsentPreflight) {
         return sendJson(res, 403, { error: "preflight_not_allowed" }, req.method);
       }
       const requestedMethod = req.headers["access-control-request-method"];
@@ -829,8 +832,10 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
     const isValuationAnalyzePost = req.method === "POST" && url.pathname === "/api/v1/valuation/analyze";
     const isAnalyticalDocumentOperation = isAnalyticalDocumentRoute(url.pathname) &&
       isAnalyticalDocumentMethodAllowed(req.method, url.pathname);
+    const isPrivacyConsentOperation = isPrivacyConsentRoute(url.pathname) &&
+      isPrivacyConsentMethodAllowed(req.method, url.pathname);
     if (req.method !== "GET" && req.method !== "HEAD" && !isWorkspaceTaskStatusPatch &&
-        !isValuationAnalyzePost && !isAnalyticalDocumentOperation) {
+        !isValuationAnalyzePost && !isAnalyticalDocumentOperation && !isPrivacyConsentOperation) {
       return sendJson(res, 405, { error: "method_not_allowed" }, req.method);
     }
 
@@ -840,6 +845,13 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
         pdfStorageDirectory, pdfFontRegularPath, pdfFontBoldPath,
       });
       if (handled) return;
+    }
+
+    if (isPrivacyConsentRoute(url.pathname)) {
+      return handlePrivacyConsentRequest({
+        req, res, url, pool, principalResolver: resolvePrincipal,
+        enabled: privacyConsentLedgerEnabled,
+      });
     }
 
     if (url.pathname === "/api/v1/health/live") {
