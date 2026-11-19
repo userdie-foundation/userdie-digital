@@ -80,15 +80,6 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       client.query("DELETE FROM privacy_consent_documents WHERE id = $1", [consentDocumentId]),
       /privacy consent document versions cannot be deleted/i,
     );
-    const consentEvent = await client.query(
-      `INSERT INTO privacy_consent_events
-        (document_id, subject_user_id, actor_user_id, event_type, choices)
-       VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)
-       RETURNING id, capture_method`,
-      [consentDocumentId, actorId],
-    );
-    assert.equal(consentEvent.rows[0].capture_method, "authenticated_session");
-
     await assert.rejects(
       client.query(
         `INSERT INTO privacy_consent_events
@@ -98,6 +89,16 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       ),
       /privacy consent choices do not match the approved document/i,
     );
+
+    const consentEvent = await client.query(
+      `INSERT INTO privacy_consent_events
+        (document_id, subject_user_id, actor_user_id, event_type, choices)
+       VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)
+       RETURNING id, capture_method`,
+      [consentDocumentId, actorId],
+    );
+    assert.equal(consentEvent.rows[0].capture_method, "authenticated_session");
+
     await assert.rejects(
       client.query(
         `INSERT INTO privacy_consent_events
