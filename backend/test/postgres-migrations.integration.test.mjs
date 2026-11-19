@@ -788,6 +788,13 @@ test("PostgreSQL applies migrations 001-020 and enforces workflow, authorization
     );
     await assert.rejects(
       client.query(
+        "UPDATE analytical_documents SET title = 'Tampered issued title' WHERE id = $1",
+        [analyticalDocumentId],
+      ),
+      /analytical document identity is immutable after submission/i,
+    );
+    await assert.rejects(
+      client.query(
         "UPDATE analytical_documents SET status = 'draft', approved_by = NULL, approved_at = NULL, approved_version_id = NULL, issued_version_id = NULL, document_number = NULL, issued_at = NULL WHERE id = $1",
         [analyticalDocumentId],
       ),
