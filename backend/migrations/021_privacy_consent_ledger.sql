@@ -107,11 +107,11 @@ CREATE UNIQUE INDEX privacy_consent_events_withdrawal_once_idx
 CREATE FUNCTION prevent_privacy_consent_document_truncate()
 RETURNS trigger
 LANGUAGE plpgsql
-AS $
+AS $$
 BEGIN
   RAISE EXCEPTION 'privacy consent document versions cannot be truncated';
 END;
-$;
+$$;
 
 CREATE TRIGGER privacy_consent_documents_no_truncate
   BEFORE TRUNCATE ON privacy_consent_documents
@@ -120,7 +120,7 @@ CREATE TRIGGER privacy_consent_documents_no_truncate
 CREATE FUNCTION enforce_privacy_consent_event_integrity()
 RETURNS trigger
 LANGUAGE plpgsql
-AS $
+AS $$
 DECLARE
   document_row privacy_consent_documents%ROWTYPE;
   latest_event_id uuid;
@@ -200,7 +200,7 @@ BEGIN
 
   RETURN NEW;
 END;
-$;
+$$;
 
 CREATE TRIGGER privacy_consent_events_integrity
   BEFORE INSERT ON privacy_consent_events
