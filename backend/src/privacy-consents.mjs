@@ -177,7 +177,7 @@ export async function handlePrivacyConsentRequest({
     await client.query("BEGIN");
     await client.query("SELECT id FROM app_users WHERE id = $1 FOR UPDATE", [subject.id]);
     const document = await client.query(
-      `SELECT id, document_code, document_version, consent_type, purpose_code, document_sha256
+      `SELECT id, document_code, document_version, consent_type, purpose_code, document_sha256, choice_keys
        FROM privacy_consent_documents
        WHERE document_code = $1 AND document_version = $2 AND revoked_at IS NULL
        LIMIT 1`,
@@ -187,6 +187,19 @@ export async function handlePrivacyConsentRequest({
     if (!approved) {
       await client.query("ROLLBACK");
       respond(res, 409, { error: "approved_consent_document_not_found" }, req.method);
+      return true;
+    }
+    if (approved.consent_type === "special_category") {
+      await client.query("ROLLBACK");
+      respond(res, 409, { error: "written_consent_capture_not_configured" }, req.method);
+      return true;
+    }
+    const approvedChoiceKeys = [...(approved.choice_keys ?? [])].sort();
+    const submittedChoiceKeys = Object.keys(body.choices).sort();
+    if (approvedChoiceKeys.length === 0 ||
+        approvedChoiceKeys.join(",") !== submittedChoiceKeys.join(",")) {
+      await client.query("ROLLBACK");
+      respond(res, 400, { error: "consent_choices_do_not_match_document" }, req.method);
       return true;
     }
     const latest = await client.query(
