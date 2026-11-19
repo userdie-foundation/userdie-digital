@@ -126,9 +126,6 @@ DECLARE
   latest_event_id uuid;
   latest_event_type text;
 BEGIN
-  -- Never trust caller-supplied event timestamps; the database is authoritative.
-  NEW.occurred_at := clock_timestamp();
-
   -- Serialize all consent changes for a subject, including direct SQL writes.
   PERFORM 1 FROM app_users WHERE id = NEW.subject_user_id FOR UPDATE;
   IF NOT FOUND THEN
@@ -159,6 +156,10 @@ BEGIN
     AND document_id = NEW.document_id
   ORDER BY occurred_at DESC, id DESC
   LIMIT 1;
+
+  -- Timestamp only after acquiring the subject lock, so concurrent events
+  -- retain the same order as their serialized database writes.
+  NEW.occurred_at := clock_timestamp();
 
   IF NEW.event_type = 'granted' THEN
     IF NEW.previous_event_id IS NOT NULL THEN
