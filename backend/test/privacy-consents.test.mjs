@@ -28,7 +28,7 @@ async function withHandler(options, run) {
   }
 }
 
-function createPool({ document = true, latestEvent = null } = {}) {
+function createPool({ document = true, latestEvent = null, consentType = "personal_data" } = {}) {
   const calls = [];
   const client = {
     async query(sql, params = []) {
@@ -40,7 +40,7 @@ function createPool({ document = true, latestEvent = null } = {}) {
       if (normalized.includes("FROM privacy_consent_documents")) {
         return { rows: document ? [{
           id: "document-1", document_code: "aid_support", document_version: "2026-11-19.1",
-          consent_type: "personal_data", purpose_code: "case_review",
+          consent_type: consentType, purpose_code: "case_review",
           document_sha256: "a".repeat(64), choice_keys: ["contact_by_email", "contact_by_phone"],
         }] : [] };
       }
@@ -198,8 +198,26 @@ test("special-category consent is not accepted through the ordinary authenticate
       }),
     });
     assert.equal(response.status, 409);
-    assert.deepEqual(await response.json(), { error: "written_consent_capture_not_configured" });
+    assert.deepEqual(await response.json(), { error: "separate_consent_capture_not_configured" });
   });
+});
+
+test("dissemination consent is not accepted through the ordinary personal-data capture path", async () => {
+  const pool = createPool({ consentType: "dissemination" });
+  await withHandler({ enabled: true, pool, principalResolver: async () => principal }, async (base) => {
+    const response = await fetch(base + "/api/v1/privacy/consents", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        documentCode: "aid_support",
+        documentVersion: "2026-11-19.1",
+        choices: { contact_by_email: true, contact_by_phone: false },
+      }),
+    });
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: "separate_consent_capture_not_configured" });
+  });
+  assert.equal(pool.calls.some((call) => call.sql.startsWith("INSERT INTO privacy_consent_events")), false);
 });
 
 test("withdrawal remains available when new consent grants are disabled", async () => {
