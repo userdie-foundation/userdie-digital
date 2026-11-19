@@ -165,6 +165,34 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       client.query("TRUNCATE privacy_consent_documents"),
       /privacy consent document versions cannot be truncated/i,
     );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)`,
+        [consentDocumentId, actorId],
+      ),
+      /privacy consent document version is not active/i,
+    );
+
+    const specialConsentDocument = await client.query(
+      `INSERT INTO privacy_consent_documents
+        (document_code, document_version, consent_type, purpose_code, document_sha256,
+         choice_keys, approved_by, approved_at, published_at)
+       VALUES ('special_support', '2026-11-19.1', 'special_category', 'health_support', $1,
+         ARRAY['health_data'], $2, now() - interval '2 minutes', now() - interval '1 minute')
+       RETURNING id`,
+      ["c".repeat(64), actorId],
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $2, 'granted', '{"health_data":true}'::jsonb)`,
+        [specialConsentDocument.rows[0].id, actorId],
+      ),
+      /written consent capture is required for special-category data/i,
+    );
 
     const auditFixture = await client.query(
       "INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata) VALUES ($1, 'integration.audit_fixture', 'test', 'append-only', '{}'::jsonb) RETURNING id",
