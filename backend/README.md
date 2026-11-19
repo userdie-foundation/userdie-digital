@@ -182,7 +182,7 @@ Migration `021_privacy_consent_ledger.sql` creates a controlled registry of appr
 - No consent documents are seeded. A version must be inserted into `privacy_consent_documents` through a controlled, reviewed deployment process with the final document SHA-256, approval identity and publication timestamp. The registry protects the content fields from later mutation; a version can only be revoked.
 - `GET /api/v1/privacy/consents` returns only the authenticated user's own events.
 - `POST /api/v1/privacy/consents` records a grant only for a registered, non-revoked document version. The request accepts only `documentCode`, `documentVersion` and a bounded map of boolean choices. Subject identity is derived from the authenticated session, never from the request body.
-- `POST /api/v1/privacy/consents/:documentCode/withdraw` appends a withdrawal event linked to the active grant. Existing events are never updated or deleted.
+- `POST /api/v1/privacy/consents/:documentCode/:documentVersion/withdraw` appends a withdrawal event linked to the active grant for that exact document version. Existing events are never updated or deleted.
 - Each grant/withdrawal is written in a transaction with an audit event. The event ledger stores controlled choice flags only; it must not contain health details, case narratives, identity-document contents or arbitrary free text. The submitted choice keys must exactly match the approved document registry. Special-category consent is rejected by this authenticated-session endpoint until a separately reviewed written-consent capture mechanism is implemented.
 - The routes inherit exact-Origin CSRF protection and narrow JSON preflight rules. No public/anonymous consent submission endpoint exists.
 
