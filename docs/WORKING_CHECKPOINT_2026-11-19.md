@@ -141,3 +141,16 @@
 - Временная метка события использует wall-clock timestamp. Приём новых согласий выключен по умолчанию, но чтение/отзыв не отключаются одним флагом.
 - Последний кодовый коммит: `ebe7e7e507b9b0b6dfaf01b21231818e106808b5`. CI на момент этой записи: Backend checks pending, USERDIE security guard pending, Website quality gate queued, Public repository security check pending. Не заявлять успешный результат до завершения проверок.
 - Миграция 021 не применена к рабочей БД; каталог документов пуст; флаг false; UI не подключён. Отдельный письменный механизм для специальных категорий не реализован и соответствующий тип согласия API отклоняет.
+
+
+## Разбор Backend CI и исправления — 19.11.2026
+
+- Backend checks run #419 на head `f6aaaf9864d59defbf914ed87d2039a7d76b36f4` завершился failure. В логе выявлены пять упавших тестов: миграция 021 имела некорректный транзакционный wrapper/синтаксис; PostgreSQL lifecycle test обнаружил, что trigger 019 не срабатывал на изменение `title`, поскольку был ограничен списком колонок; два теста ожидали отключение всего ledger вместо фактического выключения только новых grant-операций.
+- Миграция 021 полностью пересобрана: восстановлены единый BEGIN/COMMIT, SHA-256 constraint, массив точных `choice_keys`, `capture_method`, append-only event triggers и одноразовый отзыв версии. Исправлено экранирование точки в шаблоне версии.
+- Миграция 019 теперь повторно создаёт lifecycle trigger на все UPDATE, чтобы запрет изменения identity-полей действовал и при прямом SQL-обновлении.
+- Тесты default-off скорректированы под реальный контракт: POST grant блокируется до аутентификации, чтение/отзыв не блокируются одним feature flag.
+- PostgreSQL integration suite расширен до миграции 021 и проверок неизменяемости/отзыва каталога и append-only событий.
+- Добавлена операторская процедура `docs/PRIVACY_CONSENT_REGISTRY_OPERATIONS_2026-11-19.md`: двухсторонняя проверка, SHA-256, поля реестра, controlled SQL template, ограничения special-category и release checklist.
+- Последний проверенный PR head после исправлений: `3926d1b03ea8477c8812a520bcf9b3c3aa02e30d`; PR #29 по-прежнему open / Draft / unmerged, base `main` не изменён.
+- На момент записи: Public repository security check для этого head — success; Website quality gate — in progress; Backend checks и USERDIE Security Guard — pending. Повторное прохождение backend tests ещё не подтверждено.
+- Миграция не применялась к рабочей БД; каталог согласий пуст; feature flag выключен; UI не подключён; production deployment не выполнялся.
