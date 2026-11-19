@@ -120,3 +120,11 @@
 - Проверка сведений о юридическом лице: https://egrul.nalog.ru/
 - Европейская комиссия — SCC: https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en
 - UK ICO — IDTA/Addendum: https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/international-transfers/appropriate-safeguards/what-are-standard-data-protection-clauses-the-uk-idta-and-the-addendum/
+
+
+### Технический контроль согласий — 19.11.2026
+
+- Миграция backend 021 и серверный модуль privacy-consents добавлены в рабочую ветку; журнал событий append-only, документные версии хранятся с SHA-256.
+- Приём новых согласий выключен по умолчанию; публичного/анонимного endpoint нет. Субъект определяется серверной сессией. Отзыв записывается отдельным событием, прежняя запись не изменяется.
+- Специальные категории не принимаются через обычный authenticated-session endpoint до появления отдельного юридически проверенного письменного механизма.
+- Это только код и схема в feature branch: миграция не применялась к реальной БД, каталог документов не заполнен, флаг не включён, формы сайта не подключены.
