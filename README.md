@@ -14,6 +14,12 @@ Digital platform of USERDIE Foundation
 - [Security readiness review](docs/SECURITY_READINESS_REVIEW.md) — current production blockers, required access-control tests and release gates. This is a design review, not a penetration test or production certification.
 - [Secure cabinet blueprint](docs/CABINET_SECURITY_BLUEPRINT.md) — applicant/partner journeys, proposed role boundaries, API/data separation and release acceptance gates.
 
+## Legal compliance
+
+- [Legal compliance register](docs/LEGAL_COMPLIANCE_REGISTER_2026-11-19.md) — Russian legal-document inventory, processing obligations, publication gates and official sources.
+- [Russian legal drafts](docs/LEGAL_DRAFTS_RU_2026-11-19.md) — draft privacy policy, website terms, standalone consent templates, image/story release and donation/volunteer/partner requirements.
+- [International legal framework](docs/INTERNATIONAL_LEGAL_FRAMEWORK_2026-11-19.md) — GDPR/UK GDPR applicability, EU SCC, Convention 108, UN disability and child-rights instruments, and country-by-country contract controls.
+
 ## Public website source
 
 GitHub Pages is deployed from the `website/` directory by `.github/workflows/deploy-website.yml`. Edit `website/index.html`, `website/styles.css`, and the pages under `website/prototype/` for changes to the published website. The root-level `index.html` is not included in that deployment workflow and must not be treated as the live page source.
