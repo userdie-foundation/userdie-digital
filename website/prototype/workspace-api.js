@@ -258,8 +258,17 @@
   };
   const downloadPdf = async (id) => {
     setBusy(true);state("Проверяю право доступа и целостность PDF…");
-    try{const response=await api(root+"/"+encodeURIComponent(id)+"/pdf");const blob=await response.blob();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="USERDIE-analytical-document.pdf";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);state("PDF получен через защищённый endpoint.");}
-    catch(error){state(explain(error),true);}finally{setBusy(false);}
+    try{
+      const response=await api(root+"/"+encodeURIComponent(id)+"/pdf");
+      const blob=await response.blob();
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");a.href=url;a.download="USERDIE-analytical-document.pdf";
+      a.style.position="absolute";a.style.width="1px";a.style.height="1px";a.style.overflow="hidden";
+      a.setAttribute("aria-label","Скачать выпущенное аналитическое заключение в формате PDF");
+      document.body.appendChild(a);a.click();a.remove();
+      window.setTimeout(()=>URL.revokeObjectURL(url),60000);
+      state("PDF получен через защищённый endpoint. Если загрузка не началась автоматически, повторите действие.");
+    }catch(error){state(explain(error),true);}finally{setBusy(false);}
   };
   if(!configuredOrigin){
     $("ud-api-configuration").textContent="Демонстрационный режим. Backend API-origin пока не задан: кабинет не отправляет данные и не выполняет сетевые запросы. Для включения требуется утверждённый HTTPS-origin backend, совпадающий с его ALLOWED_ORIGIN, настроенная авторизация и частное хранилище PDF.";
@@ -278,8 +287,17 @@
       });
       $("ud-api-refresh").addEventListener("click",refresh);
       $("ud-api-logout").addEventListener("click",async()=>{
-        setBusy(true);try{await api("/api/v1/auth/logout",{method:"POST",body:"{}"});}catch(error){state(explain(error),true);}
-        documents=[];$("ud-api-workspace").hidden=true;$("ud-api-login").hidden=false;$("ud-api-state").textContent="СЕАНС ЗАВЕРШЁН";$("ud-api-state").classList.remove("live");setBusy(false);
+        setBusy(true);state("Завершаю защищённый серверный сеанс…");
+        try{
+          await api("/api/v1/auth/logout",{method:"POST",body:"{}"});
+          documents=[];$("ud-api-docs").replaceChildren();
+          $("ud-api-workspace").hidden=true;$("ud-api-login").hidden=false;
+          $("ud-api-state").textContent="СЕАНС ЗАВЕРШЁН";$("ud-api-state").classList.remove("live");
+          state("Сервер подтвердил завершение сеанса.");
+          $("ud-api-email").focus();
+        }catch(error){
+          state("Сервер не подтвердил выход. Рабочее пространство оставлено открытым; повторите попытку. "+explain(error),true);
+        }finally{setBusy(false);}
       });
       $("ud-api-create-form").addEventListener("submit",async(event)=>{
         event.preventDefault();if(busy)return;const reviewerId=$("ud-api-reviewer").value;
