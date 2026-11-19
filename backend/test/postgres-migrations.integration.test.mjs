@@ -14,7 +14,7 @@ import { createPartnershipRepository, createServer as createHttpHandler } from "
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-020 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and analytical-document invariants", {
+test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, analytical-document, and privacy-consent invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -45,6 +45,7 @@ test("PostgreSQL applies migrations 001-020 and enforces workflow, authorization
       "018_analytical_document_pdf_artifacts.sql",
       "019_analytical_document_lifecycle_immutability.sql",
       "020_analytical_document_artifact_immutability.sql",
+      "021_privacy_consent_ledger.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -56,6 +57,63 @@ test("PostgreSQL applies migrations 001-020 and enforces workflow, authorization
     );
     const [actorId, workerId, otherWorkerId] = users.rows.map((row) => row.id);
     await client.query("SELECT set_config('app.actor_id', $1, false)", [actorId]);
+
+    const consentDocument = await client.query(
+      `INSERT INTO privacy_consent_documents
+        (document_code, document_version, consent_type, purpose_code, document_sha256,
+         choice_keys, approved_by, approved_at, published_at)
+       VALUES ('aid_support', '2026-11-19.1', 'personal_data', 'case_review', $1,
+         ARRAY['contact_by_email', 'contact_by_phone'], $2, now() - interval '2 minutes',
+         now() - interval '1 minute')
+       RETURNING id`,
+      ["a".repeat(64), actorId],
+    );
+    const consentDocumentId = consentDocument.rows[0].id;
+    await assert.rejects(
+      client.query(
+        "UPDATE privacy_consent_documents SET document_sha256 = $2 WHERE id = $1",
+        [consentDocumentId, "b".repeat(64)],
+      ),
+      /privacy consent document version is immutable/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM privacy_consent_documents WHERE id = $1", [consentDocumentId]),
+      /privacy consent document versions cannot be deleted/i,
+    );
+    await client.query(
+      "UPDATE privacy_consent_documents SET revoked_at = now() WHERE id = $1",
+      [consentDocumentId],
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE privacy_consent_documents SET revoked_at = now() + interval '1 second' WHERE id = $1",
+        [consentDocumentId],
+      ),
+      /privacy consent document version is immutable/i,
+    );
+    const consentEvent = await client.query(
+      `INSERT INTO privacy_consent_events
+        (document_id, subject_user_id, actor_user_id, event_type, choices)
+       VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)
+       RETURNING id, capture_method`,
+      [consentDocumentId, actorId],
+    );
+    assert.equal(consentEvent.rows[0].capture_method, "authenticated_session");
+    await assert.rejects(
+      client.query(
+        "UPDATE privacy_consent_events SET choices = '{}'::jsonb WHERE id = $1",
+        [consentEvent.rows[0].id],
+      ),
+      /privacy consent events are append-only/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM privacy_consent_events WHERE id = $1", [consentEvent.rows[0].id]),
+      /privacy consent events are append-only/i,
+    );
+    await assert.rejects(
+      client.query("TRUNCATE privacy_consent_events"),
+      /privacy consent events are append-only/i,
+    );
 
     const auditFixture = await client.query(
       "INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata) VALUES ($1, 'integration.audit_fixture', 'test', 'append-only', '{}'::jsonb) RETURNING id",
