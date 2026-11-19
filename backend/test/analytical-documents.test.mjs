@@ -203,7 +203,7 @@ test("analytical document version creation is denied without valuation authority
   await withServer(pool, async (base) => {
     const response = await fetch(base + root + "/" + docId + "/versions", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { origin: "https://platform.example", "content-type": "application/json" },
       body: JSON.stringify({ content: { summary: "Unauthorized attempt" } }),
     });
     assert.equal(response.status, 403);
