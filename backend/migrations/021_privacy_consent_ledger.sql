@@ -132,101 +132,9 @@ BEGIN
     OR EXISTS (
       SELECT 1
       FROM unnest(NEW.choice_keys) AS submitted(choice_key)
-      WHERE choice_key !~ '^[a-z][a-z0-9_]{1,39}CREATE FUNCTION enforce_privacy_consent_event_integrity()
-RETURNS trigger
-LANGUAGE plpgsql
-AS $$
-DECLARE
-  document_row privacy_consent_documents%ROWTYPE;
-  latest_event_id uuid;
-  latest_event_type text;
-BEGIN
-  -- Serialize all consent changes for a subject, including direct SQL writes.
-  PERFORM 1 FROM app_users WHERE id = NEW.subject_user_id FOR UPDATE;
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'privacy consent subject does not exist';
-  END IF;
-
-  IF NEW.actor_user_id IS DISTINCT FROM NEW.subject_user_id THEN
-    RAISE EXCEPTION 'authenticated-session consent actor must be the subject';
-  END IF;
-
-  IF NEW.capture_method <> 'authenticated_session' THEN
-    RAISE EXCEPTION 'unsupported privacy consent capture method';
-  END IF;
-
-  SELECT * INTO document_row
-  FROM privacy_consent_documents
-  WHERE id = NEW.document_id
-  FOR SHARE;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'privacy consent document version does not exist';
-  END IF;
-
-  SELECT id, event_type
-    INTO latest_event_id, latest_event_type
-  FROM privacy_consent_events
-  WHERE subject_user_id = NEW.subject_user_id
-    AND document_id = NEW.document_id
-  ORDER BY occurred_at DESC, id DESC
-  LIMIT 1;
-
-  -- Timestamp only after acquiring the subject lock, so concurrent events
-  -- retain the same order as their serialized database writes.
-  NEW.occurred_at := clock_timestamp();
-
-  IF NEW.event_type = 'granted' THEN
-    IF NEW.previous_event_id IS NOT NULL THEN
-      RAISE EXCEPTION 'grant event cannot reference a previous event';
-    END IF;
-    IF document_row.approved_at > clock_timestamp()
-      OR document_row.published_at > clock_timestamp()
-      OR document_row.revoked_at IS NOT NULL THEN
-      RAISE EXCEPTION 'privacy consent document version is not active';
-    END IF;
-    IF document_row.consent_type IN ('special_category', 'dissemination') THEN
-      RAISE EXCEPTION 'separate consent capture workflow is required for this consent type';
-    END IF;
-    IF latest_event_type = 'granted' THEN
-      RAISE EXCEPTION 'active privacy consent already exists';
-    END IF;
-    IF cardinality(document_row.choice_keys) = 0
-      OR (SELECT count(*) FROM jsonb_object_keys(NEW.choices)) <> cardinality(document_row.choice_keys)
-      OR EXISTS (
-        SELECT 1 FROM unnest(document_row.choice_keys) AS approved(key)
-        WHERE NOT (NEW.choices ? approved.key)
-      )
-      OR EXISTS (
-        SELECT 1 FROM jsonb_each(NEW.choices) AS submitted(key, value)
-        WHERE jsonb_typeof(submitted.value) <> 'boolean'
-      )
-      OR NOT EXISTS (
-        SELECT 1 FROM jsonb_each(NEW.choices) AS submitted(key, value)
-        WHERE submitted.value = 'true'::jsonb
-      ) THEN
-      RAISE EXCEPTION 'privacy consent choices do not match the approved document';
-    END IF;
-  ELSIF NEW.event_type = 'withdrawn' THEN
-    IF NEW.choices <> '{}'::jsonb THEN
-      RAISE EXCEPTION 'withdrawal event must not contain consent choices';
-    END IF;
-    IF latest_event_type IS DISTINCT FROM 'granted'
-      OR latest_event_id IS DISTINCT FROM NEW.previous_event_id THEN
-      RAISE EXCEPTION 'withdrawal must reference the latest active grant for this subject and document';
-    END IF;
-  END IF;
-
-  RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER privacy_consent_events_integrity
-  BEFORE INSERT ON privacy_consent_events
-  FOR EACH ROW EXECUTE FUNCTION enforce_privacy_consent_event_integrity();
-
-COMMIT;
-
+      WHERE length(choice_key) NOT BETWEEN 2 AND 40
+        OR choice_key !~ '^[a-z][a-z0-9_]{1,39}'
+        OR choice_key ~ '[^a-z0-9_]'
     ) THEN
     RAISE EXCEPTION 'privacy consent document choice keys must be unique and valid';
   END IF;
@@ -292,8 +200,8 @@ BEGIN
       OR document_row.revoked_at IS NOT NULL THEN
       RAISE EXCEPTION 'privacy consent document version is not active';
     END IF;
-    IF document_row.consent_type = 'special_category' THEN
-      RAISE EXCEPTION 'written consent capture is required for special-category data';
+    IF document_row.consent_type IN ('special_category', 'dissemination') THEN
+      RAISE EXCEPTION 'separate consent capture workflow is required for this consent type';
     END IF;
     IF latest_event_type = 'granted' THEN
       RAISE EXCEPTION 'active privacy consent already exists';
