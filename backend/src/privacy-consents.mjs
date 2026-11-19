@@ -191,9 +191,9 @@ export async function handlePrivacyConsentRequest({
       respond(res, 409, { error: "approved_consent_document_not_found" }, req.method);
       return true;
     }
-    if (approved.consent_type === "special_category") {
+    if (approved.consent_type !== "personal_data") {
       await client.query("ROLLBACK");
-      respond(res, 409, { error: "written_consent_capture_not_configured" }, req.method);
+      respond(res, 409, { error: "separate_consent_capture_not_configured" }, req.method);
       return true;
     }
     const approvedChoiceKeys = [...(approved.choice_keys ?? [])].sort();
