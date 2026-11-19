@@ -14,7 +14,7 @@ import { createPartnershipRepository, createServer as createHttpHandler } from "
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and analytical-document invariants", {
+test("PostgreSQL applies migrations 001-020 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and analytical-document invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
@@ -43,6 +43,8 @@ test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization
       "016_analytical_document_registry.sql",
       "017_analytical_document_lifecycle_guard.sql",
       "018_analytical_document_pdf_artifacts.sql",
+      "019_analytical_document_lifecycle_immutability.sql",
+      "020_analytical_document_artifact_immutability.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
@@ -772,6 +774,28 @@ test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization
 
     await assert.rejects(
       client.query(
+        "UPDATE analytical_documents SET approved_version_id = $2 WHERE id = $1",
+        [analyticalDocumentId, firstVersionId],
+      ),
+      /approved analytical document facts are immutable/i,
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_documents SET issued_version_id = $2 WHERE id = $1",
+        [analyticalDocumentId, firstVersionId],
+      ),
+      /issued analytical document facts are immutable/i,
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_documents SET status = 'draft', approved_by = NULL, approved_at = NULL, approved_version_id = NULL, issued_version_id = NULL, document_number = NULL, issued_at = NULL WHERE id = $1",
+        [analyticalDocumentId],
+      ),
+      /invalid analytical document lifecycle transition/i,
+    );
+
+    await assert.rejects(
+      client.query(
         `INSERT INTO analytical_documents
           (document_type, organizational_contour, title, status, created_by,
            approved_by, approved_at, document_number, issued_at)
@@ -954,6 +978,22 @@ test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization
       assert.equal(pdfArtifact.rowCount, 1);
       assert.equal(pdfArtifact.rows[0].document_version_id, revised.version.id);
       assert.equal(Number(pdfArtifact.rows[0].byte_size), pdfBytes.length);
+
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_document_artifacts SET content_sha256 = $2 WHERE document_id = $1",
+        [apiDocumentId, "c".repeat(64)],
+      ),
+      /analytical document artifacts are append-only/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM analytical_document_artifacts WHERE document_id = $1", [apiDocumentId]),
+      /analytical document artifacts are append-only/i,
+    );
+    await assert.rejects(
+      client.query("TRUNCATE analytical_document_artifacts"),
+      /analytical document artifacts are append-only/i,
+    );
       const secondPdfResponse = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/pdf`);
       assert.equal(secondPdfResponse.status, 200);
       assert.deepEqual(Buffer.from(await secondPdfResponse.arrayBuffer()), pdfBytes);
