@@ -41,8 +41,8 @@
 - В logout-сценарии интерфейс теперь завершает локальный сеанс только после подтверждения сервером. При сетевой ошибке кабинет остаётся открытым и сообщает, что выход не подтверждён.
 - Исправлен жизненный цикл object URL для PDF: ссылка отзывается с задержкой, чтобы браузер успел обработать скачивание; добавлена доступная подпись ссылки.
 - Изменения кода находятся в commit `fb4fa33fa4cef7ca52150da14bf3a0d3edcc7a1a`.
-- UI-проверка выполнена по исходникам HTML/CSS/JS и workflow качества; фактический визуальный просмотр страницы в браузере в этой сессии не выполнялся.
-- На commit `fb4fa33...` Website Quality Gate и Public repository security check — success; secret-pattern scan, CodeQL и Security operating notes — success. Backend checks ещё выполняются: установка кириллических PDF-шрифтов была активным шагом; automated tests, container build и smoke-test пока не подтверждены на этом commit.
+- UI-проверка выполнена по исходникам HTML/CSS/JS и workflow качества. В доступных инструментах этой сессии нет браузерного управления, поэтому фактический визуальный просмотр страницы и мобильного интерфейса не выполнен; не считать его пройденным.
+- На commit `fb4fa33...` подтверждены success: Backend checks (run #370, run ID `44512863921`, job ID `135521269689`), Website Quality Gate (run #410), Public repository security check (run #677), USERDIE Security Guard (run #964), а также CodeQL, secret-pattern scan и Security operating notes. Backend job завершил все ключевые шаги: установка кириллических PDF-шрифтов, установка зависимостей, проверка синтаксиса, автоматические тесты, сборка production container image и smoke-test production container. Все шаги completed/success.
 
 ## Эксплуатационные границы
 - API-origin остаётся пустым, demo mode — режим по умолчанию.
@@ -52,8 +52,8 @@
 - DNS и MX/почтовые записи не изменять.
 
 ## Следующие действия
-1. Дождаться Backend checks для commit `fb4fa33...`; проверить automated tests, production container build и smoke-test.
-2. Если backend workflow завершится ошибкой — получить журнал, установить конкретную причину и исправить только её.
-3. После полного CI провести браузерную проверку визуального поведения и мобильных сценариев в доступной среде; не подменять её выводами только по исходникам.
+1. Backend checks для commit `fb4fa33...` завершились success; все automated tests, production container build и smoke-test подтверждены.
+2. Браузерная визуальная проверка пока не выполнена: доступный набор инструментов не предоставляет управления браузером. Продолжить source-level audit, а визуальный контроль выполнить при появлении поддерживаемой browser/computer-use среды.
+3. Обновить описание PR, чтобы оно отражало фактический успешный Backend CI и не содержало прежнего статуса in progress.
 4. Отдельно подготовить staging-проверку production runtime и private PDF storage после согласования инфраструктуры; не создавать ресурсы и расходы самостоятельно.
 5. Сохранять PR #29 открытым Draft до отдельного решения пользователя.
