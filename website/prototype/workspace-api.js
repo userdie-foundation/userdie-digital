@@ -99,6 +99,109 @@
     try{const data=await json(root+"/"+encodeURIComponent(id));renderDocumentDetails(detail,data);}
     catch(error){detail.textContent=explain(error);detail.classList.add("error");}
   };
+  const reviseDocument = async (doc, card) => {
+    const existing = card.querySelector(".ud-api-revision");
+    if (existing) { existing.remove(); return; }
+    const editor = document.createElement("form");
+    editor.className = "ud-api-detail ud-api-revision";
+    editor.setAttribute("aria-label", "Новая версия аналитического документа");
+    const heading = document.createElement("h3");
+    heading.textContent = "Новая версия документа";
+    editor.appendChild(heading);
+    const note = document.createElement("p");
+    note.textContent = "Сохраните исправленный материал. Предыдущая версия и замечания проверяющего останутся в истории.";
+    editor.appendChild(note);
+    const feedback = document.createElement("p");
+    feedback.className = "ud-api-feedback";
+    feedback.setAttribute("role", "status");
+    feedback.setAttribute("aria-live", "polite");
+    const fields = [
+      ["summary", "Краткое резюме", true],
+      ["purpose", "Цель и границы анализа", false],
+      ["methodology", "Методология и допущения", false],
+      ["sources", "Источники и доказательная база", false],
+      ["conclusion", "Основной вывод", false],
+      ["limitations", "Ограничения и риски", false],
+    ];
+    const controls = {};
+    try {
+      const detail = await json(root + "/" + encodeURIComponent(doc.id));
+      const latest = Array.isArray(detail.versions) ? detail.versions[0] : null;
+      const previous = latest && latest.content && typeof latest.content === "object" ? latest.content : {};
+      fields.forEach(([key, label, required]) => {
+        const wrapper = document.createElement("label");
+        wrapper.className = "ud-api-revision-field";
+        wrapper.style.display = "grid";
+        wrapper.style.gap = "6px";
+        wrapper.style.margin = "10px 0";
+        wrapper.style.color = "#687568";
+        wrapper.style.fontSize = "10px";
+        wrapper.style.fontWeight = "700";
+        const caption = document.createElement("span");
+        caption.textContent = label + (required ? " · обязательно" : "");
+        const textarea = document.createElement("textarea");
+        textarea.rows = key === "summary" || key === "conclusion" ? 3 : 2;
+        textarea.maxLength = 8000;
+        textarea.required = required;
+        textarea.value = typeof previous[key] === "string" ? previous[key] : "";
+        textarea.setAttribute("aria-label", label);
+        textarea.style.boxSizing = "border-box";
+        textarea.style.width = "100%";
+        textarea.style.padding = "9px 10px";
+        textarea.style.border = "1px solid #dce1d6";
+        textarea.style.borderRadius = "4px";
+        textarea.style.font = "11px/1.55 DM Sans,sans-serif";
+        wrapper.append(caption, textarea);
+        editor.appendChild(wrapper);
+        controls[key] = textarea;
+      });
+      const actions = document.createElement("div");
+      actions.className = "ud-api-doc-actions";
+      const save = document.createElement("button");
+      save.type = "submit";
+      save.className = "ud-api-btn";
+      save.textContent = "Сохранить новую версию";
+      const cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "ud-api-btn secondary";
+      cancel.textContent = "Отмена";
+      cancel.addEventListener("click", () => editor.remove());
+      actions.append(save, cancel);
+      editor.append(actions, feedback);
+      editor.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (busy) return;
+        const content = Object.fromEntries(fields.map(([key]) => [key, controls[key].value.trim()]));
+        if (!content.summary) {
+          feedback.textContent = "Заполните краткое резюме.";
+          feedback.classList.add("error");
+          controls.summary.focus();
+          return;
+        }
+        setBusy(true);
+        feedback.textContent = "Сохраняю новую версию в защищённом реестре…";
+        feedback.classList.remove("error");
+        try {
+          await json(root + "/" + encodeURIComponent(doc.id) + "/versions", {
+            method: "POST",
+            body: JSON.stringify({ content }),
+          });
+          editor.remove();
+          await refresh();
+          state("Новая версия сохранена. Документ возвращён в статус черновика; можно повторно передать его независимому проверяющему.");
+        } catch (error) {
+          feedback.textContent = explain(error);
+          feedback.classList.add("error");
+        } finally {
+          setBusy(false);
+        }
+      });
+      card.appendChild(editor);
+      controls.summary.focus();
+    } catch (error) {
+      state(explain(error), true);
+    }
+  };
   const renderDocuments = () => {
     const host=$("ud-api-docs");host.replaceChildren();
     if(!documents.length){const p=document.createElement("p");p.className="ud-api-feedback";p.textContent="В доступном для вашей роли контуре пока нет документов.";host.appendChild(p);return;}
