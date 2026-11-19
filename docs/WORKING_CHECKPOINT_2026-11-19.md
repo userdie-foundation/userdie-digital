@@ -2,18 +2,18 @@
 
 ## Репозиторий и PR
 - Репозиторий: `userdie-foundation/userdie-digital`
-- Основная ветка: `main`; base SHA: `a2066a7d8542efc20fe0d69dbe4f5f60a1b9640a`.
+- Основная ветка `main`; base SHA: `a2066a7d8542efc20fe0d69dbe4f5f60a1b9640a`.
 - Рабочая ветка: `feature/valuation-workspace-api-integration`.
-- Последний commit с изменениями кода: `9330a65a878d5f58eb18802e66103b913d371961`.
-- Предыдущие docs-only commits: `2bae8ec6abfe9832f59c7f91478e70e0e0012df1` и `325019369856cdcc1bc95b062b51355bbd3c074f`.
+- Последний commit с изменениями кода: `fb4fa33fa4cef7ca52150da14bf3a0d3edcc7a1a`.
 - PR #29: https://github.com/userdie-foundation/userdie-digital/pull/29
-- PR открыт, Draft, не объединён; `main` не изменялась. Последняя проверка PR: `mergeable=true`, `merged=false`.
+- PR открыт, Draft, не объединён; последняя проверка: `mergeable=true`, `merged=false`.
+- `main` не изменялась.
 
-## Backend CI — исправление предыдущей ошибки
+## Backend CI — предыдущая ошибка исправлена
 - Ошибка теста `analytical document version creation is denied without valuation authority` была вызвана тем, что тестовый HTTP-сервер не получал `allowedOrigin`, и middleware останавливал запрос на CORS до проверки полномочий.
 - В `backend/test/analytical-documents.test.mjs` тесту задан разрешённый Origin и `allowedOrigin: "https://platform.example"`.
 - Исправление: commit `613c150f6440fffe26301e6a28d0b00221505523`.
-- На этом commit все четыре workflow завершились success: Backend checks run #363 (`44510144178`), Website Quality Gate #403 (`44510144193`), Public repository security check #670 (`44510144281`), USERDIE Security Guard #957 (`44510144263`, включая CodeQL).
+- На этом commit все четыре workflow завершились success: Backend checks run #363, Website Quality Gate #403, Public repository security check #670, USERDIE Security Guard #957.
 
 ## Проверка аналитических документов: lifecycle и PDF
 Проверены:
@@ -34,13 +34,15 @@
 
 Отдельный независимый penetration test не проводился; вывод выше — аудит реализации и существующего тестового покрытия.
 
-## Новые изменения UI/API после lifecycle-аудита
-- Обнаружен дефект: reviewer-only пользователь получал 403 на `/reviewers`, а общий `Promise.all` блокировал отображение доступного ему реестра.
-- Исправлено в `website/prototype/workspace-api.js`: реестр загружается независимо; при отсутствии права создавать документы форма создания скрывается, но доступные документы продолжают отображаться.
-- Backend list API теперь возвращает серверно вычисленные `canSubmit`, `canRevise`, `canReview`, `canIssue`, `canDownloadPdf`. UI показывает действия только по этим флагам, а не только по статусу карточки.
+## Исправления UI/API и мобильного рабочего пространства
+- Для reviewer-only роли исправлена загрузка: отказ 403 от списка проверяющих не блокирует отображение доступного реестра.
+- Backend list API возвращает серверно вычисленные `canSubmit`, `canRevise`, `canReview`, `canIssue`, `canDownloadPdf`. UI показывает действия по этим флагам, а не только по статусу документа.
 - Добавлены unit tests для действий автора и назначенного независимого проверяющего.
-- Кодовые изменения находятся в commit `9330a65a878d5f58eb18802e66103b913d371961`.
-- CI для этого commit: Website Quality Gate run #408 (`44511611329`) success; Public repository security check run #675 (`44511611368`) success; USERDIE Security Guard run #962 (`44511611260`) in progress; Backend checks run #368 (`44511611275`) pending/queued. Backend tests для этого commit ещё не подтверждены как пройденные.
+- В logout-сценарии интерфейс теперь завершает локальный сеанс только после подтверждения сервером. При сетевой ошибке кабинет остаётся открытым и сообщает, что выход не подтверждён.
+- Исправлен жизненный цикл object URL для PDF: ссылка отзывается с задержкой, чтобы браузер успел обработать скачивание; добавлена доступная подпись ссылки.
+- Изменения кода находятся в commit `fb4fa33fa4cef7ca52150da14bf3a0d3edcc7a1a`.
+- UI-проверка выполнена по исходникам HTML/CSS/JS и workflow качества; фактический визуальный просмотр страницы в браузере в этой сессии не выполнялся.
+- На commit `fb4fa33...` Website Quality Gate и Public repository security check — success; secret-pattern scan, CodeQL и Security operating notes — success. Backend checks ещё выполняются: установка кириллических PDF-шрифтов была активным шагом; automated tests, container build и smoke-test пока не подтверждены на этом commit.
 
 ## Эксплуатационные границы
 - API-origin остаётся пустым, demo mode — режим по умолчанию.
@@ -50,7 +52,8 @@
 - DNS и MX/почтовые записи не изменять.
 
 ## Следующие действия
-1. Дождаться Backend checks run #368 и USERDIE Security Guard run #962 для commit `9330a65...`; при ошибке исправлять только подтверждённую причину.
-2. После успешного CI перепроверить права и UI-сценарии по ролям, затем обновить PR/checkpoint с точными результатами.
-3. Отдельно подготовить staging-проверку production runtime и private PDF storage после согласования инфраструктуры; не создавать ресурсы и расходы самостоятельно.
-4. Сохранять PR #29 открытым Draft до отдельного решения пользователя.
+1. Дождаться Backend checks для commit `fb4fa33...`; проверить automated tests, production container build и smoke-test.
+2. Если backend workflow завершится ошибкой — получить журнал, установить конкретную причину и исправить только её.
+3. После полного CI провести браузерную проверку визуального поведения и мобильных сценариев в доступной среде; не подменять её выводами только по исходникам.
+4. Отдельно подготовить staging-проверку production runtime и private PDF storage после согласования инфраструктуры; не создавать ресурсы и расходы самостоятельно.
+5. Сохранять PR #29 открытым Draft до отдельного решения пользователя.
