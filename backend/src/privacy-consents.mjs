@@ -109,6 +109,7 @@ export async function handlePrivacyConsentRequest({
   const withdrawal = pathname.match(/^\/api\/v1\/privacy\/consents\/([a-z][a-z0-9_]{2,63})\/withdraw$/);
   if (withdrawal) {
     const documentCode = withdrawal[1];
+    const documentVersion = withdrawal[2];
     let client;
     try {
       if (typeof pool.connect !== "function") throw new TypeError("transaction support required");
@@ -119,10 +120,10 @@ export async function handlePrivacyConsentRequest({
         `SELECT e.id, e.event_type, d.id AS document_id
          FROM privacy_consent_events e
          JOIN privacy_consent_documents d ON d.id = e.document_id
-         WHERE e.subject_user_id = $1 AND d.document_code = $2
+         WHERE e.subject_user_id = $1 AND d.document_code = $2 AND d.document_version = $3
          ORDER BY e.occurred_at DESC, e.id DESC
          LIMIT 1`,
-        [subject.id, documentCode],
+        [subject.id, documentCode, documentVersion],
       );
       const event = latest.rows?.[0];
       if (!event || event.event_type !== "granted") {
