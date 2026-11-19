@@ -82,6 +82,10 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
     );
     const consentDocumentId = consentDocument.rows[0].id;
     await assert.rejects(
+      client.query("TRUNCATE privacy_consent_documents"),
+      /privacy consent document versions cannot be truncated/i,
+    );
+    await assert.rejects(
       client.query(
         "UPDATE privacy_consent_documents SET document_sha256 = $2 WHERE id = $1",
         [consentDocumentId, "b".repeat(64)],
@@ -183,10 +187,6 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
         [consentDocumentId],
       ),
       /privacy consent document version is immutable/i,
-    );
-    await assert.rejects(
-      client.query("TRUNCATE privacy_consent_documents"),
-      /privacy consent document versions cannot be truncated/i,
     );
     await assert.rejects(
       client.query(
