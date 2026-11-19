@@ -197,6 +197,54 @@ test("analytical document detail returns the latest version content to an author
   assert.match(calls[1].sql, /content, content_sha256/);
 });
 
+test("document list exposes only actions authorized for the current author", async () => {
+  const rows = ["draft", "changes_requested", "submitted_for_review", "approved", "issued"].map((status, index) => ({
+    id: docId, document_number: null, document_type: "asset_analysis",
+    organizational_contour: "assets", asset_reference: null, title: "Synthetic " + status,
+    status, created_by: "author-1", assigned_reviewer_id: "reviewer-1",
+    approved_by: null, approved_at: null, issued_at: null,
+    created_at: "2026-11-19T08:00:00.000Z", updated_at: "2026-11-19T08:10:00.000Z",
+  }));
+  await withServer({ async query() { return { rows }; } }, async (base) => {
+    const response = await fetch(base + root);
+    assert.equal(response.status, 200);
+    const documents = (await response.json()).documents;
+    assert.deepEqual(documents.map((doc) => [
+      doc.canSubmit, doc.canRevise, doc.canReview, doc.canIssue, doc.canDownloadPdf,
+    ]), [
+      [true, false, false, false, false],
+      [false, true, false, false, false],
+      [false, false, false, false, false],
+      [false, false, false, true, false],
+      [false, false, false, false, true],
+    ]);
+  }, {
+    resolvePrincipal: async () => principal("author-1", grant("asset_valuator", "contour", "assets")),
+  });
+});
+
+test("assigned independent reviewer sees review action without document-creation authority", async () => {
+  const row = {
+    id: docId, document_number: null, document_type: "asset_analysis",
+    organizational_contour: "assets", asset_reference: null, title: "Awaiting review",
+    status: "submitted_for_review", created_by: "author-1", assigned_reviewer_id: "reviewer-1",
+    approved_by: null, approved_at: null, issued_at: null,
+    created_at: "2026-11-19T08:00:00.000Z", updated_at: "2026-11-19T08:10:00.000Z",
+  };
+  await withServer({ async query() { return { rows: [row] }; } }, async (base) => {
+    const response = await fetch(base + root);
+    assert.equal(response.status, 200);
+    const [document] = (await response.json()).documents;
+    assert.equal(document.canReview, true);
+    assert.equal(document.canSubmit, false);
+    assert.equal(document.canRevise, false);
+    assert.equal(document.canIssue, false);
+    assert.equal(document.canDownloadPdf, false);
+  }, {
+    resolvePrincipal: async () => principal("reviewer-1", grant("independent_approver", "contour", "assets")),
+  });
+});
+
 test("analytical document version creation is denied without valuation authority", async () => {
   let queries = 0;
   const pool = { async query() { queries += 1; return { rows: [] }; } };
