@@ -215,6 +215,7 @@
       let historyButton;
       historyButton=addButton(actions,"История и версии",()=>toggleDetails(doc.id,card,historyButton),true);
       if(doc.status==="draft")addButton(actions,"Передать на проверку",()=>transition(doc.id,"submit"),false);
+      if(doc.status==="changes_requested")addButton(actions,"Подготовить новую версию",()=>reviseDocument(doc,card),false);
       if(doc.status==="submitted_for_review"){addButton(actions,"Согласовать",()=>decide(doc.id,"approved"),false);addButton(actions,"Вернуть на доработку",()=>decide(doc.id,"changes_requested"));}
       if(doc.status==="approved")addButton(actions,"Зарегистрировать и выпустить",()=>transition(doc.id,"issue"),false);
       if(doc.status==="issued")addButton(actions,"Скачать PDF",()=>downloadPdf(doc.id));
