@@ -19,6 +19,7 @@ Digital platform of USERDIE Foundation
 - [Legal compliance register](docs/LEGAL_COMPLIANCE_REGISTER_2026-11-19.md) — Russian legal-document inventory, processing obligations, publication gates and official sources.
 - [Russian legal drafts](docs/LEGAL_DRAFTS_RU_2026-11-19.md) — draft privacy policy, website terms, standalone consent templates, image/story release and donation/volunteer/partner requirements.
 - [International legal framework](docs/INTERNATIONAL_LEGAL_FRAMEWORK_2026-11-19.md) — GDPR/UK GDPR applicability, EU SCC, Convention 108, UN disability and child-rights instruments, and country-by-country contract controls.
+- [International agreement templates](docs/INTERNATIONAL_AGREEMENT_TEMPLATES_2026-11-19.md) — MoU, DPA, controller-to-controller sharing, restricted grants/donations, volunteer agreement, image/story release and country clearance checklist.
 - [Internal legal controls](docs/LEGAL_INTERNAL_CONTROLS_2026-11-19.md) — draft orders, processing register, subject-request and incident forms, DPA clauses, international MoU and safeguarding controls.
 
 ## Public website source
