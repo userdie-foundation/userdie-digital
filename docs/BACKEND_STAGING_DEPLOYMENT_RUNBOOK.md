@@ -46,7 +46,7 @@ The sample `backend/.env.example` is not a production configuration. Confirm the
 
 1. Provision a new, empty, isolated staging database. Do not point the runner at a database that has already received migrations manually.
 2. Create two distinct credentials: a schema-owner/migration role for controlled DDL, and a non-owner API runtime role with only the required DML, sequence and function privileges. Do not use the migration owner as the API `DATABASE_URL`.
-3. Review migrations `001`–`018` and their dependencies before execution, including the analytical-document registry, immutable versions, independent approval/lifecycle guards, and private PDF artifact metadata in migrations `016`–`018`.
+3. Review migrations `001`–`018` and their dependencies before execution, including the analytical-document registry, immutable versions, independent approval/lifecycle guards, and private PDF artifact metadata in migrations `016`–`020`.
 4. From a protected operator environment, set `MIGRATIONS_DATABASE_URL` to the migration-owner connection and run `MIGRATIONS_ALLOW_APPLY=true npm run migrate`. Set `MIGRATIONS_DATABASE_SSL=true` when verified TLS is required. Never commit either credential.
 5. The runner takes a PostgreSQL advisory lock, validates sequential filenames, stores SHA-256 checksums in `public.schema_migrations`, and commits each migration together with its ledger row. A checksum mismatch or SQL error stops the process; failed migration SQL is rolled back.
 6. Verify all 18 versions are recorded, then configure the separate API runtime `DATABASE_URL` and test readiness using the runtime role.
@@ -63,7 +63,7 @@ Do not run migrations against production as part of this staging procedure. A pr
 - [ ] `npm run check` passes.
 - [ ] `npm test` passes against an isolated PostgreSQL test database.
 - [ ] Backend CI builds the image and passes its container smoke test: non-root runtime, liveness success, and database readiness returning 503 when the database is deliberately unavailable.
-- [ ] For the analytical-document workflow, verify migrations `016`–`018`, independent reviewer separation, immutable version hashes, approval/issue lifecycle guards, exact issued-version PDF retrieval, and private storage permissions using synthetic data only.
+- [ ] For the analytical-document workflow, verify migrations `016`–`020`, independent reviewer separation, immutable version hashes, approval/issue lifecycle guards, exact issued-version PDF retrieval, and private storage permissions using synthetic data only.
 - [ ] Service starts without logging connection strings, credentials or tokens.
 - [ ] `/api/v1/health/live` returns success.
 - [ ] `/api/v1/health/ready` returns success only when the database is reachable.
@@ -99,4 +99,12 @@ Choose a hosting region/provider and an acceptable monthly staging budget. Compa
 - The command requires both `MIGRATIONS_ALLOW_APPLY=true` and `MIGRATIONS_DATABASE_URL`. It is not called from API startup or the Docker image command.
 - Use the migration-owner credential only for the CLI. Use a separate non-owner credential for the API process.
 - Initial supported target is a new empty staging database. Existing databases with manually applied migrations require a reviewed baseline/reconciliation plan; do not run this CLI against them.
-- Unit tests validate migration wrapper parsing and the migration sequence through version 018. PostgreSQL CI integration remains separate; no staging database has been provisioned or migrated.
+- Unit tests validate migration wrapper parsing and the migration sequence through version 020. PostgreSQL CI integration remains separate; no staging database has been provisioned or migrated.
+
+## Lifecycle and PDF provenance hardening — 2026-11-19
+
+- Migration 019 replaces the analytical-document lifecycle guard with an explicit transition allowlist: draft → submitted_for_review → approved/changes_requested → draft (after requested changes) → submitted_for_review → approved → issued → archived.
+- Approved reviewer, timestamp and exact approved version cannot be rewritten after approval. Issued version, registration number and issue timestamp cannot be rewritten after issuance. Direct SQL attempts to roll an issued document back to draft or replace its approved/issued version are rejected.
+- Migration 020 makes PDF artifact metadata append-only, blocking UPDATE, DELETE and TRUNCATE.
+- PostgreSQL integration coverage now probes approved/issued version mutation, illegal rollback, and artifact metadata mutation/deletion/truncation using synthetic data.
+- These migrations are source changes on PR #29; they are not applied to any live or staging database. The PostgreSQL integration test is conditional on `PG_INTEGRATION_URL`; a passing unit/CI run without that secret does not prove the live PostgreSQL integration executed.
