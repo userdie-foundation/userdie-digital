@@ -126,6 +126,9 @@ DECLARE
   latest_event_id uuid;
   latest_event_type text;
 BEGIN
+  -- Never trust caller-supplied event timestamps; the database is authoritative.
+  NEW.occurred_at := clock_timestamp();
+
   -- Serialize all consent changes for a subject, including direct SQL writes.
   PERFORM 1 FROM app_users WHERE id = NEW.subject_user_id FOR UPDATE;
   IF NOT FOUND THEN
