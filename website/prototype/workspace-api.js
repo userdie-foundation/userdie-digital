@@ -48,9 +48,18 @@
   const explain = (error) => errorLabels[error.message] || ("Операция не выполнена: " + error.message);
   const addButton = (parent,label,action,secondary=true) => { const b=document.createElement("button");b.type="button";b.className="ud-api-btn"+(secondary?" secondary":"");b.textContent=label;b.addEventListener("click",action);parent.appendChild(b);return b; };
   const loadReviewers = async () => {
-    const data=await json(root+"/reviewers"); reviewers=Array.isArray(data.reviewers)?data.reviewers:[];
-    const select=$("ud-api-reviewer");select.replaceChildren();const first=document.createElement("option");first.value="";first.textContent=reviewers.length?"Выберите независимого проверяющего":"Нет доступных проверяющих";select.appendChild(first);
-    reviewers.forEach((r)=>{const o=document.createElement("option");o.value=r.id;o.textContent=r.displayName;select.appendChild(o);});
+    const select=$("ud-api-reviewer");
+    try {
+      const data=await json(root+"/reviewers"); reviewers=Array.isArray(data.reviewers)?data.reviewers:[];
+      select.replaceChildren();const first=document.createElement("option");first.value="";first.textContent=reviewers.length?"Выберите независимого проверяющего":"Нет доступных проверяющих";select.appendChild(first);
+      reviewers.forEach((r)=>{const o=document.createElement("option");o.value=r.id;o.textContent=r.displayName;select.appendChild(o);});
+      $("ud-api-create-form").hidden=false;
+      return {ok:true};
+    } catch(error) {
+      reviewers=[];select.replaceChildren();const option=document.createElement("option");option.value="";option.textContent="Создание документа недоступно для этой роли";select.appendChild(option);
+      $("ud-api-create-form").hidden=true;
+      return {ok:false,error};
+    }
   };
   const renderDocumentDetails = (host, data) => {
     host.replaceChildren();
@@ -214,17 +223,25 @@
       const actions=document.createElement("div");actions.className="ud-api-doc-actions";
       let historyButton;
       historyButton=addButton(actions,"История и версии",()=>toggleDetails(doc.id,card,historyButton),true);
-      if(doc.status==="draft")addButton(actions,"Передать на проверку",()=>transition(doc.id,"submit"),false);
-      if(doc.status==="changes_requested")addButton(actions,"Подготовить новую версию",()=>reviseDocument(doc,card),false);
-      if(doc.status==="submitted_for_review"){addButton(actions,"Согласовать",()=>decide(doc.id,"approved"),false);addButton(actions,"Вернуть на доработку",()=>decide(doc.id,"changes_requested"));}
-      if(doc.status==="approved")addButton(actions,"Зарегистрировать и выпустить",()=>transition(doc.id,"issue"),false);
-      if(doc.status==="issued")addButton(actions,"Скачать PDF",()=>downloadPdf(doc.id));
+      if(doc.canSubmit===true)addButton(actions,"Передать на проверку",()=>transition(doc.id,"submit"),false);
+      if(doc.canRevise===true)addButton(actions,"Подготовить новую версию",()=>reviseDocument(doc,card),false);
+      if(doc.canReview===true){addButton(actions,"Согласовать",()=>decide(doc.id,"approved"),false);addButton(actions,"Вернуть на доработку",()=>decide(doc.id,"changes_requested"));}
+      if(doc.canIssue===true)addButton(actions,"Зарегистрировать и выпустить",()=>transition(doc.id,"issue"),false);
+      if(doc.canDownloadPdf===true)addButton(actions,"Скачать PDF",()=>downloadPdf(doc.id));
       card.appendChild(actions);host.appendChild(card);
     });
   };
   const refresh = async () => {
-    setBusy(true);state("Загружаю реестр и список проверяющих…");
-    try { const [docs]=await Promise.all([json(root+"?limit=50"),loadReviewers()]);documents=Array.isArray(docs.documents)?docs.documents:[];renderDocuments();state("Данные получены из защищённого API."); }
+    setBusy(true);state("Загружаю реестр документов…");
+    try {
+      const docs=await json(root+"?limit=50");
+      documents=Array.isArray(docs.documents)?docs.documents:[];
+      const reviewerResult=await loadReviewers();
+      renderDocuments();
+      if(reviewerResult.ok)state("Реестр и список независимых проверяющих получены из защищённого API.");
+      else if(reviewerResult.error.status===403)state("Реестр загружен. Для этой учётной записи доступен просмотр и назначенная независимая проверка; создание документов недоступно.");
+      else state("Реестр загружен, но список проверяющих временно недоступен. Создание документов скрыто до восстановления сервиса.",true);
+    }
     catch(error){if(error.status===401){$("ud-api-login").hidden=false;$("ud-api-workspace").hidden=true;}state(explain(error),true);}
     finally{setBusy(false);}
   };
