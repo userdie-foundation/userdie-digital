@@ -48,12 +48,12 @@ function validChoices(value) {
 
 export function isPrivacyConsentRoute(pathname) {
   return pathname === "/api/v1/privacy/consents" ||
-    /^\/api\/v1\/privacy\/consents\/[a-z][a-z0-9_]{2,63}\/withdraw$/.test(pathname);
+    /^\/api\/v1\/privacy\/consents\/[a-z][a-z0-9_]{2,63}\/\d{4}-\d{2}-\d{2}\.\d+\/withdraw$/.test(pathname);
 }
 
 export function isPrivacyConsentMethodAllowed(method, pathname) {
   if (pathname === "/api/v1/privacy/consents") return ["GET", "POST"].includes(method);
-  return method === "POST" && /^\/api\/v1\/privacy\/consents\/[a-z][a-z0-9_]{2,63}\/withdraw$/.test(pathname);
+  return method === "POST" && /^\/api\/v1\/privacy\/consents\/[a-z][a-z0-9_]{2,63}\/\d{4}-\d{2}-\d{2}\.\d+\/withdraw$/.test(pathname);
 }
 
 async function resolveSubject(req, resolver) {
@@ -106,7 +106,7 @@ export async function handlePrivacyConsentRequest({
     return true;
   }
 
-  const withdrawal = pathname.match(/^\/api\/v1\/privacy\/consents\/([a-z][a-z0-9_]{2,63})\/withdraw$/);
+  const withdrawal = pathname.match(/^\/api\/v1\/privacy\/consents\/([a-z][a-z0-9_]{2,63})\/(\d{4}-\d{2}-\d{2}\.\d+)\/withdraw$/);
   if (withdrawal) {
     const documentCode = withdrawal[1];
     const documentVersion = withdrawal[2];
