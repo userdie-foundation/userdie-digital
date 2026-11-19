@@ -198,6 +198,25 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       /privacy consent document version is not active/i,
     );
 
+    const disseminationConsentDocument = await client.query(
+      `INSERT INTO privacy_consent_documents
+        (document_code, document_version, consent_type, purpose_code, document_sha256,
+         choice_keys, approved_by, approved_at, published_at)
+       VALUES ('public_story', '2026-11-19.1', 'dissemination', 'public_reporting', $1,
+         ARRAY['publish_name'], $2, now() - interval '2 minutes', now() - interval '1 minute')
+       RETURNING id`,
+      ["e".repeat(64), actorId],
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $2, 'granted', '{"publish_name":true}'::jsonb)`,
+        [disseminationConsentDocument.rows[0].id, actorId],
+      ),
+      /separate consent capture workflow is required for this consent type/i,
+    );
+
     const specialConsentDocument = await client.query(
       `INSERT INTO privacy_consent_documents
         (document_code, document_version, consent_type, purpose_code, document_sha256,
