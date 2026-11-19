@@ -159,3 +159,57 @@ test("analytical document writes remain same-origin protected", async () => {
     resolvePrincipal: async () => principal("valuator-1", grant("asset_valuator", "contour", "assets")),
   });
 });
+
+
+test("analytical document detail returns the latest version content to an authorized author", async () => {
+  const calls = [];
+  const content = { summary: "Synthetic revision source", conclusion: "Pending review" };
+  const pool = { async query(sql, params) {
+    calls.push({ sql, params });
+    if (sql.includes("FROM analytical_documents WHERE id")) {
+      return { rows: [{
+        id: docId, document_number: "AS-0001", document_type: "asset_analysis",
+        organizational_contour: "assets", asset_reference: "TEST-ASSET", title: "Synthetic report",
+        status: "changes_requested", created_by: "valuator-1", assigned_reviewer_id: "reviewer-1",
+        approved_by: null, approved_at: null, issued_at: null,
+        created_at: "2026-11-19T08:00:00.000Z", updated_at: "2026-11-19T08:10:00.000Z",
+      }] };
+    }
+    if (sql.includes("FROM analytical_document_versions")) {
+      return { rows: [{
+        id: "version-1", version_number: 1, content, content_sha256: "a".repeat(64),
+        created_by: "valuator-1", created_at: "2026-11-19T08:00:00.000Z",
+      }] };
+    }
+    return { rows: [] };
+  } };
+  await withServer(pool, async (base) => {
+    const response = await fetch(base + root + "/" + docId);
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.document.status, "changes_requested");
+    assert.deepEqual(body.versions[0].content, content);
+    assert.equal(body.versions[0].version_number, 1);
+  }, {
+    resolvePrincipal: async () => principal("valuator-1", grant("asset_valuator", "contour", "assets")),
+  });
+  assert.equal(calls.length, 4);
+  assert.match(calls[1].sql, /content, content_sha256/);
+});
+
+test("analytical document version creation is denied without valuation authority", async () => {
+  let queries = 0;
+  const pool = { async query() { queries += 1; return { rows: [] }; } };
+  await withServer(pool, async (base) => {
+    const response = await fetch(base + root + "/" + docId + "/versions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ content: { summary: "Unauthorized attempt" } }),
+    });
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "analytical_document_version_denied" });
+  }, {
+    resolvePrincipal: async () => principal("worker-1", grant("case_worker")),
+  });
+  assert.equal(queries, 0);
+});
