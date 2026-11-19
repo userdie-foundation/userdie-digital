@@ -132,7 +132,7 @@ BEGIN
     OR EXISTS (
       SELECT 1
       FROM unnest(NEW.choice_keys) AS submitted(choice_key)
-      WHERE choice_key !~ '^[a-z][a-z0-9_]{1,39}
+      WHERE choice_key !~ '^[a-z][a-z0-9_]{1,39}CREATE FUNCTION enforce_privacy_consent_event_integrity()
 RETURNS trigger
 LANGUAGE plpgsql
 AS $$
