@@ -57,3 +57,14 @@
 3. Описание PR #29 обновлено: указаны успешные Backend checks, website quality/security checks и ограничение по отсутствию браузерной визуальной проверки.
 4. Отдельно подготовить staging-проверку production runtime и private PDF storage после согласования инфраструктуры; не создавать ресурсы и расходы самостоятельно.
 5. Сохранять PR #29 открытым Draft до отдельного решения пользователя.
+
+## Дополнительная контрольная точка — 19.11.2026
+
+- Углублённый аудит выявил возможность прямого SQL-изменения полей утверждённой/выпущенной версии при обходе API, несмотря на защиту обычного HTTP workflow.
+- Добавлены миграции 019 `analytical_document_lifecycle_immutability` и 020 `analytical_document_artifact_immutability`.
+- Добавлены интеграционные проверки запрета изменения approved/issued version, незаконного отката статуса, а также UPDATE/DELETE/TRUNCATE PDF artifact metadata.
+- Migration runner test ожидает 20 последовательных миграций.
+- Коммиты исправлений/тестов: `f458c92`, `ff40399`, `2a6cef8`, `aa72464`.
+- PR #29 остаётся Draft, не объединён. CI для commit `aa72464`: Website Quality Gate и Public Repository Security завершились success; Backend checks и USERDIE Security Guard были in progress на момент записи.
+- Staging не создан. Необходимо согласовать провайдера/регион/бюджет; подготовить минимальные права PostgreSQL runtime-role; использовать same-site API origin или reverse proxy из-за cookie SameSite=Lax.
+- Остаются пункты: корректная HEAD-семантика PDF, проверка фактических прав private volume, подтверждение выполнения PostgreSQL integration suite и браузерная desktop/mobile приёмка.
