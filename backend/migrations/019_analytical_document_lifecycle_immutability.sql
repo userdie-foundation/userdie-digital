@@ -84,6 +84,11 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS analytical_documents_lifecycle_guard ON analytical_documents;
+CREATE TRIGGER analytical_documents_lifecycle_guard
+BEFORE UPDATE ON analytical_documents
+FOR EACH ROW EXECUTE FUNCTION enforce_analytical_document_lifecycle();
+
 COMMENT ON FUNCTION enforce_analytical_document_lifecycle() IS
   'Enforces allowed lifecycle transitions and prevents direct SQL from rewriting approved or issued version facts.';
 
