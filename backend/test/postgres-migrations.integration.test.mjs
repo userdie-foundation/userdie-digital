@@ -136,6 +136,16 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       /withdrawal must reference the latest active grant/i,
     );
 
+    const renewedConsent = await client.query(
+      `INSERT INTO privacy_consent_events
+        (document_id, subject_user_id, actor_user_id, event_type, choices, occurred_at)
+       VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb,
+         now() + interval '1 year')
+       RETURNING occurred_at`,
+      [consentDocumentId, actorId],
+    );
+    assert.ok(new Date(renewedConsent.rows[0].occurred_at).getTime() < Date.now() + 60_000);
+
     await assert.rejects(
       client.query(
         "UPDATE privacy_consent_events SET choices = '{}'::jsonb WHERE id = $1",
