@@ -154,3 +154,13 @@
 - Последний проверенный PR head после исправлений: `3926d1b03ea8477c8812a520bcf9b3c3aa02e30d`; PR #29 по-прежнему open / Draft / unmerged, base `main` не изменён.
 - На момент записи: Public repository security check для этого head — success; Website quality gate — in progress; Backend checks и USERDIE Security Guard — pending. Повторное прохождение backend tests ещё не подтверждено.
 - Миграция не применялась к рабочей БД; каталог согласий пуст; feature flag выключен; UI не подключён; production deployment не выполнялся.
+
+
+## Повторная проверка Backend CI — 19.11.2026
+
+- Backend checks run #426 на head `95c664ce18ac9c8c9c21002775cd518198633c4c` завершился failure на automated tests. JavaScript syntax check и установка зависимостей прошли.
+- По логу выявлен один оставшийся тестовый дефект: `backend/test/config.test.mjs` ожидал старый объект конфигурации и не учитывал новый безопасный default `privacyConsentLedgerEnabled: false`. Ошибка не указывает на включение функции или изменение runtime-значения; это несовпадение ожидаемой структуры теста.
+- Внесено исправление в `backend/test/config.test.mjs`: default false теперь явно проверяется тестом.
+- Исправляющий commit: `39dbab8877f0904dd35df6791cc23c102dae206c`. Новый CI для этого head ожидает/проходит запуск; до его завершения Backend checks не считаются успешными.
+- Security Guard для предыдущего head `95c664c` завершился success; Website Quality Gate и Public repository security check также success.
+- PR #29 остаётся open / Draft / unmerged; base `main` не изменён. Миграция 021 не применена к рабочей БД, флаг выключен, публичные формы не подключены, production deployment отсутствует.
