@@ -15,6 +15,7 @@ CREATE TABLE privacy_consent_documents (
   revoked_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (document_code, document_version),
+  CHECK (approved_at <= published_at),
   CHECK (revoked_at IS NULL OR revoked_at >= published_at)
 );
 
