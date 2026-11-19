@@ -5,11 +5,11 @@
 - Основная ветка: `main`
 - Base SHA: `a2066a7d8542efc20fe0d69dbe4f5f60a1b9640a`
 - Рабочая ветка: `feature/valuation-workspace-api-integration`
-- Последний подтверждённый HEAD: `613c150f6440fffe26301e6a28d0b00221505523`
+- Последний commit ветки на момент обновления checkpoint: `2bae8ec6abfe9832f59c7f91478e70e0e0012df1` (только актуализация документации/checkpoint).
+- Последний commit с изменениями кода: `613c150f6440fffe26301e6a28d0b00221505523`.
 - PR #29: https://github.com/userdie-foundation/userdie-digital/pull/29
-- PR открыт, Draft, не объединён; GitHub показывает `mergeable=true`, `merged=false`.
-- В PR: 23 коммита, 11 изменённых файлов (+557/-13) на момент проверки.
-- `main` не изменялась.
+- PR открыт, Draft, не объединён; `main` не изменялась.
+- После обновления checkpoint в PR отображается 24 коммита и 11 изменённых файлов (+575/-13).
 
 ## Исправление Backend CI
 - Предыдущая ошибка теста `analytical document version creation is denied without valuation authority` была вызвана тем, что тестовый HTTP-сервер не получал `allowedOrigin`, и middleware останавливал запрос на CORS до проверки полномочий.
@@ -17,14 +17,14 @@
 - Исправление находится в commit `613c150f6440fffe26301e6a28d0b00221505523`.
 - Backend production-код и проверки безопасности не ослаблялись.
 
-## GitHub Actions — подтверждено на HEAD 613c150...
-Все четыре workflow для одного и того же commit завершились `completed / success`:
+## GitHub Actions — подтверждено на code commit 613c150...
+Все четыре workflow для одного и того же commit `613c150f6440fffe26301e6a28d0b00221505523` завершились `completed / success`:
 1. Backend checks run #363, ID `44510144178`: синтаксис, automated tests, production container build и smoke-test — success.
 2. Website Quality Gate run #403, ID `44510144193` — success.
 3. Public repository security check run #670, ID `44510144281` — success.
 4. USERDIE Security Guard run #957, ID `44510144263`: secret-pattern scan, CodeQL JavaScript/TypeScript и security operating notes — success.
 
-Это подтверждает CI на данном commit. Это не подтверждает production deployment или готовность live API.
+Commit `2bae8ec6abfe9832f59c7f91478e70e0e0012df1` содержит только обновление checkpoint-документации. В выборке PR-triggered workflow для этого docs-only commit запусков не обнаружено. CI-подтверждение выше относится к последнему commit с изменениями кода, а не к docs-only commit. Это не подтверждает production deployment или готовность live API.
 
 ## Проверка аналитических документов: lifecycle и PDF
 Проведён аудит:
