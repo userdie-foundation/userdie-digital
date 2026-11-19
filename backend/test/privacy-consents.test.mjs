@@ -69,11 +69,11 @@ function createPool({ document = true, latestEvent = null } = {}) {
 
 test("privacy consent routes expose only the explicitly supported methods", () => {
   assert.equal(isPrivacyConsentRoute("/api/v1/privacy/consents"), true);
-  assert.equal(isPrivacyConsentRoute("/api/v1/privacy/consents/aid_support/withdraw"), true);
-  assert.equal(isPrivacyConsentRoute("/api/v1/privacy/consents/../withdraw"), false);
+  assert.equal(isPrivacyConsentRoute("/api/v1/privacy/consents/aid_support/2026-11-19.1/withdraw"), true);
+  assert.equal(isPrivacyConsentRoute("/api/v1/privacy/consents/../2026-11-19.1/withdraw"), false);
   assert.equal(isPrivacyConsentMethodAllowed("GET", "/api/v1/privacy/consents"), true);
   assert.equal(isPrivacyConsentMethodAllowed("DELETE", "/api/v1/privacy/consents"), false);
-  assert.equal(isPrivacyConsentMethodAllowed("POST", "/api/v1/privacy/consents/aid_support/withdraw"), true);
+  assert.equal(isPrivacyConsentMethodAllowed("POST", "/api/v1/privacy/consents/aid_support/2026-11-19.1/withdraw"), true);
 });
 
 test("privacy consent ledger is disabled by default and does not resolve a principal", async () => {
@@ -159,7 +159,7 @@ test("consent history is scoped to the authenticated subject", async () => {
 test("withdrawal appends a new event linked to the active grant", async () => {
   const pool = createPool({ latestEvent: { id: "grant-1", event_type: "granted", document_id: "document-1" } });
   await withHandler({ enabled: true, pool, principalResolver: async () => principal }, async (base) => {
-    const response = await fetch(base + "/api/v1/privacy/consents/aid_support/withdraw", { method: "POST" });
+    const response = await fetch(base + "/api/v1/privacy/consents/aid_support/2026-11-19.1/withdraw", { method: "POST" });
     assert.equal(response.status, 201);
     assert.equal((await response.json()).event.event_type, "withdrawn");
   });
@@ -201,7 +201,7 @@ test("special-category consent is not accepted through the ordinary authenticate
 test("withdrawal remains available when new consent grants are disabled", async () => {
   const pool = createPool({ latestEvent: { id: "grant-2", event_type: "granted", document_id: "document-1" } });
   await withHandler({ enabled: false, pool, principalResolver: async () => principal }, async (base) => {
-    const response = await fetch(base + "/api/v1/privacy/consents/aid_support/withdraw", { method: "POST" });
+    const response = await fetch(base + "/api/v1/privacy/consents/aid_support/2026-11-19.1/withdraw", { method: "POST" });
     assert.equal(response.status, 201);
     assert.equal((await response.json()).event.event_type, "withdrawn");
   });
