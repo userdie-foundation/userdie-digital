@@ -80,17 +80,6 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       client.query("DELETE FROM privacy_consent_documents WHERE id = $1", [consentDocumentId]),
       /privacy consent document versions cannot be deleted/i,
     );
-    await client.query(
-      "UPDATE privacy_consent_documents SET revoked_at = now() WHERE id = $1",
-      [consentDocumentId],
-    );
-    await assert.rejects(
-      client.query(
-        "UPDATE privacy_consent_documents SET revoked_at = now() + interval '1 second' WHERE id = $1",
-        [consentDocumentId],
-      ),
-      /privacy consent document version is immutable/i,
-    );
     const consentEvent = await client.query(
       `INSERT INTO privacy_consent_events
         (document_id, subject_user_id, actor_user_id, event_type, choices)
@@ -99,6 +88,53 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       [consentDocumentId, actorId],
     );
     assert.equal(consentEvent.rows[0].capture_method, "authenticated_session");
+
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true}'::jsonb)`,
+        [consentDocumentId, actorId],
+      ),
+      /privacy consent choices do not match the approved document/i,
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $3, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)`,
+        [consentDocumentId, actorId, workerId],
+      ),
+      /authenticated-session consent actor must be the subject/i,
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices, previous_event_id)
+         VALUES ($1, $2, $2, 'withdrawn', '{}'::jsonb, $3)`,
+        [consentDocumentId, workerId, consentEvent.rows[0].id],
+      ),
+      /withdrawal must reference the latest active grant/i,
+    );
+
+    const withdrawalEvent = await client.query(
+      `INSERT INTO privacy_consent_events
+        (document_id, subject_user_id, actor_user_id, event_type, choices, previous_event_id)
+       VALUES ($1, $2, $2, 'withdrawn', '{}'::jsonb, $3)
+       RETURNING id, event_type`,
+      [consentDocumentId, actorId, consentEvent.rows[0].id],
+    );
+    assert.equal(withdrawalEvent.rows[0].event_type, "withdrawn");
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices, previous_event_id)
+         VALUES ($1, $2, $2, 'withdrawn', '{}'::jsonb, $3)`,
+        [consentDocumentId, actorId, consentEvent.rows[0].id],
+      ),
+      /withdrawal must reference the latest active grant/i,
+    );
+
     await assert.rejects(
       client.query(
         "UPDATE privacy_consent_events SET choices = '{}'::jsonb WHERE id = $1",
@@ -113,6 +149,21 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
     await assert.rejects(
       client.query("TRUNCATE privacy_consent_events"),
       /privacy consent events are append-only/i,
+    );
+    await client.query(
+      "UPDATE privacy_consent_documents SET revoked_at = now() WHERE id = $1",
+      [consentDocumentId],
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE privacy_consent_documents SET revoked_at = now() + interval '1 second' WHERE id = $1",
+        [consentDocumentId],
+      ),
+      /privacy consent document version is immutable/i,
+    );
+    await assert.rejects(
+      client.query("TRUNCATE privacy_consent_documents"),
+      /privacy consent document versions cannot be truncated/i,
     );
 
     const auditFixture = await client.query(
