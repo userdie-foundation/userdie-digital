@@ -32,7 +32,7 @@ CREATE TABLE privacy_consent_events (
   choices jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(choices) = 'object'),
   capture_method text NOT NULL DEFAULT 'authenticated_session' CHECK (capture_method = 'authenticated_session'),
   previous_event_id uuid REFERENCES privacy_consent_events(id) ON DELETE RESTRICT,
-  occurred_at timestamptz NOT NULL DEFAULT now(),
+  occurred_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   CHECK (
     (event_type = 'granted' AND previous_event_id IS NULL)
     OR (event_type = 'withdrawn' AND previous_event_id IS NOT NULL)
