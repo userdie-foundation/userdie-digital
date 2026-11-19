@@ -749,7 +749,7 @@ test("PostgreSQL applies migrations 001-020 and enforces workflow, authorization
          WHERE id = $1`,
         [analyticalDocumentId, firstVersionId],
       ),
-      /only the approved document version may be issued/i,
+      /only the (previously )?approved document version may be issued/i,
     );
 
     await client.query(
