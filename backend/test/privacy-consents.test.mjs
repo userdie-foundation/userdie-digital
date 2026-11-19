@@ -41,7 +41,7 @@ function createPool({ document = true, latestEvent = null } = {}) {
         return { rows: document ? [{
           id: "document-1", document_code: "aid_support", document_version: "2026-11-19.1",
           consent_type: "personal_data", purpose_code: "case_review",
-          document_sha256: "a".repeat(64),
+          document_sha256: "a".repeat(64), choice_keys: ["contact_by_email", "contact_by_phone"],
         }] : [] };
       }
       if (normalized.includes("FROM privacy_consent_events") && normalized.includes("ORDER BY")) {
