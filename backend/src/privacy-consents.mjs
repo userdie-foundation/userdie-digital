@@ -179,7 +179,8 @@ export async function handlePrivacyConsentRequest({
     const document = await client.query(
       `SELECT id, document_code, document_version, consent_type, purpose_code, document_sha256, choice_keys
        FROM privacy_consent_documents
-       WHERE document_code = $1 AND document_version = $2 AND revoked_at IS NULL
+       WHERE document_code = $1 AND document_version = $2
+         AND approved_at <= now() AND published_at <= now() AND revoked_at IS NULL
        LIMIT 1`,
       [body.documentCode, body.documentVersion],
     );
