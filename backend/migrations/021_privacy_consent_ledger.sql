@@ -120,7 +120,7 @@ CREATE TRIGGER privacy_consent_documents_no_truncate
 CREATE FUNCTION validate_privacy_consent_document_choices()
 RETURNS trigger
 LANGUAGE plpgsql
-AS $
+AS $func$
 DECLARE
   distinct_choice_count integer;
 BEGIN
@@ -141,7 +141,7 @@ BEGIN
 
   RETURN NEW;
 END;
-$;
+$func$;
 
 CREATE TRIGGER privacy_consent_documents_validate_choices
   BEFORE INSERT ON privacy_consent_documents
