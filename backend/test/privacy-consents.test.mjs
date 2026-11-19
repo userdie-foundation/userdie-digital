@@ -76,10 +76,14 @@ test("privacy consent routes expose only the explicitly supported methods", () =
   assert.equal(isPrivacyConsentMethodAllowed("POST", "/api/v1/privacy/consents/aid_support/2026-11-19.1/withdraw"), true);
 });
 
-test("privacy consent ledger is disabled by default and does not resolve a principal", async () => {
+test("privacy consent grants are disabled by default before authentication or database access", async () => {
   let resolved = false;
   await withHandler({ enabled: false, principalResolver: async () => { resolved = true; return principal; } }, async (base) => {
-    const response = await fetch(base + "/api/v1/privacy/consents");
+    const response = await fetch(base + "/api/v1/privacy/consents", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({}),
+    });
     assert.equal(response.status, 503);
     assert.deepEqual(await response.json(), { error: "privacy_consent_grants_disabled" });
   });
