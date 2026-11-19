@@ -32,7 +32,7 @@ test("privacy consent write route remains behind same-origin protection and disa
       body: JSON.stringify({}),
     });
     assert.equal(disabled.status, 503);
-    assert.deepEqual(await disabled.json(), { error: "privacy_consent_ledger_disabled" });
+    assert.deepEqual(await disabled.json(), { error: "privacy_consent_grants_disabled" });
   });
 });
 
