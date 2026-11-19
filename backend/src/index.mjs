@@ -66,6 +66,7 @@ const server = createHttpServer(createServer({
   pdfStorageDirectory: config.analyticalDocumentStorageDirectory,
   pdfFontRegularPath: config.pdfFontRegularPath,
   pdfFontBoldPath: config.pdfFontBoldPath,
+  privacyConsentLedgerEnabled: config.privacyConsentLedgerEnabled,
 }));
 
 server.listen(config.port, "0.0.0.0", () => {
