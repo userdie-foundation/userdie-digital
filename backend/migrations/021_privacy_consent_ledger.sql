@@ -5,7 +5,7 @@ BEGIN;
 CREATE TABLE privacy_consent_documents (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   document_code text NOT NULL CHECK (document_code ~ '^[a-z][a-z0-9_]{2,63}$'),
-  document_version text NOT NULL CHECK (document_version ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}\\.[0-9]+$'),
+  document_version text NOT NULL CHECK (document_version ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9]+$'),
   consent_type text NOT NULL CHECK (consent_type IN ('personal_data', 'special_category', 'dissemination')),
   purpose_code text NOT NULL CHECK (purpose_code ~ '^[a-z][a-z0-9_]{2,63}$'),
   document_sha256 char(64) NOT NULL CHECK (document_sha256 ~ '^[a-f0-9]{64}$'),
