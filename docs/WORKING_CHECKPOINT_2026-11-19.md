@@ -167,7 +167,7 @@
 
 ## Углублённый аудит реестра согласий — продолжение 19.11.2026
 
-- Последний подтверждённый рабочий head на момент этой записи: `f55d9986034a5a62ddfffb6c162b18bc5e217ca0` (последовательные изменения migration 021, PostgreSQL integration test и документации).
+- Кодовые изменения аудита: `58def4c` (DB-level guards), `c02630c` и `19c21c3` (PostgreSQL integration coverage). Документационные фиксации: `ac940fe`, `f55d998`, `2d80b26`.
 - В migration 021 усилена целостность на уровне PostgreSQL: субъект/actor, активная утверждённая версия, точные boolean choice keys, блокировка повторного активного grant, цепочка withdrawal, уникальность отзыва одного grant и защита каталога от TRUNCATE.
 - Integration test расширен негативными проверками на чужого actor/subject, несоответствие choice keys, повторный отзыв, отозванную версию, special_category и TRUNCATE.
 - Обновлены `docs/TECHNICAL_AUDIT_2026-11-19.md` и `docs/PRIVACY_CONSENT_REGISTRY_OPERATIONS_2026-11-19.md`: зафиксированы выводы, границы доказательности, требования к отдельной непривилегированной runtime-role и оставшиеся юридические/операционные gates.
