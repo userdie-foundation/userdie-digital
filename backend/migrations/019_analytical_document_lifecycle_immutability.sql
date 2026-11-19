@@ -32,6 +32,17 @@ BEGIN
     RAISE EXCEPTION 'issued analytical document facts are immutable';
   END IF;
 
+  IF (OLD.status <> 'draft' OR NEW.status <> 'draft') AND (
+    NEW.document_type IS DISTINCT FROM OLD.document_type
+    OR NEW.organizational_contour IS DISTINCT FROM OLD.organizational_contour
+    OR NEW.asset_reference IS DISTINCT FROM OLD.asset_reference
+    OR NEW.title IS DISTINCT FROM OLD.title
+    OR NEW.created_by IS DISTINCT FROM OLD.created_by
+    OR NEW.assigned_reviewer_id IS DISTINCT FROM OLD.assigned_reviewer_id
+  ) THEN
+    RAISE EXCEPTION 'analytical document identity is immutable after submission';
+  END IF;
+
   IF OLD.status = 'archived' AND NEW.archived_at IS DISTINCT FROM OLD.archived_at THEN
     RAISE EXCEPTION 'archived analytical document facts are immutable';
   END IF;
