@@ -74,6 +74,7 @@ BEGIN
     OR OLD.approved_by IS DISTINCT FROM NEW.approved_by
     OR OLD.approved_at IS DISTINCT FROM NEW.approved_at
     OR OLD.published_at IS DISTINCT FROM NEW.published_at
+    OR OLD.created_at IS DISTINCT FROM NEW.created_at
     OR (OLD.revoked_at IS NOT NULL AND OLD.revoked_at IS DISTINCT FROM NEW.revoked_at)
   THEN
     RAISE EXCEPTION 'privacy consent document version is immutable';
