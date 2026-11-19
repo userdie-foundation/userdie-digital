@@ -185,8 +185,8 @@ BEGIN
       OR document_row.revoked_at IS NOT NULL THEN
       RAISE EXCEPTION 'privacy consent document version is not active';
     END IF;
-    IF document_row.consent_type = 'special_category' THEN
-      RAISE EXCEPTION 'written consent capture is required for special-category data';
+    IF document_row.consent_type IN ('special_category', 'dissemination') THEN
+      RAISE EXCEPTION 'separate consent capture workflow is required for this consent type';
     END IF;
     IF latest_event_type = 'granted' THEN
       RAISE EXCEPTION 'active privacy consent already exists';
