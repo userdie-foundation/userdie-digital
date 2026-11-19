@@ -209,6 +209,7 @@ test("analytical document version creation is denied without valuation authority
     assert.equal(response.status, 403);
     assert.deepEqual(await response.json(), { error: "analytical_document_version_denied" });
   }, {
+    allowedOrigin: "https://platform.example",
     resolvePrincipal: async () => principal("worker-1", grant("case_worker")),
   });
   assert.equal(queries, 0);
