@@ -81,7 +81,7 @@ test("privacy consent ledger is disabled by default and does not resolve a princ
   await withHandler({ enabled: false, principalResolver: async () => { resolved = true; return principal; } }, async (base) => {
     const response = await fetch(base + "/api/v1/privacy/consents");
     assert.equal(response.status, 503);
-    assert.deepEqual(await response.json(), { error: "privacy_consent_ledger_disabled" });
+    assert.deepEqual(await response.json(), { error: "privacy_consent_grants_disabled" });
   });
   assert.equal(resolved, false);
 });
@@ -166,4 +166,43 @@ test("withdrawal appends a new event linked to the active grant", async () => {
   const withdrawal = pool.calls.find((call) => call.sql.startsWith("INSERT INTO privacy_consent_events"));
   assert.equal(withdrawal.params[2], "grant-1");
   assert.equal(pool.calls.some((call) => call.sql.includes("UPDATE privacy_consent_events")), false);
+});
+
+test("special-category consent is not accepted through the ordinary authenticated-session capture path", async () => {
+  const pool = createPool();
+  const client = await pool.connect();
+  const originalQuery = client.query.bind(client);
+  client.query = async (sql, params = []) => {
+    if (sql.includes("FROM privacy_consent_documents")) {
+      pool.calls.push({ sql: sql.trim(), params });
+      return { rows: [{
+        id: "document-1", document_code: "health_data", document_version: "2026-11-19.1",
+        consent_type: "special_category", purpose_code: "case_review",
+        document_sha256: "b".repeat(64), choice_keys: ["health_data_review"],
+      }] };
+    }
+    return originalQuery(sql, params);
+  };
+  await withHandler({ enabled: true, pool: { ...pool, async connect() { return client; } }, principalResolver: async () => principal }, async (base) => {
+    const response = await fetch(base + "/api/v1/privacy/consents", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        documentCode: "health_data",
+        documentVersion: "2026-11-19.1",
+        choices: { health_data_review: true },
+      }),
+    });
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: "written_consent_capture_not_configured" });
+  });
+});
+
+test("withdrawal remains available when new consent grants are disabled", async () => {
+  const pool = createPool({ latestEvent: { id: "grant-2", event_type: "granted", document_id: "document-1" } });
+  await withHandler({ enabled: false, pool, principalResolver: async () => principal }, async (base) => {
+    const response = await fetch(base + "/api/v1/privacy/consents/aid_support/withdraw", { method: "POST" });
+    assert.equal(response.status, 201);
+    assert.equal((await response.json()).event.event_type, "withdrawn");
+  });
 });
