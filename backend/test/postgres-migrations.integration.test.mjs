@@ -58,6 +58,18 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
     const [actorId, workerId, otherWorkerId] = users.rows.map((row) => row.id);
     await client.query("SELECT set_config('app.actor_id', $1, false)", [actorId]);
 
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_documents
+          (document_code, document_version, consent_type, purpose_code, document_sha256,
+           choice_keys, approved_by, approved_at, published_at)
+         VALUES ('invalid_choices', '2026-11-19.1', 'personal_data', 'case_review', $1,
+           ARRAY['contact_by_email', 'contact_by_email'], $2, now() - interval '2 minutes',
+           now() - interval '1 minute')`,
+        ["d".repeat(64), actorId],
+      ),
+      /privacy consent document choice keys must be unique and valid/i,
+    );
     const consentDocument = await client.query(
       `INSERT INTO privacy_consent_documents
         (document_code, document_version, consent_type, purpose_code, document_sha256,
