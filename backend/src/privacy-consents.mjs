@@ -76,8 +76,8 @@ export async function handlePrivacyConsentRequest({
     respond(res, 405, { error: "method_not_allowed" }, req.method);
     return true;
   }
-  if (!enabled) {
-    respond(res, 503, { error: "privacy_consent_ledger_disabled" }, req.method);
+  if (!enabled && req.method === "POST" && pathname === "/api/v1/privacy/consents") {
+    respond(res, 503, { error: "privacy_consent_grants_disabled" }, req.method);
     return true;
   }
 
