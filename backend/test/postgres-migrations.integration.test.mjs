@@ -17,7 +17,7 @@ const databaseUrl = process.env.PG_INTEGRATION_URL;
 test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, analytical-document, and privacy-consent invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
-  const pool = new Pool({ connectionString: databaseUrl, max: 1 });
+  const pool = new Pool({ connectionString: databaseUrl, max: 2 });
   const client = await pool.connect();
   const schema = `userdie_it_${randomUUID().replaceAll("-", "")}`;
 
@@ -52,10 +52,10 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
     }
 
     const users = await client.query(
-      "INSERT INTO app_users (email, display_name, account_status) VALUES ($1, 'Actor', 'active'), ($2, 'Worker', 'active'), ($3, 'Other worker', 'active') RETURNING id",
-      [`actor-${schema}@example.test`, `worker-${schema}@example.test`, `other-${schema}@example.test`],
+      "INSERT INTO app_users (email, display_name, account_status) VALUES ($1, 'Actor', 'active'), ($2, 'Worker', 'active'), ($3, 'Other worker', 'active'), ($4, 'Concurrent worker', 'active') RETURNING id",
+      [`actor-${schema}@example.test`, `worker-${schema}@example.test`, `other-${schema}@example.test`, `concurrent-worker-${schema}@example.test`],
     );
-    const [actorId, workerId, otherWorkerId] = users.rows.map((row) => row.id);
+    const [actorId, workerId, otherWorkerId, concurrentUserId] = users.rows.map((row) => row.id);
     await client.query("SELECT set_config('app.actor_id', $1, false)", [actorId]);
 
     await assert.rejects(
@@ -81,6 +81,41 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       ["a".repeat(64), actorId],
     );
     const consentDocumentId = consentDocument.rows[0].id;
+
+    // Independent sessions must serialize concurrent grants for the same
+    // subject/document; exactly one grant may become active.
+    const concurrentClient = await pool.connect();
+    try {
+      await concurrentClient.query(`SET search_path TO "${schema}"`);
+      const grantConcurrently = async (dbClient) => {
+        await dbClient.query("BEGIN");
+        try {
+          const inserted = await dbClient.query(
+            `INSERT INTO privacy_consent_events
+              (document_id, subject_user_id, actor_user_id, event_type, choices)
+             VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)
+             RETURNING id`,
+            [consentDocumentId, concurrentUserId],
+          );
+          await dbClient.query("COMMIT");
+          return inserted.rows[0].id;
+        } catch (error) {
+          await dbClient.query("ROLLBACK");
+          throw error;
+        }
+      };
+      const concurrentResults = await Promise.allSettled([
+        grantConcurrently(client),
+        grantConcurrently(concurrentClient),
+      ]);
+      assert.equal(concurrentResults.filter((result) => result.status === "fulfilled").length, 1);
+      assert.equal(concurrentResults.filter((result) => result.status === "rejected").length, 1);
+      const rejectedGrant = concurrentResults.find((result) => result.status === "rejected");
+      assert.match(rejectedGrant.reason.message, /active privacy consent already exists/i);
+    } finally {
+      concurrentClient.release();
+    }
+
     await assert.rejects(
       client.query("TRUNCATE privacy_consent_documents"),
       /privacy consent document versions cannot be truncated|cannot truncate a table referenced in a foreign key constraint/i,
