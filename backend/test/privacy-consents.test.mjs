@@ -34,8 +34,8 @@ function createPool({ document = true, latestEvent = null, consentType = "person
     async query(sql, params = []) {
       const normalized = sql.trim();
       calls.push({ sql: normalized, params });
-      if (normalized === "SELECT id FROM app_users WHERE id = $1 FOR UPDATE") {
-        return { rows: [{ id: params[0] }] };
+      if (normalized.startsWith("SELECT pg_advisory_xact_lock(")) {
+        return { rows: [] };
       }
       if (normalized.includes("FROM privacy_consent_documents")) {
         return { rows: document ? [{
@@ -112,6 +112,8 @@ test("consent grant uses the authenticated subject, a registered document versio
   assert.equal(audit.params[0], "subject-1");
   assert.equal(JSON.parse(audit.params[2]).documentSha256, "a".repeat(64));
   assert.equal(pool.calls.some((call) => call.sql.includes("UPDATE privacy_consent_events")), false);
+  assert.equal(pool.calls.some((call) => call.sql.includes("pg_advisory_xact_lock")), true);
+  assert.equal(pool.calls.some((call) => call.sql.includes("FOR UPDATE")), false);
 });
 
 test("consent grant rejects arbitrary payload fields and free-text data", async () => {
