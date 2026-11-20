@@ -67,6 +67,12 @@ RETURNS trigger
 LANGUAGE plpgsql
 AS $$
 BEGIN
+  -- Serialize document revocation with consent-event inserts without granting
+  -- the API runtime role row-update privileges on the document registry.
+  PERFORM pg_advisory_xact_lock(
+    hashtextextended('userdie:privacy-consent:document:' || OLD.id::text, 0)
+  );
+
   IF TG_OP = 'DELETE' THEN
     RAISE EXCEPTION 'privacy consent document versions cannot be deleted';
   END IF;
@@ -157,7 +163,11 @@ DECLARE
   latest_event_type text;
 BEGIN
   -- Serialize all consent changes for a subject, including direct SQL writes.
-  PERFORM 1 FROM app_users WHERE id = NEW.subject_user_id FOR UPDATE;
+  -- Transaction advisory locks avoid requiring UPDATE privileges on app_users.
+  PERFORM pg_advisory_xact_lock(
+    hashtextextended('userdie:privacy-consent:subject:' || NEW.subject_user_id::text, 0)
+  );
+  PERFORM 1 FROM app_users WHERE id = NEW.subject_user_id;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'privacy consent subject does not exist';
   END IF;
@@ -170,10 +180,14 @@ BEGIN
     RAISE EXCEPTION 'unsupported privacy consent capture method';
   END IF;
 
+  -- Coordinate grants/withdrawals with one-time document revocation. The
+  -- document trigger takes this same lock before changing revoked_at.
+  PERFORM pg_advisory_xact_lock(
+    hashtextextended('userdie:privacy-consent:document:' || NEW.document_id::text, 0)
+  );
   SELECT * INTO document_row
   FROM privacy_consent_documents
-  WHERE id = NEW.document_id
-  FOR SHARE;
+  WHERE id = NEW.document_id;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'privacy consent document version does not exist';
