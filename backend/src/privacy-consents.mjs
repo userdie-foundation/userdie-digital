@@ -115,7 +115,10 @@ export async function handlePrivacyConsentRequest({
       if (typeof pool.connect !== "function") throw new TypeError("transaction support required");
       client = await pool.connect();
       await client.query("BEGIN");
-      await client.query("SELECT id FROM app_users WHERE id = $1 FOR UPDATE", [subject.id]);
+      await client.query(
+        "SELECT pg_advisory_xact_lock(hashtextextended('userdie:privacy-consent:subject:' || $1::text, 0))",
+        [subject.id],
+      );
       const latest = await client.query(
         `SELECT e.id, e.event_type, d.id AS document_id
          FROM privacy_consent_events e
