@@ -99,7 +99,7 @@ Choose a hosting region/provider and an acceptable monthly staging budget. Compa
 - The command requires both `MIGRATIONS_ALLOW_APPLY=true` and `MIGRATIONS_DATABASE_URL`. It is not called from API startup or the Docker image command.
 - Use the migration-owner credential only for the CLI. Use a separate non-owner credential for the API process.
 - Initial supported target is a new empty staging database. Existing databases with manually applied migrations require a reviewed baseline/reconciliation plan; do not run this CLI against them.
-- Unit tests validate migration wrapper parsing and the migration sequence through version 020. PostgreSQL CI integration remains separate; no staging database has been provisioned or migrated.
+- Unit tests validate migration wrapper parsing and the migration sequence through version 021. The Backend checks workflow also runs the PostgreSQL integration suite against its disposable PostgreSQL 16 service by setting `PG_INTEGRATION_URL` for `npm test`; this CI database is not a hosted staging database, and no staging database has been provisioned or migrated.
 
 ## Lifecycle and PDF provenance hardening — 2026-11-19
 
@@ -107,7 +107,7 @@ Choose a hosting region/provider and an acceptable monthly staging budget. Compa
 - Approved reviewer, timestamp and exact approved version cannot be rewritten after approval. Issued version, registration number and issue timestamp cannot be rewritten after issuance. Direct SQL attempts to roll an issued document back to draft or replace its approved/issued version are rejected.
 - Migration 020 makes PDF artifact metadata append-only, blocking UPDATE, DELETE and TRUNCATE.
 - PostgreSQL integration coverage now probes approved/issued version mutation, illegal rollback, and artifact metadata mutation/deletion/truncation using synthetic data.
-- These migrations are source changes on PR #29; they are not applied to any live or staging database. The PostgreSQL integration test is conditional on `PG_INTEGRATION_URL`; a passing unit/CI run without that secret does not prove the live PostgreSQL integration executed.
+- These migrations are source changes on PR #29; they are not applied to any live or staging database. The PostgreSQL integration test is conditional on `PG_INTEGRATION_URL`; the Backend checks workflow supplies it from its disposable PostgreSQL 16 service. A passing unit-only run without that variable does not prove PostgreSQL integration executed. The CI service is not a live or hosted staging database.
 
 - Migration 019 additionally freezes document identity fields (type, contour, asset reference, title, author and assigned reviewer) once submission begins. This prevents the issued PDF title/metadata from diverging from the reviewed document record.
 - CI regression coverage includes attempts to mutate the issued title after issuance.
