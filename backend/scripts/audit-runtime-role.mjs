@@ -60,9 +60,9 @@ export function evaluateRuntimeRoleAudit({ role, memberships, schema, tables, tr
   );
   for (const triggerName of REQUIRED_TRIGGERS) {
     addFinding(findings, enabledTriggers.has(triggerName), `Required protection trigger is missing or disabled: ${triggerName}.`);
+  }
   for (const trigger of triggers) {
     addFinding(findings, trigger.function_owner !== role.rolname, `Runtime role owns protection function for trigger: ${trigger.trigger_name}.`);
-  }
   }
   for (const grant of defaultGrants) {
     addFinding(findings, false, `Runtime role receives a default privilege on future objects: ${grant.object_type} in ${grant.schema_name ?? "all schemas"}.`);
