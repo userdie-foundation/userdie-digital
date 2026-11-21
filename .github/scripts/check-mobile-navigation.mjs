@@ -161,3 +161,14 @@ assert.ok(cascadeSafeRailSelector.includes(":not([hidden])"),
   "the mobile link override must retain its specificity safeguard");
 
 console.log("Workspace mobile rail checks passed: horizontal scrolling, single-row layout, compact visible external links, and inline-style cascade safeguard.");
+
+
+// Partner page mobile contrast safeguards: opaque sticky header and dark footer.
+assert.match(workspaceCss, /body\.partner-page \.header\s*\{[^}]*background:#f3f0e7!important;[^}]*backdrop-filter:none!important;/s,
+  "partner page mobile header must be opaque to prevent content bleeding through");
+assert.match(workspaceCss, /body\.partner-page footer\.footer\s*\{[^}]*background:#173f32!important;[^}]*color:#f3f0e7!important;/s,
+  "partner page footer must retain its dark surface and readable base text");
+assert.match(workspaceCss, /body\.partner-page footer\.footer \.brand small,[\s\S]*?body\.partner-page footer\.footer p\s*\{[^}]*color:#d7dfd7!important;[^}]*opacity:1!important;/,
+  "partner page footer secondary text must remain readable at full opacity");
+
+console.log("Partner page mobile contrast checks passed: opaque header and readable dark footer.");
