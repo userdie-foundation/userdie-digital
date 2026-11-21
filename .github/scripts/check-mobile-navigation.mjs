@@ -172,3 +172,39 @@ assert.match(workspaceCss, /body\.partner-page footer\.footer \.brand small,[\s\
   "partner page footer secondary text must remain readable at full opacity");
 
 console.log("Partner page mobile contrast checks passed: opaque header and readable dark footer.");
+
+
+// Verify the actual pages load the stylesheet layers covered by the contrast fix.
+const homepageHtml = fs.readFileSync("website/index.html", "utf8");
+const homepageBaseCss = fs.readFileSync("website/styles.css", "utf8");
+const homepagePolishCss = fs.readFileSync("website/homepage-polish.css", "utf8");
+const partnerHtml = fs.readFileSync("website/prototype/partner-space.html", "utf8");
+const partnerRefinementCss = fs.readFileSync("website/prototype/cabinet-refinement.css", "utf8");
+
+const homepageBaseLink = homepageHtml.indexOf('href="styles.css"');
+const homepageRefinementLink = homepageHtml.indexOf('href="homepage-refinement.css"');
+const homepagePolishLink = homepageHtml.indexOf('href="homepage-polish.css"');
+assert.ok(homepageBaseLink >= 0 && homepageRefinementLink > homepageBaseLink && homepagePolishLink > homepageRefinementLink,
+  "homepage stylesheet load order must be checked before relying on base and later refinement rules");
+assert.match(homepageHtml, /<div class="robot-panel"[\s\S]*?<article class="robot-item">[\s\S]*?<strong>[\s\S]*?<p>/,
+  "homepage assistant cards must retain their semantic heading and description markup");
+assert.match(homepageBaseCss, /body \.robot-panel \.robot-item strong\s*\{\s*color:#26372c!important;\s*\}/,
+  "homepage light assistant cards must override inherited white headings with accessible dark text");
+assert.match(homepageBaseCss, /body \.robot-panel \.robot-item p\s*\{\s*color:#59685d!important;\s*\}/,
+  "homepage light assistant cards must override inherited pale descriptions with accessible dark text");
+assert.ok(homepagePolishCss.includes(".robot-panel .robot-item") === false,
+  "later homepage polish must not silently introduce an unreviewed assistant-card text override");
+
+const partnerBaseLink = partnerHtml.indexOf('href="styles.css"');
+const partnerRefinementLink = partnerHtml.indexOf('href="cabinet-refinement.css"');
+assert.ok(partnerBaseLink >= 0 && partnerRefinementLink > partnerBaseLink,
+  "partner page must load its refinement stylesheet after the shared prototype stylesheet");
+assert.match(partnerHtml, /<body class="[^"]*partner-page/);
+assert.match(partnerRefinementCss, /\.partner-page \.footer\{background:#173f32;color:#f3f0e7\}/,
+  "partner refinement must preserve the dark footer surface");
+assert.match(workspaceCss, /body\.partner-page footer\.footer\s*\{\s*background:#173f32!important;\s*color:#f3f0e7!important;/,
+  "the partner-page footer override must outrank later shared footer rules");
+assert.match(workspaceCss, /body\.partner-page \.header\s*\{\s*background:#f3f0e7!important;/,
+  "the partner-page sticky header must use a fully opaque surface");
+
+console.log("Page-level contrast checks passed: homepage stylesheet order and assistant card text, partner header and footer cascade.");
