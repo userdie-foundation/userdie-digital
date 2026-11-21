@@ -130,3 +130,34 @@ for (const page of publicPages) {
 }
 
 console.log("Mobile navigation checks passed on all 5 sitemap pages: markup, aria-controls, open/close, Escape, focus restore, link close, and responsive transitions.");
+
+// The workspace module rail is a separate navigation surface from the public
+// hamburger menu above. Guard its mobile CSS contract independently.
+const workspaceHtml = fs.readFileSync("website/prototype/workspace.html", "utf8");
+const workspaceCss = fs.readFileSync("website/prototype/styles.css", "utf8");
+const inlineRailSelector = "body.workspace .app-sidebar .app-nav a.app-nav-link";
+const cascadeSafeRailSelector = "body.workspace .app-sidebar .app-nav a.app-nav-link:not([hidden])";
+
+assert.match(workspaceHtml, /<body[^>]*class=["'][^"']*\bworkspace\b/i,
+  "workspace page must expose the workspace body scope");
+assert.match(workspaceHtml, /\.app-nav\s*\{[^}]*display:grid/s,
+  "workspace markup must retain its navigation container");
+assert.ok(workspaceHtml.includes(inlineRailSelector),
+  "workspace inline styles must be checked for the known external-link override");
+assert.ok(workspaceCss.includes(cascadeSafeRailSelector),
+  "external CSS must include the cascade-safe selector for visible module links");
+
+const railContainerRule = /body\.workspace \.app-sidebar \.app-nav\s*\{[^}]*display:\s*flex\s*!important;[^}]*flex-wrap:\s*nowrap\s*!important;[^}]*overflow-x:\s*auto\s*!important;/s;
+assert.match(workspaceCss, railContainerRule,
+  "mobile module navigation must remain a horizontally scrollable, single-row rail");
+
+const railLinkRule = /body\.workspace \.app-sidebar \.app-nav a\.app-nav-link:not\(\[hidden\]\)\s*\{[^}]*display:inline-flex!important;[^}]*flex:0 0 auto!important;[^}]*width:auto!important;[^}]*min-width:max-content!important;[^}]*white-space:nowrap!important;/s;
+assert.match(workspaceCss, railLinkRule,
+  "visible external module links must retain compact, non-wrapping rail sizing");
+
+// :not([hidden]) contributes the [hidden] attribute to selector specificity,
+// allowing the external stylesheet to beat the later inline-style rule.
+assert.ok(cascadeSafeRailSelector.includes(":not([hidden])"),
+  "the mobile link override must retain its specificity safeguard");
+
+console.log("Workspace mobile rail checks passed: horizontal scrolling, single-row layout, compact visible external links, and inline-style cascade safeguard.");
