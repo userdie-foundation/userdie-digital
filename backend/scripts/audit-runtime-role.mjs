@@ -88,8 +88,9 @@ async function main() {
   }
 
   const pool = new Pool({ connectionString, max: 1, connectionTimeoutMillis: 5000, idleTimeoutMillis: 5000 });
-  const client = await pool.connect();
+  let client;
   try {
+    client = await pool.connect();
     await client.query("BEGIN READ ONLY");
     const roleResult = await client.query(
       `SELECT oid, rolname, rolsuper, rolinherit, rolcreaterole, rolcreatedb,
@@ -194,7 +195,7 @@ async function main() {
     process.stderr.write("Runtime-role acceptance: ERROR. Audit query failed; inspect database availability and read-only audit permissions. Details suppressed.\n");
     process.exitCode = 1;
   } finally {
-    client.release();
+    client?.release();
     await pool.end();
   }
 }
