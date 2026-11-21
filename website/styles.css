@@ -1399,3 +1399,25 @@ body:has(> .header .brand[href="#top"]) #workspace .robot-status{
     font-size:14px;line-height:1.6;
   }
 }
+
+
+/* Correct the actual public homepage assistant cards (.robot-panel > .robot-grid
+   > .robot-item). These cards are light surfaces inside a dark green panel. */
+body .robot-panel .robot-item{color:#26372c!important;background:#fffefa!important}
+body .robot-panel .robot-item strong{color:#26372c!important}
+body .robot-panel .robot-item p{color:#59685d!important}
+body .robot-panel .robot-item>span{color:#87977d!important}
+body .robot-panel .robot-status{color:#52665a!important;background:#fff!important}
+body .robot-panel .robot-disclaimer{color:#e0e9e1!important}
+@media(max-width:760px){
+  body .robot-panel{width:100%;max-width:100%;min-width:0;padding:20px 14px!important}
+  body .robot-panel .robot-heading{min-width:0;max-width:100%;flex-wrap:wrap}
+  body .robot-panel .robot-heading h3{font-size:clamp(23px,6vw,30px)!important;line-height:1.2!important;overflow-wrap:anywhere}
+  body .robot-panel .robot-status{max-width:100%;white-space:normal;line-height:1.35}
+  body .robot-panel .robot-grid{grid-template-columns:minmax(0,1fr)!important;min-width:0}
+  body .robot-panel .robot-item{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;min-width:0;padding:17px 14px!important}
+  body .robot-panel .robot-item>div{min-width:0}
+  body .robot-panel .robot-item strong{display:block;font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+  body .robot-panel .robot-item p{margin:7px 0 0;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+  body .robot-panel .robot-disclaimer{font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+}
