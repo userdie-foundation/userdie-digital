@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#173f32">
+<meta name="description" content="Публичный статус USERDIE DIGITAL: готовность модулей, этапы разработки, ограничения интеграций и принципы безопасного запуска.">
+<title>Статус платформы | USERDIE DIGITAL</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.status-shell{max-width:1180px;margin:auto;padding:34px 22px 76px}
+.status-crumb{font-size:12px;color:#6d796e;margin-bottom:22px}
+.status-hero{background:#173f32;color:#f8f6ef;padding:clamp(25px,5vw,48px);border-radius:12px;margin-bottom:20px}
+.status-hero .eyebrow{color:#d4dfc5;letter-spacing:.14em;font-size:11px;font-weight:800}
+.status-hero h1{font-size:clamp(34px,5vw,58px);line-height:1.05;max-width:850px;margin:16px 0}
+.status-hero h1 em{color:#dce9b7;font-family:Georgia,serif;font-weight:400}
+.status-hero p{max-width:800px;color:#e0e8df;line-height:1.8;font-size:14px;margin:0}
+.status-note{padding:16px 18px;background:#f5f0e3;border:1px solid #e3d8bc;border-left:4px solid #b99a55;border-radius:5px;color:#5d594d;font-size:13px;line-height:1.75;margin-bottom:24px}
+.status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.status-card{background:#fbfaf6;border:1px solid #dce1d6;border-radius:8px;padding:21px;min-width:0}
+.status-card h2{font-size:18px;color:#20372b;margin:0 0 9px}
+.status-card p{font-size:13px;line-height:1.7;color:#65736b;margin:0 0 14px}
+.status-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.status-label{display:inline-flex;padding:6px 9px;border-radius:3px;background:#edf1e5;color:#536b48;font-size:10px;font-weight:800;letter-spacing:.04em}
+.status-label.dev{background:#f5efdf;color:#856b3d}
+.status-label.off{background:#eceeea;color:#667168}
+.status-card a,.status-back a{color:#315b42;font-weight:750;text-decoration:underline;text-underline-offset:3px;font-size:12px}
+.status-card ul{padding-left:18px;margin:10px 0 15px;color:#65736b;font-size:12px;line-height:1.8}
+.status-section-title{font-size:24px;color:#20372b;margin:32px 0 14px}
+.status-principles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.status-principle{padding:17px;background:#e9eee3;border:1px solid #d9e2d2;border-radius:6px}
+.status-principle strong{display:block;color:#294a35;font-size:13px;margin-bottom:6px}
+.status-principle span{display:block;color:#65736b;font-size:12px;line-height:1.65}
+.status-back{margin-top:26px;padding:20px;border:1px solid #dce1d6;border-radius:8px;background:#fbfaf6}
+.status-back p{font-size:13px;color:#65736b;line-height:1.7;margin:0 0 12px}
+@media(max-width:760px){.status-grid{grid-template-columns:1fr}.status-principles{grid-template-columns:1fr}.status-shell{padding:22px 14px 52px}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+<header class="header"><div class="container header-inner">
+<a class="brand" href="../index.html" aria-label="УСЕРДИЕ — главная"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a>
+<nav aria-label="Навигация"><a href="platform.html">Платформа</a><a href="workspace.html">Рабочее пространство</a><a href="platform-status.html" aria-current="page">Статус платформы</a></nav>
+<a class="button button-dark header-cta" href="platform.html">К карте платформы ↗</a>
+</div></header>
+<main id="main" class="status-shell">
+<div class="status-crumb"><a href="platform.html">USERDIE DIGITAL</a> / Прозрачность / Статус платформы</div>
+<section class="status-hero">
+<p class="eyebrow">USERDIE DIGITAL · PUBLIC DELIVERY STATUS</p>
+<h1>Развитие платформы — <em>по проверяемым шагам.</em></h1>
+<p>На этой странице отражено фактическое состояние основных цифровых контуров. Публикация интерфейса не означает, что за ним уже работают серверная интеграция, реальные данные или производственный процесс.</p>
+</section>
+<div class="status-note" role="note"><strong>Важное разграничение.</strong> Публичный сайт доступен. Ряд внутренних экранов представлен демонстрационными прототипами. Защищённый API, промышленная база данных, реальные кабинеты заявителей и сбор согласий не считаются запущенными, пока не завершены техническая, правовая и эксплуатационная приёмка.</div>
+<h2 class="status-section-title">Состояние функциональных контуров</h2>
+<section class="status-grid" aria-label="Статус функциональных контуров">
+<article class="status-card">
+<div class="status-meta"><span class="status-label">ПУБЛИЧНЫЙ САЙТ</span><span class="status-label">ДОСТУПЕН</span></div>
+<h2>Публичная платформа фонда</h2>
+<p>Информационные страницы, карта платформы и опубликованные правовые материалы доступны посетителям.</p>
+<ul><li>Публичная навигация и информационные разделы</li><li>Публикация проходит через GitHub Pages</li></ul>
+<a href="../index.html">Открыть сайт фонда ↗</a>
+</article>
+<article class="status-card">
+<div class="status-meta"><span class="status-label dev">ПРОТОТИП</span><span class="status-label">ДЕМО-ДАННЫЕ</span></div>
+<h2>Рабочее пространство и обращения</h2>
+<p>Интерфейсы задач, обращений и внутренних ролей развиваются как прототипы. Их наличие не подтверждает приём и обработку реальных обращений.</p>
+<ul><li>Реальные пользовательские кабинеты не введены в эксплуатацию</li><li>Демо-записи не являются сведениями фонда</li></ul>
+<a href="workspace.html">Открыть демонстрационное пространство ↗</a>
+</article>
+<article class="status-card">
+<div class="status-meta"><span class="status-label dev">РАЗРАБОТКА</span><span class="status-label">НЕ В PRODUCTION</span></div>
+<h2>Центр оценки активов</h2>
+<p>Развивается защищённый документооборот оценки: версии материалов, независимое рассмотрение, выпуск отчётов и контроль доступа.</p>
+<ul><li>Изменения ведутся в отдельной ветке и PR №29</li><li>Интеграция с рабочей БД и эксплуатационная приёмка не подтверждены</li></ul>
+<a href="assets-and-intellectual-capital.html">Открыть описание контура ↗</a>
+</article>
+<article class="status-card">
+<div class="status-meta"><span class="status-label dev">ПРОЕКТИРОВАНИЕ</span><span class="status-label off">LIVE API НЕ ПОДКЛЮЧЁН</span></div>
+<h2>Аналитический центр</h2>
+<p>Панель руководителя пока показывает условную выборку. Серверная аналитическая витрина, словарь KPI и правила защиты малых групп требуют отдельной приёмки.</p>
+<ul><li>Демо-показатели не являются отчётностью фонда</li><li>Доступ аналитика и границы агрегирования требуют утверждения</li></ul>
+<a href="analytics-dashboard.html">Открыть демонстрационную панель ↗</a>
+</article>
+<article class="status-card">
+<div class="status-meta"><span class="status-label dev">ТЕХНИЧЕСКАЯ ПОДГОТОВКА</span><span class="status-label off">СБОР ВЫКЛЮЧЕН</span></div>
+<h2>Реестр согласий и правовые процессы</h2>
+<p>Техническая модель реестра согласий подготовлена к дальнейшей проверке. Реальный сбор согласий и применение миграции к рабочей базе не включены.</p>
+<ul><li>Флаг включения остаётся выключенным</li><li>Специальные категории и распространение требуют отдельных законных процедур</li></ul>
+<a href="legal-intelligence.html">Правовая информация ↗</a>
+</article>
+<article class="status-card">
+<div class="status-meta"><span class="status-label">ПРИНЦИП</span><span class="status-label">ПОСТОЯННО</span></div>
+<h2>Безопасность и доступность</h2>
+<p>Разработка учитывает минимизацию данных, разграничение доступа, аудит действий, адаптивность и доступность интерфейса.</p>
+<ul><li>Проверки кода не заменяют проверку рабочей инфраструктуры</li><li>Ручная приёмка на мобильных устройствах остаётся отдельным этапом</li></ul>
+<a href="implementation-plan.html">Критерии реализации ↗</a>
+</article>
+</section>
+<h2 class="status-section-title">Правила публикации и запуска</h2>
+<section class="status-principles" aria-label="Принципы запуска">
+<div class="status-principle"><strong>Проверяемость</strong><span>Каждый статус должен опираться на опубликованный код, результат проверки или подтверждённую эксплуатационную процедуру.</span></div>
+<div class="status-principle"><strong>Защита данных</strong><span>Демонстрационные интерфейсы не подключаются к реальным данным без правовых оснований и модели доступа.</span></div>
+<div class="status-principle"><strong>Контроль изменений</strong><span>Изменения проходят проверку. Незавершённая разработка не объявляется промышленным запуском.</span></div>
+</section>
+<div class="status-back"><p><strong>Дата актуальности:</strong> 21 ноября 2026 года. Статусы отражают состояние репозитория и проектной документации на указанную дату; доступность отдельного экрана не подтверждает готовность связанной серверной функции.</p><a href="platform.html">Вернуться к карте платформы ↗</a></div>
+</main>
+<footer class="footer"><div class="container footer-inner"><a class="brand brand-footer" href="../index.html"><span class="brand-emblem"><img src="../assets/fund-emblem.svg" alt="" aria-hidden="true"></span><span><strong>УСЕРДИЕ</strong><small>USERDIE DIGITAL</small></span></a><p>Развитие платформы — по проверяемым шагам</p><a href="platform.html">Карта платформы ↗</a></div></footer>
+</body>
+</html>
