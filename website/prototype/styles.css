@@ -556,3 +556,85 @@ h3{letter-spacing:-.025em}
  .lead{font-size:1rem}
  .photo-story-card figcaption{right:16px;bottom:15px;left:16px}
 }
+
+
+/* PUBLIC RELEASE 1.0 — prototype workspace mobile readability hotfix.
+   Layout only; no page copy, program descriptions or status claims are changed. */
+@media(max-width:760px){
+  html,body{width:100%;max-width:100%;overflow-x:clip!important}
+  body.workspace{font-size:14px}
+  body.workspace .app-shell{display:grid;grid-template-columns:minmax(0,1fr)!important;width:100%;max-width:100%;min-width:0}
+  body.workspace .app-sidebar{position:relative!important;top:auto!important;height:auto!important;max-height:none!important;overflow:visible!important}
+  body.workspace .app-main{width:100%;max-width:100%;min-width:0;padding:18px 14px!important}
+  body.workspace .page-view,body.workspace .panel,body.workspace .workspace-notice,
+  body.workspace .external-service-notice{width:100%;max-width:100%;min-width:0}
+  body.workspace .page-view h1{max-width:100%;font-size:clamp(29px,7.6vw,42px)!important;line-height:1.12!important;letter-spacing:-.035em!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  body.workspace .page-view h2{max-width:100%;font-size:clamp(23px,6vw,31px)!important;line-height:1.18!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  body.workspace .page-view p,body.workspace .page-view li{max-width:100%;font-size:14px!important;line-height:1.65!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  /* Preserve the established horizontally scrollable module rail on phones.
+     Its more-specific selectors are defined above and intentionally take priority. */
+  body.workspace .workspace-notice,body.workspace .external-service-notice{padding:14px!important;font-size:13px!important;line-height:1.6!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  body.workspace .workspace-notice strong,body.workspace .external-service-notice strong{display:block;max-width:100%;font-size:16px!important;line-height:1.3!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  body.workspace .workspace-notice p,body.workspace .external-service-notice p{display:block;max-width:100%;font-size:13px!important;line-height:1.6!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  body.workspace .metrics-grid,body.workspace .module-grid,body.workspace .content-grid{grid-template-columns:minmax(0,1fr)!important}
+  body.workspace .panel,body.workspace .metric-card{min-width:0;max-width:100%;height:auto}
+  body.workspace table{display:block;width:100%;overflow-x:auto}
+}
+@media(max-width:420px){
+  body.workspace .app-main{padding-inline:12px!important}
+  body.workspace .app-nav{grid-template-columns:minmax(0,1fr)!important}
+}
+
+/* Keep external workspace links in the same compact horizontal mobile rail.
+   workspace.html has a later, more-specific inline rule for these anchors;
+   this selector deliberately outranks it without changing the HTML. */
+@media(max-width:720px){
+  body.workspace .app-sidebar .app-nav a.app-nav-link:not([hidden]){
+    display:inline-flex!important;
+    flex:0 0 auto!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:7px!important;
+    width:auto!important;
+    min-width:max-content!important;
+    min-height:38px!important;
+    padding:6px 11px!important;
+    border:1px solid #dce1d6!important;
+    border-radius:999px!important;
+    background:#fffefa!important;
+    color:#526457!important;
+    font:600 11px/1.2 'DM Sans',sans-serif!important;
+    text-align:left!important;
+    white-space:nowrap!important;
+    overflow-wrap:normal!important;
+  }
+  body.workspace .app-sidebar .app-nav a.app-nav-link:not([hidden]) .nav-ico{
+    flex:0 0 21px!important;
+    width:21px!important;
+    height:21px!important;
+  }
+}
+
+
+/* Public mobile review: partner-page header and footer contrast.
+   Keep the sticky header opaque so page content cannot show through it.
+   The partner footer is a dark surface and must not inherit pale-surface text colors. */
+body.partner-page .header{
+  background:#f3f0e7!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+body.partner-page footer.footer{
+  background:#173f32!important;
+  color:#f3f0e7!important;
+}
+body.partner-page footer.footer .brand strong,
+body.partner-page footer.footer a{
+  color:#fbfaf6!important;
+}
+body.partner-page footer.footer .brand small,
+body.partner-page footer.footer p{
+  color:#d7dfd7!important;
+  opacity:1!important;
+}

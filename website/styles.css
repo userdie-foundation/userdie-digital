@@ -1299,3 +1299,125 @@ img,svg,video,canvas{max-width:100%}
 .external-service-notice p{margin:0}
 .external-service-notice a{color:#315b40;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:600px){.external-service-notice{padding:14px;font-size:11px}}
+
+
+/* PUBLIC RELEASE 1.0 — responsive readability hotfix.
+   Layout and contrast only. Approved editorial copy is intentionally untouched. */
+:where(*,*::before,*::after){box-sizing:border-box}
+:where(img,svg,video,canvas,iframe){max-width:100%}
+:where(main,section,article,aside,header,footer,nav,.container,.header-inner,
+       .hero-layout,.hero-copy,.hero-visual,.content-grid,.module-grid,
+       .direction-grid,.quick-help-grid,.foundation-pillars,.metrics-grid,
+       .panel,.section-heading){min-width:0}
+:where(h1,h2,h3,h4,p,li,a,strong,label,figcaption,td,th){
+  overflow-wrap:break-word;word-wrap:break-word
+}
+:where(h1,h2,h3,h4){max-width:100%;white-space:normal}
+html,body{max-width:100%;overflow-x:clip}
+img,video,iframe{height:auto}
+:where(input,select,textarea){min-width:0;max-width:100%}
+pre,pre code{max-width:100%;overflow-x:auto}
+@media(max-width:760px){
+  body{font-size:16px}
+  .container{width:calc(100% - 32px);max-width:100%;margin-inline:auto}
+  :where(main,section,article,aside,.header-inner,.hero-layout,.hero-copy,
+         .hero-visual,.content-grid,.panel,.section-heading){
+    max-width:100%;min-width:0
+  }
+  .header-inner{flex-wrap:wrap;gap:12px}
+  :where(.header-inner nav,.primary-navigation){
+    display:flex;flex-wrap:wrap;gap:8px;max-width:100%;min-width:0;
+    overflow:visible!important
+  }
+  :where(.header-inner nav a,.primary-navigation a){
+    max-width:100%;white-space:normal;line-height:1.35
+  }
+  :where(h1){font-size:clamp(29px,7.6vw,42px)!important;line-height:1.12!important;letter-spacing:-.035em}
+  :where(h2){font-size:clamp(23px,6vw,32px);line-height:1.18}
+  :where(p,li){font-size:16px;line-height:1.65}
+  :where(.hero-layout,.content-grid,.module-grid,.direction-grid,.quick-help-grid,
+         .foundation-pillars,.transparency-grid,.prototype-directory-grid){
+    grid-template-columns:minmax(0,1fr)!important
+  }
+  :where(.direction-card,.quick-help-card,.platform-status-card,.module-card,
+         .robot-card,.metric-card,.panel,.prototype-directory-grid a){
+    min-width:0;max-width:100%;height:auto;min-height:0
+  }
+  :where(.direction-card p,.quick-help-card p,.platform-status-card p,
+         .module-card p,.robot-card p){
+    min-height:0;height:auto;max-height:none;white-space:normal;
+    overflow:visible;text-overflow:clip
+  }
+  :where(button,.button,.app-button,.header-cta,input[type=submit]){
+    min-height:44px;max-width:100%;white-space:normal;line-height:1.35
+  }
+  :where(input,select,textarea){width:100%;font-size:16px}
+  table{display:block;width:100%;overflow-x:auto}
+  .hero-copy h1{max-width:100%;font-size:clamp(32px,8vw,46px)!important}
+  .hero-visual{max-width:100%;min-width:0}
+  .footer-inner{flex-wrap:wrap;gap:14px}
+}
+@media(max-width:420px){
+  .container{width:calc(100% - 28px)}
+  :where(.header-inner nav a,.primary-navigation a){font-size:13px}
+  :where(.direction-card,.quick-help-card,.platform-status-card,.module-card,.robot-card){padding:17px}
+}
+/* Light cards always use a readable dark text palette. */
+:where(.robot-card,.direction-card,.quick-help-card,.platform-status-card,
+       .module-card,.metric-card,.panel,.prototype-directory-grid a){
+  color:#263b30
+}
+:where(.robot-card h2,.direction-card h3,.quick-help-card h3,
+       .platform-status-card h3,.module-card h3){color:#214735}
+:where(.robot-card p,.direction-card p,.quick-help-card p,
+       .platform-status-card p,.module-card p){color:#596b60}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
+
+
+/* Contrast hotfix for the white robot cards inside the dark green home panel.
+   The card surface is intentionally light; its text must not inherit panel white. */
+body:has(> .header .brand[href="#top"]) #workspace .robot-item,
+body:has(> .header .brand[href="#top"]) #workspace .robot-item strong{
+  color:#26372c!important;
+}
+body:has(> .header .brand[href="#top"]) #workspace .robot-item p{
+  color:#59685d!important;
+}
+body:has(> .header .brand[href="#top"]) #workspace .robot-status{
+  color:#52665a!important;background:#fff!important;
+}
+@media(max-width:680px){
+  body:has(> .header .brand[href="#top"]) #workspace .robot-item{
+    align-items:flex-start;min-width:0;overflow-wrap:anywhere;
+  }
+  body:has(> .header .brand[href="#top"]) #workspace .robot-item strong{
+    font-size:15px;line-height:1.35;
+  }
+  body:has(> .header .brand[href="#top"]) #workspace .robot-item p{
+    font-size:14px;line-height:1.6;
+  }
+}
+
+
+/* Correct the actual public homepage assistant cards (.robot-panel > .robot-grid
+   > .robot-item). These cards are light surfaces inside a dark green panel. */
+body .robot-panel .robot-item{color:#26372c!important;background:#fffefa!important}
+body .robot-panel .robot-item strong{color:#26372c!important}
+body .robot-panel .robot-item p{color:#59685d!important}
+body .robot-panel .robot-item>span{color:#59685d!important}
+body .robot-panel .robot-status{color:#52665a!important;background:#fff!important}
+body .robot-panel .robot-disclaimer{color:#e0e9e1!important}
+@media(max-width:760px){
+  body .robot-panel{width:100%;max-width:100%;min-width:0;padding:20px 14px!important}
+  body .robot-panel .robot-heading{min-width:0;max-width:100%;flex-wrap:wrap}
+  body .robot-panel .robot-heading h3{font-size:clamp(23px,6vw,30px)!important;line-height:1.2!important;overflow-wrap:anywhere}
+  body .robot-panel .robot-status{max-width:100%;white-space:normal;line-height:1.35}
+  body .robot-panel .robot-grid{grid-template-columns:minmax(0,1fr)!important;min-width:0}
+  body .robot-panel .robot-item{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;min-width:0;padding:17px 14px!important}
+  body .robot-panel .robot-item>div{min-width:0}
+  body .robot-panel .robot-item strong{display:block;font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+  body .robot-panel .robot-item p{margin:7px 0 0;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+  body .robot-panel .robot-disclaimer{font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+}
