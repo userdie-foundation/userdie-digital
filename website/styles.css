@@ -1406,7 +1406,7 @@ body:has(> .header .brand[href="#top"]) #workspace .robot-status{
 body .robot-panel .robot-item{color:#26372c!important;background:#fffefa!important}
 body .robot-panel .robot-item strong{color:#26372c!important}
 body .robot-panel .robot-item p{color:#59685d!important}
-body .robot-panel .robot-item>span{color:#87977d!important}
+body .robot-panel .robot-item>span{color:#59685d!important}
 body .robot-panel .robot-status{color:#52665a!important;background:#fff!important}
 body .robot-panel .robot-disclaimer{color:#e0e9e1!important}
 @media(max-width:760px){
