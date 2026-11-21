@@ -26,6 +26,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Scan public website and docs for common secret patterns
         run: node .github/scripts/check-public-secrets.mjs
