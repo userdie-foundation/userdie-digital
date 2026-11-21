@@ -23,8 +23,8 @@
 |---|---|---|
 | PR #29 | Merge commit verified | Merged |
 | Main branch | Compare against merge commit is identical | Verified at checkpoint |
-| GitHub Pages | Successful deployment reported by repository owner | Reported successful |
-| Backend CI on merge commit | Current connector lookup returned no run/status records | Not independently verified here |
+| GitHub Pages | Run 44926905675 completed successfully | Verified successful |
+| Backend checks on merge commit | Run 44926905491 completed successfully; syntax, automated tests, Docker image build, and container smoke test all passed | Verified successful |
 | Backend hosting | No deployed API host or health endpoint evidence | Not configured/verified |
 | PostgreSQL migrations 001–021 | Present in source; no target database evidence | Not applied/verified |
 | Runtime-role least privilege | Read-only acceptance procedure exists; no live role catalog output | Not verified |
@@ -34,6 +34,22 @@
 | Applicant/partner intake | Existing public pages remain prototypes; real personal-data intake not authorized | Disabled |
 
 A missing workflow record from the available lookup is not a failed check and is not a passed check. Obtain the actual GitHub Actions run and conclusion before recording a CI result.
+
+## 2A. Post-merge CI evidence captured after initial draft
+
+The following GitHub Actions runs were retrieved directly for merge commit `c0c6398e580cd7929cb1866f7b4141c85c2bbc2e` on 2026-11-21:
+
+- [Backend checks — run 44926905491](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905491): success. Job steps confirm JavaScript syntax check, automated tests with PostgreSQL 16 service, production container build, and container smoke test all completed successfully.
+- [Website quality gate — run 44926905493](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905493): success.
+- [USERDIE security guard — run 44926905496](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905496): success.
+- [Public repository security check — run 44926905476](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905476): success.
+- [Robot Team — run 44926905489](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905489): success.
+- [Deploy public website — run 44926905675](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905675): success.
+- [Daily platform health — run 44926954279](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926954279): success.
+
+The backend workflow's PostgreSQL integration suite ran against its ephemeral PostgreSQL 16 service in CI. This is meaningful migration/integration evidence, but it does not establish that a separately provisioned staging or production database exists or that its actual runtime-role grants have been audited.
+
+For PR #32 itself, [Public repository security check — run 44927230578](https://github.com/userdie-foundation/userdie-digital/actions/runs/44927230578) and [USERDIE security guard — run 44927230545](https://github.com/userdie-foundation/userdie-digital/actions/runs/44927230545) both completed successfully. PR #32 is still a Draft and is not merged.
 
 ## 3. Release gates — strict order
 
