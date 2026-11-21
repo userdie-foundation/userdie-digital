@@ -45,8 +45,21 @@ test("analytical document routes expose only the intended methods", () => {
   assert.equal(isAnalyticalDocumentMethodAllowed("GET", `${root}/${docId}/submit`), false);
   assert.equal(isAnalyticalDocumentMethodAllowed("PATCH", `${root}/${docId}/issue`), false);
   assert.equal(isAnalyticalDocumentMethodAllowed("GET", `${root}/${docId}/pdf`), true);
-  assert.equal(isAnalyticalDocumentMethodAllowed("HEAD", `${root}/${docId}/pdf`), true);
+  assert.equal(isAnalyticalDocumentMethodAllowed("HEAD", `${root}/${docId}/pdf`), false);
   assert.equal(isAnalyticalDocumentMethodAllowed("POST", `${root}/${docId}/pdf`), false);
+});
+
+test("PDF endpoint rejects HEAD so metadata probes cannot generate or audit a PDF download", async () => {
+  let queries = 0;
+  const pool = { async query() { queries += 1; return { rows: [] }; } };
+  await withServer(pool, async (base) => {
+    const response = await fetch(base + root + "/" + docId + "/pdf", { method: "HEAD" });
+    assert.equal(response.status, 405);
+    assert.equal(response.headers.get("allow"), "GET");
+  }, {
+    resolvePrincipal: async () => principal("author-1", grant("asset_valuator", "contour", "assets")),
+  });
+  assert.equal(queries, 0);
 });
 
 test("analytical document API requires a trusted active session", async () => {
