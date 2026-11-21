@@ -615,3 +615,26 @@ h3{letter-spacing:-.025em}
     height:21px!important;
   }
 }
+
+
+/* Public mobile review: partner-page header and footer contrast.
+   Keep the sticky header opaque so page content cannot show through it.
+   The partner footer is a dark surface and must not inherit pale-surface text colors. */
+body.partner-page .header{
+  background:#f3f0e7!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+body.partner-page footer.footer{
+  background:#173f32!important;
+  color:#f3f0e7!important;
+}
+body.partner-page footer.footer .brand strong,
+body.partner-page footer.footer a{
+  color:#fbfaf6!important;
+}
+body.partner-page footer.footer .brand small,
+body.partner-page footer.footer p{
+  color:#d7dfd7!important;
+  opacity:1!important;
+}
