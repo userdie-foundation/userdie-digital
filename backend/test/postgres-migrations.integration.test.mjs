@@ -14,10 +14,10 @@ import { createPartnershipRepository, createServer as createHttpHandler } from "
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, and analytical-document invariants", {
+test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, analytical-document, and privacy-consent invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
-  const pool = new Pool({ connectionString: databaseUrl, max: 1 });
+  const pool = new Pool({ connectionString: databaseUrl, max: 2 });
   const client = await pool.connect();
   const schema = `userdie_it_${randomUUID().replaceAll("-", "")}`;
 
@@ -43,17 +43,233 @@ test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization
       "016_analytical_document_registry.sql",
       "017_analytical_document_lifecycle_guard.sql",
       "018_analytical_document_pdf_artifacts.sql",
+      "019_analytical_document_lifecycle_immutability.sql",
+      "020_analytical_document_artifact_immutability.sql",
+      "021_privacy_consent_ledger.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
     }
 
     const users = await client.query(
-      "INSERT INTO app_users (email, display_name, account_status) VALUES ($1, 'Actor', 'active'), ($2, 'Worker', 'active'), ($3, 'Other worker', 'active') RETURNING id",
-      [`actor-${schema}@example.test`, `worker-${schema}@example.test`, `other-${schema}@example.test`],
+      "INSERT INTO app_users (email, display_name, account_status) VALUES ($1, 'Actor', 'active'), ($2, 'Worker', 'active'), ($3, 'Other worker', 'active'), ($4, 'Concurrent worker', 'active') RETURNING id",
+      [`actor-${schema}@example.test`, `worker-${schema}@example.test`, `other-${schema}@example.test`, `concurrent-worker-${schema}@example.test`],
     );
-    const [actorId, workerId, otherWorkerId] = users.rows.map((row) => row.id);
+    const [actorId, workerId, otherWorkerId, concurrentUserId] = users.rows.map((row) => row.id);
     await client.query("SELECT set_config('app.actor_id', $1, false)", [actorId]);
+
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_documents
+          (document_code, document_version, consent_type, purpose_code, document_sha256,
+           choice_keys, approved_by, approved_at, published_at)
+         VALUES ('invalid_choices', '2026-11-19.1', 'personal_data', 'case_review', $1,
+           ARRAY['contact_by_email', 'contact_by_email'], $2, now() - interval '2 minutes',
+           now() - interval '1 minute')`,
+        ["d".repeat(64), actorId],
+      ),
+      /privacy consent document choice keys must be unique and valid/i,
+    );
+    const consentDocument = await client.query(
+      `INSERT INTO privacy_consent_documents
+        (document_code, document_version, consent_type, purpose_code, document_sha256,
+         choice_keys, approved_by, approved_at, published_at)
+       VALUES ('aid_support', '2026-11-19.1', 'personal_data', 'case_review', $1,
+         ARRAY['contact_by_email', 'contact_by_phone'], $2, now() - interval '2 minutes',
+         now() - interval '1 minute')
+       RETURNING id`,
+      ["a".repeat(64), actorId],
+    );
+    const consentDocumentId = consentDocument.rows[0].id;
+
+    // Independent sessions must serialize concurrent grants for the same
+    // subject/document; exactly one grant may become active.
+    const concurrentClient = await pool.connect();
+    try {
+      await concurrentClient.query(`SET search_path TO "${schema}"`);
+      const grantConcurrently = async (dbClient) => {
+        await dbClient.query("BEGIN");
+        try {
+          const inserted = await dbClient.query(
+            `INSERT INTO privacy_consent_events
+              (document_id, subject_user_id, actor_user_id, event_type, choices)
+             VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)
+             RETURNING id`,
+            [consentDocumentId, concurrentUserId],
+          );
+          await dbClient.query("COMMIT");
+          return inserted.rows[0].id;
+        } catch (error) {
+          await dbClient.query("ROLLBACK");
+          throw error;
+        }
+      };
+      const concurrentResults = await Promise.allSettled([
+        grantConcurrently(client),
+        grantConcurrently(concurrentClient),
+      ]);
+      assert.equal(concurrentResults.filter((result) => result.status === "fulfilled").length, 1);
+      assert.equal(concurrentResults.filter((result) => result.status === "rejected").length, 1);
+      const rejectedGrant = concurrentResults.find((result) => result.status === "rejected");
+      assert.match(rejectedGrant.reason.message, /active privacy consent already exists/i);
+    } finally {
+      concurrentClient.release();
+    }
+
+    await assert.rejects(
+      client.query("TRUNCATE privacy_consent_documents"),
+      /privacy consent document versions cannot be truncated|cannot truncate a table referenced in a foreign key constraint/i,
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE privacy_consent_documents SET document_sha256 = $2 WHERE id = $1",
+        [consentDocumentId, "b".repeat(64)],
+      ),
+      /privacy consent document version is immutable/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM privacy_consent_documents WHERE id = $1", [consentDocumentId]),
+      /privacy consent document versions cannot be deleted/i,
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true}'::jsonb)`,
+        [consentDocumentId, actorId],
+      ),
+      /privacy consent choices do not match the approved document/i,
+    );
+
+    const consentEvent = await client.query(
+      `INSERT INTO privacy_consent_events
+        (document_id, subject_user_id, actor_user_id, event_type, choices)
+       VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)
+       RETURNING id, capture_method`,
+      [consentDocumentId, actorId],
+    );
+    assert.equal(consentEvent.rows[0].capture_method, "authenticated_session");
+
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $3, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)`,
+        [consentDocumentId, actorId, workerId],
+      ),
+      /authenticated-session consent actor must be the subject/i,
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices, previous_event_id)
+         VALUES ($1, $2, $2, 'withdrawn', '{}'::jsonb, $3)`,
+        [consentDocumentId, workerId, consentEvent.rows[0].id],
+      ),
+      /withdrawal must reference the latest active grant/i,
+    );
+
+    const withdrawalEvent = await client.query(
+      `INSERT INTO privacy_consent_events
+        (document_id, subject_user_id, actor_user_id, event_type, choices, previous_event_id)
+       VALUES ($1, $2, $2, 'withdrawn', '{}'::jsonb, $3)
+       RETURNING id, event_type`,
+      [consentDocumentId, actorId, consentEvent.rows[0].id],
+    );
+    assert.equal(withdrawalEvent.rows[0].event_type, "withdrawn");
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices, previous_event_id)
+         VALUES ($1, $2, $2, 'withdrawn', '{}'::jsonb, $3)`,
+        [consentDocumentId, actorId, consentEvent.rows[0].id],
+      ),
+      /withdrawal must reference the latest active grant/i,
+    );
+
+    const renewedConsent = await client.query(
+      `INSERT INTO privacy_consent_events
+        (document_id, subject_user_id, actor_user_id, event_type, choices, occurred_at)
+       VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb,
+         now() + interval '1 year')
+       RETURNING occurred_at`,
+      [consentDocumentId, actorId],
+    );
+    assert.ok(new Date(renewedConsent.rows[0].occurred_at).getTime() < Date.now() + 60_000);
+
+    await assert.rejects(
+      client.query(
+        "UPDATE privacy_consent_events SET choices = '{}'::jsonb WHERE id = $1",
+        [consentEvent.rows[0].id],
+      ),
+      /privacy consent events are append-only/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM privacy_consent_events WHERE id = $1", [consentEvent.rows[0].id]),
+      /privacy consent events are append-only/i,
+    );
+    await assert.rejects(
+      client.query("TRUNCATE privacy_consent_events"),
+      /privacy consent events are append-only/i,
+    );
+    await client.query(
+      "UPDATE privacy_consent_documents SET revoked_at = now() WHERE id = $1",
+      [consentDocumentId],
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE privacy_consent_documents SET revoked_at = now() + interval '1 second' WHERE id = $1",
+        [consentDocumentId],
+      ),
+      /privacy consent document version is immutable/i,
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $2, 'granted', '{"contact_by_email":true,"contact_by_phone":false}'::jsonb)`,
+        [consentDocumentId, actorId],
+      ),
+      /privacy consent document version is not active/i,
+    );
+
+    const disseminationConsentDocument = await client.query(
+      `INSERT INTO privacy_consent_documents
+        (document_code, document_version, consent_type, purpose_code, document_sha256,
+         choice_keys, approved_by, approved_at, published_at)
+       VALUES ('public_story', '2026-11-19.1', 'dissemination', 'public_reporting', $1,
+         ARRAY['publish_name'], $2, now() - interval '2 minutes', now() - interval '1 minute')
+       RETURNING id`,
+      ["e".repeat(64), actorId],
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $2, 'granted', '{"publish_name":true}'::jsonb)`,
+        [disseminationConsentDocument.rows[0].id, actorId],
+      ),
+      /separate consent capture workflow is required for this consent type/i,
+    );
+
+    const specialConsentDocument = await client.query(
+      `INSERT INTO privacy_consent_documents
+        (document_code, document_version, consent_type, purpose_code, document_sha256,
+         choice_keys, approved_by, approved_at, published_at)
+       VALUES ('special_support', '2026-11-19.1', 'special_category', 'health_support', $1,
+         ARRAY['health_data'], $2, now() - interval '2 minutes', now() - interval '1 minute')
+       RETURNING id`,
+      ["c".repeat(64), actorId],
+    );
+    await assert.rejects(
+      client.query(
+        `INSERT INTO privacy_consent_events
+          (document_id, subject_user_id, actor_user_id, event_type, choices)
+         VALUES ($1, $2, $2, 'granted', '{"health_data":true}'::jsonb)`,
+        [specialConsentDocument.rows[0].id, actorId],
+      ),
+      /written consent capture is required for special-category data/i,
+    );
 
     const auditFixture = await client.query(
       "INSERT INTO audit_events (actor_id, action, entity_type, entity_id, metadata) VALUES ($1, 'integration.audit_fixture', 'test', 'append-only', '{}'::jsonb) RETURNING id",
@@ -747,7 +963,7 @@ test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization
          WHERE id = $1`,
         [analyticalDocumentId, firstVersionId],
       ),
-      /only the approved document version may be issued/i,
+      /only the (previously )?approved document version may be issued/i,
     );
 
     await client.query(
@@ -769,6 +985,35 @@ test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization
       approved_version_id: secondVersionId,
       issued_version_id: secondVersionId,
     });
+
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_documents SET approved_version_id = $2 WHERE id = $1",
+        [analyticalDocumentId, firstVersionId],
+      ),
+      /approved analytical document facts are immutable/i,
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_documents SET issued_version_id = $2 WHERE id = $1",
+        [analyticalDocumentId, firstVersionId],
+      ),
+      /issued analytical document facts are immutable/i,
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_documents SET title = 'Tampered issued title' WHERE id = $1",
+        [analyticalDocumentId],
+      ),
+      /analytical document identity is immutable after submission/i,
+    );
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_documents SET status = 'draft', approved_by = NULL, approved_at = NULL, approved_version_id = NULL, issued_version_id = NULL, document_number = NULL, issued_at = NULL WHERE id = $1",
+        [analyticalDocumentId],
+      ),
+      /invalid analytical document lifecycle transition/i,
+    );
 
     await assert.rejects(
       client.query(
@@ -954,6 +1199,22 @@ test("PostgreSQL applies migrations 001-018 and enforces workflow, authorization
       assert.equal(pdfArtifact.rowCount, 1);
       assert.equal(pdfArtifact.rows[0].document_version_id, revised.version.id);
       assert.equal(Number(pdfArtifact.rows[0].byte_size), pdfBytes.length);
+
+    await assert.rejects(
+      client.query(
+        "UPDATE analytical_document_artifacts SET content_sha256 = $2 WHERE document_id = $1",
+        [apiDocumentId, "c".repeat(64)],
+      ),
+      /analytical document artifacts are append-only/i,
+    );
+    await assert.rejects(
+      client.query("DELETE FROM analytical_document_artifacts WHERE document_id = $1", [apiDocumentId]),
+      /analytical document artifacts are append-only/i,
+    );
+    await assert.rejects(
+      client.query("TRUNCATE analytical_document_artifacts"),
+      /analytical document artifacts are append-only/i,
+    );
       const secondPdfResponse = await apiRequest(`/api/v1/analytical-documents/${apiDocumentId}/pdf`);
       assert.equal(secondPdfResponse.status, 200);
       assert.deepEqual(Buffer.from(await secondPdfResponse.arrayBuffer()), pdfBytes);

@@ -142,17 +142,18 @@ async function resolvePrincipal(req, resolver) {
 }
 
 export function isAnalyticalDocumentRoute(pathname) {
-  return pathname === ROOT ||
+  return pathname === ROOT || pathname === `${ROOT}/reviewers` ||
     /^\/api\/v1\/analytical-documents\/[0-9a-f-]{36}(?:\/(?:versions|submit|decision|issue|pdf))?$/i.test(pathname);
 }
 
 export function isAnalyticalDocumentMethodAllowed(method, pathname) {
+  if (pathname === `${ROOT}/reviewers`) return method === "GET" || method === "HEAD";
   if (pathname === ROOT) return method === "GET" || method === "HEAD" || method === "POST";
   const match = pathname.match(/^\/api\/v1\/analytical-documents\/([0-9a-f-]{36})(?:\/(versions|submit|decision|issue|pdf))?$/i);
   if (!match || !UUID.test(match[1])) return false;
   const action = match[2];
   if (!action) return method === "GET" || method === "HEAD";
-  if (action === "pdf") return method === "GET" || method === "HEAD";
+  if (action === "pdf") return method === "GET";
   return method === "POST";
 }
 
@@ -162,7 +163,12 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
 
   const method = req.method ?? "GET";
   if (!isAnalyticalDocumentMethodAllowed(method, pathname)) {
-    res.setHeader("Allow", pathname === ROOT ? "GET, HEAD, POST" : "GET, HEAD, POST");
+    const allow = pathname === ROOT ? "GET, HEAD, POST" :
+      pathname === `${ROOT}/reviewers` ? "GET, HEAD" :
+      pathname.endsWith("/pdf") ? "GET" :
+      pathname.endsWith("/versions") || pathname.endsWith("/submit") ||
+      pathname.endsWith("/decision") || pathname.endsWith("/issue") ? "POST" : "GET, HEAD";
+    res.setHeader("Allow", allow);
     send(res, 405, { error: "method_not_allowed" }, method);
     return true;
   }
@@ -170,6 +176,37 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
   const principal = await resolvePrincipal(req, principalResolver);
   if (!principal) {
     send(res, 401, { error: "authentication_required" }, method);
+    return true;
+  }
+
+  if (pathname === `${ROOT}/reviewers` && (method === "GET" || method === "HEAD")) {
+    if (!canCreate(principal, "assets")) {
+      send(res, 403, { error: "analytical_document_reviewer_list_denied" }, method);
+      return true;
+    }
+    try {
+      const result = await pool.query(
+        `SELECT DISTINCT u.id, u.display_name
+         FROM app_users u
+         WHERE u.account_status = 'active' AND u.id <> $1::uuid
+           AND (
+             EXISTS (SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
+                     WHERE ur.user_id = u.id AND r.code = 'independent_approver')
+             OR EXISTS (SELECT 1 FROM user_role_grants g JOIN roles r ON r.id = g.role_id
+                        WHERE g.user_id = u.id AND g.revoked_at IS NULL
+                          AND r.code = 'independent_approver'
+                          AND g.scope_type = 'contour' AND g.scope_id = 'assets')
+           )
+         ORDER BY u.display_name ASC, u.id ASC
+         LIMIT 50`,
+        [principal.id],
+      );
+      send(res, 200, {
+        reviewers: (result.rows ?? []).map((row) => ({ id: row.id, displayName: row.display_name })),
+      }, method);
+    } catch {
+      send(res, 503, { error: "analytical_document_reviewers_unavailable" }, method);
+    }
     return true;
   }
 
@@ -199,6 +236,13 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
         assignedReviewerId: row.assigned_reviewer_id, approvedBy: row.approved_by,
         approvedAt: row.approved_at, issuedAt: row.issued_at,
         createdAt: row.created_at, updatedAt: row.updated_at,
+        canSubmit: row.created_by === principal.id && row.status === "draft" && canCreate(principal),
+        canRevise: row.created_by === principal.id && row.status === "changes_requested" && canCreate(principal),
+        canReview: row.assigned_reviewer_id === principal.id && row.status === "submitted_for_review" && canReview(principal),
+        canIssue: row.status === "approved" &&
+          (hasGrant(principal, "administrator", "global") ||
+            (row.created_by === principal.id && canCreate(principal))),
+        canDownloadPdf: row.status === "issued" && canReadDocument(principal, row),
       }));
       send(res, 200, { documents, count: documents.length }, method);
     } catch {

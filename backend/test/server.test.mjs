@@ -168,8 +168,46 @@ test("CORS allows only the configured exact origin", async () => {
   await withServer(noDb, async (base) => {
     const allowed = await fetch(`${base}/api/v1/health/live`, { headers: { origin: "https://platform.example" } });
     assert.equal(allowed.headers.get("access-control-allow-origin"), "https://platform.example");
+    assert.equal(allowed.headers.get("access-control-allow-credentials"), "true");
     const rejected = await fetch(`${base}/api/v1/health/live`, { headers: { origin: "https://attacker.example" } });
     assert.equal(rejected.headers.get("access-control-allow-origin"), null);
+  }, { allowedOrigin: "https://platform.example" });
+});
+
+test("credentialed CORS preflight permits only configured login and analytical-document POST routes", async () => {
+  await withServer(noDb, async (base) => {
+    const allowed = await fetch(base + "/api/v1/analytical-documents", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(allowed.status, 204);
+    assert.equal(allowed.headers.get("access-control-allow-origin"), "https://platform.example");
+    assert.equal(allowed.headers.get("access-control-allow-credentials"), "true");
+    assert.equal(allowed.headers.get("access-control-allow-methods"), "POST, OPTIONS");
+
+    const login = await fetch(base + "/api/v1/auth/login", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(login.status, 204);
+
+    const forbidden = await fetch(base + "/api/v1/analytical-documents/not-a-route", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://platform.example",
+        "access-control-request-method": "POST",
+        "access-control-request-headers": "content-type",
+      },
+    });
+    assert.equal(forbidden.status, 403);
   }, { allowedOrigin: "https://platform.example" });
 });
 
@@ -1454,7 +1492,7 @@ test("CORS preflight permits only exact-origin JSON POST requests", async () => 
     assert.equal(unsupportedHeader.status, 403);
     assert.deepEqual(await unsupportedHeader.json(), { error: "preflight_not_allowed" });
 
-    const unrelatedEndpoint = await fetch(base + "/api/v1/auth/login", {
+    const loginEndpoint = await fetch(base + "/api/v1/auth/login", {
       method: "OPTIONS",
       headers: {
         origin: "https://platform.example",
@@ -1462,8 +1500,10 @@ test("CORS preflight permits only exact-origin JSON POST requests", async () => 
         "access-control-request-headers": "content-type",
       },
     });
-    assert.equal(unrelatedEndpoint.status, 403);
-    assert.deepEqual(await unrelatedEndpoint.json(), { error: "preflight_not_allowed" });
+    assert.equal(loginEndpoint.status, 204);
+    assert.equal(loginEndpoint.headers.get("access-control-allow-origin"), "https://platform.example");
+    assert.equal(loginEndpoint.headers.get("access-control-allow-methods"), "POST, OPTIONS");
+    assert.equal(loginEndpoint.headers.get("access-control-allow-credentials"), "true");
 
     const unsupportedMethod = await fetch(base + "/api/v1/auth/recovery/complete", {
       method: "OPTIONS",

@@ -2,7 +2,7 @@
 
 **Status:** preparation document only. No hosting provider, database instance, secret, DNS record, deployment or production service is created by this runbook.
 
-**Baseline reviewed:** `main` after the 2026-11-12 containerization changes. Re-check the deployed commit before provisioning.
+**Baseline reviewed:** PR #29, head `8e0875aa8d2860bec15ebbad4f4eba1d5f9103c3` (2026-11-18), which remains Draft and is not merged. Re-check the approved, merged commit before provisioning; do not deploy this draft branch to a public or user-facing environment.
 
 ## 1. Deployment boundary
 
@@ -46,10 +46,10 @@ The sample `backend/.env.example` is not a production configuration. Confirm the
 
 1. Provision a new, empty, isolated staging database. Do not point the runner at a database that has already received migrations manually.
 2. Create two distinct credentials: a schema-owner/migration role for controlled DDL, and a non-owner API runtime role with only the required DML, sequence and function privileges. Do not use the migration owner as the API `DATABASE_URL`.
-3. Review migrations `001`–`014` and their dependencies before execution.
+3. Review migrations `001`–`018` and their dependencies before execution, including the analytical-document registry, immutable versions, independent approval/lifecycle guards, and private PDF artifact metadata in migrations `016`–`020`.
 4. From a protected operator environment, set `MIGRATIONS_DATABASE_URL` to the migration-owner connection and run `MIGRATIONS_ALLOW_APPLY=true npm run migrate`. Set `MIGRATIONS_DATABASE_SSL=true` when verified TLS is required. Never commit either credential.
 5. The runner takes a PostgreSQL advisory lock, validates sequential filenames, stores SHA-256 checksums in `public.schema_migrations`, and commits each migration together with its ledger row. A checksum mismatch or SQL error stops the process; failed migration SQL is rolled back.
-6. Verify all 14 versions are recorded, then configure the separate API runtime `DATABASE_URL` and test readiness using the runtime role.
+6. Verify all 18 versions are recorded, then configure the separate API runtime `DATABASE_URL` and test readiness using the runtime role.
 7. Run the PostgreSQL integration tests against a disposable staging/test schema.
 8. Confirm the application role cannot alter database ownership or bypass append-only audit protections.
 9. Create only synthetic test accounts and records.
@@ -63,13 +63,14 @@ Do not run migrations against production as part of this staging procedure. A pr
 - [ ] `npm run check` passes.
 - [ ] `npm test` passes against an isolated PostgreSQL test database.
 - [ ] Backend CI builds the image and passes its container smoke test: non-root runtime, liveness success, and database readiness returning 503 when the database is deliberately unavailable.
+- [ ] For the analytical-document workflow, verify migrations `016`–`020`, independent reviewer separation, immutable version hashes, approval/issue lifecycle guards, exact issued-version PDF retrieval, and private storage permissions using synthetic data only.
 - [ ] Service starts without logging connection strings, credentials or tokens.
 - [ ] `/api/v1/health/live` returns success.
 - [ ] `/api/v1/health/ready` returns success only when the database is reachable.
 - [ ] Invalid/missing configuration prevents startup rather than silently weakening security.
 - [ ] Exact-origin checks reject absent, null and foreign Origin on state-changing requests.
 - [ ] Login remains unavailable unless the login HMAC key and required database migrations are configured.
-- [ ] Recovery endpoints remain fail-closed until a recovery service and trusted delivery adapter are implemented and injected.
+- [ ] Recovery endpoints remain fail-closed until the complete Resend configuration is installed in the secret manager and an end-to-end delivery/reset test passes.
 - [ ] No staging URL is published in the public website and no live DNS is changed.
 - [ ] Deployment logs, runtime owner, rollback procedure and data-reset procedure are documented.
 
@@ -77,11 +78,11 @@ Passing these checks in a local CI environment is not evidence that a hosted sta
 
 ## 6. Known limitations before user-interface integration
 
-- The public workspace prototype uses browser-local demonstration data and identifiers; it is not connected to the API.
+- The public workspace prototype now includes a feature-gated API adapter for login, reviewer discovery, analytical-document drafts, lifecycle actions and authorized PDF retrieval. It remains in demo-only mode while `userdie-api-origin` is empty; no live API connection is enabled.
 - The task-status PATCH endpoint is implemented and CI-tested, but there is no production API host confirmed.
 - Application collection and write/intake workflows remain disabled.
 - Task creation, assignment changes and other task-field writes are not implemented.
-- Account recovery has route handlers and throttling hooks, but the runtime entry point does not inject a recovery service or trusted email adapter.
+- Account recovery is wired to the Resend delivery adapter in source, but remains unavailable until the API host, verified sender, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RECOVERY_URL`, `RECOVERY_RATE_LIMIT_HMAC_KEY`, protected runtime secrets and end-to-end delivery/reset tests are in place.
 - MFA persistence is schema groundwork, not an enforced second factor.
 - Private document storage, malware scanning, notifications, monitoring, backups and restore drills are not confirmed as deployed.
 
@@ -98,4 +99,15 @@ Choose a hosting region/provider and an acceptable monthly staging budget. Compa
 - The command requires both `MIGRATIONS_ALLOW_APPLY=true` and `MIGRATIONS_DATABASE_URL`. It is not called from API startup or the Docker image command.
 - Use the migration-owner credential only for the CLI. Use a separate non-owner credential for the API process.
 - Initial supported target is a new empty staging database. Existing databases with manually applied migrations require a reviewed baseline/reconciliation plan; do not run this CLI against them.
-- Unit tests validate migration wrapper parsing and all 14 filenames. PostgreSQL CI integration remains separate; no staging database has been provisioned or migrated.
+- Unit tests validate migration wrapper parsing and the migration sequence through version 021. The Backend checks workflow also runs the PostgreSQL integration suite against its disposable PostgreSQL 16 service by setting `PG_INTEGRATION_URL` for `npm test`; this CI database is not a hosted staging database, and no staging database has been provisioned or migrated.
+
+## Lifecycle and PDF provenance hardening — 2026-11-19
+
+- Migration 019 replaces the analytical-document lifecycle guard with an explicit transition allowlist: draft → submitted_for_review → approved/changes_requested → draft (after requested changes) → submitted_for_review → approved → issued → archived.
+- Approved reviewer, timestamp and exact approved version cannot be rewritten after approval. Issued version, registration number and issue timestamp cannot be rewritten after issuance. Direct SQL attempts to roll an issued document back to draft or replace its approved/issued version are rejected.
+- Migration 020 makes PDF artifact metadata append-only, blocking UPDATE, DELETE and TRUNCATE.
+- PostgreSQL integration coverage now probes approved/issued version mutation, illegal rollback, and artifact metadata mutation/deletion/truncation using synthetic data.
+- These migrations are source changes on PR #29; they are not applied to any live or staging database. The PostgreSQL integration test is conditional on `PG_INTEGRATION_URL`; the Backend checks workflow supplies it from its disposable PostgreSQL 16 service. A passing unit-only run without that variable does not prove PostgreSQL integration executed. The CI service is not a live or hosted staging database.
+
+- Migration 019 additionally freezes document identity fields (type, contour, asset reference, title, author and assigned reviewer) once submission begins. This prevents the issued PDF title/metadata from diverging from the reviewed document record.
+- CI regression coverage includes attempts to mutate the issued title after issuance.

@@ -509,3 +509,20 @@ body:has(> .header .brand[href="#top"]) .preview-disclaimer{
 @media(prefers-reduced-motion:reduce){
   .foundation-mission *{animation:none!important;transition:none!important}
 }
+
+
+/* Accessibility hotfix — robot cards sit on a dark panel but use light card surfaces. */
+body:has(> .header .brand[href="#top"]) #workspace .robot-item{
+  background:#fffefa;
+  color:#20382c;
+  border-color:rgba(32,56,44,.14);
+}
+body:has(> .header .brand[href="#top"]) #workspace .robot-item strong{
+  color:#234b37;
+}
+body:has(> .header .brand[href="#top"]) #workspace .robot-item p{
+  color:#5c7064;
+}
+body:has(> .header .brand[href="#top"]) #workspace .robot-item>span{
+  color:#7c8d72;
+}

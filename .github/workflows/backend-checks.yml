@@ -1,5 +1,7 @@
 name: Backend checks
 
+# Ensure backend and PostgreSQL integration checks run for this pull request head.
+
 on:
   push:
     branches: [main]

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,follow">
+<meta name="userdie-api-origin" content="">
 <meta name="theme-color" content="#f6f4ee">
 <meta name="description" content="Интерактивный демонстрационный интерфейс USERDIE DIGITAL — рабочее пространство фонда «Усердие».">
 <title>USERDIE DIGITAL — рабочее пространство</title>
@@ -464,7 +465,41 @@ body.report-printing #ib-report-preview .report-warning{display:block!important}
  #ib-report-preview h2,#ib-report-preview h3,#ib-report-preview h4{break-after:avoid}
  #ib-report-preview .report-section{break-inside:avoid}
 }
+
+/* Mobile overflow and text wrapping correction for the workspace notice and all view panels. */
+html,body.workspace{width:100%;max-width:100%;overflow-x:clip}
+body.workspace .app-shell,body.workspace .app-sidebar,body.workspace .app-main,
+body.workspace .page-view,body.workspace .panel,body.workspace .workspace-notice,
+body.workspace .external-service-notice{min-width:0;max-width:100%}
+body.workspace .workspace-notice,
+body.workspace .external-service-notice{
+  width:100%;white-space:normal;overflow-wrap:anywhere;
+}
+body.workspace .workspace-notice strong,
+body.workspace .workspace-notice p,
+body.workspace .external-service-notice strong,
+body.workspace .external-service-notice p{
+  display:block;max-width:100%;white-space:normal;overflow-wrap:anywhere;
+}
+body.workspace .page-view h1,body.workspace .page-view h2,
+body.workspace .page-view h3,body.workspace .workspace-notice strong{
+  max-width:100%;white-space:normal;overflow-wrap:anywhere;
+}
+@media(max-width:720px){
+  body.workspace .app-main{width:100%;padding-inline:14px!important}
+  body.workspace .workspace-notice,
+  body.workspace .external-service-notice{padding:15px!important}
+  body.workspace .workspace-notice strong{font-size:clamp(17px,5vw,21px);line-height:1.3}
+  body.workspace .workspace-notice p,
+  body.workspace .external-service-notice p{font-size:14px;line-height:1.65}
+  body.workspace .page-view h1{font-size:clamp(27px,7.2vw,36px)!important;line-height:1.12!important;letter-spacing:-.035em!important}
+  body.workspace .page-view h2{font-size:clamp(21px,5.8vw,28px)!important;line-height:1.2!important}
+  body.workspace .page-view p{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+  body.workspace .app-nav{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+  body.workspace .app-main>*{min-width:0;max-width:100%}
+}
 </style>
+<link rel="stylesheet" href="mobile-a11y.css">
 </head>
 <body class="workspace">
 <a class="skip-link" href="#app-content">Перейти к содержанию</a>
@@ -1269,4 +1304,5 @@ if(allowedViews.includes(requestedView)){
 }
 })();
 </script>
+<script src="workspace-api.js" defer></script>
 </body></html>
