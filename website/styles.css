@@ -1374,3 +1374,28 @@ pre,pre code{max-width:100%;overflow-x:auto}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
+
+
+/* Contrast hotfix for the white robot cards inside the dark green home panel.
+   The card surface is intentionally light; its text must not inherit panel white. */
+body:has(> .header .brand[href="#top"]) #workspace .robot-item,
+body:has(> .header .brand[href="#top"]) #workspace .robot-item strong{
+  color:#26372c!important;
+}
+body:has(> .header .brand[href="#top"]) #workspace .robot-item p{
+  color:#59685d!important;
+}
+body:has(> .header .brand[href="#top"]) #workspace .robot-status{
+  color:#52665a!important;background:#fff!important;
+}
+@media(max-width:680px){
+  body:has(> .header .brand[href="#top"]) #workspace .robot-item{
+    align-items:flex-start;min-width:0;overflow-wrap:anywhere;
+  }
+  body:has(> .header .brand[href="#top"]) #workspace .robot-item strong{
+    font-size:15px;line-height:1.35;
+  }
+  body:has(> .header .brand[href="#top"]) #workspace .robot-item p{
+    font-size:14px;line-height:1.6;
+  }
+}
