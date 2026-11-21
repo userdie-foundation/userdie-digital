@@ -1,0 +1,86 @@
+/* USERDIE DIGITAL — shared responsive and accessibility baseline.
+   Layout-only rules: do not rewrite or replace approved editorial content. */
+:where(*,*::before,*::after){box-sizing:border-box}
+:where(img,svg,video,canvas,iframe){max-width:100%}
+:where(main,section,article,aside,header,footer,nav,.container,.header-inner,
+       .app-shell,.app-sidebar,.app-main,.content-grid,.module-list,.metrics-grid,
+       .panel,.panel-head,.section-heading,.hero-layout,.hero-copy,.hero-visual){
+  min-width:0;
+}
+:where(h1,h2,h3,h4,p,li,small,strong,label,figcaption,td,th){
+  overflow-wrap:break-word;
+  word-wrap:break-word;
+}
+:where(h1,h2,h3,h4){max-width:100%;white-space:normal}
+:where(button,a,input,select,textarea){max-width:100%;font:inherit}
+:where(button,a){overflow-wrap:break-word}
+:where(pre,code){max-width:100%}
+pre{overflow-x:auto}
+table{max-width:100%;border-collapse:collapse}
+:where(input,select,textarea){min-width:0}
+:where(img,video,iframe){height:auto}
+html{max-width:100%;overflow-x:clip}
+body{width:100%;max-width:100%;overflow-x:clip}
+@media(max-width:760px){
+  body{font-size:16px}
+  :where(main,section,article,aside,.container,.header-inner,.app-main,
+         .app-shell,.content-grid,.panel,.section-heading,.hero-layout){
+    width:auto;max-width:100%;min-width:0
+  }
+  .container{width:calc(100% - 32px);margin-inline:auto}
+  :where(.header-inner,.section-heading,.panel-head,.hero-layout){
+    flex-wrap:wrap
+  }
+  :where(.header nav,.primary-navigation){
+    max-width:100%;min-width:0;flex-wrap:wrap
+  }
+  :where(.header nav a,.primary-navigation a){
+    max-width:100%;white-space:normal;line-height:1.35
+  }
+  :where(h1){font-size:clamp(28px,7.5vw,42px);line-height:1.12;letter-spacing:-.035em}
+  :where(h2){font-size:clamp(23px,6vw,32px);line-height:1.18;letter-spacing:-.025em}
+  :where(h3){line-height:1.25}
+  :where(p,li){line-height:1.65}
+  :where(.grid,.card-grid,.module-grid,.direction-grid,.preview-grid,
+         .metrics-grid,.content-grid,.principles-grid,.module-list){
+    grid-template-columns:minmax(0,1fr)
+  }
+  :where(.card,.module-card,.direction-card,.preview-card,.panel){
+    min-width:0;max-width:100%;height:auto;max-height:none
+  }
+  :where(.card p,.module-card p,.direction-card p,.preview-card p){
+    min-height:0;height:auto;max-height:none;white-space:normal;
+    overflow:visible;text-overflow:clip;-webkit-line-clamp:unset
+  }
+  :where(button,.button,.app-button,input[type=submit],input[type=button]){
+    min-height:44px;white-space:normal;line-height:1.35
+  }
+  :where(input,select,textarea){width:100%;max-width:100%;font-size:16px}
+  table{display:block;width:100%;overflow-x:auto}
+  .app-shell{grid-template-columns:minmax(0,1fr)}
+  .app-sidebar{position:relative;top:auto;height:auto;max-height:none}
+  .app-main{width:100%;padding-inline:14px}
+  .app-nav{max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain}
+  .app-nav>*{flex:0 0 auto}
+  .workspace-notice,.external-service-notice{
+    display:block;width:100%;max-width:100%;min-width:0;
+    white-space:normal;overflow-wrap:break-word;
+    padding:14px 15px;font-size:14px;line-height:1.65
+  }
+  .workspace-notice strong,.external-service-notice strong{
+    display:block;max-width:100%;font-size:17px;line-height:1.3;
+    white-space:normal;overflow-wrap:break-word
+  }
+  .workspace-notice p,.external-service-notice p{
+    max-width:100%;font-size:14px;line-height:1.65;
+    white-space:normal;overflow-wrap:break-word
+  }
+}
+@media(max-width:420px){
+  .container{width:calc(100% - 28px)}
+  :where(.app-main){padding-inline:12px}
+  :where(.header nav a,.primary-navigation a){font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
