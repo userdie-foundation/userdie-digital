@@ -188,9 +188,9 @@ assert.ok(homepageBaseLink >= 0 && homepageRefinementLink > homepageBaseLink && 
   "homepage stylesheet load order must be checked before relying on base and later refinement rules");
 assert.match(homepageHtml, /<div class="robot-panel"[\s\S]*?<article class="robot-item">[\s\S]*?<strong>[\s\S]*?<p>/,
   "homepage assistant cards must retain their semantic heading and description markup");
-assert.match(homepageBaseCss, /body \.robot-panel \.robot-item strong\s*\{\s*color:#26372c!important;\s*\}/,
+assert.match(homepageBaseCss, /body \.robot-panel \.robot-item strong\s*\{\s*color:#26372c!important\s*\}/,
   "homepage light assistant cards must override inherited white headings with accessible dark text");
-assert.match(homepageBaseCss, /body \.robot-panel \.robot-item p\s*\{\s*color:#59685d!important;\s*\}/,
+assert.match(homepageBaseCss, /body \.robot-panel \.robot-item p\s*\{\s*color:#59685d!important\s*\}/,
   "homepage light assistant cards must override inherited pale descriptions with accessible dark text");
 assert.ok(homepagePolishCss.includes(".robot-panel .robot-item") === false,
   "later homepage polish must not silently introduce an unreviewed assistant-card text override");
