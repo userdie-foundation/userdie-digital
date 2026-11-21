@@ -1,4 +1,6 @@
 import { Pool } from "pg";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
 
 const REQUIRED_TRIGGERS = new Set([
   "privacy_consent_documents_immutable",
@@ -36,6 +38,7 @@ export function evaluateRuntimeRoleAudit({ role, memberships, schema, tables, tr
   addFinding(findings, memberships.length === 0, "Runtime role has direct or transitive role memberships.");
   addFinding(findings, schema?.can_use === true, "Runtime role is missing USAGE on the application schema.");
   addFinding(findings, schema?.can_create === false, "Runtime role can CREATE objects in the application schema.");
+  addFinding(findings, schema?.owner !== role.rolname, "Runtime role owns the application schema.");
 
   for (const [tableName, policy] of Object.entries(TABLE_POLICY)) {
     const table = tables.find((entry) => entry.table_name === tableName);
@@ -57,6 +60,9 @@ export function evaluateRuntimeRoleAudit({ role, memberships, schema, tables, tr
   );
   for (const triggerName of REQUIRED_TRIGGERS) {
     addFinding(findings, enabledTriggers.has(triggerName), `Required protection trigger is missing or disabled: ${triggerName}.`);
+  for (const trigger of triggers) {
+    addFinding(findings, trigger.function_owner !== role.rolname, `Runtime role owns protection function for trigger: ${trigger.trigger_name}.`);
+  }
   }
   for (const grant of defaultGrants) {
     addFinding(findings, false, `Runtime role receives a default privilege on future objects: ${grant.object_type} in ${grant.schema_name ?? "all schemas"}.`);
@@ -127,12 +133,12 @@ async function main() {
 
       const tableResult = await client.query(
         `SELECT c.relname AS table_name, pg_get_userbyid(c.relowner) AS owner,
-                has_table_privilege($1, c.oid, 'SELECT') AS select,
-                has_table_privilege($1, c.oid, 'INSERT') AS insert,
-                has_table_privilege($1, c.oid, 'UPDATE') AS update,
-                has_table_privilege($1, c.oid, 'DELETE') AS delete,
-                has_table_privilege($1, c.oid, 'TRUNCATE') AS truncate,
-                has_table_privilege($1, c.oid, 'REFERENCES') AS references,
+                has_table_privilege($1, c.oid, 'SELECT') AS can_select,
+                has_table_privilege($1, c.oid, 'INSERT') AS can_insert,
+                has_table_privilege($1, c.oid, 'UPDATE') AS can_update,
+                has_table_privilege($1, c.oid, 'DELETE') AS can_delete,
+                has_table_privilege($1, c.oid, 'TRUNCATE') AS can_truncate,
+                has_table_privilege($1, c.oid, 'REFERENCES') AS can_references,
                 has_table_privilege($1, c.oid, 'TRIGGER') AS trigger
          FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
          WHERE n.nspname = 'public'
@@ -193,6 +199,6 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   await main();
 }
