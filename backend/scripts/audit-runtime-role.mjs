@@ -48,7 +48,7 @@ export function evaluateRuntimeRoleAudit({ role, memberships, schema, tables, tr
     for (const [privilege, expected] of Object.entries(policy)) {
       addFinding(
         findings,
-        table[privilege.toLowerCase()] === expected,
+        table[`can_${privilege.toLowerCase()}`] === expected,
         `${tableName}: unexpected effective ${privilege} privilege (expected ${expected}).`,
       );
     }
