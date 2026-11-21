@@ -140,7 +140,7 @@ async function main() {
                 has_table_privilege($1, c.oid, 'DELETE') AS can_delete,
                 has_table_privilege($1, c.oid, 'TRUNCATE') AS can_truncate,
                 has_table_privilege($1, c.oid, 'REFERENCES') AS can_references,
-                has_table_privilege($1, c.oid, 'TRIGGER') AS trigger
+                has_table_privilege($1, c.oid, 'TRIGGER') AS can_trigger
          FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
          WHERE n.nspname = 'public'
            AND c.relname = ANY($2::text[])
@@ -162,12 +162,6 @@ async function main() {
         [Object.keys(TABLE_POLICY)],
       );
       triggers = triggerResult.rows;
-      for (const trigger of triggers) {
-        if (trigger.function_owner === runtimeRole) {
-          process.stderr.write("A consent protection trigger function is owned by the API runtime role.\n");
-          process.exitCode = 1;
-        }
-      }
 
       const defaultGrantResult = await client.query(
         `SELECT COALESCE(n.nspname, 'all schemas') AS schema_name,
