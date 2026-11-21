@@ -556,3 +556,24 @@ h3{letter-spacing:-.025em}
  .lead{font-size:1rem}
  .photo-story-card figcaption{right:16px;bottom:15px;left:16px}
 }
+
+
+/* Mobile containment baseline — prevent prototype pages from widening the viewport. */
+*,*::before,*::after{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:clip}
+img,video,svg,canvas{max-width:100%;height:auto}
+.container,main,section,article,aside,header,footer,.header-inner,.section-heading,
+.platform-hero-inner,.module-grid,.direction-grid,.principles-grid{min-width:0}
+p,li,small,strong,em,a,button,label,td,th{
+  overflow-wrap:anywhere;
+}
+h1,h2,h3{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:760px){
+  .container{width:min(100% - 32px,100%);max-width:100%}
+  .header-inner,.section-heading,.platform-hero-inner,.principles-grid,
+  .module-grid,.direction-grid{min-width:0;max-width:100%}
+  .header nav{min-width:0;max-width:100%;flex-wrap:wrap}
+  .platform-hero h1,.cabinet-hero h1{font-size:clamp(2rem,8vw,3rem);line-height:1.08}
+  .section-heading h2{font-size:clamp(1.65rem,7vw,2.35rem);line-height:1.14}
+  .lead{font-size:1rem;line-height:1.65}
+}
