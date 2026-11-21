@@ -153,7 +153,7 @@ export function isAnalyticalDocumentMethodAllowed(method, pathname) {
   if (!match || !UUID.test(match[1])) return false;
   const action = match[2];
   if (!action) return method === "GET" || method === "HEAD";
-  if (action === "pdf") return method === "GET" || method === "HEAD";
+  if (action === "pdf") return method === "GET";
   return method === "POST";
 }
 
@@ -163,7 +163,12 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
 
   const method = req.method ?? "GET";
   if (!isAnalyticalDocumentMethodAllowed(method, pathname)) {
-    res.setHeader("Allow", pathname === ROOT ? "GET, HEAD, POST" : "GET, HEAD, POST");
+    const allow = pathname === ROOT ? "GET, HEAD, POST" :
+      pathname === `${ROOT}/reviewers` ? "GET, HEAD" :
+      pathname.endsWith("/pdf") ? "GET" :
+      pathname.endsWith("/versions") || pathname.endsWith("/submit") ||
+      pathname.endsWith("/decision") || pathname.endsWith("/issue") ? "POST" : "GET, HEAD";
+    res.setHeader("Allow", allow);
     send(res, 405, { error: "method_not_allowed" }, method);
     return true;
   }
