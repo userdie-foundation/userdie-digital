@@ -2,7 +2,7 @@
 
 **Status:** preparation document only. No hosting provider, database instance, secret, DNS record, deployment or production service is created by this runbook.
 
-**Baseline reviewed:** PR #29, head `8e0875aa8d2860bec15ebbad4f4eba1d5f9103c3` (2026-11-18), which remains Draft and is not merged. Re-check the approved, merged commit before provisioning; do not deploy this draft branch to a public or user-facing environment.
+**Baseline reviewed:** PR #29 was merged into `main` on 2026-11-21. Merge commit: `c0c6398e580cd7929cb1866f7b4141c85c2bbc2e`. The merge incorporates the protected analytical-document workflow and its workspace API adapter. This merge does not establish a hosted backend, configured API origin, staging database, or production readiness. Provisioning remains gated by the decisions and acceptance checks below.
 
 ## 1. Deployment boundary
 
@@ -46,10 +46,10 @@ The sample `backend/.env.example` is not a production configuration. Confirm the
 
 1. Provision a new, empty, isolated staging database. Do not point the runner at a database that has already received migrations manually.
 2. Create two distinct credentials: a schema-owner/migration role for controlled DDL, and a non-owner API runtime role with only the required DML, sequence and function privileges. Do not use the migration owner as the API `DATABASE_URL`.
-3. Review migrations `001`–`018` and their dependencies before execution, including the analytical-document registry, immutable versions, independent approval/lifecycle guards, and private PDF artifact metadata in migrations `016`–`020`.
+3. Review migrations `001`–`021` and their dependencies before execution, including the analytical-document registry, immutable versions, independent approval/lifecycle guards, private PDF artifact metadata in migrations `016`–`020`, and the opt-in privacy-consent ledger in migration `021`.
 4. From a protected operator environment, set `MIGRATIONS_DATABASE_URL` to the migration-owner connection and run `MIGRATIONS_ALLOW_APPLY=true npm run migrate`. Set `MIGRATIONS_DATABASE_SSL=true` when verified TLS is required. Never commit either credential.
 5. The runner takes a PostgreSQL advisory lock, validates sequential filenames, stores SHA-256 checksums in `public.schema_migrations`, and commits each migration together with its ledger row. A checksum mismatch or SQL error stops the process; failed migration SQL is rolled back.
-6. Verify all 18 versions are recorded, then configure the separate API runtime `DATABASE_URL` and test readiness using the runtime role.
+6. Verify all 21 versions are recorded, then configure the separate API runtime `DATABASE_URL` and test readiness using the runtime role.
 7. Run the PostgreSQL integration tests against a disposable staging/test schema.
 8. Confirm the application role cannot alter database ownership or bypass append-only audit protections.
 9. Create only synthetic test accounts and records.
@@ -88,9 +88,20 @@ Passing these checks in a local CI environment is not evidence that a hosted sta
 
 Do not connect the UI until the API host, TLS, exact origin, authentication lifecycle, server-side authorization, privacy review and end-to-end tests are accepted.
 
-## 7. Decision required before provisioning
+## 7. Owner decision and zero-cost provider assessment — 2026-11-22
 
-Choose a hosting region/provider and an acceptable monthly staging budget. Compare data-location terms, PostgreSQL backup/restore, TLS, secrets management, exportability and access controls before creating resources. No paid resource should be provisioned without explicit approval.
+- Approved staging budget ceiling: EUR 0/month; only genuinely free resources are eligible.
+- Region comparison covers Europe/Frankfurt, United States/North Virginia, Russia/ru-central1 and Asia-Pacific/Singapore.
+- Provider and region assessment: [ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md](ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md).
+- Frankfurt (eu-central-1) is the provisional preferred region for a future synthetic-data sandbox; this is not deployment authorization.
+- Current zero-billing assessment: Supabase Free is a candidate for PostgreSQL + private Storage only; free quotas are enforced by service restrictions after a grace period, and projects can pause after 7 days of low activity. It does not host the existing Node.js API.
+- Render Free is excluded: free web services have ephemeral filesystems and billable outbound-bandwidth overages, without a verified hard stop. Render Free Postgres expires after 30 days.
+- Yandex Cloud free quotas become billable when exhausted. Cloudflare Workers/R2 would require an architecture adaptation; R2 overages are billable. Neither is approved for provisioning under the EUR 0 ceiling.
+- **Hosted staging is currently blocked:** no complete API + PostgreSQL + private PDF storage stack has been verified with an enforceable hard EUR 0 limit. Continue the no-cloud CI baseline only.
+- Provider comparison and decision record: [ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md](ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md).
+- Do not create any resource until an exact free-plan stack, account/payment requirements, quota behavior and hard billing stop are independently verified and separately approved. If a provider requires a payment card or can bill overages without a hard stop, do not create resources.
+- If Russian citizens' personal data is ever introduced, stop the EU/US plan and obtain a Russia-localized architecture and legal review first. Staging remains synthetic-only.
+- Do not change DNS/MX, production configuration or public website routing as part of staging preparation.
 
 
 ## Migration runner controls — 2026-11-12
@@ -111,3 +122,20 @@ Choose a hosting region/provider and an acceptable monthly staging budget. Compa
 
 - Migration 019 additionally freezes document identity fields (type, contour, asset reference, title, author and assigned reviewer) once submission begins. This prevents the issued PDF title/metadata from diverging from the reviewed document record.
 - CI regression coverage includes attempts to mutate the issued title after issuance.
+
+
+## Post-merge verification — 2026-11-22
+
+- Current `main` head verified through the GitHub branch API: `c0c6398e580cd7929cb1866f7b4141c85c2bbc2e`.
+- PR #29 is closed and merged. Its workspace API adapter is present in `website/prototype/workspace-api.js`; the HTML meta setting `userdie-api-origin` remains empty, so the adapter deliberately stays in demo-only mode and makes no live API requests.
+- Backend checks on the merge commit: [run 44926905491](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905491) — success; job `test` completed successfully. This workflow includes the PostgreSQL 16 service, backend test suite, Docker image build and container smoke test.
+- Public website deployment on the merge commit: [run 44926905675](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905675) — build and deploy jobs succeeded.
+- Website quality gate: [run 44926905493](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905493) — success.
+- Security guard on the current main commit: [run 45010028097](https://github.com/userdie-foundation/userdie-digital/actions/runs/45010028097) — secret scan, CodeQL and security operating notes succeeded.
+- Robot Team on the current main commit: [run 45027786878](https://github.com/userdie-foundation/userdie-digital/actions/runs/45027786878) — success.
+- Daily platform health check on the current main commit: [run 45017580693](https://github.com/userdie-foundation/userdie-digital/actions/runs/45017580693) — success.
+- Repository branch API reports `main` as unprotected (`protected: false`). Required branch protection/status checks are therefore not enforced at repository level.
+- No hosted staging API, staging PostgreSQL database, persistent PDF volume, production secrets, backend deployment, or live API origin was found/verified. No database migration has been applied to a hosted environment.
+- Migration 021 is present in source and is feature-gated by `PRIVACY_CONSENT_LEDGER_ENABLED=false` by default. Its presence does not mean consent collection is enabled or legally approved.
+
+The CI PostgreSQL instance is ephemeral test infrastructure only. A successful backend workflow is source/test/container evidence, not a hosted staging deployment or production acceptance. Keep all external provisioning and production changes gated by explicit owner approval.
