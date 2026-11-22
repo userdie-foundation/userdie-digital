@@ -102,6 +102,15 @@ test("rejects runtime ownership, schema creation, and default grants", () => {
   assert.ok(findings.some((finding) => finding.includes("default privilege")));
 });
 
+test("rejects default privileges granted to PUBLIC as well as directly to the runtime role", () => {
+  const fixture = acceptedFixture();
+  fixture.defaultGrants = [
+    { object_type: "r", schema_name: "public", grantee: "PUBLIC" },
+  ];
+  const findings = evaluateRuntimeRoleAudit(fixture);
+  assert.ok(findings.some((finding) => finding.includes("via PUBLIC")));
+});
+
 test("fails closed when the configured runtime role is absent", () => {
   const fixture = acceptedFixture();
   fixture.role = null;
