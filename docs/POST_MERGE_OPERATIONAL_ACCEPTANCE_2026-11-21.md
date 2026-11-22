@@ -15,7 +15,7 @@
 - Source inspection confirms that `backend/src/index.mjs` wires the account-recovery service to the Resend adapter when the required configuration is present. This is conditional source wiring, not evidence of configured credentials, delivered email, or a deployed backend.
 - The valuation workspace keeps `userdie-api-origin` empty by default. It must remain empty until the API host, TLS, database, exact allowed origin, runtime secrets, migrations 001–021, and private PDF storage have passed acceptance.
 - The migration 021 consent ledger is append-only and versioned. It has no seeded consent documents; the feature flag defaults to false; special-category and dissemination consent capture are not supported by the ordinary authenticated-session route.
-- The repository contains a PostgreSQL runtime-role acceptance audit dated 2026-11-21. It explicitly states that no live database was available and effective staging/production privileges are **NOT VERIFIED**.
+- The repository contains the original PostgreSQL runtime-role acceptance audit dated 2026-11-21. PR #33 now carries a hardened read-only audit CLI and synthetic tests, including table-specific trigger binding; neither source-level audit replaces live staging evidence. Effective staging/production privileges remain **NOT VERIFIED**.
 
 ## 2. Evidence status — do not conflate the environments
 
@@ -144,3 +144,17 @@ While backend acceptance proceeds, continue the public interface audit without e
 - Do not claim the backend is deployed because GitHub Pages is deployed.
 - Do not claim database roles, migrations, private PDF storage, email recovery, or legal compliance are operational without target-environment evidence.
 - Keep USERDIE Digital, the Foundation, the Asset Valuation Center, the Analytical Center, BFU, and ZHAKIN Points within their approved organizational and data boundaries.
+
+
+## 2B. Status refresh — 2026-11-22
+
+The following later review branches add evidence and implementation controls without changing the merge commit or activating production services:
+
+- PR #33 (`5418a63b7c393c6de6ce070d64ba992999106159`): read-only runtime-role audit CLI. Backend checks, public repository security check, and USERDIE Security Guard all passed on this exact commit. The audit now verifies each required consent trigger by table + trigger name + expected function name. No target database has been inspected.
+- PR #34: refreshed staging runbook, post-merge checkpoint, and zero-cost provider assessment. Public repository security check and USERDIE Security Guard passed. Hosted provisioning remains deferred; no complete zero-cost API + PostgreSQL + private PDF stack is approved.
+- PR #35: private PDF storage hardening and synthetic regression tests. Backend checks and USERDIE Security Guard passed. No persistent production storage is configured.
+- PR #36: workspace visual refinement. Website quality gate and both security workflows passed. Rendered desktop/mobile review remains outstanding; the PR remains Draft.
+- PR #37: dated legal-audit reconciliation. Documentation only; legal approval is not claimed.
+- PR #38: Analytics Center governance blueprint. Documentation only; no analyst role, KPI targets, API or live-data permissions are authorized.
+
+These PRs are separate review candidates. None is merged by this addendum. The main branch remains at `c0c6398e580cd7929cb1866f7b4141c85c2bbc2e` unless a later verified merge is recorded.
