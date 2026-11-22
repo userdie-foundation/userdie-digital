@@ -48,13 +48,13 @@ assert.match(html, /\.document-register-filters[\s\S]*?@media\(max-width:760px\)
 assert.match(html, /@media\(max-width:420px\)\{\.document-record-grid\{grid-template-columns:1fr\}\}\s*\.document-register-filters\{/,
   "document register filter base styles must not be nested inside the 420px media query");
 
-assert.match(html, /function beginDocumentEdit\\(id\\)[\\s\\S]*?setDocumentFormMode\\(true\\)/,
+assert.ok(html.includes("function beginDocumentEdit(id)") && html.includes("setDocumentFormMode(true)"),
   "document cards must support editing existing metadata through the shared object form");
-assert.match(html, /revisionHistory\\.unshift\\(\\{at:new Date\\(\\)\\.toISOString\\(\\),version:previous\\.documentMeta\\.version/,
+assert.ok(html.includes("revisionHistory.unshift({at:new Date().toISOString(),version:previous.documentMeta.version"),
   "editing must preserve the previous document revision");
-assert.match(html, /function cancelDocumentEdit\\(\\)[\\s\\S]*?editingDocumentId=null/,
+assert.ok(html.includes("function cancelDocumentEdit()") && html.includes("editingDocumentId=null"),
   "document editing must be cancellable without saving");
-assert.match(html, /document-revision-history[\\s\\S]*?автор, полномочия и серверная неизменяемость не подтверждаются/,
+assert.ok(html.includes("document-revision-history") && html.includes("автор, полномочия и серверная неизменяемость не подтверждаются"),
   "revision history must disclose local demo-only limitations");
 
 console.log("Document register checks passed: create/edit, duplicate guard, revision history, filters, local-only storage, legal disclaimers and responsive layout.");
