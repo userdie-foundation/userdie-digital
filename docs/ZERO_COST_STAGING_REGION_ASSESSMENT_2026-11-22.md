@@ -24,19 +24,20 @@ A hosted free-tier service is not automatically suitable for reliable staging:
 - a free database may pause due to inactivity;
 - free database tiers may have no managed backups;
 - ephemeral application filesystems cannot hold issued PDFs;
-- quota overages may trigger billing unless hard-stopped.
+- some providers bill overages (or have no enforceable account-level hard stop);
+- free-plan quota restrictions may make the service unavailable until the next billing cycle.
 
-Therefore, the only permissible initial data is synthetic test data. Any hosted free-tier deployment is a temporary integration sandbox, not a durable staging or production service.
+Therefore, the only permissible initial data is synthetic test data. Any hosted free-tier deployment is a temporary integration sandbox, not a durable staging or production service. The EUR 0 ceiling takes precedence over convenience: a provider that can bill beyond the free allowance is excluded unless a verifiable hard stop is available and active.
 
 ## 3. Provider / service comparison
 
 | Candidate | Free capability relevant to USERDIE | Material limits / risks | Assessment |
 |---|---|---|---|
-| Supabase Free — PostgreSQL + private Storage | Managed PostgreSQL; 500 MB database per project; 1 GB file storage; 5 GB egress; up to two active free projects. PostgreSQL connection string is compatible with the existing pg backend. Private Storage buckets can support protected PDF objects. | Free projects may pause after 7 days of low activity. No automatic backups on Free; no PITR. Small quotas. Must verify project region and storage access policies. | Strongest candidate for database + private PDF object store in a short-lived synthetic-data sandbox. Not a durable service. |
-| Render Free — Node.js web service | Runs a Node.js web service; 750 free instance-hours per workspace/month; supports a separate API process. | Free service sleeps when idle, may restart, has no persistent disk/SSH/private inbound networking. Outbound bandwidth overage can be billable. Do not use Render Free Postgres: it expires after 30 days and has no backups. | Possible API host only, paired with external managed PostgreSQL and object storage. Must enforce a no-billing boundary and verify actual region availability before use. |
+| Supabase Free — PostgreSQL + private Storage | Managed PostgreSQL; 500 MB database per project; 1 GB file storage; 5 GB uncached + 5 GB cached egress; up to two active free projects. PostgreSQL connection string is compatible with the existing pg backend. Private Storage buckets can support protected PDF objects. | Free projects may pause after 7 days of low activity. No automatic backups or PITR on Free. Quota overages lead to notices and service restrictions after a grace period rather than usage overage billing while the project remains on Free; paid add-ons/upgrades must remain disabled. | Suitable as a candidate DB + private PDF object store for synthetic-data tests only. It does not host the existing Node.js API and is not a complete staging environment. |
+| Render Free — Node.js web service | Runs the current Node.js service; 750 free instance-hours per workspace/month. | Free service sleeps after 15 minutes idle, may restart, has no persistent disk/SSH/private inbound networking. Outbound bandwidth overage is billable; free Postgres expires after 30 days and has no backups. No verified hard stop prevents overage charges. | EXCLUDED under the strict EUR 0 decision. Do not deploy USERDIE API here. |
 | Neon Free — PostgreSQL | PostgreSQL-compatible service; current free plan advertises per-project compute/storage quotas and scale-to-zero. Useful as a DB-only alternative. | No Node API host or private PDF object store as a complete solution. Free compute/storage quotas and regions must be rechecked at account creation; scale-to-zero adds cold starts. | Viable alternative to Supabase for DB-only tests, but creates a second provider for PDF storage and more operational pieces. |
-| Cloudflare Workers Free + R2 | Workers Free: 100,000 requests/day and 10 ms CPU per invocation. R2 Standard free allowance: 10 GB-month, 1 million Class A requests, 10 million Class B requests, no egress fee. R2 supports EU and US jurisdiction restrictions. | Current backend is a Node.js Docker service, not a Cloudflare Worker; direct adoption would require a reviewed runtime/architecture adaptation. R2 is object storage, not PostgreSQL. R2 overages are billed. | Useful for a future edge/API or PDF-storage design, but not the lowest-risk way to host the current backend unchanged. |
-| Yandex Cloud — Russia | Monthly free quotas include Cloud Functions, Serverless Containers, API Gateway, Object Storage and YDB. Russia region is available. | Free tier is a quota, not a universal hard-free hosting plan: usage above included limits is billable. YDB is not PostgreSQL; current backend expects PostgreSQL. Managed PostgreSQL/VM capacity is not established as a permanent zero-cost option. New legal-entity trial eligibility may be restricted. | Best regional candidate to investigate if Russian data residency is mandatory, but it does not currently satisfy the strict zero-cost + PostgreSQL compatibility requirement without further proof. |
+| Cloudflare Workers Free + R2 | Workers Free: 100,000 requests/day and 10 ms CPU per invocation. R2 Standard free allowance: 10 GB-month, 1 million Class A requests, 10 million Class B requests, no egress fee. R2 supports EU and US jurisdiction restrictions. | Current backend is a Node.js Docker service, not a Cloudflare Worker; adoption requires a reviewed runtime/architecture adaptation. R2 is object storage, not PostgreSQL. R2 usage beyond free allowances is billed; no verified hard stop is available for this use case. | EXCLUDED as a hosted API + PDF solution under the strict EUR 0 decision. Revisit only after a separate adapter design and verified zero-billing controls. |
+| Yandex Cloud — Russia | Monthly free quotas include Cloud Functions, Serverless Containers, API Gateway, Object Storage and YDB. Russia region is available. | Once the free quota is exhausted, charges apply. No verified hard stop prevents billing. YDB is not PostgreSQL; current backend expects PostgreSQL. Managed PostgreSQL/VM capacity is not established as a permanent zero-cost option. | EXCLUDED under the strict EUR 0 decision unless a hard billing stop and PostgreSQL-compatible service are independently verified. |
 
 Provider limits are subject to change. Before any account/resource creation, re-check the linked official pricing and limitations pages and capture the exact plan, region, quotas, payment requirements and overage behavior.
 
@@ -48,7 +49,7 @@ Provider limits are subject to change. Before any account/resource creation, re-
 - Good technical default for a Europe-facing test environment and EU data-residency planning.
 - A region selection alone is not a GDPR compliance determination. DPA, subprocessors, transfer terms, access controls and retention still require review.
 
-**Assessment:** preferred location for a synthetic-data integration sandbox if no Russian personal data is involved and the intended first audience is Europe/international.
+**Assessment:** preferred region for a future synthetic-data integration sandbox. Region selection is approved provisionally, but resource creation remains blocked because no hosted API service has yet met the zero-billing condition.
 
 ### United States — North Virginia (us-east-1)
 - Supabase lists East US (North Virginia) as an exact region.
@@ -134,8 +135,11 @@ If any provider cannot guarantee a hard EUR 0 boundary, do not create resources 
 - [x] Existing backend's PostgreSQL and private PDF requirements considered.
 - [x] Free-tier pause, storage, backup and overage risks identified.
 - [x] No production, DNS/MX or real personal data changes authorized.
-- [ ] Provider/account selected and independently verified.
-- [ ] Zero-billing / no-overage behavior confirmed.
-- [ ] Exact free API, PostgreSQL and private storage regions confirmed.
-- [ ] Separate approval to create resources received.
+- [x] Frankfurt selected as provisional preferred region, not as provisioning authorization.
+- [x] Render Free excluded because outbound bandwidth overage is billable.
+- [x] Yandex Cloud excluded until a hard billing stop is demonstrated.
+- [x] Supabase Free assessed as DB/private-storage candidate only, not a full API host.
+- [ ] A complete hosted API + PostgreSQL + private-storage stack with a verifiable hard EUR 0 limit identified.
+- [ ] Provider/account and payment requirements independently verified.
+- [ ] Separate approval to create exact resources received.
 - [ ] Hosted staging provisioned and independently tested.
