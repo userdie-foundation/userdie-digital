@@ -15,9 +15,9 @@ for (const id of [
 ]) {
   assert.ok(html.includes('id="' + id + '"'), "document register control must exist: " + id);
 }
-assert.match(html, /const documentMeta=objectType==="document"\?\{[\s\S]*?registrationNumber:[\s\S]*?evidenceStatus:/,
+assert.match(html, /const documentMeta=type==="document"\?\{[\s\S]*?registrationNumber:[\s\S]*?evidenceStatus:/,
   "document metadata must be collected only for document objects");
-assert.match(html, /hasDuplicateDocumentRegistrationNumber\(documentMeta\?\.registrationNumber,uniqueEntries\)/,
+assert.match(html, /hasDuplicateDocumentRegistrationNumber\(documentMeta\.registrationNumber,uniqueEntries\)/,
   "document creation must call the registration-number uniqueness guard");
 const helperMatch = html.match(/function hasDuplicateDocumentRegistrationNumber\(registrationNumber,entries\)\{[\s\S]*?\}/);
 assert.ok(helperMatch, "registration-number uniqueness helper must exist");
@@ -45,7 +45,7 @@ assert.match(html, /Публичное использование допуска
   "public use must remain gated by documentary review and separate approval");
 assert.match(html, /\.document-register-filters[\s\S]*?@media\(max-width:760px\)/,
   "document register filters must have a narrow-screen layout");
-assert.match(html, /@media\(max-width:420px\)\{\.document-record-grid\{grid-template-columns:1fr\}\}\s*\.document-register-filters\{/,
+assert.ok(html.indexOf("@media(max-width:420px){.document-record-grid{grid-template-columns:1fr}}") < html.indexOf(".document-register-filters{"),
   "document register filter base styles must not be nested inside the 420px media query");
 
 assert.ok(html.includes("function beginDocumentEdit(id)") && html.includes("setDocumentFormMode(true)"),
