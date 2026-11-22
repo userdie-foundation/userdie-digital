@@ -86,27 +86,19 @@ Provider limits are subject to change. Before any account/resource creation, re-
 5. Keep all fixtures synthetic; keep account recovery and consent collection fail-closed.
 6. Record the deployed commit and every test result. CI success is not a hosted staging deployment.
 
-### Phase B — optional hosted sandbox, only after separate approval
-Proposed candidate architecture for evaluation:
-- API: Render Free Node.js web service.
-- Database: Supabase Free PostgreSQL, exact region Frankfurt (eu-central-1) for the first synthetic-data trial.
-- PDF artifacts: Supabase private Storage bucket in the same project/region, with server-side authorization and short-lived signed downloads; never store PDFs on the Render filesystem.
-- Secrets: provider protected environment settings only; no secrets in GitHub source or public Pages.
-- Data: synthetic test accounts/documents only.
-- Email recovery: remain disabled until a free delivery path, verified sender, secret handling and full end-to-end reset test are proven without charge.
-- Backups: export encrypted synthetic DB fixtures and test restore outside the provider; do not claim provider-managed backup coverage on Free.
+### Phase B — deferred; no hosted stack currently approved
 
-This is a candidate for a disposable integration sandbox, not a final production architecture. Render free service sleep/restart and Supabase free-project pausing mean it cannot be treated as continuously available.
+No provider combination is currently approved for resource creation under the EUR 0/month ceiling.
 
-Before creating it, verify:
-- no payment card or auto-upgrade is required; if a card is required, stop and return for approval;
-- usage can be hard-stopped at zero rather than billed on overage;
-- selected API and DB regions are available on the exact free plans;
-- private bucket policies prevent public listing and anonymous access;
-- account ownership, MFA and recovery contacts are under Foundation control;
-- no cross-region copy or telemetry of personal data is enabled.
+- Render Free is excluded because outbound-bandwidth overages are billable and a verifiable hard billing stop has not been established.
+- Supabase Free is a candidate for PostgreSQL and private object storage only; it does not host the existing Node.js API.
+- Neon Free is a possible database-only alternative, but would still require a separately verified API host and private PDF storage.
+- Cloudflare Workers/R2 would require a separate runtime/storage architecture adaptation and verified hard-stop controls; it is not an approved substitute for the existing Node.js service.
+- Yandex Cloud remains excluded until a PostgreSQL-compatible stack and enforceable zero-billing limit are independently demonstrated.
 
-If any provider cannot guarantee a hard EUR 0 boundary, do not create resources there.
+Do not combine individually free services into an assumed free stack. Before any future proposal, verify each component's current plan, region, payment-card requirements, quota reset behavior, overage behavior, private-storage controls, data location, and account-level hard stop. If any component can create a charge beyond the approved ceiling, the proposal is rejected unless a verifiable hard stop is enabled and separately approved.
+
+Until a complete stack passes that gate, continue Phase A only: GitHub Actions disposable PostgreSQL integration tests, container build/smoke tests, synthetic fixtures and no external provisioning.
 
 ## 6. Region recommendation and decision gate
 
