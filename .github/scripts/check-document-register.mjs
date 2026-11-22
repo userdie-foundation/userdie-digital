@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import vm from "node:vm";
 
 const html = fs.readFileSync("website/prototype/workspace.html", "utf8");
 
@@ -16,8 +17,18 @@ for (const id of [
 }
 assert.match(html, /const documentMeta=objectType==="document"\?\{[\s\S]*?registrationNumber:[\s\S]*?evidenceStatus:/,
   "document metadata must be collected only for document objects");
-assert.match(html, /documentMeta\?\.registrationNumber[\s\S]*?objects\.some\(item=>item\.type==="document"/,
-  "registration number must be unique within the demonstration document register");
+assert.match(html, /hasDuplicateDocumentRegistrationNumber\(documentMeta\.registrationNumber,objects\)/,
+  "document creation must call the registration-number uniqueness guard");
+const helperMatch = html.match(/function hasDuplicateDocumentRegistrationNumber\(registrationNumber,entries\)\{[\s\S]*?\}/);
+assert.ok(helperMatch, "registration-number uniqueness helper must exist");
+const hasDuplicateDocumentRegistrationNumber = vm.runInNewContext("(" + helperMatch[0] + ")");
+const existingDocument = [{ type: "document", documentMeta: { registrationNumber: "REG-2026-01" } }];
+assert.equal(hasDuplicateDocumentRegistrationNumber(" reg-2026-01 ", existingDocument), true,
+  "registration-number comparison must trim whitespace and ignore case");
+assert.equal(hasDuplicateDocumentRegistrationNumber("REG-2026-02", existingDocument), false,
+  "a different registration number must be accepted");
+assert.equal(hasDuplicateDocumentRegistrationNumber("   ", existingDocument), false,
+  "an empty optional registration number must not be treated as a duplicate");
 assert.match(html, /function renderDocumentRegister\(\)[\s\S]*?document-register-search[\s\S]*?document-register-status[\s\S]*?document-register-contour/,
   "document register must filter by search, evidence status and organizational contour");
 assert.match(html, /function syncDocumentFields\(\)[\s\S]*?field\.disabled=!active/,
