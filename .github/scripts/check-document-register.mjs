@@ -29,6 +29,8 @@ assert.equal(hasDuplicateDocumentRegistrationNumber("REG-2026-02", existingDocum
   "a different registration number must be accepted");
 assert.equal(hasDuplicateDocumentRegistrationNumber("   ", existingDocument), false,
   "an empty optional registration number must not be treated as a duplicate");
+assert.equal(hasDuplicateDocumentRegistrationNumber("REG-2026-01", existingDocument.filter(item => item.id !== "DEMO-001")), false,
+  "an edited document must be excluded from its own duplicate-number check");
 assert.match(html, /function renderDocumentRegister\(\)[\s\S]*?document-register-search[\s\S]*?document-register-status[\s\S]*?document-register-contour/,
   "document register must filter by search, evidence status and organizational contour");
 assert.match(html, /function syncDocumentFields\(\)[\s\S]*?field\.disabled=!active/,
@@ -46,4 +48,13 @@ assert.match(html, /\.document-register-filters[\s\S]*?@media\(max-width:760px\)
 assert.match(html, /@media\(max-width:420px\)\{\.document-record-grid\{grid-template-columns:1fr\}\}\s*\.document-register-filters\{/,
   "document register filter base styles must not be nested inside the 420px media query");
 
-console.log("Document register checks passed: metadata form, unique registration number, filters, local-only storage, legal disclaimers and responsive filter layout.");
+assert.match(html, /function beginDocumentEdit\\(id\\)[\\s\\S]*?setDocumentFormMode\\(true\\)/,
+  "document cards must support editing existing metadata through the shared object form");
+assert.match(html, /revisionHistory\\.unshift\\(\\{at:new Date\\(\\)\\.toISOString\\(\\),version:previous\\.documentMeta\\.version/,
+  "editing must preserve the previous document revision");
+assert.match(html, /function cancelDocumentEdit\\(\\)[\\s\\S]*?editingDocumentId=null/,
+  "document editing must be cancellable without saving");
+assert.match(html, /document-revision-history[\\s\\S]*?автор, полномочия и серверная неизменяемость не подтверждаются/,
+  "revision history must disclose local demo-only limitations");
+
+console.log("Document register checks passed: create/edit, duplicate guard, revision history, filters, local-only storage, legal disclaimers and responsive layout.");
