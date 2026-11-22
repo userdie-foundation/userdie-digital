@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -95,5 +95,19 @@ test("PDF artifact removal deletes only the requested stored file", async () => 
     const stored = await persistAnalyticalDocumentPdf({ directory, bytes: samplePdf });
     await removeStoredAnalyticalDocumentPdf(stored.target);
     await assert.rejects(stat(stored.target), { code: "ENOENT" });
+  });
+});
+
+test("PDF persistence tightens permissions on an already-existing storage directory", async (t) => {
+  await withStorage(async (directory) => {
+    await mkdir(directory, { recursive: true, mode: 0o755 });
+    if (process.platform === "win32") {
+      t.skip("POSIX permission bits are not portable to Windows");
+      return;
+    }
+    await chmod(directory, 0o755);
+    await persistAnalyticalDocumentPdf({ directory, bytes: samplePdf });
+    const directoryMode = (await stat(directory)).mode & 0o777;
+    assert.equal(directoryMode, 0o700, "existing PDF storage directory must be restricted to its owner");
   });
 });
