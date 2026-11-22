@@ -93,9 +93,13 @@ Do not connect the UI until the API host, TLS, exact origin, authentication life
 - Approved staging budget ceiling: EUR 0/month; only genuinely free resources are eligible.
 - Region comparison covers Europe/Frankfurt, United States/North Virginia, Russia/ru-central1 and Asia-Pacific/Singapore.
 - Provider and region assessment: [ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md](ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md).
-- Technical preference for a synthetic-data sandbox: Supabase Free PostgreSQL + private Storage in Frankfurt, with a separately hosted Node.js API only if a free API host can guarantee a hard zero-billing boundary.
-- This is a candidate architecture, not provisioning approval. No resource may be created until the exact provider account, plan, region, payment/overage behavior and service limits are verified and separately approved.
-- If any provider requires a payment card or can bill overages without a hard stop, do not create resources.
+- Frankfurt (eu-central-1) is the provisional preferred region for a future synthetic-data sandbox; this is not deployment authorization.
+- Current zero-billing assessment: Supabase Free is a candidate for PostgreSQL + private Storage only; free quotas are enforced by service restrictions after a grace period, and projects can pause after 7 days of low activity. It does not host the existing Node.js API.
+- Render Free is excluded: free web services have ephemeral filesystems and billable outbound-bandwidth overages, without a verified hard stop. Render Free Postgres expires after 30 days.
+- Yandex Cloud free quotas become billable when exhausted. Cloudflare Workers/R2 would require an architecture adaptation; R2 overages are billable. Neither is approved for provisioning under the EUR 0 ceiling.
+- **Hosted staging is currently blocked:** no complete API + PostgreSQL + private PDF storage stack has been verified with an enforceable hard EUR 0 limit. Continue the no-cloud CI baseline only.
+- Provider comparison and decision record: [ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md](ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md).
+- Do not create any resource until an exact free-plan stack, account/payment requirements, quota behavior and hard billing stop are independently verified and separately approved. If a provider requires a payment card or can bill overages without a hard stop, do not create resources.
 - If Russian citizens' personal data is ever introduced, stop the EU/US plan and obtain a Russia-localized architecture and legal review first. Staging remains synthetic-only.
 - Do not change DNS/MX, production configuration or public website routing as part of staging preparation.
 
