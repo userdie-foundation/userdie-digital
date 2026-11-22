@@ -221,7 +221,7 @@ export async function persistAnalyticalDocumentPdf({ directory, bytes }) {
 
 export async function readStoredAnalyticalDocumentPdf({ directory, key, sha256, byteSize }) {
   await assertPrivatePdfDirectory(directory);
-  if (!/^[0-9a-f-]{36}\\.pdf$/i.test(key ?? "")) throw new Error("Invalid PDF storage key");
+  if (!/^[0-9a-f-]{36}\.pdf$/i.test(key ?? "")) throw new Error("Invalid PDF storage key");
   const target = path.join(directory, key);
   const fileInfo = await lstat(target);
   if (!fileInfo.isFile() || fileInfo.isSymbolicLink() ||
