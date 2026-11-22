@@ -14,10 +14,10 @@ It checks:
 - the role has schema USAGE but not CREATE;
 - `privacy_consent_documents` is SELECT-only;
 - `privacy_consent_events` has SELECT and INSERT only;
-- all six migration-021 protection triggers are enabled;
-- no PostgreSQL default privileges grant future objects to the runtime role.
+- all six migration-021 protection triggers are enabled and wired to their expected function names;
+- no application-schema or global PostgreSQL default ACL grants future object privileges to the runtime role or PUBLIC.
 
-The audit intentionally checks effective privileges, not only direct GRANT statements. It is limited to the consent ledger and does not replace a full application-wide permission review, review of RLS policies, secrets management, network controls, or a DBA security assessment.
+The audit intentionally checks effective privileges, not only direct GRANT statements. It also rejects applicable default ACL entries for PUBLIC because those privileges are inherited by the runtime role. It verifies the expected trigger-function names but does not hash or prove the deployed function bodies match the reviewed migration source. It is limited to the consent ledger and does not replace a full application-wide permission review, review of RLS policies, secrets management, network controls, or a DBA security assessment.
 
 ## Run against isolated staging
 
