@@ -2,14 +2,14 @@ import { Pool } from "pg";
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
 
-const REQUIRED_TRIGGERS = new Set([
-  "privacy_consent_documents_immutable",
-  "privacy_consent_documents_no_truncate",
-  "privacy_consent_documents_validate_choices",
-  "privacy_consent_events_integrity",
-  "privacy_consent_events_no_update_delete",
-  "privacy_consent_events_no_truncate",
-]);
+const REQUIRED_TRIGGERS = {
+  privacy_consent_documents_immutable: "protect_privacy_consent_document_versions",
+  privacy_consent_documents_no_truncate: "prevent_privacy_consent_document_truncate",
+  privacy_consent_documents_validate_choices: "validate_privacy_consent_document_choices",
+  privacy_consent_events_integrity: "enforce_privacy_consent_event_integrity",
+  privacy_consent_events_no_update_delete: "prevent_privacy_consent_event_mutation",
+  privacy_consent_events_no_truncate: "prevent_privacy_consent_event_mutation",
+};
 
 const TABLE_POLICY = {
   privacy_consent_documents: {
@@ -54,12 +54,20 @@ export function evaluateRuntimeRoleAudit({ role, memberships, schema, tables, tr
     }
   }
 
-  const enabledTriggers = new Set(
+  const enabledTriggers = new Map(
     triggers.filter((trigger) => trigger.enabled === "O" || trigger.enabled === "A")
-      .map((trigger) => trigger.trigger_name),
+      .map((trigger) => [trigger.trigger_name, trigger]),
   );
-  for (const triggerName of REQUIRED_TRIGGERS) {
-    addFinding(findings, enabledTriggers.has(triggerName), `Required protection trigger is missing or disabled: ${triggerName}.`);
+  for (const [triggerName, expectedFunction] of Object.entries(REQUIRED_TRIGGERS)) {
+    const trigger = enabledTriggers.get(triggerName);
+    addFinding(findings, Boolean(trigger), `Required protection trigger is missing or disabled: ${triggerName}.`);
+    if (trigger) {
+      addFinding(
+        findings,
+        trigger.function_name === expectedFunction,
+        `Protection trigger ${triggerName} does not call expected function ${expectedFunction}.`,
+      );
+    }
   }
   for (const trigger of triggers) {
     addFinding(findings, trigger.function_owner !== role.rolname, `Runtime role owns protection function for trigger: ${trigger.trigger_name}.`);
@@ -151,6 +159,7 @@ async function main() {
 
       const triggerResult = await client.query(
         `SELECT t.tgname AS trigger_name, t.tgenabled AS enabled,
+                p.proname AS function_name,
                 pg_get_userbyid(p.proowner) AS function_owner
          FROM pg_trigger t
          JOIN pg_class c ON c.oid = t.tgrelid
@@ -170,7 +179,8 @@ async function main() {
          FROM pg_default_acl d
          LEFT JOIN pg_namespace n ON n.oid = d.defaclnamespace
          CROSS JOIN LATERAL aclexplode(d.defaclacl) acl
-         WHERE acl.grantee IN (0, $1)`,
+         WHERE acl.grantee IN (0, $1)
+           AND (d.defaclnamespace = 0 OR n.nspname = 'public')`,
         [role.oid],
       );
       defaultGrants = defaultGrantResult.rows;
