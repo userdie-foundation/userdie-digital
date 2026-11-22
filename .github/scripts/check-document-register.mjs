@@ -43,5 +43,7 @@ assert.match(html, /Публичное использование допуска
   "public use must remain gated by documentary review and separate approval");
 assert.match(html, /\.document-register-filters[\s\S]*?@media\(max-width:760px\)/,
   "document register filters must have a narrow-screen layout");
+assert.match(html, /@media\(max-width:420px\)\{\.document-record-grid\{grid-template-columns:1fr\}\}\s*\.document-register-filters\{/,
+  "document register filter base styles must not be nested inside the 420px media query");
 
 console.log("Document register checks passed: metadata form, unique registration number, filters, local-only storage, legal disclaimers and responsive filter layout.");
