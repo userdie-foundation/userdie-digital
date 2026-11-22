@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import { createHash, randomUUID } from "node:crypto";
-import { chmod, lstat, mkdir, readFile, writeFile, unlink } from "node:fs/promises";
+import { constants } from "node:fs";
+import { chmod, lstat, mkdir, open, readFile, writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 
 const LABELS = {
@@ -227,13 +228,32 @@ export async function readStoredAnalyticalDocumentPdf({ directory, key, sha256, 
   if (!/^[0-9a-f-]{36}\.pdf$/i.test(key ?? "")) throw new Error("Invalid PDF storage key");
   await assertPrivatePdfDirectory(directory);
   const target = path.join(directory, key);
-  const fileInfo = await lstat(target);
-  if (!fileInfo.isFile() || fileInfo.isSymbolicLink() ||
-      (typeof process.getuid === "function" && fileInfo.uid !== process.getuid()) ||
-      hasInsecurePosixPermissions(fileInfo)) {
+  const pathInfo = await lstat(target);
+  if (!pathInfo.isFile() || pathInfo.isSymbolicLink() ||
+      (typeof process.getuid === "function" && pathInfo.uid !== process.getuid()) ||
+      hasInsecurePosixPermissions(pathInfo)) {
     throw new Error("Stored PDF artifact is not a private regular file");
   }
-  const bytes = await readFile(target);
+
+  // Pin the read to one file descriptor. O_NOFOLLOW prevents a symlink swap
+  // on platforms that support it; the device/inode comparison also detects
+  // replacement between lstat and open on platforms without O_NOFOLLOW.
+  const flags = constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0);
+  const handle = await open(target, flags);
+  let bytes;
+  try {
+    const fileInfo = await handle.stat();
+    if (!fileInfo.isFile() ||
+        fileInfo.dev !== pathInfo.dev ||
+        fileInfo.ino !== pathInfo.ino ||
+        (typeof process.getuid === "function" && fileInfo.uid !== process.getuid()) ||
+        hasInsecurePosixPermissions(fileInfo)) {
+      throw new Error("Stored PDF artifact changed or is not a private regular file");
+    }
+    bytes = await handle.readFile();
+  } finally {
+    await handle.close();
+  }
   const digest = createHash("sha256").update(bytes).digest("hex");
   if (digest !== sha256 || bytes.length !== byteSize) throw new Error("Stored analytical PDF integrity check failed");
   return bytes;
