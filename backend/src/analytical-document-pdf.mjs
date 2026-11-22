@@ -176,7 +176,7 @@ export async function renderAnalyticalDocumentPdf({
 }
 
 function hasInsecurePosixPermissions(info) {
-  return process.platform !== "win32" && hasInsecurePosixPermissions(info);
+  return process.platform !== "win32" && (info.mode & 0o077) !== 0;
 }
 
 async function assertPrivatePdfDirectory(directory, { create = false } = {}) {
