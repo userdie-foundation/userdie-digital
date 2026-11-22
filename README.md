@@ -10,7 +10,8 @@ Digital platform of USERDIE Foundation
 ## Platform architecture and governance
 
 - [Platform architecture](docs/PLATFORM_ARCHITECTURE.md) — organizational contours, functional domains, roles, AI controls, separation of USERDIE Digital / BFU / ZHAKIN Points, security boundaries and implementation stages.
-- [PostgreSQL runtime-role audit CLI](docs/POSTGRES_RUNTIME_ROLE_AUDIT_CLI.md) — read-only staging audit of effective consent-ledger privileges, role membership, ownership, default grants and migration-021 protection triggers.\n- [Platform recovery and backup plan](docs/RECOVERY_PLAN.md) — planned safeguards and recovery steps. Backup storage, alternate publication, and automatic failover are not considered operational until separately configured and tested.
+- [PostgreSQL runtime-role audit CLI](docs/POSTGRES_RUNTIME_ROLE_AUDIT_CLI.md) — read-only staging audit of effective consent-ledger privileges, role membership, ownership, default grants and migration-021 protection triggers.
+- [Platform recovery and backup plan](docs/RECOVERY_PLAN.md) — planned safeguards and recovery steps. Backup storage, alternate publication, and automatic failover are not considered operational until separately configured and tested.
 - [Security readiness review](docs/SECURITY_READINESS_REVIEW.md) — current production blockers, required access-control tests and release gates. This is a design review, not a penetration test or production certification.
 - [Secure cabinet blueprint](docs/CABINET_SECURITY_BLUEPRINT.md) — applicant/partner journeys, proposed role boundaries, API/data separation and release acceptance gates.
 
