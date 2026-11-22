@@ -62,7 +62,7 @@ Source files changed:
 
 Commit containing the fix and regression test: `13929c3be5fa5f67fe0639ca539a70e3e77933f2`.
 
-**Verification limitation:** the files were fetched back from GitHub and the expected guard/test were confirmed in the branch. No workflow run or combined status was returned for this SHA at the time of review; therefore the regression test is added but not yet reported as executed/green.
+**Post-merge verification:** the regression test and route guard are included in PR #29 and were exercised by Backend checks on the merged main commit `c0c6398e580cd7929cb1866f7b4141c85c2bbc2e` ([run 44926905491](https://github.com/userdie-foundation/userdie-digital/actions/runs/44926905491), conclusion `success`). This confirms CI execution on the merged commit, not a live/staging database deployment.
 
 ## 4. Required decisions before live analytics implementation
 
@@ -95,7 +95,7 @@ Commit containing the fix and regression test: `13929c3be5fa5f67fe0639ca539a70e3
 - [x] Reviewed the existing workspace summary API and access policy.
 - [x] Confirmed no dedicated analyst server role is currently approved/implemented.
 - [x] Fixed the PDF HEAD side-effect issue and added a regression test.
-- [ ] CI execution/result for the fix commit confirmed.
+- [x] CI execution/result for the fix confirmed on merged main commit `c0c6398e580cd7929cb1866f7b4141c85c2bbc2e` (Backend checks run 44926905491 — success).
 - [ ] Analyst role and scope approved.
 - [ ] Small-group disclosure policy approved.
 - [ ] KPI dictionary and SLA calendar approved.
@@ -103,4 +103,4 @@ Commit containing the fix and regression test: `13929c3be5fa5f67fe0639ca539a70e3
 - [ ] Staging database and data-freshness acceptance completed.
 - [ ] Dashboard connected to a live, approved aggregate endpoint.
 
-**Release position:** do not label the analytics center as live or production-ready. Continue implementation in the feature branch; do not merge, deploy, enable data collection or expose real beneficiary data until the listed controls are accepted.
+**Release position (post-merge update, 2026-11-22):** PR #29 has been merged into `main`; the source-level PDF HEAD correction is now in the main line and its Backend checks passed. The Analytics Center management dashboard remains a synthetic-data prototype, not a live KPI service. Do not label it live or production-ready, deploy it, enable data collection or expose real beneficiary data until the listed governance, privacy, infrastructure and acceptance controls are approved. Continue remaining work in a new, separately reviewed branch.
