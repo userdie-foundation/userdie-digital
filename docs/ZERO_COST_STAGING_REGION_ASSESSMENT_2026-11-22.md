@@ -19,6 +19,8 @@
 
 The backend is a Node.js 22+ service packaged as a Docker image and expects PostgreSQL through the pg driver. It exposes liveness/readiness endpoints and has an explicit migration CLI. The analytical-document workflow expects PDF artifacts outside the public web root in private persistent storage. The workspace adapter remains demo-only while the userdie-api-origin setting is empty.
 
+The current runtime is not a drop-in Cloudflare Worker or generic edge function: `backend/src/index.mjs` starts a Node HTTP server and `pg` connection pool; PDF generation uses PDFKit plus Node filesystem/crypto APIs; migrations read SQL files from disk and require PostgreSQL advisory locks. Moving this unchanged to a serverless edge runtime is not a configuration-only task. It requires a separately designed adapter/runtime, storage API and database connection strategy, with regression tests for authentication, transaction boundaries, PDF immutability and private delivery.
+
 A hosted free-tier service is not automatically suitable for reliable staging:
 - the API process may sleep or restart;
 - a free database may pause due to inactivity;
