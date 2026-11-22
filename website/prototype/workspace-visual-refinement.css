@@ -455,8 +455,17 @@ body.workspace :where(button,input,select,textarea) {
     border-right: 0;
     border-bottom: 1px solid var(--app-line);
   }
-  /* Mobile navigation geometry is owned by mobile-a11y.css.
-     Keep its two-column touch-friendly layout consistent for buttons and links. */
+  /* mobile-a11y.css owns the two-column grid and touch target sizing.
+     Keep each icon and label on one horizontal row inside its navigation cell. */
+  body.workspace .app-nav button,
+  body.workspace .app-nav .app-nav-link {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+    text-align: left;
+  }
   body.workspace .app-main {
     padding: 21px 15px 42px;
   }
