@@ -88,9 +88,16 @@ Passing these checks in a local CI environment is not evidence that a hosted sta
 
 Do not connect the UI until the API host, TLS, exact origin, authentication lifecycle, server-side authorization, privacy review and end-to-end tests are accepted.
 
-## 7. Decision required before provisioning
+## 7. Owner decision and zero-cost provider assessment — 2026-11-22
 
-Choose a hosting region/provider and an acceptable monthly staging budget. Compare data-location terms, PostgreSQL backup/restore, TLS, secrets management, exportability and access controls before creating resources. No paid resource should be provisioned without explicit approval.
+- Approved staging budget ceiling: EUR 0/month; only genuinely free resources are eligible.
+- Region comparison covers Europe/Frankfurt, United States/North Virginia, Russia/ru-central1 and Asia-Pacific/Singapore.
+- Provider and region assessment: [ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md](ZERO_COST_STAGING_REGION_ASSESSMENT_2026-11-22.md).
+- Technical preference for a synthetic-data sandbox: Supabase Free PostgreSQL + private Storage in Frankfurt, with a separately hosted Node.js API only if a free API host can guarantee a hard zero-billing boundary.
+- This is a candidate architecture, not provisioning approval. No resource may be created until the exact provider account, plan, region, payment/overage behavior and service limits are verified and separately approved.
+- If any provider requires a payment card or can bill overages without a hard stop, do not create resources.
+- If Russian citizens' personal data is ever introduced, stop the EU/US plan and obtain a Russia-localized architecture and legal review first. Staging remains synthetic-only.
+- Do not change DNS/MX, production configuration or public website routing as part of staging preparation.
 
 
 ## Migration runner controls — 2026-11-12
