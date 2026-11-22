@@ -49,7 +49,7 @@ The following GitHub Actions runs were retrieved directly for merge commit `c0c6
 
 The backend workflow's PostgreSQL integration suite ran against its ephemeral PostgreSQL 16 service in CI. This is meaningful migration/integration evidence, but it does not establish that a separately provisioned staging or production database exists or that its actual runtime-role grants have been audited.
 
-For PR #32 itself, [Public repository security check — run 44927230578](https://github.com/userdie-foundation/userdie-digital/actions/runs/44927230578) and [USERDIE security guard — run 44927230545](https://github.com/userdie-foundation/userdie-digital/actions/runs/44927230545) both completed successfully. PR #32 is still a Draft and is not merged.
+For PR #32 itself, [Public repository security check — run 44927230578](https://github.com/userdie-foundation/userdie-digital/actions/runs/44927230578) and [USERDIE security guard — run 44927230545](https://github.com/userdie-foundation/userdie-digital/actions/runs/44927230545) both completed successfully on the then-current revision. At the time of this historical run, PR #32 was Draft; its current state is recorded in the 2026-11-22 addendum and must not be inferred from this older note.
 
 ## 3. Release gates — strict order
 
