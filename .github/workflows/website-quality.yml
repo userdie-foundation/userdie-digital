@@ -8,6 +8,7 @@ on:
       - ".github/scripts/check-site-links.mjs"
       - ".github/scripts/check-inline-js.mjs"
       - ".github/scripts/check-mobile-navigation.mjs"
+      - ".github/scripts/check-document-register.mjs"
       - ".github/scripts/check-html-accessibility.mjs"
       - ".github/workflows/website-quality.yml"
   pull_request:
@@ -50,6 +51,8 @@ jobs:
         run: node --check website/prototype/workspace-api.js
       - name: Test mobile navigation behavior
         run: node .github/scripts/check-mobile-navigation.mjs
+      - name: Test document register metadata workflow
+        run: node .github/scripts/check-document-register.mjs
       - name: Validate visual enhancement assets
         run: node .github/scripts/apply-visual-enhancements.mjs --check
       - name: Check required 404 page
