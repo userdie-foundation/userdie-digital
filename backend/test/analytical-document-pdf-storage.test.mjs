@@ -1,0 +1,99 @@
+import assert from "node:assert/strict";
+import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+
+import {
+  persistAnalyticalDocumentPdf,
+  readStoredAnalyticalDocumentPdf,
+  removeStoredAnalyticalDocumentPdf,
+} from "../src/analytical-document-pdf.mjs";
+
+async function withStorage(run) {
+  const parent = await mkdtemp(path.join(os.tmpdir(), "userdie-pdf-storage-"));
+  const directory = path.join(parent, "private-pdfs");
+  try {
+    await run(directory);
+  } finally {
+    await rm(parent, { recursive: true, force: true });
+  }
+}
+
+const samplePdf = Buffer.from("%PDF-1.7\nSynthetic USERDIE PDF fixture\n%%EOF\n", "ascii");
+
+test("PDF persistence creates a private directory and a private, integrity-described file", async (t) => {
+  await withStorage(async (directory) => {
+    const stored = await persistAnalyticalDocumentPdf({ directory, bytes: samplePdf });
+
+    assert.match(stored.key, /^[0-9a-f-]{36}\.pdf$/i);
+    assert.equal(path.dirname(stored.target), directory);
+    assert.equal(stored.byteSize, samplePdf.length);
+    assert.match(stored.sha256, /^[0-9a-f]{64}$/);
+    assert.deepEqual(await readFile(stored.target), samplePdf);
+
+    if (process.platform !== "win32") {
+      const directoryMode = (await stat(directory)).mode & 0o777;
+      const fileMode = (await stat(stored.target)).mode & 0o777;
+      assert.equal(directoryMode & 0o077, 0, "private PDF directory must not grant group/other access");
+      assert.equal(fileMode & 0o077, 0, "private PDF file must not grant group/other access");
+    } else {
+      t.skip("POSIX permission bits are not portable to Windows");
+    }
+  });
+});
+
+test("PDF retrieval accepts only a storage key, not a caller-controlled path", async () => {
+  await withStorage(async (directory) => {
+    await assert.rejects(
+      readStoredAnalyticalDocumentPdf({
+        directory,
+        key: "../outside.pdf",
+        sha256: "a".repeat(64),
+        byteSize: 1,
+      }),
+      /Invalid PDF storage key/,
+    );
+  });
+});
+
+test("PDF retrieval rejects bytes whose SHA-256 digest does not match the artifact registry", async () => {
+  await withStorage(async (directory) => {
+    const stored = await persistAnalyticalDocumentPdf({ directory, bytes: samplePdf });
+    await writeFile(stored.target, Buffer.from("%PDF-1.7\nTampered fixture\n%%EOF\n", "ascii"));
+
+    await assert.rejects(
+      readStoredAnalyticalDocumentPdf({
+        directory,
+        key: stored.key,
+        sha256: stored.sha256,
+        byteSize: stored.byteSize,
+      }),
+      /integrity check failed/,
+    );
+  });
+});
+
+test("PDF retrieval rejects a byte-size mismatch even when the supplied key is valid", async () => {
+  await withStorage(async (directory) => {
+    const stored = await persistAnalyticalDocumentPdf({ directory, bytes: samplePdf });
+
+    await assert.rejects(
+      readStoredAnalyticalDocumentPdf({
+        directory,
+        key: stored.key,
+        sha256: stored.sha256,
+        byteSize: stored.byteSize + 1,
+      }),
+      /integrity check failed/,
+    );
+  });
+});
+
+test("PDF artifact removal deletes only the requested stored file", async () => {
+  await withStorage(async (directory) => {
+    const stored = await persistAnalyticalDocumentPdf({ directory, bytes: samplePdf });
+    await removeStoredAnalyticalDocumentPdf(stored.target);
+    await assert.rejects(stat(stored.target), { code: "ENOENT" });
+  });
+});
