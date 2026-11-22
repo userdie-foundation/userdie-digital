@@ -3,12 +3,12 @@ import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
 
 const REQUIRED_TRIGGERS = {
-  privacy_consent_documents_immutable: "protect_privacy_consent_document_versions",
-  privacy_consent_documents_no_truncate: "prevent_privacy_consent_document_truncate",
-  privacy_consent_documents_validate_choices: "validate_privacy_consent_document_choices",
-  privacy_consent_events_integrity: "enforce_privacy_consent_event_integrity",
-  privacy_consent_events_no_update_delete: "prevent_privacy_consent_event_mutation",
-  privacy_consent_events_no_truncate: "prevent_privacy_consent_event_mutation",
+  "privacy_consent_documents.privacy_consent_documents_immutable": "protect_privacy_consent_document_versions",
+  "privacy_consent_documents.privacy_consent_documents_no_truncate": "prevent_privacy_consent_document_truncate",
+  "privacy_consent_documents.privacy_consent_documents_validate_choices": "validate_privacy_consent_document_choices",
+  "privacy_consent_events.privacy_consent_events_integrity": "enforce_privacy_consent_event_integrity",
+  "privacy_consent_events.privacy_consent_events_no_update_delete": "prevent_privacy_consent_event_mutation",
+  "privacy_consent_events.privacy_consent_events_no_truncate": "prevent_privacy_consent_event_mutation",
 };
 
 const TABLE_POLICY = {
@@ -56,16 +56,16 @@ export function evaluateRuntimeRoleAudit({ role, memberships, schema, tables, tr
 
   const enabledTriggers = new Map(
     triggers.filter((trigger) => trigger.enabled === "O" || trigger.enabled === "A")
-      .map((trigger) => [trigger.trigger_name, trigger]),
+      .map((trigger) => [`${trigger.table_name}.${trigger.trigger_name}`, trigger]),
   );
-  for (const [triggerName, expectedFunction] of Object.entries(REQUIRED_TRIGGERS)) {
-    const trigger = enabledTriggers.get(triggerName);
-    addFinding(findings, Boolean(trigger), `Required protection trigger is missing or disabled: ${triggerName}.`);
+  for (const [triggerKey, expectedFunction] of Object.entries(REQUIRED_TRIGGERS)) {
+    const trigger = enabledTriggers.get(triggerKey);
+    addFinding(findings, Boolean(trigger), `Required protection trigger is missing, disabled, or attached to the wrong table: ${triggerKey}.`);
     if (trigger) {
       addFinding(
         findings,
         trigger.function_name === expectedFunction,
-        `Protection trigger ${triggerName} does not call expected function ${expectedFunction}.`,
+        `Protection trigger ${triggerKey} does not call expected function ${expectedFunction}.`,
       );
     }
   }
@@ -158,7 +158,7 @@ async function main() {
       tables = tableResult.rows;
 
       const triggerResult = await client.query(
-        `SELECT t.tgname AS trigger_name, t.tgenabled AS enabled,
+        `SELECT c.relname AS table_name, t.tgname AS trigger_name, t.tgenabled AS enabled,
                 p.proname AS function_name,
                 pg_get_userbyid(p.proowner) AS function_owner
          FROM pg_trigger t
