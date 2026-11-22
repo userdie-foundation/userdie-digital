@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -109,5 +109,58 @@ test("PDF persistence tightens permissions on an already-existing storage direct
     await persistAnalyticalDocumentPdf({ directory, bytes: samplePdf });
     const directoryMode = (await stat(directory)).mode & 0o777;
     assert.equal(directoryMode, 0o700, "existing PDF storage directory must be restricted to its owner");
+  });
+});
+
+
+test("PDF retrieval rejects a symlink in place of a stored artifact", async (t) => {
+  await withStorage(async (directory) => {
+    if (process.platform === "win32") {
+      t.skip("Symlink creation is not portable to all Windows runners");
+      return;
+    }
+    await mkdir(directory, { recursive: true, mode: 0o700 });
+    const outside = path.join(path.dirname(directory), "outside.pdf");
+    await writeFile(outside, samplePdf, { mode: 0o600 });
+    const key = "123e4567-e89b-42d3-a456-426614174000.pdf";
+    await symlink(outside, path.join(directory, key));
+    await assert.rejects(
+      readStoredAnalyticalDocumentPdf({
+        directory,
+        key,
+        sha256: "a".repeat(64),
+        byteSize: samplePdf.length,
+      }),
+      /private regular file/,
+    );
+  });
+});
+
+test("PDF storage rejects a symlink as the configured storage directory", async (t) => {
+  await withStorage(async (directory) => {
+    if (process.platform === "win32") {
+      t.skip("Symlink creation is not portable to all Windows runners");
+      return;
+    }
+    const realDirectory = path.join(path.dirname(directory), "real-private-pdfs");
+    await mkdir(realDirectory, { recursive: true, mode: 0o700 });
+    await symlink(realDirectory, directory);
+    await assert.rejects(
+      persistAnalyticalDocumentPdf({ directory, bytes: samplePdf }),
+      /real directory/,
+    );
+  });
+});
+
+test("PDF persistence rejects empty or non-Buffer artifact bytes", async () => {
+  await withStorage(async (directory) => {
+    await assert.rejects(
+      persistAnalyticalDocumentPdf({ directory, bytes: Buffer.alloc(0) }),
+      /Non-empty PDF bytes/,
+    );
+    await assert.rejects(
+      persistAnalyticalDocumentPdf({ directory, bytes: "not a buffer" }),
+      /Non-empty PDF bytes/,
+    );
   });
 });
