@@ -57,4 +57,11 @@ assert.ok(html.includes("function cancelDocumentEdit()") && html.includes("editi
 assert.ok(html.includes("document-revision-history") && html.includes("автор, полномочия и серверная неизменяемость не подтверждаются"),
   "revision history must disclose local demo-only limitations");
 
+assert.ok(html.includes("const mergedDocumentMeta={...(item.documentMeta||{}),...documentMeta}"),
+  "editing must preserve legacy metadata fields not present in the current form");
+assert.ok(html.includes("priorMeta.documentDate") && html.includes("const changed=commonChanged||metaChanged"),
+  "editing must preserve legacy date placeholders and avoid creating revisions for unchanged fields");
+assert.ok(html.includes("Object.assign(item,next);item.revisedAt=new Date().toISOString()"),
+  "document edits must update the record without replacing its relation collection");
+
 console.log("Document register checks passed: create/edit, duplicate guard, revision history, filters, local-only storage, legal disclaimers and responsive layout.");
