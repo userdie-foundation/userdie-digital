@@ -130,9 +130,9 @@ for (const page of publicPages) {
 }
 
 const workspaceCss = fs.readFileSync("website/prototype/workspace-visual-refinement.css", "utf8");
-assert.match(workspaceCss, /@media\\s*\\(max-width:\\s*720px\\)[\\s\\S]*?body\\.workspace \\.app-nav button,[\\s\\S]*?flex-direction:\\s*row\\s*;/,
+assert.match(workspaceCss, /@media\s*\(max-width:\s*720px\)[\s\S]*?body\.workspace \.app-nav button,[\s\S]*?flex-direction:\s*row\s*;/,
   "workspace mobile navigation must keep each icon and label on a horizontal row");
-assert.match(workspaceCss, /body\\.workspace \\.app-nav \\.app-nav-link[\\s\\S]*?flex-direction:\\s*row\\s*;/,
+assert.match(workspaceCss, /body\.workspace \.app-nav \.app-nav-link[\s\S]*?flex-direction:\s*row\s*;/,
   "workspace mobile navigation links must use the same horizontal layout");
 
 console.log("Mobile navigation checks passed on all 5 sitemap pages and the workspace two-column horizontal navigation baseline.");
