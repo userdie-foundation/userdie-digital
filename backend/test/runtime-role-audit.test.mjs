@@ -41,23 +41,17 @@ function acceptedFixture() {
       },
     ],
     triggers: [
-      "privacy_consent_documents_immutable",
-      "privacy_consent_documents_no_truncate",
-      "privacy_consent_documents_validate_choices",
-      "privacy_consent_events_integrity",
-      "privacy_consent_events_no_update_delete",
-      "privacy_consent_events_no_truncate",
-    ].map((trigger_name) => ({
+      ["privacy_consent_documents", "privacy_consent_documents_immutable", "protect_privacy_consent_document_versions"],
+      ["privacy_consent_documents", "privacy_consent_documents_no_truncate", "prevent_privacy_consent_document_truncate"],
+      ["privacy_consent_documents", "privacy_consent_documents_validate_choices", "validate_privacy_consent_document_choices"],
+      ["privacy_consent_events", "privacy_consent_events_integrity", "enforce_privacy_consent_event_integrity"],
+      ["privacy_consent_events", "privacy_consent_events_no_update_delete", "prevent_privacy_consent_event_mutation"],
+      ["privacy_consent_events", "privacy_consent_events_no_truncate", "prevent_privacy_consent_event_mutation"],
+    ].map(([table_name, trigger_name, function_name]) => ({
+      table_name,
       trigger_name,
       enabled: "O",
-      function_name: ({
-        privacy_consent_documents_immutable: "protect_privacy_consent_document_versions",
-        privacy_consent_documents_no_truncate: "prevent_privacy_consent_document_truncate",
-        privacy_consent_documents_validate_choices: "validate_privacy_consent_document_choices",
-        privacy_consent_events_integrity: "enforce_privacy_consent_event_integrity",
-        privacy_consent_events_no_update_delete: "prevent_privacy_consent_event_mutation",
-        privacy_consent_events_no_truncate: "prevent_privacy_consent_event_mutation",
-      })[trigger_name],
+      function_name,
       function_owner: "userdie_schema_owner",
     })),
     defaultGrants: [],
@@ -102,6 +96,13 @@ test("rejects a protection trigger name wired to an unexpected function", () => 
   fixture.triggers[0].function_name = "untrusted_noop_trigger";
   const findings = evaluateRuntimeRoleAudit(fixture);
   assert.ok(findings.some((finding) => finding.includes("does not call expected function")));
+});
+
+test("rejects a correctly named trigger attached to the wrong consent table", () => {
+  const fixture = acceptedFixture();
+  fixture.triggers[0].table_name = "privacy_consent_events";
+  const findings = evaluateRuntimeRoleAudit(fixture);
+  assert.ok(findings.some((finding) => finding.includes("attached to the wrong table")));
 });
 
 test("rejects runtime ownership, schema creation, and default grants", () => {
