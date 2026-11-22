@@ -455,29 +455,8 @@ body.workspace :where(button,input,select,textarea) {
     border-right: 0;
     border-bottom: 1px solid var(--app-line);
   }
-  body.workspace .app-nav {
-    display: grid;
-    grid-template-columns: repeat(4,minmax(0,1fr));
-    gap: 6px;
-    overflow: visible;
-  }
-  body.workspace .app-nav button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    min-width: 0;
-    min-height: 58px;
-    padding: 7px 3px;
-    font-size: 10px;
-    line-height: 1.2;
-    text-align: center;
-    white-space: normal;
-  }
-  body.workspace .nav-ico {
-    flex: 0 0 22px;
-  }
+  /* Mobile navigation geometry is owned by mobile-a11y.css.
+     Keep its two-column touch-friendly layout consistent for buttons and links. */
   body.workspace .app-main {
     padding: 21px 15px 42px;
   }
