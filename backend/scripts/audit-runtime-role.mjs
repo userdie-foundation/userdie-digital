@@ -65,7 +65,7 @@ export function evaluateRuntimeRoleAudit({ role, memberships, schema, tables, tr
     addFinding(findings, trigger.function_owner !== role.rolname, `Runtime role owns protection function for trigger: ${trigger.trigger_name}.`);
   }
   for (const grant of defaultGrants) {
-    addFinding(findings, false, `Runtime role receives a default privilege on future objects: ${grant.object_type} in ${grant.schema_name ?? "all schemas"}.`);
+    addFinding(findings, false, `Runtime role receives a default privilege on future objects via ${grant.grantee ?? "an unclassified grantee"}: ${grant.object_type} in ${grant.schema_name ?? "all schemas"}.`);
   }
   return findings;
 }
@@ -165,11 +165,12 @@ async function main() {
 
       const defaultGrantResult = await client.query(
         `SELECT COALESCE(n.nspname, 'all schemas') AS schema_name,
-                d.defaclobjtype AS object_type
+                d.defaclobjtype AS object_type,
+                CASE WHEN acl.grantee = 0 THEN 'PUBLIC' ELSE pg_get_userbyid(acl.grantee) END AS grantee
          FROM pg_default_acl d
          LEFT JOIN pg_namespace n ON n.oid = d.defaclnamespace
          CROSS JOIN LATERAL aclexplode(d.defaclacl) acl
-         WHERE acl.grantee = $1`,
+         WHERE acl.grantee IN (0, $1)`,
         [role.oid],
       );
       defaultGrants = defaultGrantResult.rows;
