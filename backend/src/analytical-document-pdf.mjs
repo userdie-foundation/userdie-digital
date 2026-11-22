@@ -1,6 +1,6 @@
 import PDFDocument from "pdfkit";
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, readFile, writeFile, unlink } from "node:fs/promises";
+import { chmod, lstat, mkdir, readFile, writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 
 const LABELS = {
@@ -180,6 +180,13 @@ export async function persistAnalyticalDocumentPdf({ directory, bytes }) {
     throw new TypeError("An absolute private PDF storage directory is required");
   }
   await mkdir(directory, { recursive: true, mode: 0o700 });
+  const directoryInfo = await lstat(directory);
+  if (!directoryInfo.isDirectory() || directoryInfo.isSymbolicLink()) {
+    throw new Error("PDF storage path must be a real directory");
+  }
+  // mkdir(mode) does not change permissions when the directory already exists.
+  // Enforce owner-only access on every write, not only on first creation.
+  await chmod(directory, 0o700);
   const key = randomUUID() + ".pdf";
   const target = path.join(directory, key);
   await writeFile(target, bytes, { flag: "wx", mode: 0o600 });
