@@ -1,7 +1,7 @@
 /* USERDIE DIGITAL — workspace visual refinement, 2026-11-22
    A restrained green-and-gold interface system for the existing workspace.
    Preserve the foundation tree emblem, all navigation targets and demo safeguards. */
-:root {
+body.workspace {
   --app-bg: #f0f2eb;
   --app-panel: #fffefa;
   --app-line: rgba(31, 63, 46, .13);
@@ -58,7 +58,7 @@ body.workspace .brand strong {
 }
 
 body.workspace .brand small {
-  color: #718075;
+  color: #5f6e63;
   font-size: 9px;
   letter-spacing: .12em;
 }
@@ -116,7 +116,7 @@ body.workspace .app-sidebar {
 
 body.workspace .sidebar-caption,
 body.workspace .app-nav-search-label {
-  color: #8a7956;
+  color: #71603e;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: .13em;
@@ -192,7 +192,7 @@ body.workspace .app-topline {
 }
 
 body.workspace .breadcrumb {
-  color: #77857a;
+  color: #5f7063;
   font-size: 11px;
   letter-spacing: .02em;
 }
@@ -224,7 +224,7 @@ body.workspace .welcome-row {
 
 body.workspace .welcome-row .eyebrow,
 body.workspace .app-main .eyebrow {
-  color: #8a7547;
+  color: #796239;
   letter-spacing: .14em;
 }
 
@@ -237,7 +237,7 @@ body.workspace .welcome-row h1 {
 }
 
 body.workspace .welcome-row h1 em {
-  color: #5d805e;
+  color: #557653;
 }
 
 body.workspace .welcome-row p:not(.eyebrow) {
