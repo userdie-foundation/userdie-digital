@@ -1182,7 +1182,7 @@ document.getElementById("object-form").addEventListener("submit",event=>{
  const target=document.getElementById("object-link-target").value,kind=document.getElementById("object-link-kind").value,links=target?("rel:"+kind+":"+target):"";
  if(editingDocumentId){const item=objects.find(entry=>entry.id===editingDocumentId&&entry.type==="document");if(!item){showToast("Карточка документа больше не найдена.");editingDocumentId=null;setDocumentFormMode(false);return;}
   const previous={title:item.title,goal:item.goal,owner:item.owner,status:item.status,deadline:item.deadline,contour:item.contour,source:item.source,documentMeta:item.documentMeta||{}};
-  const priorMeta=item.documentMeta||{};if(!documentMeta.documentDate&&priorMeta.documentDate&&!/^\\d{4}-\\d{2}-\\d{2}$/.test(priorMeta.documentDate))documentMeta.documentDate=priorMeta.documentDate;
+  const priorMeta=item.documentMeta||{};if(!documentMeta.documentDate&&priorMeta.documentDate&&!/^\d{4}-\d{2}-\d{2}$/.test(priorMeta.documentDate))documentMeta.documentDate=priorMeta.documentDate;
   const mergedDocumentMeta={...(item.documentMeta||{}),...documentMeta};
   const next={title,goal:document.getElementById("object-goal").value.trim(),owner:document.getElementById("object-owner").value.trim(),status:document.getElementById("object-status").value,deadline:document.getElementById("object-deadline").value,contour:document.getElementById("object-contour").value,source:document.getElementById("object-source").value.trim(),documentMeta:mergedDocumentMeta};
   const commonChanged=["title","goal","owner","status","deadline","contour","source"].some(key=>String(item[key]??"")!==String(next[key]??""));
