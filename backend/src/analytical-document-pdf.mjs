@@ -175,6 +175,10 @@ export async function renderAnalyticalDocumentPdf({
   return completed;
 }
 
+function hasInsecurePosixPermissions(info) {
+  return process.platform !== "win32" && hasInsecurePosixPermissions(info);
+}
+
 async function assertPrivatePdfDirectory(directory, { create = false } = {}) {
   if (typeof directory !== "string" || !path.isAbsolute(directory)) {
     throw new TypeError("An absolute private PDF storage directory is required");
@@ -190,13 +194,13 @@ async function assertPrivatePdfDirectory(directory, { create = false } = {}) {
     throw new Error("PDF storage directory must be owned by the application user");
   }
   // mkdir(mode) does not tighten permissions on an existing directory.
-  if ((info.mode & 0o077) !== 0) {
+  if (hasInsecurePosixPermissions(info)) {
     await chmod(directory, 0o700);
     info = await lstat(directory);
   }
   if (!info.isDirectory() || info.isSymbolicLink() ||
       (typeof process.getuid === "function" && info.uid !== process.getuid()) ||
-      (info.mode & 0o077) !== 0) {
+      hasInsecurePosixPermissions(info)) {
     throw new Error("PDF storage directory is not private to the application user");
   }
 }
@@ -212,7 +216,7 @@ export async function persistAnalyticalDocumentPdf({ directory, bytes }) {
   const fileInfo = await lstat(target);
   if (!fileInfo.isFile() || fileInfo.isSymbolicLink() ||
       (typeof process.getuid === "function" && fileInfo.uid !== process.getuid()) ||
-      (fileInfo.mode & 0o077) !== 0) {
+      hasInsecurePosixPermissions(fileInfo)) {
     await unlink(target).catch(() => {});
     throw new Error("Stored PDF artifact is not private to the application user");
   }
@@ -226,7 +230,7 @@ export async function readStoredAnalyticalDocumentPdf({ directory, key, sha256, 
   const fileInfo = await lstat(target);
   if (!fileInfo.isFile() || fileInfo.isSymbolicLink() ||
       (typeof process.getuid === "function" && fileInfo.uid !== process.getuid()) ||
-      (fileInfo.mode & 0o077) !== 0) {
+      hasInsecurePosixPermissions(fileInfo)) {
     throw new Error("Stored PDF artifact is not a private regular file");
   }
   const bytes = await readFile(target);
