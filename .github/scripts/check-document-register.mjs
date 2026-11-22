@@ -22,7 +22,7 @@ assert.match(html, /hasDuplicateDocumentRegistrationNumber\(documentMeta\?\.regi
 const helperMatch = html.match(/function hasDuplicateDocumentRegistrationNumber\(registrationNumber,entries\)\{[\s\S]*?\}/);
 assert.ok(helperMatch, "registration-number uniqueness helper must exist");
 const hasDuplicateDocumentRegistrationNumber = vm.runInNewContext("(" + helperMatch[0] + ")");
-const existingDocument = [{ type: "document", documentMeta: { registrationNumber: "REG-2026-01" } }];
+const existingDocument = [{ id: "DEMO-001", type: "document", documentMeta: { registrationNumber: "REG-2026-01" } }];
 assert.equal(hasDuplicateDocumentRegistrationNumber(" reg-2026-01 ", existingDocument), true,
   "registration-number comparison must trim whitespace and ignore case");
 assert.equal(hasDuplicateDocumentRegistrationNumber("REG-2026-02", existingDocument), false,
