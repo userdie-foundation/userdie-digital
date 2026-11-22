@@ -15,6 +15,7 @@ on:
     paths:
       - "website/**"
       - ".github/scripts/check-mobile-navigation.mjs"
+      - ".github/scripts/check-document-register.mjs"
       - ".github/scripts/check-site-links.mjs"
       - ".github/scripts/check-inline-js.mjs"
       - ".github/scripts/check-html-accessibility.mjs"
