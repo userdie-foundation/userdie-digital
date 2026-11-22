@@ -1036,7 +1036,7 @@ function parseObjectLink(value){if(!value)return null;const m=value.match(/^rel:
 function relationLabel(kind){return({related_to:"Связан с",supports:"Обосновывает / подтверждает",depends_on:"Зависит от",delivers:"Даёт результат для",reviews:"Проверяет / оценивает",source_for:"Источник для"})[kind]||"Связан с";}
 function getObjectRelations(item){const list=Array.isArray(item.relations)?item.relations.filter(rel=>rel&&typeof rel.id==="string"&&/^DEMO-[0-9]{3,}$/.test(rel.id)&&["related_to","supports","depends_on","delivers","reviews","source_for"].includes(rel.kind)):[];if(list.length)return list;const legacy=parseObjectLink(item.links);return legacy?[legacy]:[];}
 function saveObjectRelations(item,relations){item.relations=relations.slice(0,30);item.links=item.relations.length?"rel:"+item.relations[0].kind+":"+item.relations[0].id:"";return saveObjects();}
-function hasDuplicateDocumentRegistrationNumber(registrationNumber,entries){const normalized=String(registrationNumber||"").trim().toLocaleLowerCase("ru");if(!normalized)return false;return entries.some(item=>item.type==="document"&&(item.documentMeta?.registrationNumber||"").trim().toLocaleLowerCase("ru")===normalized);}
+function hasDuplicateDocumentRegistrationNumber(registrationNumber,entries){const normalized=String(registrationNumber||"").trim().toLocaleLowerCase("ru");if(!normalized)return false;return entries.some(item=>item.type==="document"&&String(item.documentMeta?.registrationNumber||"").trim().toLocaleLowerCase("ru")===normalized);}
 function renderDocumentRegister(){
  const root=document.getElementById("document-register-list");
  if(!root)return;
@@ -1092,7 +1092,7 @@ function renderDocumentRegister(){
  const allDocs=objects.filter(item=>item.type==="document");
  const docs=allDocs.filter(item=>{
   const meta=item.documentMeta||{};
-  const haystack=[item.title,item.goal,item.owner,item.source,item.id,meta.registrationNumber,meta.documentType,meta.documentDate,meta.issuingBody,meta.signatory,meta.version,meta.appendices,meta.evidenceStatus].join(" ").toLocaleLowerCase("ru");
+  const haystack=[item.title,item.goal,item.owner,item.source,item.id,meta.registrationNumber,meta.documentType,meta.documentDate,meta.issuingBody,meta.signatory,meta.originalStatus,meta.signatureCheck,meta.version,meta.appendices,meta.evidenceStatus,meta.accessLevel,meta.validity,meta.fileState,meta.publicUse].join(" ").toLocaleLowerCase("ru");
   return (!query||haystack.includes(query))&&(status==="all"||(meta.evidenceStatus||"Не подтверждено")===status)&&(contour==="all"||item.contour===contour);
  });
  root.replaceChildren();
