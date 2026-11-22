@@ -17,7 +17,7 @@ for (const id of [
 }
 assert.match(html, /const documentMeta=objectType==="document"\?\{[\s\S]*?registrationNumber:[\s\S]*?evidenceStatus:/,
   "document metadata must be collected only for document objects");
-assert.match(html, /hasDuplicateDocumentRegistrationNumber\(documentMeta\.registrationNumber,objects\)/,
+assert.match(html, /hasDuplicateDocumentRegistrationNumber\(documentMeta\?\.registrationNumber,uniqueEntries\)/,
   "document creation must call the registration-number uniqueness guard");
 const helperMatch = html.match(/function hasDuplicateDocumentRegistrationNumber\(registrationNumber,entries\)\{[\s\S]*?\}/);
 assert.ok(helperMatch, "registration-number uniqueness helper must exist");
