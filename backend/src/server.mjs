@@ -1294,7 +1294,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       }
       try {
         const updated = await workspace.updateTaskStatus({
-          id: taskId, status: parsed.value.status, expectedStatus: task.status, actorId: principal.id,
+          id: taskId, status: parsed.value.status, expectedStatus: task.status, actorId: principal.id, principal,
         });
         if (!updated) return sendJson(res, 404, { error: "not_found" }, req.method);
         return sendJson(res, 200, { task: updated }, req.method);
