@@ -12,6 +12,7 @@ Digital platform of USERDIE Foundation
 - [Platform architecture](docs/PLATFORM_ARCHITECTURE.md) — organizational contours, functional domains, roles, AI controls, separation of USERDIE Digital / BFU / ZHAKIN Points, security boundaries and implementation stages.
 - [Platform recovery and backup plan](docs/RECOVERY_PLAN.md) — planned safeguards and recovery steps. Backup storage, alternate publication, and automatic failover are not considered operational until separately configured and tested.
 - [Security readiness review](docs/SECURITY_READINESS_REVIEW.md) — current production blockers, required access-control tests and release gates. This is a design review, not a penetration test or production certification.
+- [Workspace task authorization hardening](docs/WORKSPACE_TASK_AUTHORIZATION_ATOMICITY_2026-11-23.md) — atomic scope revalidation at the task-status write boundary and PostgreSQL regression coverage.
 - [Secure cabinet blueprint](docs/CABINET_SECURITY_BLUEPRINT.md) — applicant/partner journeys, proposed role boundaries, API/data separation and release acceptance gates.
 
 ## Legal compliance
