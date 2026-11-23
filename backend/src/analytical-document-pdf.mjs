@@ -176,6 +176,8 @@ export async function renderAnalyticalDocumentPdf({
   return completed;
 }
 
+const PDF_STORAGE_KEY = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.pdf$/i;
+
 function hasInsecurePosixPermissions(info) {
   return process.platform !== "win32" && (info.mode & 0o077) !== 0;
 }
@@ -225,7 +227,7 @@ export async function persistAnalyticalDocumentPdf({ directory, bytes }) {
 }
 
 export async function readStoredAnalyticalDocumentPdf({ directory, key, sha256, byteSize }) {
-  if (!/^[0-9a-f-]{36}\.pdf$/i.test(key ?? "")) throw new Error("Invalid PDF storage key");
+  if (!PDF_STORAGE_KEY.test(key ?? "")) throw new Error("Invalid PDF storage key");
   await assertPrivatePdfDirectory(directory);
   const target = path.join(directory, key);
   const pathInfo = await lstat(target);
@@ -260,7 +262,7 @@ export async function readStoredAnalyticalDocumentPdf({ directory, key, sha256, 
 }
 
 export async function removeStoredAnalyticalDocumentPdf({ directory, key }) {
-  if (!/^[0-9a-f-]{36}\.pdf$/i.test(key ?? "")) {
+  if (!PDF_STORAGE_KEY.test(key ?? "")) {
     throw new Error("Invalid PDF storage key");
   }
   await assertPrivatePdfDirectory(directory);
