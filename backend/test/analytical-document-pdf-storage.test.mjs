@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { chmod, mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, lstat, stat, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -194,7 +194,7 @@ test("PDF artifact removal refuses symlinks and leaves their external targets in
       /private regular file/,
     );
     assert.deepEqual(await readFile(outside), samplePdf);
-    assert.equal((await stat(path.join(directory, key))).isSymbolicLink(), true);
+    assert.equal((await lstat(path.join(directory, key))).isSymbolicLink(), true);
   });
 });
 
