@@ -1027,7 +1027,7 @@ function renderWorkspaceInsights(){
   const value=document.createElement("strong");value.className="ux-bar-value";value.textContent=String(count);
   row.append(name,track,value);chart.appendChild(row);
  });
- const dated=tasks.filter(t=>!t.done&&t.status!=="Завершена"&&t.due&&/^\\d{4}-\\d{2}-\\d{2}$/.test(t.due)).sort((a,b)=>a.due.localeCompare(b.due)).slice(0,5);
+ const dated=tasks.filter(t=>!t.done&&t.status!=="Завершена"&&t.due&&/^\d{4}-\d{2}-\d{2}$/.test(t.due)).sort((a,b)=>a.due.localeCompare(b.due)).slice(0,5);
  reminders.replaceChildren();
  if(!dated.length){const empty=document.createElement("div");empty.className="ux-empty";empty.textContent="Контрольные даты пока не заданы. Добавьте срок в карточке задачи — он появится здесь.";reminders.appendChild(empty);return;}
  dated.forEach(task=>{
