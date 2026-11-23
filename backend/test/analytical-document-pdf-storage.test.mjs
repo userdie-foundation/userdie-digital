@@ -57,6 +57,28 @@ test("PDF retrieval accepts only a storage key, not a caller-controlled path", a
   });
 });
 
+test("PDF retrieval and removal accept only canonical UUID storage keys", async () => {
+  await withStorage(async (directory) => {
+    const invalidKeys = [
+      "123e4567e89b42d3a456426614174000.pdf",
+      "123e4567-e89b-02d3-a456-426614174000.pdf",
+      "123e4567-e89b-42d3-7456-426614174000.pdf",
+      "../123e4567-e89b-42d3-a456-426614174000.pdf",
+    ];
+
+    for (const key of invalidKeys) {
+      await assert.rejects(
+        readStoredAnalyticalDocumentPdf({ directory, key, sha256: "a".repeat(64), byteSize: 1 }),
+        /Invalid PDF storage key/,
+      );
+      await assert.rejects(
+        removeStoredAnalyticalDocumentPdf({ directory, key }),
+        /Invalid PDF storage key/,
+      );
+    }
+  });
+});
+
 test("PDF retrieval rejects bytes whose SHA-256 digest does not match the artifact registry", async () => {
   await withStorage(async (directory) => {
     const stored = await persistAnalyticalDocumentPdf({ directory, bytes: samplePdf });
