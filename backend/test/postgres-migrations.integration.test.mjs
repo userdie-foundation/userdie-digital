@@ -14,7 +14,7 @@ import { createPartnershipRepository, createWorkspaceRepository, createServer as
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
-test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, analytical-document, and privacy-consent invariants", {
+test("PostgreSQL applies migrations 001-022 and enforces workflow, authorization, recovery-token, MFA persistence, audit immutability, login-throttling, partnership, analytical-document, and privacy-consent invariants", {
   skip: !databaseUrl ? "PG_INTEGRATION_URL is not configured" : false,
 }, async () => {
   const pool = new Pool({ connectionString: databaseUrl, max: 2 });
@@ -46,6 +46,7 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       "019_analytical_document_lifecycle_immutability.sql",
       "020_analytical_document_artifact_immutability.sql",
       "021_privacy_consent_ledger.sql",
+      "022_analytical_document_pdf_storage_key_constraint.sql",
     ]) {
       const sql = await readFile(new URL(`../migrations/${filename}`, import.meta.url), "utf8");
       await client.query(sql);
