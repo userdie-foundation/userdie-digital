@@ -260,7 +260,7 @@ export async function readStoredAnalyticalDocumentPdf({ directory, key, sha256, 
 }
 
 export async function removeStoredAnalyticalDocumentPdf({ directory, key }) {
-  if (!/^[0-9a-f-]{36}\\.pdf$/i.test(key ?? "")) {
+  if (!/^[0-9a-f-]{36}\.pdf$/i.test(key ?? "")) {
     throw new Error("Invalid PDF storage key");
   }
   await assertPrivatePdfDirectory(directory);
