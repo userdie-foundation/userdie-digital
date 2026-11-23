@@ -1171,7 +1171,6 @@ const navRoot=document.querySelector(".app-nav");
 const navStatus=document.getElementById("app-nav-search-status");
 if(navSearch&&navRoot&&navStatus){
  const navEntries=[...navRoot.children].filter(el=>el.matches("button,a.app-nav-link"));
- const navGroups=[...navRoot.querySelectorAll(".app-nav-group-label")];
  // Clear visual grouping makes the long module list easier to scan.
  if(navRoot){
   const addNavGroup=(before,label)=>{if(!before||navRoot.querySelector('[data-nav-group="'+label+'"]'))return;const heading=document.createElement("div");heading.className="app-nav-group-label";heading.dataset.navGroup=label;heading.textContent=label;navRoot.insertBefore(heading,before);};
@@ -1179,7 +1178,7 @@ if(navSearch&&navRoot&&navStatus){
   addNavGroup(navRoot.querySelector('[data-view="programs"]'),"ПРОГРАММЫ И РЕСУРСЫ");
   addNavGroup(navRoot.querySelector('[data-view="documents"]'),"АНАЛИТИКА И ДОКУМЕНТЫ");
  }
-
+ const navGroups=[...navRoot.querySelectorAll(".app-nav-group-label")];
  navSearch.addEventListener("input",()=>{
   const query=navSearch.value.trim().toLocaleLowerCase("ru");
   let visible=0;
