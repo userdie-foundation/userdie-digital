@@ -2,7 +2,7 @@
 
 **Status:** preparation document only. No hosting provider, database instance, secret, DNS record, deployment or production service is created by this runbook.
 
-**Baseline reviewed:** PR #29, head `8e0875aa8d2860bec15ebbad4f4eba1d5f9103c3` (2026-11-18), which remains Draft and is not merged. Re-check the approved, merged commit before provisioning; do not deploy this draft branch to a public or user-facing environment.
+**Repository baseline reviewed:** PR #29 was merged on 2026-11-21 as `c0c6398e580cd7929cb1866f7b4141c85c2bbc2e`. Subsequent documentation and source changes are present on `main`; the current repository baseline at this runbook refresh is `37186cab412e0c3ac048f08a3bbf112b098d843c` (2026-11-23). This confirms repository state only, not a hosted backend deployment. Deploy only an explicitly approved `main` commit after the acceptance gates below.
 
 ## 1. Deployment boundary
 
@@ -46,11 +46,11 @@ The sample `backend/.env.example` is not a production configuration. Confirm the
 
 1. Provision a new, empty, isolated staging database. Do not point the runner at a database that has already received migrations manually.
 2. Create two distinct credentials: a schema-owner/migration role for controlled DDL, and a non-owner API runtime role with only the required DML, sequence and function privileges. Do not use the migration owner as the API `DATABASE_URL`.
-3. Review migrations `001`–`018` and their dependencies before execution, including the analytical-document registry, immutable versions, independent approval/lifecycle guards, and private PDF artifact metadata in migrations `016`–`020`.
+3. Review the complete sequential migration set `001`–`021` and its dependencies before execution. This includes the analytical-document registry and lifecycle/artifact immutability (`016`–`020`) and the privacy-consent ledger (`021`). Migration source presence does not mean any of these migrations has been applied to a hosted database.
 4. From a protected operator environment, set `MIGRATIONS_DATABASE_URL` to the migration-owner connection and run `MIGRATIONS_ALLOW_APPLY=true npm run migrate`. Set `MIGRATIONS_DATABASE_SSL=true` when verified TLS is required. Never commit either credential.
 5. The runner takes a PostgreSQL advisory lock, validates sequential filenames, stores SHA-256 checksums in `public.schema_migrations`, and commits each migration together with its ledger row. A checksum mismatch or SQL error stops the process; failed migration SQL is rolled back.
-6. Verify all 18 versions are recorded, then configure the separate API runtime `DATABASE_URL` and test readiness using the runtime role.
-7. Run the PostgreSQL integration tests against a disposable staging/test schema.
+6. Verify all 21 versions (`001`–`021`) are recorded in `public.schema_migrations`, with filenames and SHA-256 checksums matching the exact deployed `main` commit. Then configure the separate API runtime `DATABASE_URL` and test readiness using the actual non-owner runtime role.
+7. Run PostgreSQL integration tests against a disposable, isolated test schema. The GitHub Actions PostgreSQL 16 service is ephemeral CI infrastructure; it is not a hosted staging environment and its success does not prove staging deployment or runtime-role configuration.
 8. Confirm the application role cannot alter database ownership or bypass append-only audit protections.
 9. Create only synthetic test accounts and records.
 
@@ -92,6 +92,14 @@ Do not connect the UI until the API host, TLS, exact origin, authentication life
 
 Choose a hosting region/provider and an acceptable monthly staging budget. Compare data-location terms, PostgreSQL backup/restore, TLS, secrets management, exportability and access controls before creating resources. No paid resource should be provisioned without explicit approval.
 
+
+## Repository and staging status checkpoint — 2026-11-23
+
+- PR #29 is merged; the obsolete statement that it remains Draft has been removed. The reviewed `main` baseline for this refresh is `37186cab412e0c3ac048f08a3bbf112b098d843c`.
+- The repository currently contains migrations `001`–`021` (21 sequential migration files). The staging procedure must review and reconcile the full set, not stop at `018`.
+- `.github/workflows/backend-checks.yml` provisions a disposable PostgreSQL 16 service for CI integration tests. This is not a persistent hosted staging database.
+- The repository inspection found no configured backend hosting manifest, registry publication, or backend deployment workflow. No staging host/database, secret manager, applied migration ledger, or runtime-role evidence is confirmed by repository contents.
+- The staging deployment decision remains open: hosting region/provider and monthly budget require approval before paid infrastructure is provisioned. No production DNS, mail records, GitHub Pages deployment, or production service is changed by this runbook.
 
 ## Migration runner controls — 2026-11-12
 
