@@ -2,7 +2,7 @@
 
 **Status:** preparation document only. No hosting provider, database instance, secret, DNS record, deployment or production service is created by this runbook.
 
-**Baseline reviewed:** PR #29, head `8e0875aa8d2860bec15ebbad4f4eba1d5f9103c3` (2026-11-18), which remains Draft and is not merged. Re-check the approved, merged commit before provisioning; do not deploy this draft branch to a public or user-facing environment.
+**Current repository baseline (2026-11-23):** PR #29 was merged into `main` on 2026-11-21 as `c0c6398e580cd7929cb1866f7b4141c85c2bbc2e`. Subsequent documentation-only PRs #41, #43 and #44 were merged; the current `main` HEAD at this checkpoint is `37186cab412e0c3ac048f08a3bbf112b098d843c`. This updates the historical status only; it does not establish a staging deployment or authorize production use.
 
 ## 1. Deployment boundary
 
@@ -46,10 +46,10 @@ The sample `backend/.env.example` is not a production configuration. Confirm the
 
 1. Provision a new, empty, isolated staging database. Do not point the runner at a database that has already received migrations manually.
 2. Create two distinct credentials: a schema-owner/migration role for controlled DDL, and a non-owner API runtime role with only the required DML, sequence and function privileges. Do not use the migration owner as the API `DATABASE_URL`.
-3. Review migrations `001`–`018` and their dependencies before execution, including the analytical-document registry, immutable versions, independent approval/lifecycle guards, and private PDF artifact metadata in migrations `016`–`020`.
+3. Review migrations `001`–`021` and their dependencies before execution, including the analytical-document registry and lifecycle controls (`016`–`020`) and privacy-consent ledger (`021`). Migration 021 creates ledger tables, functions and triggers; it does not provision database roles or a complete least-privilege GRANT/REVOKE policy.
 4. From a protected operator environment, set `MIGRATIONS_DATABASE_URL` to the migration-owner connection and run `MIGRATIONS_ALLOW_APPLY=true npm run migrate`. Set `MIGRATIONS_DATABASE_SSL=true` when verified TLS is required. Never commit either credential.
 5. The runner takes a PostgreSQL advisory lock, validates sequential filenames, stores SHA-256 checksums in `public.schema_migrations`, and commits each migration together with its ledger row. A checksum mismatch or SQL error stops the process; failed migration SQL is rolled back.
-6. Verify all 18 versions are recorded, then configure the separate API runtime `DATABASE_URL` and test readiness using the runtime role.
+6. Verify all 21 versions are recorded, then configure the separate API runtime `DATABASE_URL` and test readiness using the actual non-owner runtime login role.
 7. Run the PostgreSQL integration tests against a disposable staging/test schema.
 8. Confirm the application role cannot alter database ownership or bypass append-only audit protections.
 9. Create only synthetic test accounts and records.
@@ -63,7 +63,7 @@ Do not run migrations against production as part of this staging procedure. A pr
 - [ ] `npm run check` passes.
 - [ ] `npm test` passes against an isolated PostgreSQL test database.
 - [ ] Backend CI builds the image and passes its container smoke test: non-root runtime, liveness success, and database readiness returning 503 when the database is deliberately unavailable.
-- [ ] For the analytical-document workflow, verify migrations `016`–`020`, independent reviewer separation, immutable version hashes, approval/issue lifecycle guards, exact issued-version PDF retrieval, and private storage permissions using synthetic data only.
+- [ ] For the analytical-document workflow, verify migrations `016`–`020`, independent reviewer separation, immutable version hashes, approval/issue lifecycle guards, exact issued-version PDF retrieval, and private storage permissions using synthetic data only. For migration `021`, verify append-only ledger triggers, document immutability, actor/subject integrity, restricted capture methods, and effective runtime privileges using the read-only evidence query pack.
 - [ ] Service starts without logging connection strings, credentials or tokens.
 - [ ] `/api/v1/health/live` returns success.
 - [ ] `/api/v1/health/ready` returns success only when the database is reachable.
@@ -111,3 +111,49 @@ Choose a hosting region/provider and an acceptable monthly staging budget. Compa
 
 - Migration 019 additionally freezes document identity fields (type, contour, asset reference, title, author and assigned reviewer) once submission begins. This prevents the issued PDF title/metadata from diverging from the reviewed document record.
 - CI regression coverage includes attempts to mutate the issued title after issuance.
+
+
+## PostgreSQL staging acceptance checkpoint — 2026-11-23
+
+### Confirmed repository state
+
+- Current `main` HEAD at this checkpoint: `37186cab412e0c3ac048f08a3bbf112b098d843c`.
+- PR #29 (backend integration work) is merged; PR #41 (legal/privacy release gates), PR #43 (PostgreSQL source review), and PR #44 (read-only staging evidence queries) are also merged.
+- The migration directory contains the sequential files `001` through `021`.
+- `.github/workflows/backend-checks.yml` provisions a disposable PostgreSQL 16 service inside GitHub Actions, sets `PG_INTEGRATION_URL`, runs `npm test`, builds the API container and smoke-tests liveness/readiness and non-root execution.
+- That CI service is ephemeral test infrastructure only. It is not a hosted staging environment and does not prove the deployed database's roles, ACLs, TLS, persistent storage, backup/restore, or runtime configuration.
+
+### Staging evidence pack
+
+Use [POSTGRES_STAGING_READONLY_EVIDENCE_QUERIES_2026-11-23.md](POSTGRES_STAGING_READONLY_EVIDENCE_QUERIES_2026-11-23.md) against a newly provisioned isolated staging database. Capture actual API connection identity and effective permissions without `SET ROLE`; use a separate approved read-only inspection identity for catalog evidence that the runtime role cannot read. Store full evidence privately and publish only sanitized findings.
+
+The related [PostgreSQL runtime source review](POSTGRES_RUNTIME_SOURCE_REVIEW_2026-11-23.md) records that:
+- API and migration connections are configured separately in source;
+- API startup does not run migrations;
+- `PRIVACY_CONSENT_LEDGER_ENABLED` defaults to `false`;
+- `DATABASE_SSL` and `MIGRATIONS_DATABASE_SSL` default to `false` and must be explicitly enabled where TLS is required;
+- migration 021 does not create database roles or establish a complete grants policy;
+- actual staging/production runtime role and TLS evidence remains **NOT VERIFIED**.
+
+When `DATABASE_SSL=true` or `MIGRATIONS_DATABASE_SSL=true`, the source configures PostgreSQL TLS with `rejectUnauthorized: true`. The boolean defaults remain false; never infer live TLS from the source or sample environment file alone.
+
+### Current blockers and non-actions
+
+- No hosting provider/region or monthly staging budget has been selected in the repository.
+- No backend hosting resource, managed PostgreSQL instance, secret manager, container registry, staging URL, or backend deployment workflow is configured in the inspected repository.
+- No staging database was connected, created, or migrated in this checkpoint.
+- No database credentials or GitHub secrets were read.
+- No grants, roles, migrations, TLS settings, consent flags, DNS records, mail records, or production services were changed.
+- Runtime-role acceptance remains **NOT VERIFIED** until real, sanitized staging evidence is independently reviewed.
+- Keep `PRIVACY_CONSENT_LEDGER_ENABLED=false`; do not register real consent documents, connect public intake forms, or use real beneficiary/donor/employee/partner data in staging.
+
+### Next controlled sequence
+
+1. The Foundation selects the hosting region/provider and approves the staging budget before any paid provisioning.
+2. Provision a new empty isolated staging PostgreSQL database and separate migration-owner, API runtime, and inspection identities through the provider's protected facilities.
+3. Review the complete migration set and apply `001`–`021` only through the explicit migration CLI, with migration TLS enabled where required. Do not baseline an existing/manual database without a separately reviewed reconciliation plan.
+4. Configure the API runtime with its non-owner identity, TLS, exact allowed origin, required HMAC key, and private persistent document volume. Keep optional recovery/AI integrations disabled unless separately approved.
+5. Execute the read-only evidence pack and synthetic-data acceptance tests; independently review privileges, triggers, functions, TLS, migration checksums, and operational controls.
+6. Record deployed commit, service health, operator, reviewer, evidence location, backup/restore rehearsal, and rollback procedure. Only then consider a separate UI integration/release decision.
+
+No paid resources should be provisioned and no production changes should be made without explicit approval.
