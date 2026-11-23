@@ -1240,3 +1240,44 @@ P2 backend: добавить fail-closed permissions для партнёрски
 - В разделе «Активы и оценочная работа» добавлен прямой переход в уже существующую страницу `valuation-intelligence.html`; в каждой карточке актива добавлена ссылка на полный контур интеллектуальной оценки.
 - Существующая страница `valuation-intelligence.html` сохранена как единый обзорный модуль архитектуры и методик. Новый дублирующий раздел не создавался.
 - Таким образом, навигационная цепочка: контур Центра оценки активов → карточка актива / паспорт → предварительная проверка готовности → полный модуль USERDIE Valuation Intelligence.
+
+
+---
+
+## 7. Последняя контрольная точка — 2026-11-23
+
+### Подтверждённое состояние GitHub
+
+- PR #46 объединён ранее; merge commit: `0da14510d93b508c2008a4b69e31a7e75d6b106a`.
+- PR #47: `docs: propose isolated Backend Staging infrastructure`; открыт, Draft, не объединён. Head commit: `817fb3980ed9fa8a275ce35fad5012a3db09a116`. Для этого commit наблюдались два завершённых workflow: Public repository security check — `success`; USERDIE security guard — `success`.
+- PR #48: `docs: audit backend staging readiness and correct recovery guidance`; открыт, Draft, не объединён. На момент контрольной точки mergeable=true. Последний проверенный head до обновления этого continuity record: `d035a7887781bf7aacbac2593f57537e700e8897`. Для него workflow runs и combined statuses не вернули записей; CI **не подтверждён**.
+- PR #48 содержит документационный аудит Backend readiness, исправление устаревшего утверждения о recovery/reset page и ссылку на audit report. Runtime source и SQL migrations не менялись.
+
+### Backend source review — подтверждённые факты
+
+- API находится в `backend/`, использует Node.js 22 ESM; entry point — `backend/src/index.mjs`.
+- Dockerfile: `backend/Dockerfile`; образ запускается от непривилегированного пользователя `node`, использует production dependencies, не запускает миграции при старте и содержит liveness health check.
+- API использует `DATABASE_URL`; migration CLI отдельно использует `MIGRATIONS_DATABASE_URL` и требует `MIGRATIONS_ALLOW_APPLY=true`.
+- Backend CI workflow: `.github/workflows/backend-checks.yml`; использует эфемерный PostgreSQL 16, запускает `npm run check`, `npm test`, собирает контейнер и выполняет smoke test. Workflow не публикует образ и не развёртывает hosted API.
+- Backend workflow запускается по изменениям `backend/**` или самого workflow; документационный PR #47 не должен считаться прошедшим Backend checks только по security workflows.
+- `DATABASE_SSL` и `MIGRATIONS_DATABASE_SSL` по умолчанию false; для удалённой БД требуется явное включение и подтверждение TLS с проверкой сертификата.
+- `PRIVACY_CONSENT_LEDGER_ENABLED` по умолчанию false; сохранять это значение до отдельного юридического и инфраструктурного допуска.
+- Recovery/reset страницы уже присутствуют: `website/recovery.html`, `website/reset-password.html`. Их API origin остаётся пустым, поэтому рабочая интеграция с hosted API не подтверждена.
+
+### Что не создано и не подтверждено
+
+- Не выбран hosting provider/region и не утверждён месячный бюджет.
+- Не созданы облачные ресурсы, managed PostgreSQL, registry, secret manager, staging URL или backend deployment.
+- Не подключались к staging/production БД, не запускались SQL и миграции.
+- Не читались GitHub/hosting secrets; не менялись роли, grants, TLS settings, consent flag, DNS/MX или Production.
+- Фактические database roles, effective grants, TLS, private storage, backups/restore и hosted API остаются **NOT VERIFIED**.
+
+### Следующий безопасный шаг
+
+1. Продолжить source-level проверку Backend и CI без provisioning.
+2. Проверить PR #48: получить фактические checks, изучить diff и замечания; не объединять автоматически.
+3. Сохранить PR #47 открытым до отдельного рассмотрения документа о staging architecture.
+4. Отложить выбор провайдера и бюджет до решения владельца фонда.
+5. Любое создание платных ресурсов, подключение реальных данных или изменение Production — только после отдельного явного разрешения.
+
+**Связанный документ:** `docs/BACKEND_READINESS_SOURCE_AUDIT_2026-11-23.md`.
