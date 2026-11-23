@@ -10,7 +10,7 @@ import { once } from "node:events";
 import { createPrincipalResolver } from "../src/security/principal.mjs";
 import { createSessionToken } from "../src/security/session.mjs";
 import { createLoginRateLimiter } from "../src/security/login-rate-limit.mjs";
-import { createPartnershipRepository, createServer as createHttpHandler } from "../src/server.mjs";
+import { createPartnershipRepository, createWorkspaceRepository, createServer as createHttpHandler } from "../src/server.mjs";
 
 const databaseUrl = process.env.PG_INTEGRATION_URL;
 
@@ -580,6 +580,49 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       "UPDATE application_tasks SET assigned_to = $2, status = 'in_progress', priority = 'high', escalation_level = 1, escalated_at = now() WHERE id = $1",
       [taskId, otherWorkerId],
     );
+
+    // Re-check authorization in the atomic UPDATE, not only in the earlier
+    // route lookup. The former assignee must not write after reassignment.
+    const workspaceRepository = createWorkspaceRepository({
+      async connect() {
+        return {
+          query: (sql, values) => client.query(sql, values),
+          release() {},
+        };
+      },
+    });
+    const staleWorkerUpdate = await workspaceRepository.updateTaskStatus({
+      id: taskId,
+      status: "blocked",
+      expectedStatus: "in_progress",
+      actorId: workerId,
+      principal: {
+        id: workerId,
+        accountStatus: "active",
+        grants: [{ roleCode: "case_worker", scopeType: "global" }],
+      },
+    });
+    assert.equal(staleWorkerUpdate, null, "former assignee must not update a reassigned task");
+    const unchangedTask = await client.query(
+      "SELECT status, assigned_to FROM application_tasks WHERE id = $1",
+      [taskId],
+    );
+    assert.equal(unchangedTask.rows[0].status, "in_progress");
+    assert.equal(unchangedTask.rows[0].assigned_to, otherWorkerId);
+
+    const currentWorkerUpdate = await workspaceRepository.updateTaskStatus({
+      id: taskId,
+      status: "blocked",
+      expectedStatus: "in_progress",
+      actorId: otherWorkerId,
+      principal: {
+        id: otherWorkerId,
+        accountStatus: "active",
+        grants: [{ roleCode: "case_worker", scopeType: "global" }],
+      },
+    });
+    assert.equal(currentWorkerUpdate.status, "blocked", "current assignee may update the task");
+
     const events = await client.query(
       "SELECT event_type, actor_id FROM application_workflow_events WHERE task_id = $1 ORDER BY id",
       [taskId],
@@ -588,7 +631,7 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
     for (const expected of ["task_created", "task_assigned", "task_status_changed", "sla_escalated", "task_updated"]) {
       assert.ok(eventTypes.includes(expected), `missing workflow event: ${expected}`);
     }
-    assert.ok(events.rows.every((row) => row.actor_id === actorId));
+    assert.ok(events.rows.some((row) => row.event_type === "task_status_changed" && row.actor_id === otherWorkerId));
 
     const eventId = (await client.query(
       "SELECT id FROM application_workflow_events WHERE task_id = $1 ORDER BY id LIMIT 1",

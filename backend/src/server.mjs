@@ -293,7 +293,7 @@ function createApprovalRepository(pool) {
   };
 }
 
-function createWorkspaceRepository(pool) {
+export function createWorkspaceRepository(pool) {
   return {
     async getTasks(principal, filters) {
       const canReadAssignedTasks = principal.grants.some((grant) =>
@@ -363,23 +363,36 @@ function createWorkspaceRepository(pool) {
         programId: row.program_id, assignedTo: row.assigned_to, status: row.status,
       } : null;
     },
-    async updateTaskStatus({ id, status, expectedStatus, actorId }) {
+    async updateTaskStatus({ id, status, expectedStatus, actorId, principal }) {
       if (typeof pool.connect !== "function") {
         throw new TypeError("A transactional database pool is required");
       }
+      const grants = Array.isArray(principal?.grants) ? principal.grants : [];
+      const canReadAssignedTask = grants.some((grant) =>
+        grant?.roleCode === "case_worker" && grant.scopeType === "global"
+      );
+      const programIds = [...new Set(grants
+        .filter((grant) => grant?.roleCode === "program_manager" &&
+          grant.scopeType === "program" && typeof grant.scopeId === "string")
+        .map((grant) => grant.scopeId))];
       const client = await pool.connect();
       try {
         await client.query("BEGIN");
         await client.query("SELECT set_config('app.actor_id', $1, true)", [actorId]);
         const result = await client.query(
-          `UPDATE application_tasks
+          `UPDATE application_tasks AS t
            SET status = $2,
                completed_at = CASE WHEN $2 = 'completed' THEN now() ELSE NULL END
-           WHERE id = $1::uuid AND status = $3
-           RETURNING id, application_id, program_id, title, status, priority,
-                     assigned_to, due_at, escalation_level, escalated_at,
-                     completed_at, created_at`,
-          [id, status, expectedStatus],
+           WHERE t.id = $1::uuid
+             AND t.status = $3
+             AND (
+               ($4::boolean AND t.assigned_to = $5::uuid)
+               OR t.program_id::text = ANY($6::text[])
+             )
+           RETURNING t.id, t.application_id, t.program_id, t.title, t.status, t.priority,
+                     t.assigned_to, t.due_at, t.escalation_level, t.escalated_at,
+                     t.completed_at, t.created_at`,
+          [id, status, expectedStatus, canReadAssignedTask, actorId, programIds],
         );
         const row = result.rows?.[0];
         if (!row) {
@@ -1281,7 +1294,7 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
       }
       try {
         const updated = await workspace.updateTaskStatus({
-          id: taskId, status: parsed.value.status, expectedStatus: task.status, actorId: principal.id,
+          id: taskId, status: parsed.value.status, expectedStatus: task.status, actorId: principal.id, principal,
         });
         if (!updated) return sendJson(res, 404, { error: "not_found" }, req.method);
         return sendJson(res, 200, { task: updated }, req.method);
