@@ -38,8 +38,9 @@ function canCreate(principal, contour = "assets") {
 }
 
 function canReview(principal) {
-  return hasGrant(principal, "administrator", "global") ||
-    hasGrant(principal, "independent_approver", "global") ||
+  // Administrative access is not a substitute for an explicit independent
+  // approver grant. Separation of duties must survive role changes.
+  return hasGrant(principal, "independent_approver", "global") ||
     hasGrant(principal, "independent_approver", "contour", "assets");
 }
 
