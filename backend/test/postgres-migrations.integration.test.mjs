@@ -631,7 +631,7 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
     for (const expected of ["task_created", "task_assigned", "task_status_changed", "sla_escalated", "task_updated"]) {
       assert.ok(eventTypes.includes(expected), `missing workflow event: ${expected}`);
     }
-    assert.ok(events.rows.every((row) => row.actor_id === actorId));
+    assert.ok(events.rows.some((row) => row.event_type === "task_status_changed" && row.actor_id === otherWorkerId));
 
     const eventId = (await client.query(
       "SELECT id FROM application_workflow_events WHERE task_id = $1 ORDER BY id LIMIT 1",
