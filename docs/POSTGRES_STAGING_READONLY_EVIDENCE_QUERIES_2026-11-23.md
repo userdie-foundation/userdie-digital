@@ -56,18 +56,44 @@ ORDER BY r.rolname;
 ```
 
 ```sql
+WITH RECURSIVE membership_chain AS (
+  SELECT
+    m.member,
+    m.roleid,
+    1 AS depth,
+    ARRAY[m.member, m.roleid]::oid[] AS role_path,
+    m.admin_option,
+    m.inherit_option,
+    m.set_option
+  FROM pg_auth_members AS m
+  WHERE m.member = (SELECT oid FROM pg_roles WHERE rolname = session_user)
+
+  UNION ALL
+
+  SELECT
+    m.member,
+    m.roleid,
+    chain.depth + 1,
+    chain.role_path || m.roleid,
+    m.admin_option,
+    m.inherit_option,
+    m.set_option
+  FROM membership_chain AS chain
+  JOIN pg_auth_members AS m ON m.member = chain.roleid
+  WHERE NOT m.roleid = ANY(chain.role_path)
+)
 SELECT
-  member.rolname AS member_role,
-  granted.rolname AS granted_role,
-  m.admin_option, m.inherit_option, m.set_option
-FROM pg_auth_members AS m
-JOIN pg_roles AS member ON member.oid = m.member
-JOIN pg_roles AS granted ON granted.oid = m.roleid
-WHERE member.rolname IN (session_user, current_user)
-ORDER BY member_role, granted_role;
+  pg_get_userbyid(member) AS member_role,
+  pg_get_userbyid(roleid) AS granted_role,
+  depth,
+  admin_option,
+  inherit_option,
+  set_option
+FROM membership_chain
+ORDER BY depth, member_role, granted_role;
 ```
 
-Проверить всю цепочку наследования/доступа к привилегированным ролям, а не только прямое членство. Runtime identity не должна быть superuser, владельцем схемы/таблиц или иметь эффективные DDL/admin capabilities. PostgreSQL 16 учитывает `inherit_option` и `set_option`.
+Запрос показывает прямые и транзитивные membership edges от фактической login identity; проверяющий должен оценить каждую цепочку с учётом `inherit_option`, `set_option` и `admin_option`. Если runtime identity не имеет доступа к `pg_auth_members`, выполнить запрос под согласованной DBA/read-only identity и отдельно сопоставить login role. Runtime identity не должна быть superuser, владельцем схемы/таблиц или иметь эффективные DDL/admin capabilities. PostgreSQL 16 учитывает `inherit_option` и `set_option`.
 
 ## 3. Владельцы и эффективные права на ключевые таблицы
 
