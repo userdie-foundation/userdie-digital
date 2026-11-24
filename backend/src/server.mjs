@@ -337,6 +337,7 @@ export function createWorkspaceRepository(pool) {
         id: row.id,
         applicationId: row.application_id,
         programId: row.program_id,
+        assignedTo: row.assigned_to,
         title: row.title,
         status: row.status,
         priority: row.priority,
@@ -1339,7 +1340,18 @@ export function createServer({ pool, allowedOrigin, resolvePrincipal, authentica
           overdue: overdueValue === null ? null : overdueValue === "true",
           limit,
         });
-        return sendJson(res, 200, { tasks, count: tasks.length }, req.method);
+        const visibleTasks = tasks.map((task) => {
+          const { assignedTo, ...publicTask } = task;
+          return {
+            ...publicTask,
+            canUpdateStatus: isAuthorized({
+              principal,
+              permission: "applications:transition",
+              resource: { assignedTo, programId: task.programId },
+            }),
+          };
+        });
+        return sendJson(res, 200, { tasks: visibleTasks, count: visibleTasks.length }, req.method);
       } catch {
         return sendJson(res, 503, { error: "workspace_unavailable" }, req.method);
       }
