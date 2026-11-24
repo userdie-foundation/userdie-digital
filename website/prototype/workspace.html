@@ -637,7 +637,7 @@ body.workspace .page-view h3,body.workspace .workspace-notice strong{
   <article class="ux-insight-card" aria-labelledby="ux-chart-title">
     <div class="ux-insight-head"><div><h2 id="ux-chart-title">Состояние задач</h2><p>Распределение текущего локального списка по статусам</p></div><span class="ux-demo-tag">ДЕМО · LIVE</span></div>
     <div class="ux-chart" id="ux-task-chart" aria-live="polite"><div class="ux-empty">Подготовка данных…</div></div>
-    <p class="ux-chart-foot">График рассчитывается из демонстрационных задач этого браузера. Это не статистика деятельности фонда и не серверная аналитика.</p>
+    <p class="ux-chart-foot">График показывает распределение демонстрационных задач по статусам в этом браузере; просрочки отдельно отражаются в контрольных показателях. Это не статистика деятельности фонда и не серверная аналитика.</p>
   </article>
   <article class="ux-insight-card" aria-labelledby="ux-reminders-title">
     <div class="ux-insight-head"><div><h2 id="ux-reminders-title">Контрольные даты</h2><p>Ближайшие сроки задач и просрочки</p></div><span class="ux-demo-tag">ЛОКАЛЬНО</span></div>
@@ -1068,8 +1068,8 @@ function renderWorkspaceInsights(){
   ["Новые",tasks.filter(t=>!t.done&&["Новая","Запланировано"].includes(t.status)).length],
   ["В работе",tasks.filter(t=>!t.done&&t.status==="В работе").length],
   ["На проверке",tasks.filter(t=>!t.done&&t.status==="На проверке").length],
-  ["Завершены",tasks.filter(t=>t.done||t.status==="Завершена").length],
-  ["Просрочены",tasks.filter(taskIsOverdue).length]
+  ["Приостановлены",tasks.filter(t=>!t.done&&t.status==="Приостановлена").length],
+  ["Завершены",tasks.filter(t=>t.done||t.status==="Завершена").length]
  ];
  const max=Math.max(1,...groups.map(item=>item[1]));
  chart.replaceChildren();
