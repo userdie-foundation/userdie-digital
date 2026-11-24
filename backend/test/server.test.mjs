@@ -736,6 +736,7 @@ test("case worker task queue is restricted to tasks assigned to that principal",
       captured = { sql, params };
       return { rows: [{
         id: "task-a", application_id: "case-a", program_id: "program-a",
+        assigned_to: "worker-uuid",
         title: "Prepare supporting documents", status: "open", priority: "high",
         due_at: past, escalation_level: 1, escalated_at: past,
         completed_at: null, created_at: past,
@@ -749,6 +750,8 @@ test("case worker task queue is restricted to tasks assigned to that principal",
     assert.equal(body.tasks[0].id, "task-a");
     assert.equal(body.tasks[0].overdue, true);
     assert.equal(body.tasks[0].applicationId, "case-a");
+    assert.equal(body.tasks[0].canUpdateStatus, true);
+    assert.equal("assignedTo" in body.tasks[0], false);
     assert.equal("applicantId" in body.tasks[0], false);
     assert.equal("email" in body.tasks[0], false);
   }, {
