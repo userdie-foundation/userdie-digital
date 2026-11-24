@@ -73,8 +73,32 @@
       if(task.overdue)details.classList.add("ud-server-task-overdue");
       card.appendChild(details);
       const ref=document.createElement("p");ref.className="ud-server-task-meta";ref.textContent="Серверная запись · ID "+String(task.id||"").slice(0,8);
-      card.appendChild(ref);host.appendChild(card);
+      card.appendChild(ref);
+      const transitions={open:["in_progress","blocked","cancelled"],in_progress:["open","blocked","completed","cancelled"],blocked:["open","in_progress","cancelled"],completed:[],cancelled:[]};
+      if(task.canUpdateStatus===true&&(transitions[task.status]||[]).length){
+        const controls=document.createElement("div");controls.className="ud-server-task-actions";
+        const select=document.createElement("select");select.setAttribute("aria-label","Новый статус задачи");
+        const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Изменить статус…";select.appendChild(placeholder);
+        const nextLabels={open:"Открыта",in_progress:"В работе",blocked:"Заблокирована",completed:"Завершена",cancelled:"Отменена"};
+        transitions[task.status].forEach((next)=>{const option=document.createElement("option");option.value=next;option.textContent=nextLabels[next];select.appendChild(option);});
+        const save=document.createElement("button");save.type="button";save.textContent="Сохранить статус";save.disabled=true;
+        select.addEventListener("change",()=>{save.disabled=!select.value;});
+        save.addEventListener("click",()=>{if(select.value)updateServerTaskStatus(task.id,select.value,save);});
+        controls.append(select,save);card.appendChild(controls);
+      }
+      host.appendChild(card);
     });
+  };
+  const updateServerTaskStatus = async (taskId, status, button) => {
+    if(busy||!sessionReady)return;
+    setBusy(true);button.disabled=true;taskState("СОХРАНЕНИЕ…");taskFeedback("Передаю изменение серверу; локальные данные не изменяются.");
+    try{
+      await json("/api/v1/workspace/tasks/"+encodeURIComponent(taskId)+"/status",{method:"PATCH",body:JSON.stringify({status})});
+      await refreshWorkspaceTasks();
+      taskFeedback("Сервер подтвердил изменение статуса задачи.");
+    }catch(error){
+      taskState("ИЗМЕНЕНИЕ НЕ ВЫПОЛНЕНО");taskFeedback(explain(error),true);
+    }finally{setBusy(false);}
   };
   const refreshWorkspaceTasks = async () => {
     const refreshButton=taskPanel.querySelector("#ud-server-task-refresh");
@@ -106,7 +130,8 @@
   };
   const json = async (path, options) => (await api(path, options)).json();
   const statusLabels = { draft:"Черновик",submitted_for_review:"На независимой проверке",changes_requested:"Требуются изменения",approved:"Согласовано",issued:"Выпущено",archived:"В архиве" };
-  const errorLabels = { authentication_required:"Требуется вход в систему.",invalid_credentials:"Не удалось войти: проверьте рабочую почту и пароль.",origin_not_allowed:"Backend не разрешил этот источник. Проверьте точный ALLOWED_ORIGIN.",authentication_unavailable:"Служба авторизации не настроена или недоступна.",analytical_document_reviewers_unavailable:"Список проверяющих временно недоступен.",analytical_document_reviewer_list_denied:"У этой учётной записи нет права создавать заключения.",analytical_documents_unavailable:"Реестр документов временно недоступен.",analytical_document_write_unavailable:"Не удалось сохранить проект документа.",invalid_reviewer_assignment:"Выбранный проверяющий не имеет действующего права независимого согласования.",pdf_storage_unavailable:"Частное хранилище PDF не настроено. Выдача временно недоступна." };
+  const errorLabels = { authentication_required:"Требуется вход в систему.",invalid_credentials:"Не удалось войти: проверьте рабочую почту и пароль.",origin_not_allowed:"Backend не разрешил этот источник. Проверьте точный ALLOWED_ORIGIN.",authentication_unavailable:"Служба авторизации не настроена или недоступна.",analytical_document_reviewers_unavailable:"Список проверяющих временно недоступен.",analytical_document_reviewer_list_denied:"У этой учётной записи нет права создавать заключения.",
+    task_status_transition_not_allowed:"Этот переход статуса запрещён текущим состоянием задачи.",not_found:"Задача не найдена или у учётной записи нет права её изменять.",workspace_unavailable:"Серверная очередь задач временно недоступна.",analytical_documents_unavailable:"Реестр документов временно недоступен.",analytical_document_write_unavailable:"Не удалось сохранить проект документа.",invalid_reviewer_assignment:"Выбранный проверяющий не имеет действующего права независимого согласования.",pdf_storage_unavailable:"Частное хранилище PDF не настроено. Выдача временно недоступна." };
   const explain = (error) => errorLabels[error.message] || ("Операция не выполнена: " + error.message);
   const addButton = (parent,label,action,secondary=true) => { const b=document.createElement("button");b.type="button";b.className="ud-api-btn"+(secondary?" secondary":"");b.textContent=label;b.addEventListener("click",action);parent.appendChild(b);return b; };
   const loadReviewers = async () => {
