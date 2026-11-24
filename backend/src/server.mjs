@@ -306,7 +306,7 @@ export function createWorkspaceRepository(pool) {
 
       const result = await pool.query(
         `SELECT
-           t.id, t.application_id, t.program_id, t.title, t.status,
+           t.id, t.application_id, t.program_id, t.assigned_to, t.title, t.status,
            t.priority, t.due_at, t.escalation_level, t.escalated_at,
            t.completed_at, t.created_at
          FROM application_tasks t
