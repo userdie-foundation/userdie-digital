@@ -5,7 +5,7 @@
   const root = "/api/v1/analytical-documents";
   const meta = document.querySelector('meta[name="userdie-api-origin"]');
   const configuredOrigin = (meta?.content || "").trim();
-  let apiOrigin = "", busy = false, reviewers = [], documents = [];
+  let apiOrigin = "", busy = false, reviewers = [], documents = [], serverTasks = [], sessionReady = false;
   const style = document.createElement("style");
   style.textContent = [
     ".ud-api-panel{margin:18px 0;padding:22px;border:1px solid #dce1d6;border-radius:6px;background:#fbfaf6;color:#20372b}",
@@ -18,6 +18,18 @@
     ".ud-api-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ud-api-btn{min-height:36px;padding:0 12px;border:1px solid #2c553e;border-radius:4px;background:#2c553e;color:white;font:700 10px DM Sans,sans-serif;cursor:pointer}.ud-api-btn.secondary{background:white;color:#2c553e}.ud-api-btn:disabled{opacity:.55;cursor:wait}",
     ".ud-api-feedback{margin:10px 0;color:#59695a;font-size:10px;line-height:1.6;white-space:pre-wrap}.ud-api-feedback.error{color:#9a4938}.ud-api-docs{display:grid;gap:9px;margin-top:14px}",
     ".ud-api-doc{padding:13px;border:1px solid #dce1d6;border-radius:5px;background:white}.ud-api-doc-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.ud-api-doc strong{font:700 11px Manrope,sans-serif}.ud-api-doc p{margin:6px 0;color:#6d796e;font-size:10px;line-height:1.55;overflow-wrap:anywhere}.ud-api-doc-status{padding:5px 7px;border-radius:3px;background:#edf1e5;color:#4b6a47;font-size:8px;font-weight:800}.ud-api-doc-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.ud-api-detail{margin-top:12px;padding:12px;border-top:1px solid #e3e7df;background:#fbfaf6}.ud-api-detail h3{margin:10px 0 6px;color:#294b37;font:700 11px Manrope,sans-serif}.ud-api-detail p,.ud-api-detail li{color:#657367;font-size:10px;line-height:1.6;overflow-wrap:anywhere}.ud-api-detail ul{margin:5px 0;padding-left:18px}.ud-api-hash{font:9px ui-monospace,monospace;overflow-wrap:anywhere}",
+    ".ud-server-task-panel{margin:0 0 18px;padding:18px;border:1px solid #cbd8be;border-radius:6px;background:#f7f9f2;color:#20372b}",
+    ".ud-server-task-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}",
+    ".ud-server-task-head h3{margin:0;font:700 15px Manrope,sans-serif}.ud-server-task-head p{margin:5px 0 0;color:#6d796e;font-size:10px;line-height:1.6}",
+    ".ud-server-task-state{padding:6px 8px;border-radius:3px;background:#f0eadb;color:#866b3d;font-size:8px;font-weight:800;letter-spacing:.5px}",
+    ".ud-server-task-list{display:grid;gap:8px}.ud-server-task-card{padding:12px;border:1px solid #dce1d6;border-radius:4px;background:#fff}",
+    ".ud-server-task-card header{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.ud-server-task-card strong{font:700 11px Manrope,sans-serif;color:#294833}",
+    ".ud-server-task-meta{margin:6px 0 0;color:#6d796e;font-size:9px;line-height:1.6}.ud-server-task-overdue{color:#984b38;font-weight:800}",
+    ".ud-server-task-empty{padding:16px;border:1px dashed #cbd6c2;border-radius:4px;color:#6d796e;font-size:10px;line-height:1.6}",
+    ".ud-server-task-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}",
+    ".ud-server-task-actions button{min-height:32px;padding:0 10px;border:1px solid #55764f;border-radius:4px;background:#fff;color:#31583d;font:700 9px DM Sans,sans-serif;cursor:pointer}",
+    ".ud-server-task-actions button:disabled{opacity:.55;cursor:wait}",
+    "@media(max-width:620px){.ud-server-task-panel{padding:14px}.ud-server-task-head{flex-direction:column}}",
     "@media(max-width:620px){.ud-api-panel{padding:15px}.ud-api-form{grid-template-columns:1fr}.ud-api-form .wide{grid-column:auto}.ud-api-head{flex-direction:column}}"
   ].join("");
   document.head.appendChild(style);
@@ -30,6 +42,56 @@
   if (reportPanel?.parentElement) reportPanel.insertAdjacentElement("afterend", panel);
   else if (assetsView) assetsView.appendChild(panel);
   else document.querySelector(".app-main")?.appendChild(panel);
+  const taskPanel = document.createElement("section");
+  taskPanel.className = "ud-server-task-panel";
+  taskPanel.id = "ud-server-task-panel";
+  taskPanel.setAttribute("aria-labelledby", "ud-server-task-title");
+  taskPanel.innerHTML = '<div class="ud-server-task-head"><div><h3 id="ud-server-task-title">Серверная очередь задач</h3><p>Данные из PostgreSQL через защищённый API. Показываются только записи, разрешённые серверной ролью и областью доступа.</p></div><span class="ud-server-task-state" id="ud-server-task-state">НЕ ПОДКЛЮЧЕНО</span></div><div id="ud-server-task-list" class="ud-server-task-list" aria-live="polite"><div class="ud-server-task-empty">Серверная очередь пока не подключена. Локальные демонстрационные задачи остаются отдельно.</div></div><div class="ud-server-task-actions"><button id="ud-server-task-refresh" type="button" disabled>Обновить серверную очередь</button><span id="ud-server-task-feedback" class="ud-api-feedback" role="status" aria-live="polite"></span></div>';
+  const taskView = document.getElementById("view-tasks");
+  if (taskView) taskView.insertBefore(taskPanel, taskView.children[1] || null);
+  const taskState = (label) => { const node=taskPanel.querySelector("#ud-server-task-state"); if(node)node.textContent=label; };
+  const taskFeedback = (message, error=false) => { const node=taskPanel.querySelector("#ud-server-task-feedback"); if(node){node.textContent=message||"";node.classList.toggle("error",error);} };
+  const renderServerTasks = () => {
+    const host=taskPanel.querySelector("#ud-server-task-list");
+    host.replaceChildren();
+    if(!serverTasks.length){
+      const empty=document.createElement("div");empty.className="ud-server-task-empty";
+      empty.textContent="В разрешённой серверной очереди нет задач. Это не означает отсутствие задач в других областях доступа.";
+      host.appendChild(empty);return;
+    }
+    const labels={open:"Открыта",in_progress:"В работе",blocked:"Заблокирована",completed:"Завершена",cancelled:"Отменена"};
+    const priorities={critical:"Критический",high:"Высокий",normal:"Обычный",low:"Низкий"};
+    serverTasks.forEach((task)=>{
+      const card=document.createElement("article");card.className="ud-server-task-card";
+      const head=document.createElement("header");
+      const title=document.createElement("strong");title.textContent=task.title||"Задача без названия";
+      const status=document.createElement("span");status.className="ud-api-doc-status";status.textContent=labels[task.status]||task.status||"Статус не указан";
+      head.append(title,status);card.appendChild(head);
+      const details=document.createElement("p");details.className="ud-server-task-meta";
+      const due=task.dueAt?new Date(task.dueAt).toLocaleString("ru-RU",{dateStyle:"medium",timeStyle:"short"}):"Срок не задан";
+      details.textContent=["Приоритет: "+(priorities[task.priority]||"Не указан"),"Срок: "+due,task.overdue?"Просрочена":"В срок",task.escalationLevel?"Уровень эскалации: "+task.escalationLevel:""].filter(Boolean).join(" · ");
+      if(task.overdue)details.classList.add("ud-server-task-overdue");
+      card.appendChild(details);
+      const ref=document.createElement("p");ref.className="ud-server-task-meta";ref.textContent="Серверная запись · ID "+String(task.id||"").slice(0,8);
+      card.appendChild(ref);host.appendChild(card);
+    });
+  };
+  const refreshWorkspaceTasks = async () => {
+    const refreshButton=taskPanel.querySelector("#ud-server-task-refresh");
+    if(!apiOrigin){taskState("НЕ ПОДКЛЮЧЕНО");taskFeedback("Backend API-origin не задан. Сетевых запросов нет.");return;}
+    if(!sessionReady){taskState("ТРЕБУЕТСЯ ВХОД");taskFeedback("Войдите в защищённый контур через форму авторизации в разделе «Активы и оценка».");return;}
+    refreshButton.disabled=true;taskState("ЗАГРУЗКА…");taskFeedback("Получаю разрешённую очередь задач…");
+    try{
+      const data=await json("/api/v1/workspace/tasks?limit=50");
+      serverTasks=Array.isArray(data.tasks)?data.tasks:[];
+      renderServerTasks();taskState("СЕРВЕРНЫЕ ДАННЫЕ");taskFeedback("Получено записей: "+serverTasks.length+". Источник: серверный API.");
+    }catch(error){
+      serverTasks=[];renderServerTasks();
+      if(error.status===401){sessionReady=false;taskState("СЕАНС НЕ АКТИВЕН");taskFeedback("Сеанс завершён или истёк. Войдите повторно.",true);$("ud-api-login").hidden=false;$("ud-api-workspace").hidden=true;}
+      else if(error.status===403){taskState("НЕТ ДОСТУПА");taskFeedback("Для этой учётной записи сервер не разрешил просмотр очереди задач. Это ограничение роли или области доступа.",true);}
+      else{taskState("СЕРВИС НЕДОСТУПЕН");taskFeedback(explain(error),true);}
+    }finally{refreshButton.disabled=!sessionReady;}
+  };
   const $ = (id) => panel.querySelector("#" + id);
   const state = (message, error = false) => { $("ud-api-feedback").textContent = message || ""; $("ud-api-feedback").classList.toggle("error", error); };
   const setBusy = (value) => { busy = value; panel.querySelectorAll("button").forEach((button) => { button.disabled = value; }); };
@@ -272,7 +334,7 @@
   };
   if(!configuredOrigin){
     $("ud-api-configuration").textContent="Демонстрационный режим. Backend API-origin пока не задан: кабинет не отправляет данные и не выполняет сетевые запросы. Для включения требуется утверждённый HTTPS-origin backend, совпадающий с его ALLOWED_ORIGIN, настроенная авторизация и частное хранилище PDF.";
-    $("ud-api-login").hidden=true;$("ud-api-workspace").hidden=true;
+    $("ud-api-login").hidden=true;$("ud-api-workspace").hidden=true;taskState("НЕ ПОДКЛЮЧЕНО");taskFeedback("Backend API-origin не задан. Серверные данные не запрашиваются.");
   }else{
     try{
       const parsed=new URL(configuredOrigin);
@@ -282,15 +344,16 @@
       $("ud-api-login").hidden=false;
       $("ud-api-login-form").addEventListener("submit",async(event)=>{
         event.preventDefault();if(busy)return;setBusy(true);state("Проверяю учётные данные…");
-        try{await json("/api/v1/auth/login",{method:"POST",body:JSON.stringify({email:$("ud-api-email").value.trim(),password:$("ud-api-password").value})});$("ud-api-password").value="";$("ud-api-login").hidden=true;$("ud-api-workspace").hidden=false;$("ud-api-state").textContent="ЗАЩИЩЁННЫЙ КОНТУР";$("ud-api-state").classList.add("live");await refresh();}
+        try{await json("/api/v1/auth/login",{method:"POST",body:JSON.stringify({email:$("ud-api-email").value.trim(),password:$("ud-api-password").value})});$("ud-api-password").value="";$("ud-api-login").hidden=true;$("ud-api-workspace").hidden=false;$("ud-api-state").textContent="ЗАЩИЩЁННЫЙ КОНТУР";$("ud-api-state").classList.add("live");sessionReady=true;taskPanel.querySelector("#ud-server-task-refresh").disabled=false;await refresh();await refreshWorkspaceTasks();}
         catch(error){state(explain(error),true);}finally{setBusy(false);}
       });
       $("ud-api-refresh").addEventListener("click",refresh);
+      taskPanel.querySelector("#ud-server-task-refresh").addEventListener("click",refreshWorkspaceTasks);
       $("ud-api-logout").addEventListener("click",async()=>{
         setBusy(true);state("Завершаю защищённый серверный сеанс…");
         try{
           await api("/api/v1/auth/logout",{method:"POST",body:"{}"});
-          documents=[];$("ud-api-docs").replaceChildren();
+          documents=[];serverTasks=[];sessionReady=false;renderServerTasks();taskState("СЕАНС ЗАВЕРШЁН");taskFeedback("Серверный сеанс завершён; список очищен.");taskPanel.querySelector("#ud-server-task-refresh").disabled=true;$("ud-api-docs").replaceChildren();
           $("ud-api-workspace").hidden=true;$("ud-api-login").hidden=false;
           $("ud-api-state").textContent="СЕАНС ЗАВЕРШЁН";$("ud-api-state").classList.remove("live");
           state("Сервер подтвердил завершение сеанса.");
