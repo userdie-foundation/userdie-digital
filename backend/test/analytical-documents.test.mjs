@@ -258,6 +258,50 @@ test("assigned independent reviewer sees review action without document-creation
   });
 });
 
+test("assigned reviewer whose approval grant was revoked cannot read document content", async () => {
+  const calls = [];
+  const row = {
+    id: docId, document_number: null, document_type: "asset_analysis",
+    organizational_contour: "assets", asset_reference: null, title: "Previously assigned review",
+    status: "submitted_for_review", created_by: "author-1", assigned_reviewer_id: "reviewer-1",
+    approved_by: null, approved_at: null, issued_at: null,
+    created_at: "2026-11-19T08:00:00.000Z", updated_at: "2026-11-19T08:10:00.000Z",
+  };
+  const pool = {
+    async query(sql, params) {
+      calls.push({ sql, params });
+      return { rows: sql.includes("FROM analytical_documents WHERE id") ? [row] : [] };
+    },
+  };
+  await withServer(pool, async (base) => {
+    const response = await fetch(base + root + "/" + docId);
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), { error: "not_found" });
+  }, {
+    resolvePrincipal: async () => principal("reviewer-1", grant("applicant")),
+  });
+  assert.equal(calls.length, 1);
+});
+
+test("document list scopes assigned-reviewer visibility to a current approval grant", async () => {
+  const calls = [];
+  await withServer({
+    async query(sql, params) {
+      calls.push({ sql, params });
+      return { rows: [] };
+    },
+  }, async (base) => {
+    const response = await fetch(base + root);
+    assert.equal(response.status, 200);
+    assert.deepEqual((await response.json()).documents, []);
+  }, {
+    resolvePrincipal: async () => principal("reviewer-1", grant("applicant")),
+  });
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].sql, /\(\$5::boolean AND assigned_reviewer_id = \$3::uuid\)/);
+  assert.equal(calls[0].params[4], false);
+});
+
 test("analytical document version creation is denied without valuation authority", async () => {
   let queries = 0;
   const pool = { async query() { queries += 1; return { rows: [] }; } };
