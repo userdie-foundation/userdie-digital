@@ -52,6 +52,16 @@ export function evaluateRuntimeRoleAudit({ role, memberships, schema, tables, tr
         `${tableName}: unexpected effective ${privilege} privilege (expected ${expected}).`,
       );
     }
+    // PostgreSQL column ACLs are independent of table-level ACLs.
+    // INSERT, UPDATE and REFERENCES can be granted on individual columns.
+    for (const privilege of ["INSERT", "UPDATE", "REFERENCES"]) {
+      const expected = policy[privilege];
+      addFinding(
+        findings,
+        table[`can_any_column_${privilege.toLowerCase()}`] === expected,
+        `${tableName}: unexpected effective column-level ${privilege} privilege (expected ${expected}).`,
+      );
+    }
   }
 
   const enabledTriggers = new Map(
@@ -148,7 +158,10 @@ async function main() {
                 has_table_privilege($1, c.oid, 'DELETE') AS can_delete,
                 has_table_privilege($1, c.oid, 'TRUNCATE') AS can_truncate,
                 has_table_privilege($1, c.oid, 'REFERENCES') AS can_references,
-                has_table_privilege($1, c.oid, 'TRIGGER') AS can_trigger
+                has_table_privilege($1, c.oid, 'TRIGGER') AS can_trigger,
+                has_any_column_privilege($1, c.oid, 'INSERT') AS can_any_column_insert,
+                has_any_column_privilege($1, c.oid, 'UPDATE') AS can_any_column_update,
+                has_any_column_privilege($1, c.oid, 'REFERENCES') AS can_any_column_references
          FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
          WHERE n.nspname = 'public'
            AND c.relname = ANY($2::text[])
