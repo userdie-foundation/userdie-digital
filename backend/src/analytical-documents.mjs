@@ -53,7 +53,8 @@ function canReadDocument(principal, document) {
   const scopedAssetReader = document.organizational_contour === "assets" &&
     hasGrant(principal, "asset_valuator", "contour", "assets");
   return canReadAll(principal) || scopedAssetReader ||
-    document.created_by === principal.id || document.assigned_reviewer_id === principal.id;
+    document.created_by === principal.id ||
+    (document.assigned_reviewer_id === principal.id && canReview(principal));
 }
 
 async function readBody(req, maxBytes = 65536) {
@@ -224,10 +225,10 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
                 approved_by, approved_at, issued_at, created_at, updated_at
          FROM analytical_documents
          WHERE ($1::boolean OR ($2::boolean AND organizational_contour = 'assets')
-           OR created_by = $3::uuid OR assigned_reviewer_id = $3::uuid)
+           OR created_by = $3::uuid OR ($5::boolean AND assigned_reviewer_id = $3::uuid))
          ORDER BY updated_at DESC, id DESC
          LIMIT $4`,
-        [canReadAll(principal), hasGrant(principal, "asset_valuator", "contour", "assets"), principal.id, limit],
+        [canReadAll(principal), hasGrant(principal, "asset_valuator", "contour", "assets"), principal.id, limit, canReview(principal)],
       );
       const documents = (result.rows ?? []).map((row) => ({
         id: row.id, documentNumber: row.document_number, documentType: row.document_type,
