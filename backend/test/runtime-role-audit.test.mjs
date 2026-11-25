@@ -27,6 +27,9 @@ function acceptedFixture() {
         can_truncate: false,
         can_references: false,
         can_trigger: false,
+        can_any_column_insert: false,
+        can_any_column_update: false,
+        can_any_column_references: false,
       },
       {
         table_name: "privacy_consent_events",
@@ -38,6 +41,9 @@ function acceptedFixture() {
         can_truncate: false,
         can_references: false,
         can_trigger: false,
+        can_any_column_insert: false,
+        can_any_column_update: false,
+        can_any_column_references: false,
       },
     ],
     triggers: [
@@ -80,6 +86,18 @@ test("rejects write privileges on the immutable consent-document registry", () =
   const findings = evaluateRuntimeRoleAudit(fixture);
   assert.ok(findings.some((finding) => finding.includes("privacy_consent_documents: unexpected effective UPDATE")));
   assert.ok(findings.some((finding) => finding.includes("privacy_consent_documents: unexpected effective DELETE")));
+});
+
+
+test("rejects column-only INSERT, UPDATE, and REFERENCES grants on protected consent tables", () => {
+  const fixture = acceptedFixture();
+  fixture.tables[0].can_any_column_insert = true;
+  fixture.tables[1].can_any_column_update = true;
+  fixture.tables[1].can_any_column_references = true;
+  const findings = evaluateRuntimeRoleAudit(fixture);
+  assert.ok(findings.some((finding) => finding.includes("privacy_consent_documents: unexpected effective column-level INSERT")));
+  assert.ok(findings.some((finding) => finding.includes("privacy_consent_events: unexpected effective column-level UPDATE")));
+  assert.ok(findings.some((finding) => finding.includes("privacy_consent_events: unexpected effective column-level REFERENCES")));
 });
 
 test("rejects missing or disabled protection triggers and runtime-owned trigger functions", () => {
