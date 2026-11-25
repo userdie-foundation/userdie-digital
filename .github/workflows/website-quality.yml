@@ -11,13 +11,6 @@ on:
       - ".github/scripts/check-html-accessibility.mjs"
       - ".github/workflows/website-quality.yml"
   pull_request:
-    paths:
-      - "website/**"
-      - ".github/scripts/check-mobile-navigation.mjs"
-      - ".github/scripts/check-site-links.mjs"
-      - ".github/scripts/check-inline-js.mjs"
-      - ".github/scripts/check-html-accessibility.mjs"
-      - ".github/workflows/website-quality.yml"
   workflow_dispatch:
 
 permissions:
