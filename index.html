@@ -132,7 +132,20 @@
       *,*::before,*::after{transition:none!important;animation:none!important}
     }
 
-  </style>
+  
+/* Editorial visual enhancement — restrained imagery, rhythm and responsive focus */
+.featured-work{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:stretch}
+.featured-main,.featured-side article{overflow:hidden;border-radius:26px;border:1px solid var(--line);background:#fff;box-shadow:0 12px 36px rgba(23,63,50,.06)}
+.featured-main .feature-photo{height:300px;background-size:cover;background-position:center}
+.featured-main .feature-copy{padding:clamp(22px,3vw,34px)}
+.featured-side{display:grid;gap:22px}
+.featured-side article{display:grid;grid-template-columns:40% 1fr;min-height:210px}
+.featured-side .feature-photo{background-size:cover;background-position:center}
+.feature-copy h3{font-size:clamp(19px,2.4vw,26px);letter-spacing:-.03em;line-height:1.2;margin:8px 0}
+.feature-copy p{margin:0;color:var(--muted);font-size:14px}
+.feature-copy .small-label{color:var(--green2)}
+@media(max-width:760px){.featured-work{grid-template-columns:1fr}.featured-main .feature-photo{height:220px}.featured-side article{min-height:160px}}
+</style>
 </head>
 <body>
   <header>
@@ -172,7 +185,17 @@
         </div>
       </div>
     </section>
-    <section id="programs" style="padding-top:0">
+    
+    <section id="stories" class="editorial-section">
+      <div class="wrap">
+        <div class="section-head"><div class="eyebrow">Деятельность фонда</div><h2>Помощь начинается с человека</h2><p>Социальная и правовая поддержка, внимание к жизненным обстоятельствам и последовательная работа с обращениями.</p></div>
+        <div class="featured-work">
+          <article class="featured-main"><div class="feature-photo" role="img" aria-label="Волонтёрская помощь и поддержка людей" style="background-image:url('https://images.unsplash.com/photo-1531207878454-1f6a2a1b5a64?auto=format&fit=crop&w=1400&q=85')"></div><div class="feature-copy"><span class="small-label">Социальная поддержка</span><h3>Участие, которое имеет значение</h3><p>Работа фонда строится вокруг конкретных потребностей людей, внимательного сопровождения и уважительного отношения.</p></div></article>
+          <div class="featured-side"><article><div class="feature-photo" role="img" aria-label="Консультационная помощь" style="background-image:url('https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=900&q=85')"></div><div class="feature-copy"><span class="small-label">Правовая помощь</span><h3>Понятный путь к поддержке</h3><p>Информация, сопровождение и ориентиры в сложных вопросах.</p></div></article><article><div class="feature-photo" role="img" aria-label="Командное взаимодействие" style="background-image:url('https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=85')"></div><div class="feature-copy"><span class="small-label">Партнёрство</span><h3>Объединяем усилия</h3><p>Развитие сотрудничества и инициатив, направленных на устойчивую помощь.</p></div></article></div>
+        </div>
+      </div>
+    </section>
+\n    <section id="programs" style="padding-top:0">
       <div class="wrap">
         <div class="section-head"><div class="eyebrow">Направления развития</div><h2>Платформа будет расти поэтапно</h2><p>Это базовые направления проектирования, а не заявление о том, что все сервисы уже запущены.</p></div>
         <div class="cards">
