@@ -14,6 +14,7 @@ It checks:
 - the role has schema USAGE but not CREATE;
 - `privacy_consent_documents` is SELECT-only;
 - `privacy_consent_events` has SELECT and INSERT only;
+- column-level `INSERT`, `UPDATE`, and `REFERENCES` privileges are checked independently of table-level grants, because PostgreSQL column ACLs can exist without corresponding table ACLs;
 - all six migration-021 protection triggers are enabled and wired to their expected function names;
 - no application-schema or global PostgreSQL default ACL grants future object privileges to the runtime role or PUBLIC.
 
