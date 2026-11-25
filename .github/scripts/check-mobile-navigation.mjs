@@ -130,3 +130,45 @@ for (const page of publicPages) {
 }
 
 console.log("Mobile navigation checks passed on all 5 sitemap pages: markup, aria-controls, open/close, Escape, focus restore, link close, and responsive transitions.");
+
+
+// Homepage assistant status badge: verify real markup, stylesheet order and contrast.
+const homepageHtml = fs.readFileSync("website/index.html", "utf8");
+const homepageBaseCss = fs.readFileSync("website/styles.css", "utf8");
+const homepagePolishCss = fs.readFileSync("website/homepage-polish.css", "utf8");
+const baseStylesheetLink = homepageHtml.indexOf('href="styles.css"');
+const polishStylesheetLink = homepageHtml.indexOf('href="homepage-polish.css"');
+assert.ok(baseStylesheetLink >= 0 && polishStylesheetLink > baseStylesheetLink,
+  "homepage polish must load after the shared stylesheet");
+assert.match(homepageHtml, /class="robot-panel"[\s\S]*?class="robot-status"[\s\S]*?Концепция модулей/,
+  "homepage must retain the assistant status badge and its visible label");
+assert.match(homepageBaseCss, /\.robot-status\{[^}]*background:#fff[^}]*color:#59685d/s,
+  "shared stylesheet baseline for the status badge must be present");
+assert.match(homepageBaseCss, /\.robot-status\{border-color:[^}]*color:#e0e8dd\}/,
+  "the later shared rule that requires a scoped homepage override must remain detectable");
+
+const statusRule = homepagePolishCss.match(
+  /body:has\(> \.header \.brand\[href="#top"\]\) #workspace \.robot-status\s*\{([^}]*)\}/s
+);
+assert.ok(statusRule, "homepage status badge must have a scoped contrast override");
+const foreground = statusRule[1].match(/color\s*:\s*(#[0-9a-f]{6})/i)?.[1];
+const background = statusRule[1].match(/background\s*:\s*(#[0-9a-f]{6})/i)?.[1];
+assert.ok(foreground && background, "status badge foreground and background colors must be explicit");
+
+function relativeLuminance(hex) {
+  const channels = hex.slice(1).match(/../g).map((part) => parseInt(part, 16) / 255);
+  const linear = channels.map((value) => value <= 0.04045
+    ? value / 12.92
+    : ((value + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+}
+const luminanceValues = [relativeLuminance(foreground), relativeLuminance(background)].sort((a, b) => b - a);
+const contrastRatio = (luminanceValues[0] + 0.05) / (luminanceValues[1] + 0.05);
+assert.ok(contrastRatio >= 4.5,
+  "assistant status badge text must meet the WCAG AA 4.5:1 normal-text contrast threshold");
+
+assert.match(homepagePolishCss,
+  /@media\(max-width:760px\)\s*\{[\s\S]*?body:has\(> \.header \.brand\[href="#top"\]\) #workspace \.robot-status\s*\{[^}]*white-space:normal/s,
+  "assistant status badge must wrap rather than overflow on narrow screens");
+
+console.log("Homepage assistant status badge checks passed: markup, cascade order, WCAG AA text contrast, and narrow-screen wrapping.");

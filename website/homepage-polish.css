@@ -526,3 +526,20 @@ body:has(> .header .brand[href="#top"]) #workspace .robot-item p{
 body:has(> .header .brand[href="#top"]) #workspace .robot-item>span{
   color:#7c8d72;
 }
+
+
+/* 2026-11-22: keep the homepage assistant status badge readable on its dark panel.
+   The base stylesheet later changes .robot-status text to a pale panel color,
+   while its background remains white. This scoped rule restores the intended
+   dark-on-light contrast and allows the label to wrap on narrow screens. */
+body:has(> .header .brand[href="#top"]) #workspace .robot-status{
+  color:#52665a;
+  background:#fffefa;
+  border-color:rgba(32,56,44,.18);
+}
+@media(max-width:760px){
+  body:has(> .header .brand[href="#top"]) #workspace .robot-status{
+    max-width:100%;
+    white-space:normal;
+  }
+}
