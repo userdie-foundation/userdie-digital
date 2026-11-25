@@ -1,0 +1,118 @@
+name: Backend required gate
+
+# This workflow runs for every pull request so its check is always reported.
+# Backend tests run only when backend source or its CI contract changes.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-required-gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  scope:
+    name: Detect backend changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.scope.outputs.backend_changed }}
+    steps:
+      - name: Check out repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Detect backend-relevant changes
+        id: scope
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "backend_changed=true" >> "$GITHUB_OUTPUT"
+            echo "Manual run: execute the full backend gate."
+            exit 0
+          fi
+          if [[ -z "$BASE_SHA" || -z "$HEAD_SHA" ]]; then
+            echo "Missing pull request comparison SHAs; fail closed."
+            exit 1
+          fi
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- backend/ .github/workflows/backend-checks.yml .github/workflows/backend-required-gate.yml)"
+          if [[ -n "$changed_files" ]]; then
+            echo "backend_changed=true" >> "$GITHUB_OUTPUT"
+            printf 'Backend-relevant files changed:\n%s\n' "$changed_files"
+          else
+            echo "backend_changed=false" >> "$GITHUB_OUTPUT"
+            echo "No backend-relevant files changed; backend test job will be skipped."
+          fi
+
+  backend:
+    name: Backend required gate
+    needs: scope
+    if: needs.scope.outputs.backend_changed == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: userdie_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d userdie_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Cyrillic PDF fonts
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-noto-core
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check JavaScript syntax
+        run: npm run check
+      - name: Run automated tests and PostgreSQL integration suite
+        env:
+          PG_INTEGRATION_URL: postgresql://postgres:postgres@localhost:5432/userdie_test
+        run: npm test
+      - name: Build production container image
+        run: docker build --pull -f Dockerfile -t userdie-digital-api:ci .
+      - name: Smoke-test production container
+        env:
+          DATABASE_URL: postgresql://synthetic:synthetic@127.0.0.1:1/userdie_test
+        run: |
+          set -euo pipefail
+          docker run --detach --name userdie-api-smoke \
+            --publish 127.0.0.1:18080:8080 \
+            --env PORT=8080 \
+            --env DATABASE_URL="$DATABASE_URL" \
+            userdie-digital-api:ci
+          trap 'docker rm --force userdie-api-smoke >/dev/null 2>&1 || true' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:18080/api/v1/health/live >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:18080/api/v1/health/live
+          ready_status="$(curl --silent --output /tmp/userdie-ready.json --write-out '%{http_code}' http://127.0.0.1:18080/api/v1/health/ready)"
+          test "$ready_status" = "503"
+          test "$(docker exec userdie-api-smoke id -u)" = "1000"
+          grep -Fq '"status":"unavailable"' /tmp/userdie-ready.json
+          echo "Container smoke test passed: non-root runtime, live endpoint, fail-closed database readiness."
