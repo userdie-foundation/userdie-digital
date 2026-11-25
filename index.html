@@ -77,6 +77,11 @@
     .photo-top:before,.photo-top:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.3);border-radius:50%;width:170px;height:170px;z-index:1;pointer-events:none}
     .photo-top:after{width:115px;height:115px;border-color:rgba(255,255,255,.45)}
     .photo-top img{position:relative;z-index:0;width:100%;height:100%;object-fit:cover;filter:none}
+    .photo-top{isolation:isolate}
+    .photo-top img{display:block;transition:transform .45s ease}
+    .photo-card:hover .photo-top img{transform:scale(1.045)}
+    .photo-body h3{letter-spacing:-.025em}
+    .photo-body p{line-height:1.7}
     .photo-body{padding:24px 26px 27px}
     .process{background:linear-gradient(135deg,#12372b,#20543f);position:relative;overflow:hidden}
     .process:after{content:"";position:absolute;width:420px;height:420px;border:1px solid #ffffff14;border-radius:50%;right:-160px;top:-140px;pointer-events:none}
@@ -196,7 +201,8 @@
         </div>
       </div>
     </section>
-\n    <section id="programs" style="padding-top:0">
+
+    <section id="programs" style="padding-top:0">
       <div class="wrap">
         <div class="section-head"><div class="eyebrow">Направления развития</div><h2>Платформа будет расти поэтапно</h2><p>Это базовые направления проектирования, а не заявление о том, что все сервисы уже запущены.</p></div>
         <div class="cards">
