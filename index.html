@@ -73,9 +73,15 @@
     .card p{font-size:14px;line-height:1.75}
     .photo-card{padding:0;overflow:hidden}
     .photo-top{height:132px;display:grid;place-items:center;position:relative;overflow:hidden;background:linear-gradient(135deg,#e5eee4,#c8dccd)}
-    .photo-top:before,.photo-top:after{content:"";position:absolute;border:1px solid rgba(23,63,50,.17);border-radius:50%;width:170px;height:170px}
-    .photo-top:after{width:115px;height:115px;border-color:rgba(196,163,90,.65)}
-    .photo-top img{position:relative;z-index:1;width:74px;height:74px;object-fit:contain;filter:drop-shadow(0 5px 10px rgba(23,63,50,.12))}
+    .photo-top img{width:100%;height:100%;object-fit:cover;filter:none}
+    .photo-top:before,.photo-top:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.3);border-radius:50%;width:170px;height:170px;z-index:1;pointer-events:none}
+    .photo-top:after{width:115px;height:115px;border-color:rgba(255,255,255,.45)}
+    .photo-top img{position:relative;z-index:0;width:100%;height:100%;object-fit:cover;filter:none}
+    .photo-top{isolation:isolate}
+    .photo-top img{display:block;transition:transform .45s ease}
+    .photo-card:hover .photo-top img{transform:scale(1.045)}
+    .photo-body h3{letter-spacing:-.025em}
+    .photo-body p{line-height:1.7}
     .photo-body{padding:24px 26px 27px}
     .process{background:linear-gradient(135deg,#12372b,#20543f);position:relative;overflow:hidden}
     .process:after{content:"";position:absolute;width:420px;height:420px;border:1px solid #ffffff14;border-radius:50%;right:-160px;top:-140px;pointer-events:none}
@@ -132,7 +138,20 @@
       *,*::before,*::after{transition:none!important;animation:none!important}
     }
 
-  </style>
+  
+/* Editorial visual enhancement — restrained imagery, rhythm and responsive focus */
+.featured-work{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:stretch}
+.featured-main,.featured-side article{overflow:hidden;border-radius:26px;border:1px solid var(--line);background:#fff;box-shadow:0 12px 36px rgba(23,63,50,.06)}
+.featured-main .feature-photo{height:300px;background-size:cover;background-position:center}
+.featured-main .feature-copy{padding:clamp(22px,3vw,34px)}
+.featured-side{display:grid;gap:22px}
+.featured-side article{display:grid;grid-template-columns:40% 1fr;min-height:210px}
+.featured-side .feature-photo{background-size:cover;background-position:center}
+.feature-copy h3{font-size:clamp(19px,2.4vw,26px);letter-spacing:-.03em;line-height:1.2;margin:8px 0}
+.feature-copy p{margin:0;color:var(--muted);font-size:14px}
+.feature-copy .small-label{color:var(--green2)}
+@media(max-width:760px){.featured-work{grid-template-columns:1fr}.featured-main .feature-photo{height:220px}.featured-side article{min-height:160px}}
+</style>
 </head>
 <body>
   <header>
@@ -166,12 +185,23 @@
       <div class="wrap">
         <div class="section-head"><div class="eyebrow">О платформе</div><h2>Единая цифровая среда для социальных инициатив</h2><p>Платформа проектируется как набор связанных модулей, которые можно развивать постепенно — от базовой инфраструктуры до полноценных сервисов фонда.</p></div>
         <div class="cards">
-          <article class="card photo-card"><div class="photo-top"><img src="assets/fund-emblem.svg" alt="Эмблема фонда «УСЕРДИЕ»"></div><div class="photo-body"><h3>Единая система</h3><p>Общая цифровая основа для организации процессов и развития сервисов фонда.</p></div></article>
-          <article class="card photo-card"><div class="photo-top"><img src="assets/fund-emblem.svg" alt="Дерево — символ заботы и поддержки"></div><div class="photo-body"><h3>Социальные инициативы</h3><p>Архитектура для будущего управления программами и гуманитарными проектами.</p></div></article>
-          <article class="card photo-card"><div class="photo-top"><img src="assets/fund-emblem.svg" alt="Эмблема фонда в карточке"></div><div class="photo-body"><h3>Ответственное управление</h3><p>Документированные правила, роли и контролируемое развитие системы.</p></div></article>
+          <article class="card photo-card"><div class="photo-top"><img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=800&q=85" alt="Люди совместно работают над социальным проектом"></div><div class="photo-body"><h3>Единая система</h3><p>Общая цифровая основа для организации процессов и развития сервисов фонда.</p></div></article>
+          <article class="card photo-card"><div class="photo-top"><img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=85" alt="Поддержка и участие в жизни сообщества"></div><div class="photo-body"><h3>Социальные инициативы</h3><p>Архитектура для будущего управления программами и гуманитарными проектами.</p></div></article>
+          <article class="card photo-card"><div class="photo-top"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=85" alt="Документы и ответственное управление"></div><div class="photo-body"><h3>Ответственное управление</h3><p>Документированные правила, роли и контролируемое развитие системы.</p></div></article>
         </div>
       </div>
     </section>
+    
+    <section id="stories" class="editorial-section">
+      <div class="wrap">
+        <div class="section-head"><div class="eyebrow">Деятельность фонда</div><h2>Помощь начинается с человека</h2><p>Социальная и правовая поддержка, внимание к жизненным обстоятельствам и последовательная работа с обращениями.</p></div>
+        <div class="featured-work">
+          <article class="featured-main"><div class="feature-photo" role="img" aria-label="Волонтёрская помощь и поддержка людей" style="background-image:url('https://images.unsplash.com/photo-1531207878454-1f6a2a1b5a64?auto=format&fit=crop&w=1400&q=85')"></div><div class="feature-copy"><span class="small-label">Социальная поддержка</span><h3>Участие, которое имеет значение</h3><p>Работа фонда строится вокруг конкретных потребностей людей, внимательного сопровождения и уважительного отношения.</p></div></article>
+          <div class="featured-side"><article><div class="feature-photo" role="img" aria-label="Консультационная помощь" style="background-image:url('https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=900&q=85')"></div><div class="feature-copy"><span class="small-label">Правовая помощь</span><h3>Понятный путь к поддержке</h3><p>Информация, сопровождение и ориентиры в сложных вопросах.</p></div></article><article><div class="feature-photo" role="img" aria-label="Командное взаимодействие" style="background-image:url('https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=85')"></div><div class="feature-copy"><span class="small-label">Партнёрство</span><h3>Объединяем усилия</h3><p>Развитие сотрудничества и инициатив, направленных на устойчивую помощь.</p></div></article></div>
+        </div>
+      </div>
+    </section>
+
     <section id="programs" style="padding-top:0">
       <div class="wrap">
         <div class="section-head"><div class="eyebrow">Направления развития</div><h2>Платформа будет расти поэтапно</h2><p>Это базовые направления проектирования, а не заявление о том, что все сервисы уже запущены.</p></div>
