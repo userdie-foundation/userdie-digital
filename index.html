@@ -73,9 +73,10 @@
     .card p{font-size:14px;line-height:1.75}
     .photo-card{padding:0;overflow:hidden}
     .photo-top{height:132px;display:grid;place-items:center;position:relative;overflow:hidden;background:linear-gradient(135deg,#e5eee4,#c8dccd)}
-    .photo-top:before,.photo-top:after{content:"";position:absolute;border:1px solid rgba(23,63,50,.17);border-radius:50%;width:170px;height:170px}
-    .photo-top:after{width:115px;height:115px;border-color:rgba(196,163,90,.65)}
-    .photo-top img{position:relative;z-index:1;width:74px;height:74px;object-fit:contain;filter:drop-shadow(0 5px 10px rgba(23,63,50,.12))}
+    .photo-top img{width:100%;height:100%;object-fit:cover;filter:none}
+    .photo-top:before,.photo-top:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.3);border-radius:50%;width:170px;height:170px;z-index:1;pointer-events:none}
+    .photo-top:after{width:115px;height:115px;border-color:rgba(255,255,255,.45)}
+    .photo-top img{position:relative;z-index:0;width:100%;height:100%;object-fit:cover;filter:none}
     .photo-body{padding:24px 26px 27px}
     .process{background:linear-gradient(135deg,#12372b,#20543f);position:relative;overflow:hidden}
     .process:after{content:"";position:absolute;width:420px;height:420px;border:1px solid #ffffff14;border-radius:50%;right:-160px;top:-140px;pointer-events:none}
@@ -179,9 +180,9 @@
       <div class="wrap">
         <div class="section-head"><div class="eyebrow">О платформе</div><h2>Единая цифровая среда для социальных инициатив</h2><p>Платформа проектируется как набор связанных модулей, которые можно развивать постепенно — от базовой инфраструктуры до полноценных сервисов фонда.</p></div>
         <div class="cards">
-          <article class="card photo-card"><div class="photo-top"><img src="assets/fund-emblem.svg" alt="Эмблема фонда «УСЕРДИЕ»"></div><div class="photo-body"><h3>Единая система</h3><p>Общая цифровая основа для организации процессов и развития сервисов фонда.</p></div></article>
-          <article class="card photo-card"><div class="photo-top"><img src="assets/fund-emblem.svg" alt="Дерево — символ заботы и поддержки"></div><div class="photo-body"><h3>Социальные инициативы</h3><p>Архитектура для будущего управления программами и гуманитарными проектами.</p></div></article>
-          <article class="card photo-card"><div class="photo-top"><img src="assets/fund-emblem.svg" alt="Эмблема фонда в карточке"></div><div class="photo-body"><h3>Ответственное управление</h3><p>Документированные правила, роли и контролируемое развитие системы.</p></div></article>
+          <article class="card photo-card"><div class="photo-top"><img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=800&q=85" alt="Люди совместно работают над социальным проектом"></div><div class="photo-body"><h3>Единая система</h3><p>Общая цифровая основа для организации процессов и развития сервисов фонда.</p></div></article>
+          <article class="card photo-card"><div class="photo-top"><img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=85" alt="Поддержка и участие в жизни сообщества"></div><div class="photo-body"><h3>Социальные инициативы</h3><p>Архитектура для будущего управления программами и гуманитарными проектами.</p></div></article>
+          <article class="card photo-card"><div class="photo-top"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=85" alt="Документы и ответственное управление"></div><div class="photo-body"><h3>Ответственное управление</h3><p>Документированные правила, роли и контролируемое развитие системы.</p></div></article>
         </div>
       </div>
     </section>
