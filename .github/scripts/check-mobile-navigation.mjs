@@ -129,4 +129,10 @@ for (const page of publicPages) {
   assert.equal(desktop.navigation.hidden, false, page + ": desktop resize keeps navigation visible");
 }
 
-console.log("Mobile navigation checks passed on all 5 sitemap pages: markup, aria-controls, open/close, Escape, focus restore, link close, and responsive transitions.");
+const workspaceCss = fs.readFileSync("website/prototype/workspace-visual-refinement.css", "utf8");
+assert.match(workspaceCss, /@media\\s*\\(max-width:\\s*720px\\)[\\s\\S]*?body\\.workspace \\.app-nav button,[\\s\\S]*?flex-direction:\\s*row\\s*;/,
+  "workspace mobile navigation must keep each icon and label on a horizontal row");
+assert.match(workspaceCss, /body\\.workspace \\.app-nav \\.app-nav-link[\\s\\S]*?flex-direction:\\s*row\\s*;/,
+  "workspace mobile navigation links must use the same horizontal layout");
+
+console.log("Mobile navigation checks passed on all 5 sitemap pages and workspace horizontal navigation: markup, aria-controls, open/close, Escape, focus restore, link close, and responsive transitions.");
