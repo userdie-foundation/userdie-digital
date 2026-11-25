@@ -41,7 +41,7 @@ function acceptedFixture() {
         can_truncate: false,
         can_references: false,
         can_trigger: false,
-        can_any_column_insert: false,
+        can_any_column_insert: true,
         can_any_column_update: false,
         can_any_column_references: false,
       },
