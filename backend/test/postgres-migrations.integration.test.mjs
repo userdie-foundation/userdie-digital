@@ -52,10 +52,10 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
     }
 
     const users = await client.query(
-      "INSERT INTO app_users (email, display_name, account_status) VALUES ($1, 'Actor', 'active'), ($2, 'Worker', 'active'), ($3, 'Other worker', 'active'), ($4, 'Concurrent worker', 'active') RETURNING id",
-      [`actor-${schema}@example.test`, `worker-${schema}@example.test`, `other-${schema}@example.test`, `concurrent-worker-${schema}@example.test`],
+      "INSERT INTO app_users (email, display_name, account_status) VALUES ($1, 'Actor', 'active'), ($2, 'Worker', 'active'), ($3, 'Other worker', 'active'), ($4, 'Concurrent worker', 'active'), ($5, 'Admin reviewer', 'active') RETURNING id",
+      [`actor-${schema}@example.test`, `worker-${schema}@example.test`, `other-${schema}@example.test`, `concurrent-worker-${schema}@example.test`, `admin-reviewer-${schema}@example.test`],
     );
-    const [actorId, workerId, otherWorkerId, concurrentUserId] = users.rows.map((row) => row.id);
+    const [actorId, workerId, otherWorkerId, concurrentUserId, adminReviewerId] = users.rows.map((row) => row.id);
     await client.query("SELECT set_config('app.actor_id', $1, false)", [actorId]);
 
     await assert.rejects(
@@ -1101,6 +1101,12 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       [workerId, actorId],
     );
     assert.equal(reviewerGrant.rowCount, 1, "independent reviewer role must exist in the migrated schema");
+    const adminReviewerRoles = await client.query(
+      `INSERT INTO user_roles (user_id, role_id)
+       SELECT $1, id FROM roles WHERE code IN ('administrator', 'independent_approver')`,
+      [adminReviewerId],
+    );
+    assert.equal(adminReviewerRoles.rowCount, 2, "admin reviewer fixture must start with both global roles");
 
     const pdfStorageDirectory = await mkdtemp(join(tmpdir(), "userdie-pdf-it-"));
     const apiPool = new Pool({
@@ -1116,6 +1122,10 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
       reviewer: {
         id: workerId, accountStatus: "active",
         grants: [{ roleCode: "independent_approver", scopeType: "contour", scopeId: "assets" }],
+      },
+      adminOnly: {
+        id: adminReviewerId, accountStatus: "active",
+        grants: [{ roleCode: "administrator", scopeType: "global" }],
       },
       outsider: { id: otherWorkerId, accountStatus: "active", grants: [] },
     };
@@ -1142,6 +1152,35 @@ test("PostgreSQL applies migrations 001-021 and enforces workflow, authorization
     });
 
     try {
+      // An administrator may be assigned only while explicitly holding the
+      // independent_approver role. Revoking that role must immediately remove
+      // approval authority; the administrator role alone is insufficient.
+      const adminAssignedDocument = await apiRequest("/api/v1/analytical-documents", {
+        method: "POST",
+        body: {
+          documentType: "preliminary_valuation",
+          organizationalContour: "assets",
+          assetReference: "ASSET-ADMIN-REVIEW-BOUNDARY",
+          title: "Synthetic administrator separation-of-duties probe",
+          reviewerId: adminReviewerId,
+          content: { summary: "Administrator role is not an approval grant" },
+        },
+      });
+      assert.equal(adminAssignedDocument.status, 201);
+      const adminDocument = await adminAssignedDocument.json();
+      const adminSubmit = await apiRequest(`/api/v1/analytical-documents/${adminDocument.document.id}/submit`, { method: "POST" });
+      assert.equal(adminSubmit.status, 201);
+      await client.query(
+        "DELETE FROM user_roles WHERE user_id = $1::uuid AND role_id = (SELECT id FROM roles WHERE code = 'independent_approver')",
+        [adminReviewerId],
+      );
+      const adminOnlyDecision = await apiRequest(`/api/v1/analytical-documents/${adminDocument.document.id}/decision`, {
+        actor: "adminOnly",
+        method: "POST",
+        body: { decision: "approved", rationale: "Administrator-only approval must be denied" },
+      });
+      assert.equal(adminOnlyDecision.status, 403);
+
       const createResponse = await apiRequest("/api/v1/analytical-documents", {
         method: "POST",
         body: {
