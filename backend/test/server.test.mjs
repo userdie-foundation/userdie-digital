@@ -736,6 +736,7 @@ test("case worker task queue is restricted to tasks assigned to that principal",
       captured = { sql, params };
       return { rows: [{
         id: "task-a", application_id: "case-a", program_id: "program-a",
+        assigned_to: "worker-uuid",
         title: "Prepare supporting documents", status: "open", priority: "high",
         due_at: past, escalation_level: 1, escalated_at: past,
         completed_at: null, created_at: past,
@@ -749,6 +750,8 @@ test("case worker task queue is restricted to tasks assigned to that principal",
     assert.equal(body.tasks[0].id, "task-a");
     assert.equal(body.tasks[0].overdue, true);
     assert.equal(body.tasks[0].applicationId, "case-a");
+    assert.equal(body.tasks[0].canUpdateStatus, true);
+    assert.equal("assignedTo" in body.tasks[0], false);
     assert.equal("applicantId" in body.tasks[0], false);
     assert.equal("email" in body.tasks[0], false);
   }, {
@@ -760,6 +763,49 @@ test("case worker task queue is restricted to tasks assigned to that principal",
   assert.match(captured.sql, /a\.program_id::text = ANY\(\$3::text\[\]\)/);
   assert.match(captured.sql, /LIMIT \$6/);
   assert.doesNotMatch(captured.sql, /applicant_id|email|phone|subject/i);
+});
+
+
+test("workspace task queue never grants status updates outside the caller's assignment or exact program scope", async () => {
+  const foreignTask = {
+    id: "task-foreign",
+    applicationId: "case-foreign",
+    programId: "program-b",
+    assignedTo: "worker-other",
+    title: "Synthetic restricted task",
+    status: "open",
+    priority: "normal",
+    dueAt: null,
+    overdue: false,
+    escalationLevel: 0,
+    escalatedAt: null,
+    completedAt: null,
+    createdAt: "2026-11-20T10:00:00.000Z",
+  };
+
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/workspace/tasks");
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.tasks.length, 1);
+    assert.equal(body.tasks[0].canUpdateStatus, false);
+    assert.equal("assignedTo" in body.tasks[0], false);
+  }, {
+    resolvePrincipal: async () => identity("worker-1", "case_worker"),
+    workspaceRepository: { async getTasks() { return [{ ...foreignTask }]; } },
+  });
+
+  await withServer(noDb, async (base) => {
+    const response = await fetch(base + "/api/v1/workspace/tasks");
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.tasks.length, 1);
+    assert.equal(body.tasks[0].canUpdateStatus, false);
+    assert.equal("assignedTo" in body.tasks[0], false);
+  }, {
+    resolvePrincipal: async () => identity("manager-1", "program_manager", "program", "program-a"),
+    workspaceRepository: { async getTasks() { return [{ ...foreignTask }]; } },
+  });
 });
 
 test("program manager task queue is limited to explicitly granted program scopes", async () => {
