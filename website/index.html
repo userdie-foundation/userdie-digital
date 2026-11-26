@@ -111,6 +111,16 @@
   #program-portfolio .program-photo{height:190px}
   #program-portfolio .direction-card{grid-template-columns:38px minmax(0,1fr);column-gap:13px}
 }
+
+
+/* Mobile reading comfort: keep card descriptions and status labels legible. */
+@media(max-width:680px){
+  #directions .direction-card p,
+  #program-portfolio .direction-card p{font-size:13px;line-height:1.7}
+  #directions .direction-card .card-status,
+  #program-portfolio .direction-card .card-status{font-size:11px;line-height:1.55;letter-spacing:.01em}
+  #program-portfolio .section-heading>p{font-size:13px;line-height:1.7}
+}
 </style>
 </head>
 <body>
