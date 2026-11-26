@@ -319,3 +319,109 @@ test("analytical document version creation is denied without valuation authority
   });
   assert.equal(queries, 0);
 });
+
+
+test("issued PDF download is denied to a principal without document access", async () => {
+  const calls = [];
+  const pool = { async query(sql) {
+    calls.push(sql);
+    return { rows: [{
+      id: docId, document_number: "UA-2026-0001", document_type: "asset_analysis",
+      organizational_contour: "assets", asset_reference: "TEST-ASSET", title: "Issued report",
+      status: "issued", created_by: "author-1", assigned_reviewer_id: "reviewer-1",
+      approved_by: "reviewer-1", approved_by_name: "Independent reviewer",
+      approved_at: "2026-11-20T08:00:00.000Z", issued_at: "2026-11-20T08:05:00.000Z",
+      issued_version_id: "version-1",
+    }] };
+  } };
+  await withServer(pool, async (base) => {
+    const response = await fetch(base + root + "/" + docId + "/pdf");
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), { error: "not_found" });
+  }, {
+    pdfStorageDirectory: "/unused/private-pdf-storage",
+    resolvePrincipal: async () => principal("outsider-1", grant("case_worker")),
+  });
+  assert.equal(calls.length, 1, "unauthorized requests must stop before version or artifact lookup");
+});
+
+test("an authorized document author cannot download a PDF before issuance", async () => {
+  const calls = [];
+  const pool = { async query(sql) {
+    calls.push(sql);
+    return { rows: [{
+      id: docId, document_number: null, document_type: "asset_analysis",
+      organizational_contour: "assets", asset_reference: "TEST-ASSET", title: "Approved report",
+      status: "approved", created_by: "author-1", assigned_reviewer_id: "reviewer-1",
+      approved_by: "reviewer-1", approved_by_name: "Independent reviewer",
+      approved_at: "2026-11-20T08:00:00.000Z", issued_at: null,
+      issued_version_id: null,
+    }] };
+  } };
+  await withServer(pool, async (base) => {
+    const response = await fetch(base + root + "/" + docId + "/pdf");
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: "analytical_document_not_issued" });
+  }, {
+    pdfStorageDirectory: "/unused/private-pdf-storage",
+    resolvePrincipal: async () => principal("author-1", grant("asset_valuator", "contour", "assets")),
+  });
+  assert.equal(calls.length, 1, "unissued documents must not trigger version or artifact access");
+});
+
+test("an authorized scoped asset evaluator can download the immutable issued PDF and the access is audited", async () => {
+  const { mkdtemp, mkdir, writeFile, rm } = await import("node:fs/promises");
+  const os = await import("node:os");
+  const pathModule = await import("node:path");
+  const { randomUUID, createHash } = await import("node:crypto");
+  const temporaryRoot = await mkdtemp(pathModule.join(os.tmpdir(), "userdie-pdf-api-"));
+  const directory = pathModule.join(temporaryRoot, "private-pdfs");
+  const key = randomUUID() + ".pdf";
+  const bytes = Buffer.from("%PDF-1.7\\nIssued immutable test fixture\\n%%EOF\\n", "ascii");
+  const digest = createHash("sha256").update(bytes).digest("hex");
+  const calls = [];
+  try {
+    await mkdir(directory, { mode: 0o700 });
+    await writeFile(pathModule.join(directory, key), bytes, { mode: 0o600 });
+    const pool = { async query(sql) {
+      calls.push(sql);
+      if (sql.includes("FROM analytical_documents d")) {
+        return { rows: [{
+          id: docId, document_number: "UA-2026-0001", document_type: "asset_analysis",
+          organizational_contour: "assets", asset_reference: "TEST-ASSET", title: "Issued report",
+          status: "issued", created_by: "another-author", assigned_reviewer_id: "reviewer-1",
+          approved_by: "reviewer-1", approved_by_name: "Independent reviewer",
+          approved_at: "2026-11-20T08:00:00.000Z", issued_at: "2026-11-20T08:05:00.000Z",
+          issued_version_id: "version-1",
+        }] };
+      }
+      if (sql.includes("FROM analytical_document_versions")) {
+        return { rows: [{
+          id: "version-1", version_number: 1, content: { summary: "Issued fixture" },
+          content_sha256: "a".repeat(64), created_by: "another-author",
+          created_at: "2026-11-20T08:00:00.000Z",
+        }] };
+      }
+      if (sql.includes("FROM analytical_document_artifacts")) {
+        return { rows: [{ storage_key: key, content_sha256: digest, byte_size: bytes.length }] };
+      }
+      if (sql.includes("INSERT INTO audit_events")) return { rows: [] };
+      throw new Error("Unexpected database query in PDF download test");
+    } };
+    await withServer(pool, async (base) => {
+      const response = await fetch(base + root + "/" + docId + "/pdf");
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get("content-type"), "application/pdf");
+      assert.equal(response.headers.get("cache-control"), "private, no-store");
+      assert.equal(response.headers.get("x-document-version-sha256"), "a".repeat(64));
+      assert.deepEqual(Buffer.from(await response.arrayBuffer()), bytes);
+    }, {
+      pdfStorageDirectory: directory,
+      resolvePrincipal: async () => principal("valuator-1", grant("asset_valuator", "contour", "assets")),
+    });
+    assert.equal(calls.length, 4);
+    assert.match(calls[3], /analytical_document.pdf_downloaded/);
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+});

@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, readFile, writeFile, unlink } from "node:fs/promises";
+import { constants } from "node:fs";
+import { chmod, lstat, mkdir, open, readFile, writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 
 const LABELS = {
@@ -175,26 +176,108 @@ export async function renderAnalyticalDocumentPdf({
   return completed;
 }
 
-export async function persistAnalyticalDocumentPdf({ directory, bytes }) {
+const PDF_STORAGE_KEY = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.pdf$/i;
+
+function hasInsecurePosixPermissions(info) {
+  return process.platform !== "win32" && (info.mode & 0o077) !== 0;
+}
+
+async function assertPrivatePdfDirectory(directory, { create = false } = {}) {
   if (typeof directory !== "string" || !path.isAbsolute(directory)) {
     throw new TypeError("An absolute private PDF storage directory is required");
   }
-  await mkdir(directory, { recursive: true, mode: 0o700 });
+  if (create) await mkdir(directory, { recursive: true, mode: 0o700 });
+  let info = await lstat(directory);
+  if (!info.isDirectory() || info.isSymbolicLink()) {
+    throw new Error("PDF storage path must be a real directory");
+  }
+  // Restrictive mode bits do not establish ownership: another local account
+  // could own a 0700 directory and retain access to confidential artifacts.
+  if (typeof process.getuid === "function" && info.uid !== process.getuid()) {
+    throw new Error("PDF storage directory must be owned by the application user");
+  }
+  // mkdir(mode) does not tighten permissions on an existing directory.
+  if (hasInsecurePosixPermissions(info)) {
+    await chmod(directory, 0o700);
+    info = await lstat(directory);
+  }
+  if (!info.isDirectory() || info.isSymbolicLink() ||
+      (typeof process.getuid === "function" && info.uid !== process.getuid()) ||
+      hasInsecurePosixPermissions(info)) {
+    throw new Error("PDF storage directory is not private to the application user");
+  }
+}
+
+export async function persistAnalyticalDocumentPdf({ directory, bytes }) {
+  await assertPrivatePdfDirectory(directory, { create: true });
+  if (!Buffer.isBuffer(bytes) || bytes.length === 0) {
+    throw new TypeError("Non-empty PDF bytes are required");
+  }
   const key = randomUUID() + ".pdf";
   const target = path.join(directory, key);
   await writeFile(target, bytes, { flag: "wx", mode: 0o600 });
+  const fileInfo = await lstat(target);
+  if (!fileInfo.isFile() || fileInfo.isSymbolicLink() ||
+      (typeof process.getuid === "function" && fileInfo.uid !== process.getuid()) ||
+      hasInsecurePosixPermissions(fileInfo)) {
+    await unlink(target).catch(() => {});
+    throw new Error("Stored PDF artifact is not private to the application user");
+  }
   return { key, target, sha256: createHash("sha256").update(bytes).digest("hex"), byteSize: bytes.length };
 }
 
 export async function readStoredAnalyticalDocumentPdf({ directory, key, sha256, byteSize }) {
-  if (!/^[0-9a-f-]{36}\.pdf$/i.test(key ?? "")) throw new Error("Invalid PDF storage key");
+  if (!PDF_STORAGE_KEY.test(key ?? "")) throw new Error("Invalid PDF storage key");
+  await assertPrivatePdfDirectory(directory);
   const target = path.join(directory, key);
-  const bytes = await readFile(target);
+  const pathInfo = await lstat(target);
+  if (!pathInfo.isFile() || pathInfo.isSymbolicLink() ||
+      (typeof process.getuid === "function" && pathInfo.uid !== process.getuid()) ||
+      hasInsecurePosixPermissions(pathInfo)) {
+    throw new Error("Stored PDF artifact is not a private regular file");
+  }
+
+  // Pin the read to one file descriptor. O_NOFOLLOW prevents a symlink swap
+  // on platforms that support it; the device/inode comparison also detects
+  // replacement between lstat and open on platforms without O_NOFOLLOW.
+  const flags = constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0);
+  const handle = await open(target, flags);
+  let bytes;
+  try {
+    const fileInfo = await handle.stat();
+    if (!fileInfo.isFile() ||
+        fileInfo.dev !== pathInfo.dev ||
+        fileInfo.ino !== pathInfo.ino ||
+        (typeof process.getuid === "function" && fileInfo.uid !== process.getuid()) ||
+        hasInsecurePosixPermissions(fileInfo)) {
+      throw new Error("Stored PDF artifact changed or is not a private regular file");
+    }
+    bytes = await handle.readFile();
+  } finally {
+    await handle.close();
+  }
   const digest = createHash("sha256").update(bytes).digest("hex");
   if (digest !== sha256 || bytes.length !== byteSize) throw new Error("Stored analytical PDF integrity check failed");
   return bytes;
 }
 
-export async function removeStoredAnalyticalDocumentPdf(target) {
-  if (typeof target === "string") await unlink(target).catch(() => {});
+export async function removeStoredAnalyticalDocumentPdf({ directory, key }) {
+  if (!PDF_STORAGE_KEY.test(key ?? "")) {
+    throw new Error("Invalid PDF storage key");
+  }
+  await assertPrivatePdfDirectory(directory);
+  const target = path.join(directory, key);
+  let fileInfo;
+  try {
+    fileInfo = await lstat(target);
+  } catch (error) {
+    if (error?.code === "ENOENT") return;
+    throw error;
+  }
+  if (!fileInfo.isFile() || fileInfo.isSymbolicLink() ||
+      (typeof process.getuid === "function" && fileInfo.uid !== process.getuid()) ||
+      hasInsecurePosixPermissions(fileInfo)) {
+    throw new Error("Stored PDF artifact is not a private regular file");
+  }
+  await unlink(target);
 }

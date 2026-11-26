@@ -512,7 +512,7 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
           if (persisted.created) {
             artifactResult = { rows: [persisted.artifact] };
           } else {
-            await removeStoredAnalyticalDocumentPdf(stored.target);
+            await removeStoredAnalyticalDocumentPdf({ directory: pdfStorageDirectory, key: stored.key });
             artifactResult = { rows: [persisted.artifact] };
             bytes = await readStoredAnalyticalDocumentPdf({
               directory: pdfStorageDirectory,
@@ -522,7 +522,7 @@ export async function handleAnalyticalDocumentRequest({ req, res, url, pool, pri
             });
           }
         } catch (error) {
-          await removeStoredAnalyticalDocumentPdf(stored.target);
+          await removeStoredAnalyticalDocumentPdf({ directory: pdfStorageDirectory, key: stored.key });
           throw error;
         }
       }
