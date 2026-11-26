@@ -504,6 +504,7 @@ body.workspace .page-view h3,body.workspace .workspace-notice strong{
 .ux-calendar-controls{display:flex;align-items:center;gap:6px}
 .ux-calendar-controls button{min-width:36px;min-height:36px;padding:6px 9px;border:1px solid var(--app-line);border-radius:4px;background:#fff;color:var(--app-green);font:700 11px 'DM Sans',sans-serif;cursor:pointer}
 .ux-calendar-controls button:hover{background:#edf2e6}
+.ux-calendar-export{min-height:36px;padding:6px 10px;border:1px solid #55764f;border-radius:4px;background:#edf2e6;color:#31583d;font:700 10px 'DM Sans',sans-serif;cursor:pointer}.ux-calendar-export:hover{background:#dfe9c9}.ux-calendar-export:focus-visible{outline:3px solid #6b8c54;outline-offset:2px}
 .ux-calendar-controls button:focus-visible,.ux-calendar-day:focus-visible{outline:3px solid #6b8c54;outline-offset:2px}
 .ux-calendar-month{min-width:116px;color:var(--app-text);font-size:11px;font-weight:800;text-align:center;text-transform:capitalize}
 .ux-calendar-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(220px,.8fr);gap:18px;align-items:start}
@@ -622,6 +623,7 @@ body.workspace .page-view h3,body.workspace .workspace-notice strong{
       <span class="ux-calendar-month" id="ux-calendar-month" aria-live="polite"></span>
       <button type="button" id="ux-calendar-next" aria-label="Следующий месяц">→</button>
       <button type="button" id="ux-calendar-today">Сегодня</button>
+       <button type="button" class="ux-calendar-export" id="ux-calendar-export" aria-label="Скачать календарь контрольных сроков в формате ICS">Скачать календарь .ics</button>
     </div>
   </div>
   <div class="ux-calendar-layout">
@@ -1070,6 +1072,30 @@ function renderWorkspaceInsights(){
 }
 
 function calendarDateKey(date){return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");}
+function exportWorkspaceCalendar(){
+ const dated=tasks.filter(task=>!task.done&&task.status!=="Завершена"&&task.due&&/^\\d{4}-\\d{2}-\\d{2}$/.test(task.due)).sort((a,b)=>a.due.localeCompare(b.due));
+ if(!dated.length){showToast("Нет открытых задач с контрольными датами для экспорта.");return;}
+ const escapeIcs=value=>String(value||"").replace(/\\\\/g,"\\\\\\\\").replace(/\\r?\\n/g,"\\\\n").replace(/,/g,"\\\\,").replace(/;/g,"\\\\;");
+ const dateIcs=value=>value.replace(/-/g,"");
+ const nextDate=value=>{const date=new Date(value+"T12:00:00");date.setDate(date.getDate()+1);return calendarDateKey(date);};
+ const stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\\.\\d{3}/,"");
+ const encoder=new TextEncoder();
+ const fold=line=>{let out="",part="",bytes=0;for(const char of Array.from(line)){const size=encoder.encode(char).length;if(bytes+size>73){out+=part+"\\r\\n ";part=char;bytes=size;}else{part+=char;bytes+=size;}}return out+part;};
+ const lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//USERDIE DIGITAL//Workspace Calendar//RU","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
+ dated.forEach(task=>{
+  const uid="task-"+task.id+"@userdie.local";
+  const description=escapeIcs("Ответственный: "+(task.owner||"Не назначен")+"\\nСтатус: "+(task.status||"Новая")+"\\nДемонстрационная запись USERDIE DIGITAL.");
+  lines.push("BEGIN:VEVENT","UID:"+uid,"DTSTAMP:"+stamp,"DTSTART;VALUE=DATE:"+dateIcs(task.due),"DTEND;VALUE=DATE:"+dateIcs(nextDate(task.due)),"SUMMARY:"+escapeIcs(task.title),"DESCRIPTION:"+description,"BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:Напоминание о контрольном сроке завтра","END:VALARM","BEGIN:VALARM","TRIGGER:-PT2H","ACTION:DISPLAY","DESCRIPTION:Напоминание о контрольном сроке через два часа","END:VALARM","END:VEVENT");
+ });
+ lines.push("END:VCALENDAR");
+ const calendar=lines.map(fold).join("\\r\\n")+"\\r\\n";
+ const blob=new Blob(["\\uFEFF",calendar],{type:"text/calendar;charset=utf-8"});
+ const url=URL.createObjectURL(blob),anchor=document.createElement("a");
+ anchor.href=url;anchor.download="userdie-kontrolnye-sroki.ics";anchor.hidden=true;
+ document.body.appendChild(anchor);anchor.click();anchor.remove();
+ window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+ showToast("Календарь выгружен: "+dated.length+" открытых задач с контрольными датами. Импортируйте файл в календарь команды; напоминания будут зависеть от настроек приложения-календаря.");
+}
 function renderWorkspaceCalendar(){
  const grid=document.getElementById("ux-calendar-grid"),monthLabel=document.getElementById("ux-calendar-month"),dayTasks=document.getElementById("ux-calendar-day-tasks");
  if(!grid||!monthLabel||!dayTasks)return;
@@ -1254,6 +1280,7 @@ calendarSelectedDate=localDateKey();
 document.getElementById("ux-calendar-prev")?.addEventListener("click",()=>{calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()-1,1);calendarSelectedDate=calendarDateKey(calendarCursor);renderWorkspaceCalendar();});
 document.getElementById("ux-calendar-next")?.addEventListener("click",()=>{calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+1,1);calendarSelectedDate=calendarDateKey(calendarCursor);renderWorkspaceCalendar();});
 document.getElementById("ux-calendar-today")?.addEventListener("click",()=>{calendarCursor=new Date();calendarCursor.setDate(1);calendarSelectedDate=localDateKey();renderWorkspaceCalendar();});
+document.getElementById("ux-calendar-export")?.addEventListener("click",exportWorkspaceCalendar);
 document.getElementById("ux-calendar-grid")?.addEventListener("click",event=>{const day=event.target.closest("button[data-calendar-date]");if(!day)return;calendarSelectedDate=day.dataset.calendarDate;const chosen=new Date(calendarSelectedDate+"T12:00:00");calendarCursor=new Date(chosen.getFullYear(),chosen.getMonth(),1);renderWorkspaceCalendar();});
 document.getElementById("ux-calendar-day-tasks")?.addEventListener("click",event=>{const item=event.target.closest("button[data-calendar-task-id]");if(item)openWorkspaceTask(item.dataset.calendarTaskId);});
 document.getElementById("ux-reminder-list")?.addEventListener("click",event=>{const item=event.target.closest("button[data-reminder-task-id]");if(item)openWorkspaceTask(item.dataset.reminderTaskId);});
