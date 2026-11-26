@@ -1299,3 +1299,14 @@ img,svg,video,canvas{max-width:100%}
 .external-service-notice p{margin:0}
 .external-service-notice a{color:#315b40;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:600px){.external-service-notice{padding:14px;font-size:11px}}
+
+
+/* Keyboard accessibility: make the mobile menu trigger unmistakably focusable. */
+.menu-toggle:focus-visible{
+  outline:3px solid #d1b36b;
+  outline-offset:4px;
+  box-shadow:0 0 0 2px #173f32;
+}
+@media(forced-colors:active){
+  .menu-toggle:focus-visible{outline:3px solid Highlight;outline-offset:4px}
+}
