@@ -568,6 +568,81 @@ body.workspace .page-view h3,body.workspace .workspace-notice strong{
     gap: 7px;
   }
 }
+
+/* Keep long document metadata and asset titles readable on narrow phones. */
+@media (max-width: 560px) {
+  body.workspace .document-record {
+    min-width: 0;
+    padding: 14px;
+  }
+  body.workspace .document-record-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+  body.workspace .document-record-head > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  body.workspace .document-record-head .demo-label {
+    justify-self: start;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  body.workspace .document-record h3,
+  body.workspace .document-record-field strong,
+  body.workspace .document-record-note {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  body.workspace .document-record-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  body.workspace .document-record-field {
+    min-width: 0;
+  }
+  body.workspace .object-card {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  body.workspace .object-card-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  body.workspace .object-card-head > div {
+    min-width: 0;
+  }
+  body.workspace .object-card-head h3,
+  body.workspace .object-card p,
+  body.workspace .object-relation-item,
+  body.workspace .object-linked-tasks a {
+    overflow-wrap: anywhere;
+  }
+  body.workspace .object-status-control {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+  body.workspace .asset-meta-summary,
+  body.workspace .asset-intelligence-panel {
+    min-width: 0;
+    padding: 12px;
+  }
+  body.workspace .asset-intelligence-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+  body.workspace .asset-intelligence-tag {
+    justify-self: start;
+    max-width: 100%;
+    white-space: normal;
+  }
+}
 </style>
 <link rel="stylesheet" href="mobile-a11y.css">
 <link rel="stylesheet" href="workspace-visual-refinement.css">
