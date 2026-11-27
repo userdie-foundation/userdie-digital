@@ -527,6 +527,41 @@ body.workspace .page-view h3,body.workspace .workspace-notice strong{
 .ux-calendar-foot{margin:13px 0 0;color:#899388;font-size:9px;line-height:1.65}
 @media(max-width:720px){.ux-calendar-card{padding:15px}.ux-calendar-layout{grid-template-columns:1fr}.ux-calendar-day{min-height:40px}.ux-calendar-head{align-items:flex-start;flex-direction:column}.ux-calendar-controls{width:100%;justify-content:space-between}.ux-calendar-month{flex:1}}
 @media(max-width:390px){.ux-calendar-weekdays,.ux-calendar-grid{gap:2px}.ux-calendar-day{min-height:36px;font-size:10px}}
+
+/* Director dashboard: use a single readable metric column on phone-sized screens.
+   The previous two-column rule remained active at common 390–430px CSS widths,
+   making the metric cards and their descriptions unnecessarily cramped. */
+@media (max-width: 480px) {
+  body.workspace .metrics-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+  body.workspace .metrics-grid > .metric-card {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 16px !important;
+  }
+  body.workspace .metric-top {
+    gap: 10px;
+    font-size: 11px;
+  }
+  body.workspace .metric-value {
+    margin-top: 13px;
+    font-size: 30px;
+  }
+  body.workspace .metric-foot {
+    font-size: 11px;
+    line-height: 1.55;
+  }
+  body.workspace .ux-insight-card {
+    min-width: 0;
+    padding: 16px;
+  }
+  body.workspace .ux-bar-row {
+    grid-template-columns: minmax(74px, 0.72fr) minmax(0, 2fr) 22px;
+    gap: 7px;
+  }
+}
 </style>
 <link rel="stylesheet" href="mobile-a11y.css">
 <link rel="stylesheet" href="workspace-visual-refinement.css">
