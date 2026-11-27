@@ -215,10 +215,16 @@ body.workspace .page-view, body.workspace .panel { min-width: 0; max-width: 100%
     overflow-y: hidden !important;
     margin: 0 !important;
     padding: 1px 1px 6px !important;
-    scrollbar-width: none !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #9aaa8e #e9ede4 !important;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 12px;
     -webkit-overflow-scrolling: touch;
   }
-  body.workspace .app-nav::-webkit-scrollbar { display: none; }
+  body.workspace .app-nav::-webkit-scrollbar { height: 4px; }
+  body.workspace .app-nav::-webkit-scrollbar-track { background: #e9ede4; border-radius: 8px; }
+  body.workspace .app-nav::-webkit-scrollbar-thumb { background: #9aaa8e; border-radius: 8px; }
+  body.workspace .app-nav button { scroll-snap-align: center; }
   body.workspace .app-nav button {
     display: inline-flex !important;
     flex: 0 0 auto !important;
