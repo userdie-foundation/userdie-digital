@@ -509,6 +509,7 @@ body.workspace .page-view h3,body.workspace .workspace-notice strong{
 .ux-calendar-head p{margin:5px 0 0;color:var(--app-muted);font-size:10px;line-height:1.6}
 .ux-calendar-controls{display:flex;align-items:center;gap:6px}
 .ux-calendar-controls button{min-width:36px;min-height:36px;padding:6px 9px;border:1px solid var(--app-line);border-radius:4px;background:#fff;color:var(--app-green);font:700 11px 'DM Sans',sans-serif;cursor:pointer}
+.ux-calendar-export{min-height:36px;padding:6px 10px;border:1px solid #55764f;border-radius:4px;background:#edf2e6;color:#31583d;font:700 10px "DM Sans",sans-serif;cursor:pointer}.ux-calendar-export:hover{background:#dfe9c9}.ux-calendar-export:focus-visible{outline:3px solid #6b8c54;outline-offset:2px}
 .ux-calendar-controls button:hover{background:#edf2e6}
 .ux-calendar-controls button:focus-visible,.ux-calendar-day:focus-visible{outline:3px solid #6b8c54;outline-offset:2px}
 .ux-calendar-month{min-width:116px;color:var(--app-text);font-size:11px;font-weight:800;text-align:center;text-transform:capitalize}
@@ -737,6 +738,7 @@ body.workspace .page-view h3,body.workspace .workspace-notice strong{
       <button type="button" id="ux-calendar-prev" aria-label="Предыдущий месяц">←</button>
       <span class="ux-calendar-month" id="ux-calendar-month" aria-live="polite"></span>
       <button type="button" id="ux-calendar-next" aria-label="Следующий месяц">→</button>
+       <button type="button" class="ux-calendar-export" id="ux-calendar-export" aria-label="Скачать календарь контрольных сроков в формате ICS">Скачать календарь .ics</button>
       <button type="button" id="ux-calendar-today">Сегодня</button>
     </div>
   </div>
@@ -1186,6 +1188,24 @@ function renderWorkspaceInsights(){
 }
 
 function calendarDateKey(date){return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");}
+function exportWorkspaceCalendar(){
+ const valid=value=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(value||""))return false;const [y,m,d]=value.split("-").map(Number);const x=new Date(Date.UTC(y,m-1,d));return x.getUTCFullYear()===y&&x.getUTCMonth()===m-1&&x.getUTCDate()===d;};
+ const dated=tasks.filter(t=>!t.done&&t.status!=="Завершена"&&valid(t.due)).sort((a,b)=>a.due.localeCompare(b.due));
+ if(!dated.length){showToast("Нет открытых задач с контрольными датами для экспорта.");return;}
+ const esc=v=>String(v||"").replace(/\\/g,"\\\\").replace(/\r?\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");
+ const ymd=v=>v.replace(/-/g,"");
+ const next=v=>{const d=new Date(v+"T12:00:00");d.setDate(d.getDate()+1);return calendarDateKey(d);};
+ const stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+ const enc=new TextEncoder();
+ const fold=line=>{let out="",part="",bytes=0;for(const ch of Array.from(line)){const n=enc.encode(ch).length;if(bytes+n>73){out+=part+"\r\n ";part=ch;bytes=n;}else{part+=ch;bytes+=n;}}return out+part;};
+ const lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//USERDIE DIGITAL//Workspace Calendar//RU","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
+ dated.forEach(t=>{const desc=esc("Ответственный: "+(t.owner||"Не назначен")+"\nСтатус: "+(t.status||"Новая")+"\nДемонстрационная запись USERDIE DIGITAL.");lines.push("BEGIN:VEVENT","UID:task-"+t.id+"@userdie.local","DTSTAMP:"+stamp,"DTSTART;VALUE=DATE:"+ymd(t.due),"DTEND;VALUE=DATE:"+ymd(next(t.due)),"SUMMARY:"+esc(t.title),"DESCRIPTION:"+desc,"BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:Напоминание о контрольном сроке завтра","END:VALARM","END:VEVENT");});
+ lines.push("END:VCALENDAR");
+ const calendar=lines.map(fold).join("\r\n")+"\r\n";
+ const blob=new Blob(["\uFEFF",calendar],{type:"text/calendar;charset=utf-8"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="userdie-kontrolnye-sroki.ics";a.hidden=true;document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+ showToast("Календарь выгружен: "+dated.length+" открытых задач с корректными контрольными датами. В календаре предусмотрено напоминание за день до срока; уведомления зависят от настроек приложения.");
+}
 function renderWorkspaceCalendar(){
  const grid=document.getElementById("ux-calendar-grid"),monthLabel=document.getElementById("ux-calendar-month"),dayTasks=document.getElementById("ux-calendar-day-tasks");
  if(!grid||!monthLabel||!dayTasks)return;
@@ -1369,6 +1389,7 @@ const initialTaskRouteParams=new URLSearchParams(window.location.search);const r
 calendarSelectedDate=localDateKey();
 document.getElementById("ux-calendar-prev")?.addEventListener("click",()=>{calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()-1,1);calendarSelectedDate=calendarDateKey(calendarCursor);renderWorkspaceCalendar();});
 document.getElementById("ux-calendar-next")?.addEventListener("click",()=>{calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+1,1);calendarSelectedDate=calendarDateKey(calendarCursor);renderWorkspaceCalendar();});
+document.getElementById("ux-calendar-export")?.addEventListener("click",exportWorkspaceCalendar);
 document.getElementById("ux-calendar-today")?.addEventListener("click",()=>{calendarCursor=new Date();calendarCursor.setDate(1);calendarSelectedDate=localDateKey();renderWorkspaceCalendar();});
 document.getElementById("ux-calendar-grid")?.addEventListener("click",event=>{const day=event.target.closest("button[data-calendar-date]");if(!day)return;calendarSelectedDate=day.dataset.calendarDate;const chosen=new Date(calendarSelectedDate+"T12:00:00");calendarCursor=new Date(chosen.getFullYear(),chosen.getMonth(),1);renderWorkspaceCalendar();});
 document.getElementById("ux-calendar-day-tasks")?.addEventListener("click",event=>{const item=event.target.closest("button[data-calendar-task-id]");if(item)openWorkspaceTask(item.dataset.calendarTaskId);});
