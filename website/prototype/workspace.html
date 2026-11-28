@@ -1073,7 +1073,8 @@ function renderWorkspaceInsights(){
 
 function calendarDateKey(date){return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");}
 function exportWorkspaceCalendar(){
- const dated=tasks.filter(task=>!task.done&&task.status!=="Завершена"&&task.due&&/^\d{4}-\d{2}-\d{2}$/.test(task.due)).sort((a,b)=>a.due.localeCompare(b.due));
+ const isValidCalendarDate=value=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(value||""))return false;const [year,month,day]=value.split("-").map(Number);const date=new Date(Date.UTC(year,month-1,day));return date.getUTCFullYear()===year&&date.getUTCMonth()===month-1&&date.getUTCDate()===day;};
+ const dated=tasks.filter(task=>!task.done&&task.status!=="Завершена"&&isValidCalendarDate(task.due)).sort((a,b)=>a.due.localeCompare(b.due));
  if(!dated.length){showToast("Нет открытых задач с контрольными датами для экспорта.");return;}
  const escapeIcs=value=>String(value||"").replace(/\\/g,"\\\\").replace(/\r?\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");
  const dateIcs=value=>value.replace(/-/g,"");
@@ -1085,7 +1086,7 @@ function exportWorkspaceCalendar(){
  dated.forEach(task=>{
   const uid="task-"+task.id+"@userdie.local";
   const description=escapeIcs("Ответственный: "+(task.owner||"Не назначен")+"\nСтатус: "+(task.status||"Новая")+"\nДемонстрационная запись USERDIE DIGITAL.");
-  lines.push("BEGIN:VEVENT","UID:"+uid,"DTSTAMP:"+stamp,"DTSTART;VALUE=DATE:"+dateIcs(task.due),"DTEND;VALUE=DATE:"+dateIcs(nextDate(task.due)),"SUMMARY:"+escapeIcs(task.title),"DESCRIPTION:"+description,"BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:Напоминание о контрольном сроке завтра","END:VALARM","BEGIN:VALARM","TRIGGER:-PT2H","ACTION:DISPLAY","DESCRIPTION:Напоминание о контрольном сроке через два часа","END:VALARM","END:VEVENT");
+  lines.push("BEGIN:VEVENT","UID:"+uid,"DTSTAMP:"+stamp,"DTSTART;VALUE=DATE:"+dateIcs(task.due),"DTEND;VALUE=DATE:"+dateIcs(nextDate(task.due)),"SUMMARY:"+escapeIcs(task.title),"DESCRIPTION:"+description,"BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:Напоминание о контрольном сроке завтра","END:VALARM","END:VEVENT");
  });
  lines.push("END:VCALENDAR");
  const calendar=lines.map(fold).join("\r\n")+"\r\n";
@@ -1094,7 +1095,7 @@ function exportWorkspaceCalendar(){
  anchor.href=url;anchor.download="userdie-kontrolnye-sroki.ics";anchor.hidden=true;
  document.body.appendChild(anchor);anchor.click();anchor.remove();
  window.setTimeout(()=>URL.revokeObjectURL(url),1000);
- showToast("Календарь выгружен: "+dated.length+" открытых задач с контрольными датами. Импортируйте файл в календарь команды; напоминания будут зависеть от настроек приложения-календаря.");
+ showToast("Календарь выгружен: "+dated.length+" открытых задач с корректными контрольными датами. В календаре предусмотрено напоминание за день до срока; уведомления зависят от настроек приложения.");
 }
 function renderWorkspaceCalendar(){
  const grid=document.getElementById("ux-calendar-grid"),monthLabel=document.getElementById("ux-calendar-month"),dayTasks=document.getElementById("ux-calendar-day-tasks");
